@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.github.musicsnsproject.repository.mybatis.mapper.MyUserMybatisMapper">
+    <resultMap id="MyUserVOMap" type="com.github.musicsnsproject.domain.user.MyUserVO">
+        <id property="userId" column="USER_ID"/>
+        <result property="nickname" column="NICKNAME"/>
+        <result property="email" column="EMAIL"/>
+    </resultMap>
+    <select id="findById" parameterType="long" resultMap="MyUserVOMap">
+        SELECT
+            USER_ID,
+            NICKNAME,
+            EMAIL
+        FROM
+            USERS
+        WHERE
+            USER_ID = #{userId}
+    </select>
+
+</mapper>
