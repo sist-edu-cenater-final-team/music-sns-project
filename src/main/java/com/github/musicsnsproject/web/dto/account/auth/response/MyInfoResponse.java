@@ -1,9 +1,9 @@
 package com.github.musicsnsproject.web.dto.account.auth.response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.github.accountmanagementproject.common.myenum.RolesEnum;
-import com.github.accountmanagementproject.common.myenum.UserStatus;
-import com.github.accountmanagementproject.web.dto.account.AccountParent;
+import com.github.musicsnsproject.common.myenum.RoleEnum;
+import com.github.musicsnsproject.common.myenum.UserStatus;
+import com.github.musicsnsproject.web.dto.account.AccountParent;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import lombok.Setter;
@@ -21,5 +21,5 @@ public class MyInfoResponse extends AccountParent {
     private UserStatus status;
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @Schema(description = "유저의 허용 권한")
-    private Set<RolesEnum> roles;
+    private Set<RoleEnum> roles;
 }

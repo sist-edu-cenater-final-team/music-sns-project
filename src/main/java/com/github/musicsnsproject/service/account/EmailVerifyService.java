@@ -1,8 +1,8 @@
 package com.github.musicsnsproject.service.account;
 
-import com.github.accountmanagementproject.common.exceptions.CustomServerException;
-import com.github.accountmanagementproject.repository.account.user.MyUserRepository;
-import com.github.accountmanagementproject.repository.redis.RedisRepository;
+import com.github.musicsnsproject.common.exceptions.CustomServerException;
+import com.github.musicsnsproject.repository.jpa.account.user.MyUserRepository;
+import com.github.musicsnsproject.repository.redis.RedisRepository;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;

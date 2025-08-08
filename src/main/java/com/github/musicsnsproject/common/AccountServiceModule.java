@@ -1,56 +1,60 @@
 package com.github.musicsnsproject.common;
 
-import com.github.accountmanagementproject.common.exceptions.CustomBadRequestException;
-import com.github.accountmanagementproject.common.exceptions.CustomNotFoundException;
-import com.github.accountmanagementproject.repository.account.users.MyUser;
-import com.github.accountmanagementproject.repository.account.users.MyUsersRepository;
-import com.github.accountmanagementproject.repository.account.users.roles.Role;
-import jakarta.persistence.EntityManager;
-import jakarta.servlet.http.HttpSession;
+import com.github.musicsnsproject.common.exceptions.CustomBadRequestException;
+import com.github.musicsnsproject.common.exceptions.CustomNotFoundException;
+import com.github.musicsnsproject.common.security.userdetails.CustomUserDetails;
+import com.github.musicsnsproject.repository.jpa.account.history.login.LoginHistory;
+import com.github.musicsnsproject.repository.jpa.account.history.login.LoginHistoryRepository;
+import com.github.musicsnsproject.repository.jpa.account.user.MyUser;
+import com.github.musicsnsproject.repository.jpa.account.user.MyUserRepository;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 @Component
 @RequiredArgsConstructor
 public class AccountServiceModule {
-    private final MyUsersRepository myUsersRepository;
-    private final EntityManager entityManager;
-    private final HttpSession httpSession;
+    private final MyUserRepository myUserRepository;
+    private final LoginHistoryRepository loginHistoryRepository;
+    private final ObjectFactory<HttpServletRequest> httpServletRequestFactory;
 
+//
+//    private static Role normalUserRole;
+//    private static Role adminUserRole;
+//
 
-    private static Role normalUserRole;
-    private static Role adminUserRole;
-
-//    @PostConstruct
-//    public void init(){
-//        normalUserRole = rolesJpa.findByName("ROLE_USER");
+    /// /    @PostConstruct
+    /// /    public void init(){
+    /// /        normalUserRole = rolesJpa.findByName("ROLE_USER");
+    /// /    }
+//
+//    public Role getNormalUserRole() {
+//        if (normalUserRole == null) {
+//            normalUserRole = new Role(2);
+//        }
+//        return normalUserRole;
 //    }
-
-    public Role getNormalUserRole() {
-        if (normalUserRole == null) {
-            normalUserRole = new Role(2);
-        }
-        return normalUserRole;
-    }
-
-    public Role getAdminUserRole() {
-        if (adminUserRole == null) {
-            adminUserRole = new Role(1);
-        }
-        return adminUserRole;
-    }
-
-
+//
+//    public Role getAdminUserRole() {
+//        if (adminUserRole == null) {
+//            adminUserRole = new Role(1);
+//        }
+//        return adminUserRole;
+//    }
+//
+//
     public MyUser findMyUserFetchJoin(String emailOrPhoneNumber) {
         if (emailOrPhoneNumber.matches("01\\d{9}")) {
-            return myUsersRepository.findByPhoneNumberJoin(emailOrPhoneNumber).orElseThrow(() ->
+            return myUserRepository.findByPhoneNumberJoin(emailOrPhoneNumber).orElseThrow(() ->
                     CustomNotFoundException.of()
                             .customMessage("가입되지 않은 핸드폰 번호")
                             .request(emailOrPhoneNumber)
                             .build());
         } else if (emailOrPhoneNumber.matches(".+@.+\\..+")) {
-            return myUsersRepository.findByEmailJoin(emailOrPhoneNumber).orElseThrow(() ->
+            return myUserRepository.findByEmailJoin(emailOrPhoneNumber).orElseThrow(() ->
                     CustomNotFoundException.of()
                             .customMessage("가입되지 않은 이메일")
                             .request(emailOrPhoneNumber)
@@ -60,25 +64,25 @@ public class AccountServiceModule {
                 .request(emailOrPhoneNumber)
                 .build();
     }
-
-    public MyUser findMyUser(String emailOrPhoneNumber) {
-        if (emailOrPhoneNumber.matches("01\\d{9}")) {
-            return myUsersRepository.findByPhoneNumber(emailOrPhoneNumber).orElseThrow(() ->
-                    CustomNotFoundException.of()
-                            .customMessage("가입되지 않은 핸드폰 번호")
-                            .request(emailOrPhoneNumber)
-                            .build());
-        } else if (emailOrPhoneNumber.matches(".+@.+\\..+")) {
-            return myUsersRepository.findByEmail(emailOrPhoneNumber).orElseThrow(() ->
-                    CustomNotFoundException.of()
-                            .customMessage("가입되지 않은 이메일")
-                            .request(emailOrPhoneNumber)
-                            .build());
-        } else throw CustomBadRequestException.of()
-                .customMessage("잘못 입력된 식별자")
-                .request(emailOrPhoneNumber)
-                .build();
-    }
+//
+//    public MyUser findMyUser(String emailOrPhoneNumber) {
+//        if (emailOrPhoneNumber.matches("01\\d{9}")) {
+//            return myUsersRepository.findByPhoneNumber(emailOrPhoneNumber).orElseThrow(() ->
+//                    CustomNotFoundException.of()
+//                            .customMessage("가입되지 않은 핸드폰 번호")
+//                            .request(emailOrPhoneNumber)
+//                            .build());
+//        } else if (emailOrPhoneNumber.matches(".+@.+\\..+")) {
+//            return myUsersRepository.findByEmail(emailOrPhoneNumber).orElseThrow(() ->
+//                    CustomNotFoundException.of()
+//                            .customMessage("가입되지 않은 이메일")
+//                            .request(emailOrPhoneNumber)
+//                            .build());
+//        } else throw CustomBadRequestException.of()
+//                .customMessage("잘못 입력된 식별자")
+//                .request(emailOrPhoneNumber)
+//                .build();
+//    }
 
 
     //회원가입시 사용되는 로직 모듈화
@@ -133,17 +137,21 @@ public class AccountServiceModule {
 //    }
 
 
-    @Transactional
-    public MyUser failureCounting(MyUser failUser) {
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void failureCounting(CustomUserDetails failUser) {
         failUser.loginValueSetting(true);
-        myUsersRepository.updateFailureCountByEmail(failUser);
-        return failUser;
+        myUserRepository.updateFailureCountByEmail(failUser);
     }
 
     @Transactional
-    public void loginSuccessEvent(MyUser sucUser) {
+    public void loginSuccessEvent(CustomUserDetails sucUser) {
+        String ip = httpServletRequestFactory.getObject().getRemoteAddr();
         sucUser.loginValueSetting(false);
-        myUsersRepository.updateFailureCountByEmail(sucUser);
+        myUserRepository.updateFailureCountByEmail(sucUser);
+        //로그인 성공시 로그인 히스토리 저장
+        MyUser entity = MyUser.onlyId(sucUser.getUserId());
+        LoginHistory loginHistory = LoginHistory.of(entity, ip);
+        loginHistoryRepository.save(loginHistory);
     }
 
 

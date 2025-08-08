@@ -1,6 +1,6 @@
 package com.github.musicsnsproject.web.dto.account.oauth.request;
 
-import com.github.accountmanagementproject.common.myenum.OAuthProvider;
+import com.github.musicsnsproject.common.myenum.OAuthProvider;
 import org.springframework.util.MultiValueMap;
 
 public interface OAuthLoginParams {

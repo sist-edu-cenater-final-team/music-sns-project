@@ -1,6 +1,6 @@
 package com.github.musicsnsproject.common.converter.custom;
 
-import com.github.accountmanagementproject.common.myenum.OAuthProvider;
+import com.github.musicsnsproject.common.myenum.OAuthProvider;
 import org.springframework.stereotype.Component;
 
 @Component

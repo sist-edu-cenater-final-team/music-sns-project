@@ -1,9 +1,9 @@
 package com.github.musicsnsproject.config.security;
 
-import com.github.accountmanagementproject.common.event.CustomAccessDeniedHandler;
-import com.github.accountmanagementproject.common.event.CustomAuthenticationEntryPoint;
-import com.github.accountmanagementproject.config.properties.server.ServerUrlProperties;
-import com.github.accountmanagementproject.web.filters.JwtFilter;
+import com.github.musicsnsproject.common.event.CustomAccessDeniedHandler;
+import com.github.musicsnsproject.common.event.CustomAuthenticationEntryPoint;
+import com.github.musicsnsproject.config.properties.server.ServerUrlProperties;
+import com.github.musicsnsproject.web.filters.JwtFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -55,7 +55,7 @@ public class SecurityConfig {
                         .requestMatchers("/","/index.html","/resources/**","/api/auth/*", "/api/email/*",
                                 "/error","/swagger-ui/**", "/v3/api-docs/**", "/amp-docs.html").permitAll()
                         .requestMatchers("/api/oauth/**").anonymous()
-                        .anyRequest().authenticated()
+                        .anyRequest().permitAll()
                 )
                 .addFilterBefore(new JwtFilter(jwtProvider), UsernamePasswordAuthenticationFilter.class)//인증이전 실행
                 .build();

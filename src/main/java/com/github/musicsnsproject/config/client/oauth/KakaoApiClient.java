@@ -1,8 +1,8 @@
 package com.github.musicsnsproject.config.client.oauth;
 
-import com.github.accountmanagementproject.common.myenum.OAuthProvider;
-import com.github.accountmanagementproject.config.client.oauth.dto.tokens.KakaoTokens;
-import com.github.accountmanagementproject.config.client.oauth.dto.userinfo.KakaoUserInfo;
+import com.github.musicsnsproject.common.myenum.OAuthProvider;
+import com.github.musicsnsproject.config.client.oauth.dto.tokens.KakaoTokens;
+import com.github.musicsnsproject.config.client.oauth.dto.userinfo.KakaoUserInfo;
 import lombok.AccessLevel;
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Value;

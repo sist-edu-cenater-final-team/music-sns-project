@@ -1,6 +1,6 @@
 package com.github.musicsnsproject.web.dto.account.oauth.request;
 
-import com.github.accountmanagementproject.common.myenum.OAuthProvider;
+import com.github.musicsnsproject.common.myenum.OAuthProvider;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.springframework.util.LinkedMultiValueMap;

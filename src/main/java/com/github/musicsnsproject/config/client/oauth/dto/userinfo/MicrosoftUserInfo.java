@@ -3,7 +3,7 @@ package com.github.musicsnsproject.config.client.oauth.dto.userinfo;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.github.accountmanagementproject.common.myenum.OAuthProvider;
+import com.github.musicsnsproject.common.myenum.OAuthProvider;
 import lombok.Getter;
 
 @Getter

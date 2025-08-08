@@ -1,7 +1,7 @@
 package com.github.musicsnsproject.web.advice;
 
-import com.github.accountmanagementproject.common.exceptions.*;
-import com.github.accountmanagementproject.web.dto.response.CustomErrorResponse;
+import com.github.musicsnsproject.common.exceptions.*;
+import com.github.musicsnsproject.web.dto.response.CustomErrorResponse;
 import io.swagger.v3.oas.annotations.Hidden;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;

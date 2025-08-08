@@ -1,7 +1,7 @@
 package com.github.musicsnsproject.service.account.oauth;
 
-import com.github.accountmanagementproject.common.myenum.OAuthProvider;
-import com.github.accountmanagementproject.config.properties.server.ServerUrlFields;
+import com.github.musicsnsproject.common.myenum.OAuthProvider;
+import com.github.musicsnsproject.config.properties.server.ServerUrlFields;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

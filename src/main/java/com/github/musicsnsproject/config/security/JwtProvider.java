@@ -1,8 +1,8 @@
 package com.github.musicsnsproject.config.security;
 
 
-import com.github.accountmanagementproject.repository.redis.RedisRepository;
-import com.github.accountmanagementproject.web.dto.account.auth.response.TokenDto;
+import com.github.musicsnsproject.repository.redis.RedisRepository;
+import com.github.musicsnsproject.web.dto.account.auth.response.TokenDto;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
@@ -44,12 +44,12 @@ public class JwtProvider {
 
 
     //이메일과 롤을 넣어 엑세스토큰 생성
-    public String createNewAccessToken(String email, String roles){
+    public String createNewAccessToken(String userId, String roles){
         Date now = new Date();
         return Jwts.builder()
                 .issuedAt(now)
                 .expiration(new Date(now.getTime()+ACCESS_TOKEN_EXPIRATION))
-                .subject(email)
+                .subject(userId)
                 .claim("roles", roles)
                 .signWith(key, Jwts.SIG.HS256)
                 .compact();
@@ -88,7 +88,8 @@ public class JwtProvider {
             Collection<? extends GrantedAuthority> roles = Arrays.stream(payload.get("roles").toString().split(","))
                 .map(role -> new SimpleGrantedAuthority(role))
                 .toList();
-            return new UsernamePasswordAuthenticationToken(payload.getSubject(), accessToken, roles);
+            long sub = Long.parseLong(payload.getSubject());
+            return new UsernamePasswordAuthenticationToken(sub, accessToken, roles);
     }
 
     @Transactional

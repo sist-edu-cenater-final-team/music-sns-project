@@ -3,8 +3,8 @@ package com.github.musicsnsproject.common.event;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import com.github.accountmanagementproject.web.dto.response.CustomErrorResponse;
-import com.github.accountmanagementproject.web.filters.JwtFilter;
+import com.github.musicsnsproject.web.dto.response.CustomErrorResponse;
+import com.github.musicsnsproject.web.filters.JwtFilter;
 import com.nimbusds.jose.util.StandardCharset;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;

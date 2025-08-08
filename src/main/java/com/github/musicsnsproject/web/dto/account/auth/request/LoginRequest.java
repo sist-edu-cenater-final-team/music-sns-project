@@ -17,10 +17,11 @@ public class LoginRequest {
     @Schema(description = "이메일 또는 전화번호", example = "admin@amp.com")
     private String emailOrPhoneNumber;
     @NotBlank(message = "비밀번호를 입력해주세요.")
-    @Pattern(regexp="^(?=.*[a-zA-Z])(?=.*\\d)(?=.*\\W).{8,20}$",
-            message = "비밀번호 오류")
+//    @Pattern(regexp="^(?=.*[a-zA-Z])(?=.*\\d)(?=.*\\W).{8,20}$",
+//            message = "비밀번호 오류")
     @Schema(description = "비밀번호", example = "12341234a!")
     private String password;
+    private String directory;
 
     public Authentication toAuthentication(){
         return new UsernamePasswordAuthenticationToken(emailOrPhoneNumber, password);

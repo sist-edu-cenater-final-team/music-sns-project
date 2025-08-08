@@ -2,8 +2,8 @@ package com.github.musicsnsproject.common.event;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import com.github.accountmanagementproject.common.myenum.RolesEnum;
-import com.github.accountmanagementproject.web.dto.response.CustomErrorResponse;
+import com.github.musicsnsproject.common.myenum.RoleEnum;
+import com.github.musicsnsproject.web.dto.response.CustomErrorResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.HttpStatus;
@@ -33,7 +33,7 @@ public class CustomAccessDeniedHandler implements AccessDeniedHandler {
                 .customMessage("접근 권한 없음")
                 .request(authorities.stream()
                         .map(authority->authority.getAuthority())
-                        .map(roles-> RolesEnum.valueOf(roles).getValue())
+                        .map(roles-> RoleEnum.valueOf(roles).getValue())
                         .collect(Collectors.joining(",")))
                 .build();
 

@@ -1,10 +1,10 @@
 package com.github.musicsnsproject.config.client.oauth;
 
-import com.github.accountmanagementproject.common.myenum.OAuthProvider;
-import com.github.accountmanagementproject.config.client.oauth.dto.tokens.OAuthTokens;
-import com.github.accountmanagementproject.config.client.oauth.dto.tokens.TwitterTokens;
-import com.github.accountmanagementproject.config.client.oauth.dto.userinfo.OAuthUserInfo;
-import com.github.accountmanagementproject.config.client.oauth.dto.userinfo.TwitterUserInfo;
+import com.github.musicsnsproject.common.myenum.OAuthProvider;
+import com.github.musicsnsproject.config.client.oauth.dto.tokens.OAuthTokens;
+import com.github.musicsnsproject.config.client.oauth.dto.tokens.TwitterTokens;
+import com.github.musicsnsproject.config.client.oauth.dto.userinfo.OAuthUserInfo;
+import com.github.musicsnsproject.config.client.oauth.dto.userinfo.TwitterUserInfo;
 import lombok.AccessLevel;
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Value;
@@ -51,7 +51,7 @@ public class TwitterApiClient extends OAuthApiClient{
     }
 
     @Override
-    protected Class<? extends OAuthTokens> getTokenClass() {
+    public Class<? extends OAuthTokens> getTokenClass() {
         return TwitterTokens.class;
     }
 

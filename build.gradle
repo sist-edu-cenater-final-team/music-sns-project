@@ -1,6 +1,7 @@
 plugins {
     id 'java'
     id 'war'
+    id 'eclipse'
     id 'org.springframework.boot' version '3.5.4'
     id 'io.spring.dependency-management' version '1.1.7'
 }
@@ -29,6 +30,12 @@ configurations {
 
 repositories {
     mavenCentral()
+}
+
+dependencyManagement {
+    imports {
+        mavenBom "com.azure.spring:spring-cloud-azure-dependencies:5.19.0"
+    }
 }
 
 dependencies {
@@ -88,6 +95,11 @@ dependencies {
 
     //devtools 빠른 핫스왑
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
+
+    //azure storage
+    implementation 'com.azure.spring:spring-cloud-azure-starter-storage-blob'
+    //html parser
+    implementation 'org.jsoup:jsoup:1.21.1'
 }
 
 tasks.named('test') {

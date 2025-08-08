@@ -25,10 +25,10 @@ spring:
       prefix: /WEB-INF/views/
       suffix: .jsp
   datasource:
-    username: ENC(tcBBQUen/1ieJjS6JkTdTPaT9kYXZRdG)
-    password: ENC(jAihDPJd0LgYVXrtuo/8sfEYm5v+g9Jd)
+    username: ENC(4sz2FTK2HFNofA68BoONy2cCuBOTlPdH)
+    password: ENC(KTcPu5Xk1/0b9KuxLcZh0g==)
     driver-class-name: oracle.jdbc.OracleDriver
-    url: ENC(VWzB536nHneKC1s+SswT2B8NOQOZchdpk0cW2uDd01hf9ex+U5Jy1mnTCVHmTOs76HYFn+cK5AM=)
+    url: ENC(GwaAj5RzenqeuRYVPYx/82FkjVpCs5a5DCqkxabK0E67eueuig+pJpfTEa3DWTAU)
   jpa:
     open-in-view: false
     show-sql: true
@@ -49,6 +49,20 @@ spring:
     multipart:
       max-file-size: 10MB #??? 1MB
       max-request-size: 20MB #??? 10MB
+  data:
+    redis:
+      host: ENC(0p2kKHWaQnA1J667rTSG9QX5weT1LIJ6)
+      port: 6379
+      timeout: 3000
+  #Azure Storage
+  cloud:
+    azure:
+      storage:
+        blob:
+          account-name: ENC(qSaMwi3ynCApmB2cF4je/04HXXEbkl0kpKBrtTlBKbY=)
+          endpoint: ENC(fiXr1qU7rFW2eFWyHgPWBkiZs+zDLYfeGz8uWcKvztvblArRXBzLpApVETK2F8d4dG0DAqwIXbsCnjfYmq1McQ==)
+          container-name: ENC(x8vr3ZBICXMa4VL5h2xuUhxQKrNfcNfTW+CX33iLvkymQ2hy+plEow==)
+          account-key: ENC(UVZI2NMSTWujhJJpsw4UC4TBv4t2Y7VU+Xo0a5yXIBCrOIoQsGETF5hyiDk98indKfwZc8EXY51x//1lGCVhGjEFIPRZC2KdarCx2bYb/JVmt36J9tjhaHU2Weoub3gury4bAuXQpkI=)
 
 
 mybatis:

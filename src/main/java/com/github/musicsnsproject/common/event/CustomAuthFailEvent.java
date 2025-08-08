@@ -1,6 +1,6 @@
 package com.github.musicsnsproject.common.event;
 
-import com.github.accountmanagementproject.common.exceptions.CustomBadCredentialsEventEx;
+import com.github.musicsnsproject.common.exceptions.CustomBadCredentialsEventEx;
 import lombok.Getter;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.security.core.Authentication;

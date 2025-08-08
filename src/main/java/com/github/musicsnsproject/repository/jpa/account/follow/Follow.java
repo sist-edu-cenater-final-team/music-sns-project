@@ -1,19 +1,28 @@
 package com.github.musicsnsproject.repository.jpa.account.follow;
 
 import com.github.musicsnsproject.repository.jpa.account.user.MyUser;
+import jakarta.persistence.Column;
 import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
+import lombok.Getter;
 
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "follows")
+@Getter
 public class Follow {
 
     @EmbeddedId
     private FollowPk followPk;
 
+    @Column(name = "favorite")
+    private boolean favorite;
+
+    private LocalDateTime favoriteAt;
+
+    @Column(nullable = false)
     private LocalDateTime createdAt;
 
     public static Follow onlyId(FollowPk followPk) {

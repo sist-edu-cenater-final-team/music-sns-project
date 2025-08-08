@@ -10,9 +10,9 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@EqualsAndHashCode(of = { "followee", "follower" })
 @Embeddable
 @Getter
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class FollowPk {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "followee_id")
@@ -20,5 +20,21 @@ public class FollowPk {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "follower_id")
     private MyUser follower;
+
+    @EqualsAndHashCode.Include
+    public Long getFolloweeId() {
+        return followee.getUserId();
+    }
+    @EqualsAndHashCode.Include
+    public Long getFollowerId() {
+        return follower.getUserId();
+    }
+
+    public static FollowPk onlyId(long followeeId, long followerId) {
+        FollowPk followPk = new FollowPk();
+        followPk.followee = MyUser.onlyId(followeeId);
+        followPk.follower = MyUser.onlyId(followerId);
+        return followPk;
+    }
 
 }

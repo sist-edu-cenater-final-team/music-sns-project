@@ -1,6 +1,6 @@
 package com.github.musicsnsproject.config.client.oauth.dto.userinfo;
 
-import com.github.accountmanagementproject.common.myenum.OAuthProvider;
+import com.github.musicsnsproject.common.myenum.OAuthProvider;
 import lombok.Getter;
 @Getter
 public class GoogleUserInfo implements OAuthUserInfo{

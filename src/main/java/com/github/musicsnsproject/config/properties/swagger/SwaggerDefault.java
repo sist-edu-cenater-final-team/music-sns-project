@@ -1,7 +1,7 @@
 package com.github.musicsnsproject.config.properties.swagger;
 
-import com.github.accountmanagementproject.config.properties.server.ServerUrlProperties;
-import com.github.accountmanagementproject.config.web.swagger.SwaggerConfig;
+import com.github.musicsnsproject.config.properties.server.ServerUrlProperties;
+import com.github.musicsnsproject.config.web.swagger.SwaggerConfig;
 import io.swagger.v3.oas.models.servers.Server;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;

@@ -1,10 +1,10 @@
 package com.github.musicsnsproject.config.client.oauth;
 
-import com.github.accountmanagementproject.common.myenum.OAuthProvider;
-import com.github.accountmanagementproject.config.client.oauth.dto.tokens.MicrosoftTokens;
-import com.github.accountmanagementproject.config.client.oauth.dto.tokens.OAuthTokens;
-import com.github.accountmanagementproject.config.client.oauth.dto.userinfo.MicrosoftUserInfo;
-import com.github.accountmanagementproject.config.client.oauth.dto.userinfo.OAuthUserInfo;
+import com.github.musicsnsproject.common.myenum.OAuthProvider;
+import com.github.musicsnsproject.config.client.oauth.dto.tokens.MicrosoftTokens;
+import com.github.musicsnsproject.config.client.oauth.dto.tokens.OAuthTokens;
+import com.github.musicsnsproject.config.client.oauth.dto.userinfo.MicrosoftUserInfo;
+import com.github.musicsnsproject.config.client.oauth.dto.userinfo.OAuthUserInfo;
 import lombok.AccessLevel;
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Value;

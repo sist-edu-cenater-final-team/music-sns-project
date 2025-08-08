@@ -1,9 +1,10 @@
 package com.github.musicsnsproject.common.converter.custom;
 
-import com.github.accountmanagementproject.common.myenum.RolesEnum;
 
-public class RoleConverter extends MyConverter<RolesEnum> {
+import com.github.musicsnsproject.common.myenum.RoleEnum;
+
+public class RoleConverter extends MyConverter<RoleEnum> {
     public RoleConverter() {
-        super(RolesEnum.class);
+        super(RoleEnum.class);
     }
 }

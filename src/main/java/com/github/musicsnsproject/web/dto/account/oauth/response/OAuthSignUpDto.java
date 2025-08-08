@@ -1,7 +1,7 @@
 package com.github.musicsnsproject.web.dto.account.oauth.response;
 
-import com.github.accountmanagementproject.common.myenum.OAuthProvider;
-import com.github.accountmanagementproject.web.dto.account.AccountParent;
+import com.github.musicsnsproject.common.myenum.OAuthProvider;
+import com.github.musicsnsproject.web.dto.account.AccountParent;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

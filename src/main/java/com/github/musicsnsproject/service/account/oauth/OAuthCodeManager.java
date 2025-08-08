@@ -1,7 +1,8 @@
 package com.github.musicsnsproject.service.account.oauth;
 
-import com.github.accountmanagementproject.common.myenum.OAuthProvider;
-import com.github.accountmanagementproject.config.client.oauth.code.OAuthCodeUrlGenerator;
+
+import com.github.musicsnsproject.common.myenum.OAuthProvider;
+import com.github.musicsnsproject.config.client.oauth.code.OAuthCodeUrlGenerator;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -14,7 +15,7 @@ public class OAuthCodeManager {
     private final Map<OAuthProvider, OAuthCodeUrlGenerator> codeUris;
 
     public OAuthCodeManager(List<OAuthCodeUrlGenerator> codeContexts) {
-        this. codeUris = codeContexts.stream().collect(
+        this.codeUris = codeContexts.stream().collect(
                 Collectors.toUnmodifiableMap(OAuthCodeUrlGenerator::oAuthProvider, Function.identity())
         );
     }

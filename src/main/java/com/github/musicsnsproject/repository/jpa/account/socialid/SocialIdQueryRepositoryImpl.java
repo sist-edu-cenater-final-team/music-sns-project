@@ -1,6 +1,6 @@
 package com.github.musicsnsproject.repository.jpa.account.socialid;
 
-import com.github.accountmanagementproject.repository.account.users.QMyUser;
+import com.github.musicsnsproject.repository.jpa.account.user.QMyUser;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 

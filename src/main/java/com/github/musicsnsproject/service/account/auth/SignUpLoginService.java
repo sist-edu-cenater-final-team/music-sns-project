@@ -1,21 +1,24 @@
 package com.github.musicsnsproject.service.account.auth;
 
-import com.github.accountmanagementproject.common.AccountServiceModule;
-import com.github.accountmanagementproject.common.converter.mapper.UserMapper;
-import com.github.accountmanagementproject.common.exceptions.CustomBadCredentialsException;
-import com.github.accountmanagementproject.common.exceptions.CustomBadRequestException;
-import com.github.accountmanagementproject.common.exceptions.CustomServerException;
-import com.github.accountmanagementproject.config.security.JwtProvider;
-import com.github.accountmanagementproject.repository.account.role.Role;
-import com.github.accountmanagementproject.repository.account.user.MyUser;
-import com.github.accountmanagementproject.repository.account.user.MyUserRepository;
-import com.github.accountmanagementproject.web.dto.account.auth.request.LoginRequest;
-import com.github.accountmanagementproject.web.dto.account.auth.request.SignUpRequest;
-import com.github.accountmanagementproject.web.dto.account.auth.response.TokenDto;
+import com.github.musicsnsproject.common.AccountServiceModule;
+import com.github.musicsnsproject.common.converter.mapper.UserMapper;
+import com.github.musicsnsproject.common.exceptions.CustomBadCredentialsException;
+import com.github.musicsnsproject.common.exceptions.CustomBadRequestException;
+import com.github.musicsnsproject.common.exceptions.CustomServerException;
+import com.github.musicsnsproject.common.myenum.RoleEnum;
+import com.github.musicsnsproject.common.security.userdetails.CustomUserDetails;
+import com.github.musicsnsproject.config.security.JwtProvider;
+import com.github.musicsnsproject.repository.jpa.account.role.Role;
+import com.github.musicsnsproject.repository.jpa.account.user.MyUser;
+import com.github.musicsnsproject.repository.jpa.account.user.MyUserRepository;
+import com.github.musicsnsproject.web.dto.account.auth.request.LoginRequest;
+import com.github.musicsnsproject.web.dto.account.auth.request.SignUpRequest;
+import com.github.musicsnsproject.web.dto.account.auth.response.TokenDto;
 import io.jsonwebtoken.ExpiredJwtException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.RedisConnectionFailureException;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -37,6 +40,7 @@ public class SignUpLoginService {
 
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
+    private final CustomUserDetailsService customUserDetailsService;
 
 
     @Transactional
@@ -45,7 +49,7 @@ public class SignUpLoginService {
         signUpRequest.passwordReplace(passwordEncoder.encode(signUpRequest.getPassword()));
 
         MyUser signUpMyUser = UserMapper.INSTANCE.accountDtoToMyUser(signUpRequest);
-        signUpMyUser.setRoles(Set.of(new Role(2)));
+        signUpMyUser.setBeginRole(RoleEnum.ROLE_USER);
         //세이브 실행하면서 중복값 발생시 발생되는 익셉션 예외처리
         try {
             myUsersRepository.save(signUpMyUser);
@@ -58,8 +62,13 @@ public class SignUpLoginService {
         }
     }
 
+    @Transactional(readOnly = true)
     public TokenDto loginResponseToken(LoginRequest loginRequest) {
-        Authentication authentication = authenticationManager.authenticate(loginRequest.toAuthentication());
+//        Authentication authentication = authenticationManager.authenticate(loginRequest.toAuthentication());
+        CustomUserDetails details = customUserDetailsService.loadUserByUsername(loginRequest.getEmailOrPhoneNumber());
+        Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(details, loginRequest.getPassword())
+        );
 
         String roles = authentication.getAuthorities().stream()
                 .map(authority -> authority.getAuthority())

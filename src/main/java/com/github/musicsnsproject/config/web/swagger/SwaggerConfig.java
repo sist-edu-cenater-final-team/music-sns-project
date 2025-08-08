@@ -36,9 +36,9 @@ public abstract class SwaggerConfig {
 
     private Info createInfo(String version) {
         return new Info()
-                .title("Account Management Project")
+                .title("Music SNS Project API")
                 .version(version)
-                .description("계정 관리 프로젝트");
+                .description("음악 SNS 프로젝트 API 문서입니다.");
     }
     protected abstract List<Server> createServers();
 

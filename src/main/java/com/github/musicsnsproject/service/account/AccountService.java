@@ -1,9 +1,9 @@
 package com.github.musicsnsproject.service.account;
 
-import com.github.accountmanagementproject.common.AccountServiceModule;
-import com.github.accountmanagementproject.common.converter.mapper.UserMapper;
-import com.github.accountmanagementproject.repository.account.user.MyUser;
-import com.github.accountmanagementproject.web.dto.account.auth.response.MyInfoResponse;
+import com.github.musicsnsproject.common.AccountServiceModule;
+import com.github.musicsnsproject.common.converter.mapper.UserMapper;
+import com.github.musicsnsproject.repository.jpa.account.user.MyUser;
+import com.github.musicsnsproject.web.dto.account.auth.response.MyInfoResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

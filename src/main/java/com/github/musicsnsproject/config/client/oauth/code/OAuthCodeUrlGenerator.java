@@ -1,6 +1,6 @@
 package com.github.musicsnsproject.config.client.oauth.code;
 
-import com.github.accountmanagementproject.common.myenum.OAuthProvider;
+import com.github.musicsnsproject.common.myenum.OAuthProvider;
 import org.springframework.web.util.UriComponents;
 
 public abstract class OAuthCodeUrlGenerator {
