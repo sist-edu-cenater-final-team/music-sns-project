@@ -21,7 +21,6 @@ public class LoginRequest {
 //            message = "비밀번호 오류")
     @Schema(description = "비밀번호", example = "12341234a!")
     private String password;
-    private String directory;
 
     public Authentication toAuthentication(){
         return new UsernamePasswordAuthenticationToken(emailOrPhoneNumber, password);
