@@ -24,6 +24,11 @@ public abstract class AccountParent {
     @Pattern(regexp = "^(?!01\\d{9}$).*$", message = "핸드폰 번호를 닉네임으로 사용할 수 없습니다.")
     @Schema(description = "닉네임", example = "이브라히모비치",  minLength = 2, maxLength = 8)
     private String nickname;
+    @NotBlank(message = "이름은 필수입니다.")
+    @Size(min = 2, max = 8, message = "이름은 2자 이상 8자 이하여야 합니다.")
+    @Pattern(regexp = "^(?!01\\d{9}$).*$", message = "핸드폰 번호를 이름으로 사용할 수 없습니다.")
+    @Schema(description = "이름", example = "이브라히모비치",  minLength = 2, maxLength = 8)
+    private String username;
 
     @Pattern(regexp = "01\\d{9}", message = "핸드폰 번호는 01로 시작하며 11자리 숫자여야 합니다.")
     @Schema(description = "핸드폰 번호", example = "01012345678", pattern = "01\\d{9}", minLength = 11, maxLength = 11)
