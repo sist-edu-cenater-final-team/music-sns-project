@@ -64,10 +64,9 @@ public class SignUpLoginService {
 
     @Transactional(readOnly = true)
     public TokenDto loginResponseToken(LoginRequest loginRequest) {
-//        Authentication authentication = authenticationManager.authenticate(loginRequest.toAuthentication());
         CustomUserDetails details = customUserDetailsService.loadUserByUsername(loginRequest.getEmailOrPhoneNumber());
         Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(details, loginRequest.getPassword())
+                new UsernamePasswordAuthenticationToken(details, loginRequest.getPassword(), details.getAuthorities())
         );
 
         String roles = authentication.getAuthorities().stream()
