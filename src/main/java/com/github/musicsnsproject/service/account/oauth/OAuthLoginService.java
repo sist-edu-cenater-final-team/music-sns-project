@@ -93,7 +93,7 @@
         private void securityOAuthSuccessVerify(MyUser myUser){
             LocalDateTime latestLoggedAt = loginHistoryRepository.findLatestLoggedAtByUserId(myUser.getUserId());
             CustomUserDetails userDetails = UserMapper.INSTANCE.myUserToCustomUserDetails(myUser, latestLoggedAt);
-            System.out.println("aa");
+
             customAuthenticationProvider.oauthAuthenticate(userDetails);
         }
 
