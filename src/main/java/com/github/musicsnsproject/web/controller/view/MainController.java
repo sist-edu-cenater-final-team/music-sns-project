@@ -1,4 +1,4 @@
-package com.github.musicsnsproject.web.controller.main;
+package com.github.musicsnsproject.web.controller.view;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
