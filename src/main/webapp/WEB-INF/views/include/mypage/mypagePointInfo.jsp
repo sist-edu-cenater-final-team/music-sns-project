@@ -11,11 +11,7 @@
         <p class="point-title">보유 음표</p>
         <p class="real-point">3,000 음표</p>
     </div>
-<<<<<<< HEAD
-    <a href="javascript:;" class="btn">상세보기</a>
-=======
     <div class="btn-form">
         <a href="javascript:;" class="btn">상세보기</a>
     </div>
->>>>>>> branch 'main' of https://github.com/sist-edu-cenater-final-team/music-sns-project.git
 </div>

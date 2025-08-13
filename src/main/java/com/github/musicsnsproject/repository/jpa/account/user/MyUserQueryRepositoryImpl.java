@@ -110,10 +110,6 @@ public class MyUserQueryRepositoryImpl implements MyUserQueryRepository {
     }
 
 
-<<<<<<< HEAD
-=======
-
->>>>>>> branch 'main' of https://github.com/sist-edu-cenater-final-team/music-sns-project.git
     /**
      * 만약 소셜아이디로 가입이 되어있지만 해당 계정의 소셜이메일로 다른계정이 가입되어있을경우
      * 여러 계정중 소셜아이디의 계정으로 로그인 시도. 또는 소셜아이디는 찾을 수 없지만 소셜이메일과 같은 계정이 존재할 경우엔
