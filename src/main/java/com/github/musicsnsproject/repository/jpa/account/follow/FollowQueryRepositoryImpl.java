@@ -19,7 +19,7 @@ public class FollowQueryRepositoryImpl implements FollowQueryRepository {
 	@Override
 	public List<FollowVO> findByFollowerAndUserInfo(String userId) {
 	    QFollow follow = QFollow.follow;
-	    QMyUser user = QMyUser.myUser;  
+	    QMyUser user = QMyUser.myUser;
 
 	    return queryFactory.select(Projections.constructor(FollowVO.class,
 	            follow.followPk.followee.userId,   // 친구 ID
@@ -39,10 +39,10 @@ public class FollowQueryRepositoryImpl implements FollowQueryRepository {
 
 	@Override
 	public List<FollowVO> findByFolloweeAndUserInfo(String userId) {
-		
+
 		QFollow follow = QFollow.follow;
 		QMyUser user = QMyUser.myUser;
-		
+
 	    return queryFactory.select(Projections.constructor(FollowVO.class,
 	            follow.followPk.followee.userId,   // 친구 ID
 	            follow.followPk.follower.userId,   // 내 ID
@@ -67,12 +67,12 @@ public class FollowQueryRepositoryImpl implements FollowQueryRepository {
 		QMyUser m  = QMyUser.myUser;    // 회원 엔티티
 
 		return queryFactory
-		    .select(Projections.constructor(FollowVO.class, 
+		    .select(Projections.constructor(FollowVO.class,
 		        m.userId,
 		        m.nickname,
 		        f1.followPk.follower.userId.countDistinct() // mutualCount
 		    ))
-		    .from(f1) 
+		    .from(f1)
 		    .join(f2).on(f1.followPk.follower.eq(f2.followPk.follower))
 		    .join(m).on(f2.followPk.followee.eq(m))
 		    .where(
