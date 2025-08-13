@@ -11,5 +11,7 @@
         <p class="point-title">보유 음표</p>
         <p class="real-point">3,000 음표</p>
     </div>
-    <a href="javascript:;" class="btn">상세보기</a>
+    <div class="btn-form">
+        <a href="javascript:;" class="btn">상세보기</a>
+    </div>
 </div>

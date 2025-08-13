@@ -1,5 +1,9 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <% String ctxPath= request.getContextPath(); %>
+
+
+<link rel="stylesheet" href="<%=ctxPath%>/css/music/search/search.css" />
+<script type="text/javascript" src="<%=ctxPath%>/js/music/search/search.js"></script>
 <!-- 왼쪽 네비게이션 사이드바 -->
 <div class="aside-navigation sidebar">
     <div class="inner">
@@ -12,7 +16,7 @@
                 <button type="button" class="btn search" data-target="searchLayer">검색</button>
             </li>
             <li>
-                <button type="button" class="btn chart">플리</button>
+                <button type="button" class="btn chart" onclick="location.href='<%=ctxPath%>/music/chart'">플리</button>
             </li>
             <li>
                 <button type="button" class="btn noti"  data-target="notiLayer">알림</button>
@@ -31,7 +35,20 @@
 <!-- 클릭했을 때 나오는 스으윽 팝업 -->
 <div id="searchLayer" class="aside-navigation-layer sidebar">
     <div class="inner">
-        검색 스으윽
+        <form id="searchForm" action="${pageContext.request.contextPath}/music/search" method="get" class="search-container">
+            <div class="search-top">
+                <label for="sideSearchCategory"></label>
+                <select name="searchType" id="sideSearchCategory" class="search-select">
+                    <option value="all">전체</option>
+                    <option value="track">제목</option>
+                    <option value="artist">아티스트</option>
+                    <option value="album">앨범</option>
+                </select>
+                <label for="sideSearchKeyword"></label>
+                <input type="text" name="keyword" id="sideSearchKeyword" class="search-input" placeholder="검색어를 입력하세요">
+            </div>
+            <button type="submit" class="search-btn">검색</button>
+        </form>
     </div>
 </div>
 <div id="notiLayer" class="aside-navigation-layer sidebar">
