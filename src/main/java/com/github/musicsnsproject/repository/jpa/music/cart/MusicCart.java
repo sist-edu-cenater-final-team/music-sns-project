@@ -2,10 +2,7 @@ package com.github.musicsnsproject.repository.jpa.music.cart;
 
 import com.github.musicsnsproject.repository.jpa.account.user.MyUser;
 import jakarta.persistence.*;
-import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
 
 import java.time.LocalDateTime;
 @Getter

@@ -21,14 +21,12 @@
     import com.github.musicsnsproject.web.dto.account.oauth.response.AuthResult;
     import com.github.musicsnsproject.web.dto.account.oauth.response.OAuthSignUpDto;
     import jakarta.servlet.http.HttpServletRequest;
-
+    import jakarta.transaction.Transactional;
     import lombok.RequiredArgsConstructor;
     import org.springframework.beans.factory.ObjectFactory;
     import org.springframework.data.redis.RedisConnectionFailureException;
     import org.springframework.http.HttpStatus;
     import org.springframework.stereotype.Service;
-    import org.springframework.transaction.annotation.Transactional;
-
     import java.time.DateTimeException;
     import java.time.Duration;
     import java.time.LocalDateTime;

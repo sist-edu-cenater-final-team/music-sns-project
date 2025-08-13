@@ -8,8 +8,10 @@ import java.util.List;
 @Builder
 public record TrackResponse(String trackId, String trackName, String duration, String trackSpotifyUrl, int trackPopularity,
                             int trackNumber, List<TrackArtist> artist, TrackAlbum album) {
-    @Builder
+
         public record TrackAlbum(String albumId, String albumName, String albumSpotifyUrl, String albumImageUrl,
                                  LocalDate releaseDate, String albumType) {
+        @Builder
+        public TrackAlbum {} // 명시적 compact constructor
     }
 }
