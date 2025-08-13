@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 public class ChartViewController {
     @GetMapping
     public String chart(Model model) {
-        model.addAttribute("boot", "즈을");
+        model.addAttribute("boot", "5.3.2");
         return "music/chart";
     }
 }

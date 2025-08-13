@@ -22,8 +22,10 @@ public class SpotifyMusicViewController {
             @RequestParam String keyword,
             @RequestParam MusicSearchType searchType,
             @RequestParam(defaultValue = "1") int page,
-            @RequestParam(defaultValue = "20") int size
+            @RequestParam(defaultValue = "20") int size,
+            Model model
     ){
+        model.addAttribute("boot", "5.3.2");
         return "music/search";
     }
 }
