@@ -145,14 +145,14 @@ $(function(){
 	  $('span#followers').on('click',function(){
 		  $('span#followers').css('color', 'black');
 		  $('span#following').css('color', '#e0e0e0');
-		  getfollowing(userId);
+		  getfollower(userId);
 	  });
 	  
 	  // 팔로워 클릭시
 	  $('span#following').on('click',function(){
 		  $('span#following').css('color', 'black');
-		  $('span#followers').css('color', '#e0e0e0');
-		  getfollower(userId);
+		  $('span#followers').css('color', '#e0e0e0');	  
+		  getfollowing(userId);
 	  })
 	  
 	  
