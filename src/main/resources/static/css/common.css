@@ -3,7 +3,9 @@
 #wrap {
     min-width: 1024px;
 }
-
+.point {
+    color: #6633FF !important;
+}
 .blind {
     position: absolute;
     width: 1px;
@@ -136,9 +138,10 @@
 
 /* 메인 컨텐츠 */
 .main-contents {
-    width: calc(100% - 140px);
+    width: calc(100% - 500px);
     min-height: 100vh;
-    margin-left: auto;
+    margin-left: 100px;
+    margin-right: auto;
 }
 .main-contents .inner {
     padding: 80px 30px;
@@ -317,4 +320,19 @@
     color: #333;
     font-weight: bold;
     padding: 8px 0;
+}
+
+
+.btn-form .btn {
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 20px;
+    border-radius: 5px;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: normal;
+    border: none;
+    outline: none;
+    text-align: center;
+    cursor: pointer;
 }
