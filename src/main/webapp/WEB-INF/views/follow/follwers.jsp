@@ -141,25 +141,25 @@ $(function(){
 	  });
 	  
 	  
-	  // 팔로워 클릭시
+	  // 팔로우 클릭시
 	  $('span#followers').on('click',function(){
 		  $('span#followers').css('color', 'black');
 		  $('span#following').css('color', '#e0e0e0');
 		  getfollowing(userId);
 	  });
 	  
-	  
+	  // 팔로워 클릭시
 	  $('span#following').on('click',function(){
 		  $('span#following').css('color', 'black');
 		  $('span#followers').css('color', '#e0e0e0');
-		  getfollowing(userId);
+		  getfollower(userId);
 	  })
 	  
 	  
 	  
 	}); // end of function(){}
 
-	function getfollowing(userId) {
+	function getfollowing(userId) { // 내가 팔로워
 		
 		$.ajax({
 			url:'<%= ctxPath%>/api/follow/follower/' + userId,
@@ -178,6 +178,26 @@ $(function(){
 		});
 		
 	};
+	
+	function getfollower(userId) { // 나를 팔로잉
+		
+		$.ajax({
+			url:'<%= ctxPath%>/api/follow/followee/' + userId,
+			type:'get',
+			dataType:'json',
+			success:function(json) {
+				console.log(JSON.stringify(json));
+				
+				
+			},
+			error: function(request, status, error){
+				   alert("code: "+request.status+"\n"+"message: "+request.responseText+"\n"+"error: "+error);
+			} 
+			
+			
+		});
+		
+	}; // end of getfollower
 	
 	
 </script>

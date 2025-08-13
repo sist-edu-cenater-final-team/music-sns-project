@@ -18,24 +18,23 @@ public class FollowQueryRepositoryImpl implements FollowQueryRepository {
 
 	@Override
 	public List<FollowVO> findByFollowerAndUserInfo(String userId) {
-		
-		QFollow follow = QFollow.follow;
-		QMyUser user= QMyUser.myUser;  
-		
-		return queryFactory.select(Projections.constructor(FollowVO.class,
-				follow.followPk.followee.userId,
-				follow.followPk.follower.userId,
-				Projections.constructor(MyUserVO.class,
-						user.userId,
-						user.nickname,
-						user.profileImage,
-						user.email
-						)
-				))
-				.from(follow).join(user)
-				.on(follow.followPk.followee.userId.eq(user.userId))
-				.where(follow.followPk.followee.userId.eq(Long.parseLong(userId)))
-				.fetch();
+	    QFollow follow = QFollow.follow;
+	    QMyUser user = QMyUser.myUser;  
+
+	    return queryFactory.select(Projections.constructor(FollowVO.class,
+	            follow.followPk.followee.userId,   // 친구 ID
+	            follow.followPk.follower.userId,   // 내 ID
+	            Projections.constructor(MyUserVO.class,
+	                    user.userId,
+	                    user.nickname,
+	                    user.profileImage,
+	                    user.email
+	            )
+	        ))
+	        .from(follow)
+	        .join(user).on(follow.followPk.followee.userId.eq(user.userId))
+	        .where(follow.followPk.follower.userId.eq(Long.parseLong(userId)))
+	        .fetch();
 	}
 
 	@Override
@@ -44,18 +43,20 @@ public class FollowQueryRepositoryImpl implements FollowQueryRepository {
 		QFollow follow = QFollow.follow;
 		QMyUser user = QMyUser.myUser;
 		
-		return queryFactory.select(Projections.constructor(FollowVO.class,
-				follow.followPk.followee,
-				follow.followPk.follower,
-				Projections.constructor(MyUser.class, 
-						user.nickname,
-						user.profileImage
-						)
-				))
-				.from(follow).join(user)
-				.on(follow.followPk.follower.userId.eq(user.userId))
-				.where(follow.followPk.follower.userId.eq(Long.parseLong(userId)))
-				.fetch();
+	    return queryFactory.select(Projections.constructor(FollowVO.class,
+	            follow.followPk.followee.userId,   // 친구 ID
+	            follow.followPk.follower.userId,   // 내 ID
+	            Projections.constructor(MyUserVO.class,
+	                    user.userId,
+	                    user.nickname,
+	                    user.profileImage,
+	                    user.email
+	            )
+	        ))
+	        .from(follow)
+	        .join(user).on(follow.followPk.follower.userId.eq(user.userId))
+	        .where(follow.followPk.followee.userId.eq(Long.parseLong(userId)))
+	        .fetch();
 	}
 
 	@Override
