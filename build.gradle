@@ -1,0 +1,132 @@
+plugins {
+    id 'java'
+    id 'war'
+    id 'eclipse'
+    id 'org.springframework.boot' version '3.5.4'
+    id 'io.spring.dependency-management' version '1.1.7'
+}
+
+group = 'com.github'
+version = '0.0.1-SNAPSHOT'
+def mapStructVersion = "1.6.3"
+def querydslVersion = "7.0"
+def jjwtVersion = "0.12.6"
+def generatedDir = "src/main/generated"
+def buildDir = "building" //여기는 내가 그냥 jar파일 생성되는 폴더로 사용할생각이다.
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+}
+configurations {
+//    compileOnly {
+//        extendsFrom annotationProcessor
+//    }
+// QueryDSL과 관련된 라이브러리들이 컴파일 시점에만 필요하도록 설정합니다. 또한, QueryDSL 설정을 컴파일 클래스패스에 추가합니다.
+    querydsl.extendsFrom compileClasspath
+}
+
+
+repositories {
+    mavenCentral()
+}
+
+dependencyManagement {
+    imports {
+        mavenBom "com.azure.spring:spring-cloud-azure-dependencies:5.19.0"
+    }
+}
+
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    //security
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+    // validation
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+    //lombok
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+    //Mapstruct
+    implementation "org.mapstruct:mapstruct:${mapStructVersion}"
+    annotationProcessor "org.mapstruct:mapstruct-processor:${mapStructVersion}"
+
+    //WebClient
+    implementation 'org.springframework.boot:spring-boot-starter-webflux'
+    //spotify
+    implementation 'se.michaelthelin.spotify:spotify-web-api-java:9.3.0'
+
+
+    //env-hide 야믈에 쓴 비번 가져올수있음
+    annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
+    //oracle
+    implementation 'com.oracle.database.jdbc:ojdbc11:23.8.0.25.04'
+    //jwt
+    implementation "io.jsonwebtoken:jjwt-api:${jjwtVersion}"
+    runtimeOnly "io.jsonwebtoken:jjwt-impl:${jjwtVersion}"
+    runtimeOnly "io.jsonwebtoken:jjwt-jackson:${jjwtVersion}"
+    //jasypt
+    implementation 'com.github.ulisesbocchio:jasypt-spring-boot-starter:3.0.5'
+    //redis
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+    //email_verification
+    implementation 'org.springframework.boot:spring-boot-starter-mail'
+
+    //Querydsl
+    implementation "io.github.openfeign.querydsl:querydsl-jpa:${querydslVersion}"
+    annotationProcessor "io.github.openfeign.querydsl:querydsl-apt:${querydslVersion}:jpa"
+    //mybatis
+    // https://mvnrepository.com/artifact/org.mybatis.spring.boot/mybatis-spring-boot-starter
+    implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:3.0.5'
+
+
+    //swagger
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.9'
+
+    //내장톰캣 활용
+    implementation 'org.apache.tomcat.embed:tomcat-embed-jasper:11.0.7'
+    // JSTL (JSP 태그 라이브러리) 지원
+    implementation 'jakarta.servlet.jsp.jstl:jakarta.servlet.jsp.jstl-api:3.0.2'
+    implementation 'org.glassfish.web:jakarta.servlet.jsp.jstl:3.0.1'
+    //el 지원 라이브러리
+    implementation 'jakarta.el:jakarta.el-api:6.0.1'
+
+    //devtools 빠른 핫스왑
+    developmentOnly 'org.springframework.boot:spring-boot-devtools'
+
+    //azure storage
+    implementation 'com.azure.spring:spring-cloud-azure-starter-storage-blob'
+    //html parser
+    implementation 'org.jsoup:jsoup:1.21.1'
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+}
+tasks.withType(JavaCompile).configureEach {
+    options.getGeneratedSourceOutputDirectory().set(file(generatedDir))
+}
+sourceSets {
+    main.java.srcDirs += [generatedDir]
+}
+tasks.named('bootJar'){
+    mainClass = 'com.github.musicsnsproject.MusicSnsProjectApplication'
+    destinationDirectory = file(buildDir)
+    archivesBaseName = '프로젝트이름'
+    archiveFileName = 'MusicSnsProject.jar'
+    archiveVersion = "3.9.3"
+}
+tasks.named('bootWar') {
+    mainClass = 'com.github.musicsnsproject.MusicSnsProjectApplication'
+    destinationDirectory = file(buildDir)
+    archivesBaseName = '프로젝트이름'
+    archiveFileName = 'MusicSnsProject.war'
+    archiveVersion = "3.9.3"
+}
+
+clean {
+    delete file(buildDir), file(generatedDir)
+}
+

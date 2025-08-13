@@ -1,0 +1,27 @@
+@charset "UTF-8";
+
+/* 마이페이지 상단 보유 음표 */
+.mypage-point {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 30px;
+    background: #F3F2F8;
+}
+.mypage-point .point-info {
+    display: flex;
+    align-items: center;
+    gap: 0 20px;
+}
+
+.mypage-point .point-info .point-title {
+    font-size: 20px;
+    color:#5a5a5a;
+    font-weight: 600;
+}
+.mypage-point .point-info .real-point {
+    font-size: 24px;
+    color:#6633FF;
+    font-weight: 600;
+    margin-left: 10px;
+}

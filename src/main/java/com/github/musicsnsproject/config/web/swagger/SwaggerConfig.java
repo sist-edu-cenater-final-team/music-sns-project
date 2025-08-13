@@ -1,0 +1,46 @@
+package com.github.musicsnsproject.config.web.swagger;
+
+
+import io.swagger.v3.oas.models.Components;
+import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.info.Info;
+import io.swagger.v3.oas.models.security.SecurityRequirement;
+import io.swagger.v3.oas.models.security.SecurityScheme;
+import io.swagger.v3.oas.models.servers.Server;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
+
+import java.util.List;
+
+public abstract class SwaggerConfig {
+    @Value("${springdoc.version}")
+    private String openApiVersion;
+
+    @Bean
+    public OpenAPI openAPI() {
+        return new OpenAPI()
+                .components(new Components()
+                        .addSecuritySchemes("access",
+                                new SecurityScheme().type(SecurityScheme.Type.APIKEY).in(SecurityScheme.In.HEADER).name("Authorization"))
+                        .addSecuritySchemes("refresh",
+                                new SecurityScheme().type(SecurityScheme.Type.APIKEY).in(SecurityScheme.In.HEADER).name("RefreshToken"))
+                        .addSecuritySchemes("cookie",
+                                new SecurityScheme().type(SecurityScheme.Type.APIKEY).in(SecurityScheme.In.COOKIE).name("RefreshToken"))
+                )
+                .info( createInfo(openApiVersion) )
+                .servers( createServers() )
+                .addSecurityItem(new SecurityRequirement().addList("access"))
+                .addSecurityItem(new SecurityRequirement().addList("refresh"))
+                .addSecurityItem(new SecurityRequirement().addList("cookie"));
+    }
+
+    private Info createInfo(String version) {
+        return new Info()
+                .title("Music SNS Project API")
+                .version(version)
+                .description("음악 SNS 프로젝트 API 문서입니다.");
+    }
+    protected abstract List<Server> createServers();
+
+
+}
