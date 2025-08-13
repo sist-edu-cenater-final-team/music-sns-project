@@ -1,4 +1,4 @@
-<<<<<<< HEAD
+
 package com.github.musicsnsproject.web.controller.rest.music.external;
 
 import com.github.musicsnsproject.service.music.external.BugsChartService;
