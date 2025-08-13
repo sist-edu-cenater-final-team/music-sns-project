@@ -63,7 +63,7 @@
 /* 모바일 */
 @media (max-width: 991.98px){
   .tabs.eumpyoChargeTab{ padding:0 20px; }
-  .tabs.tabs-3 .tab{ padding:14px 0; font-size:14px; }
+  .tabs.eumpyoChargeTab .tab{ padding:14px 0; font-size:14px; }
 }
 </style>
 
