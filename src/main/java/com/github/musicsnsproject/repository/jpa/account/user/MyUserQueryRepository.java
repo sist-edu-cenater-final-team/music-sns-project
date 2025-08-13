@@ -14,6 +14,9 @@ public interface MyUserQueryRepository {
 
     void updateFailureCountByEmail(CustomUserDetails failUser);
 
+<<<<<<< HEAD
+=======
 
+>>>>>>> branch 'main' of https://github.com/sist-edu-cenater-final-team/music-sns-project.git
 //    Optional<CustomUserDetails> findBySocialIdPkOrUserEmailForAuth(SocialIdPk socialIdPk, String email);
 }

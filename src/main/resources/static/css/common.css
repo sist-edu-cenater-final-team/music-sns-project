@@ -3,6 +3,322 @@
 #wrap {
     min-width: 1024px;
 }
+<<<<<<< HEAD
+
+.blind {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+}
+
+.sidebar {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+}
+
+/* 왼쪽 네비게이션 */
+.aside-navigation {
+    width: 62px;
+    left: 0;
+    background-color: #6633FF;
+    z-index: 10;
+    border-right: 1px solid #dbdbdb;
+}
+
+.aside-navigation .inner {
+    padding: 20px 0;
+}
+
+.aside-navigation .btn {
+    display: block;
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 24px;
+    text-indent: -999999px;
+}
+.aside-navigation .btn:not(.btn-home):hover,
+.aside-navigation .btn:not(.btn-home).active{
+    background-color: #531fea;
+}
+
+.aside-navigation .btn-logo {
+    display: block;
+    width: 40px;
+    height: 40px;
+    background: url("../images/common/icon/logo.png") no-repeat center;
+    background-size: 100% 100%;
+    margin: 0 auto 150px;
+}
+.aside-navigation .navigation-list li {
+    display: flex;
+    justify-content: center;
+}
+.aside-navigation .navigation-list li:not(:last-child){
+    margin-bottom: 14px;
+}
+.aside-navigation .home {
+    background-image: url("../images/common/icon/home.png");
+}
+.aside-navigation .search {
+    background-image: url("../images/common/icon/search.png");
+}
+.aside-navigation .chart {
+    background-image: url("../images/common/icon/music_chart.png");
+}
+.aside-navigation .talk {
+    background-image: url("../images/common/icon/talk.png");
+}
+.aside-navigation .noti {
+    background-image: url("../images/common/icon/notification.png");
+}
+.aside-navigation .profile {
+    background-image: url("../images/common/icon/profile.png");
+}
+
+.aside-navigation .setting {
+    background-image: url("../images/common/icon/settings.png");
+}
+
+/* 왼쪽 사이드바 메뉴 팝업 */
+.aside-navigation-layer {
+    left: 62px;
+    background: #fff;
+    width: 360px;
+    border-radius: 0 24px 24px 0;
+    box-shadow: 4px 0 24px rgba(0,0,0,0.15);
+    transform: translateX(-100%);
+    transition: transform 0.35s ease-in;
+    z-index: 8;
+}
+.aside-navigation-layer.on {
+    transform: translateX(0%);
+}
+.aside-navigation-layer .inner {
+    padding: 30px;
+}
+
+/* 우측 하단 메시지 버튼 */
+.fixed-talk {
+    position: fixed;
+    right: 30px;
+    bottom: 30px;
+    z-index: 10;
+}
+
+.fixed-talk .btn-talk {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0 10px;
+    position: relative;
+    width: 140px;
+    height: 50px;
+    background: #6633FF;
+    font-size: 16px;
+    color: #fff;
+    font-weight: 500;
+    box-shadow: 4px 0 24px rgba(0,0,0,0.15);
+    border-radius: 30px;
+}
+.fixed-talk .btn-talk:hover {
+    background-color: #531fea;
+}
+.fixed-talk .btn-talk:before {
+    content: url("../images/common/icon/talk.png");
+    zoom: 0.06;
+}
+
+/* 메인 컨텐츠 */
+.main-contents {
+    width: calc(100% - 140px);
+    min-height: 100vh;
+    margin-left: auto;
+}
+.main-contents .inner {
+    padding: 80px 30px;
+}
+
+/* 오른쪽 뮤직리스트 */
+.aside-playlist {
+    right: 0;
+    background-color: #fff;
+    border-left: 1px solid #dbdbdb;
+}
+.aside-playlist .inner {
+    padding: 34px 30px;
+}
+.aside-playlist h2 {
+    font-size: 20px;
+    color: #666;
+    text-align: center;
+    font-weight: bold;
+}
+.aside-playlist h3 {
+    font-size: 18px;
+    color: #999;
+    font-weight: 500;
+    margin-bottom: 18px;
+}
+.aside-playlist .emotions {
+    margin: 30px 0;
+    display: flex;
+    justify-content: center;
+    gap: 0 10px;
+}
+
+.aside-playlist .emotions .btn {
+    width: 44px;
+    height: 44px;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 100% auto;
+    outline: none;
+    border-radius: 50%;
+}
+.aside-playlist .emotions .btn.natural {
+    background-image: url("../images/emotion/natural.png");
+}
+.aside-playlist .emotions .btn.natural.active {
+    background-image: url("../images/emotion/natural_active.png");
+}
+
+.aside-playlist .emotions .btn.happy {
+    background-image: url("../images/emotion/happy.png");
+}
+.aside-playlist .emotions .btn.happy.active {
+    background-image: url("../images/emotion/happy_active.png");
+}
+
+.aside-playlist .emotions .btn.love {
+    background-image: url("../images/emotion/love.png");
+}
+.aside-playlist .emotions .btn.love.active {
+    background-image: url("../images/emotion/love_active.png");
+}
+
+.aside-playlist .emotions .btn.sad {
+    background-image: url("../images/emotion/sad.png");
+}
+.aside-playlist .emotions .btn.sad.active {
+    background-image: url("../images/emotion/sad_active.png");
+}
+
+.aside-playlist .emotions .btn.angry {
+    background-image: url("../images/emotion/angry.png");
+}
+.aside-playlist .emotions .btn.angry.active {
+    background-image: url("../images/emotion/angry_active.png");
+}
+
+.aside-playlist .emotions .btn.tire {
+    background-image: url("../images/emotion/tire.png");
+}
+.aside-playlist .emotions .btn.tire.active {
+    background-image: url("../images/emotion/tire_active.png");
+}
+
+.aside-playlist li {
+    display: flex;
+    justify-content: space-between;
+}
+.aside-playlist li:not(:last-child){
+    margin-bottom: 14px;
+}
+
+.aside-playlist .music-title {
+    font-weight: bold;
+}
+.aside-playlist .music-artist {
+    color: #999;
+}
+
+
+/* 메시지 보내기 팝업 */
+#talkLayer {
+    display: none;
+    position: fixed;
+    right: 20px;
+    bottom: 20px;
+    background: #fff;
+    z-index: 11;
+    width: 340px;
+    box-shadow: 4px 0 24px rgba(0,0,0,0.15);
+    border-radius: 10px;
+}
+#talkLayer .layer-body {
+    position: relative;
+    max-height: 440px;
+    overflow: hidden;
+    overflow-y: auto;
+}
+#talkLayer .talk-list {
+    
+}
+#talkLayer .talk-list li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 16px;
+    cursor: pointer;
+}
+#talkLayer .talk-list li:hover {
+    background: #f6f6f6;
+}
+
+#talkLayer .talk-list .talk-img {
+    width: 60px;
+}
+#talkLayer .talk-list .talk-info {
+    width: calc(100% - 70px);
+    line-height: 1.5;
+}
+#talkLayer .talk-list .talk-info .talk-title {
+    font-size: 14px;
+    color:#333;
+    font-weight: 500;
+}
+#talkLayer .talk-list .talk-info .talk-text {
+    font-size: 13px;
+    color: #666;
+}
+#talkLayer .talk-list .talk-img img {
+    width: 100%;
+    background: #fff;
+    border-radius: 50%;
+}
+#talkLayer .btn-talk-write {
+    position: absolute;
+    right: 20px;
+    bottom: 20px;
+    width: 50px;
+    height: 50px;
+    background: url("../images/common/icon/newTalk.png") no-repeat center;
+    background-size: 100% auto;
+    border-radius: 50%;
+    box-shadow: 4px 0 24px rgba(0,0,0,0.15);
+    text-indent: -99999px;
+}
+
+.layer-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 16px;
+    border-bottom: 1px solid #ddd;
+}
+.layer-header .layer-title {
+    font-size: 16px;
+    color: #333;
+    font-weight: bold;
+    padding: 8px 0;
+=======
 .point {
     color: #6633FF !important;
 }
@@ -335,4 +651,5 @@
     outline: none;
     text-align: center;
     cursor: pointer;
+>>>>>>> branch 'main' of https://github.com/sist-edu-cenater-final-team/music-sns-project.git
 }

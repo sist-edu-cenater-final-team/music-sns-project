@@ -8,6 +8,8 @@ import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+<<<<<<< HEAD
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.json.BasicJsonParser;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -91,6 +93,92 @@ public class JwtProvider {
             return new UsernamePasswordAuthenticationToken(sub, accessToken, roles);
     }
 
+    @Transactional
+=======
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.json.BasicJsonParser;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.stereotype.Component;
+
+import javax.crypto.SecretKey;
+import java.time.Duration;
+import java.time.Instant;
+import java.util.*;
+
+
+@Component
+public class JwtProvider {
+    private final RedisRepository redisRepository;
+
+    private final SecretKey key;//= Jwts.SIG.HS256.key().build();  이건 랜덤키 자동생성
+
+
+    private static final long REFRESH_TOKEN_EXPIRATION = 1000*60*10;//테스트를 위해 10분
+    private static final long ACCESS_TOKEN_EXPIRATION = 1000*60*60;//60분
+    public static String getTokenType(){
+        return "Bearer";
+    }
+
+
+    public JwtProvider(@Value("${jwtpassword.source}")String keySource, RedisRepository redisRepository) {
+        this.key = Keys.hmacShaKeyFor(Decoders.BASE64.decode(keySource));
+        this.redisRepository = redisRepository;
+    }
+
+
+    //이메일과 롤을 넣어 엑세스토큰 생성
+    public String createNewAccessToken(String userId, String roles){
+        Date now = new Date();
+        return Jwts.builder()
+                .issuedAt(now)
+                .expiration(new Date(now.getTime()+ACCESS_TOKEN_EXPIRATION))
+                .subject(userId)
+                .claim("roles", roles)
+                .signWith(key, Jwts.SIG.HS256)
+                .compact();
+    }
+    //새로운 리프레시 토큰 생성
+    public String createNewRefreshToken() {
+        return createRefreshToken(new Date(new Date().getTime()+REFRESH_TOKEN_EXPIRATION));
+    }
+
+    //만료시간 지정 리프레시 토큰 생성
+    public String createRefreshToken(Date exp){
+        return Jwts.builder()
+                .issuedAt(new Date())
+                .expiration(exp)
+                .signWith(key, Jwts.SIG.HS256)
+                .compact();
+    }
+
+    //리프레시 토큰의 유효시간만큼 저장기간을 설정하고 레디스에 저장 이후 Dto 생성
+    public TokenDto saveRefreshTokenAndCreateTokenDto(String accessToken, String refreshToken, Duration exp){
+
+        redisRepository.save(accessToken, refreshToken, exp);
+
+        return TokenDto.builder()
+                .tokenType(getTokenType())
+                .accessToken(accessToken)
+                .refreshToken(refreshToken)
+                .build();
+    }
+
+    public Authentication getAuthentication(String accessToken) {
+            Jws<Claims> claimsJws = tokenParsing(accessToken);//검증은 여기서 내부적으로 진행됨
+
+            Claims payload = claimsJws.getPayload();
+            if(payload.getSubject()==null) throw new NullPointerException("payload의 subject값이 null 입니다.");
+            Collection<? extends GrantedAuthority> roles = Arrays.stream(payload.get("roles").toString().split(","))
+                .map(role -> new SimpleGrantedAuthority(role))
+                .toList();
+            long sub = Long.parseLong(payload.getSubject());
+            return new UsernamePasswordAuthenticationToken(sub, accessToken, roles);
+    }
+
+>>>>>>> branch 'main' of https://github.com/sist-edu-cenater-final-team/music-sns-project.git
     public TokenDto tokenRefresh(String accessToken, String clientRefreshToken){
         //리프레시 토큰 유효성 검사와 파싱
         Jws<Claims> refreshTokenClaims = tokenParsing(clientRefreshToken);

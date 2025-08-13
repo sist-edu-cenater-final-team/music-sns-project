@@ -3,6 +3,15 @@
 <% String ctxPath = request.getContextPath(); %>
 <head>
     <title>무드으을</title>
+<<<<<<< HEAD
+    <link rel="stylesheet" href="<%=ctxPath%>/css/reset.css" />
+    <link rel="stylesheet" href="<%=ctxPath%>/css/common.css" />
+    <link rel="stylesheet" href="<%=ctxPath%>/lib/bootstrap-4.6.2-dist/css/bootstrap.min.css" />
+    <script src="<%=ctxPath%>/lib/jquery-3.7.1.min.js"></script>
+    <script src="<%=ctxPath%>/lib/bootstrap-4.6.2-dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="<%=ctxPath%>/js/common.js" defer></script>
+=======
 
     <script src="<%=ctxPath%>/lib/jquery-3.7.1.min.js"></script>
 
@@ -48,4 +57,5 @@
     <link rel="stylesheet" href="<%=ctxPath%>/css/indexPost.css" />
     <script src="<%=ctxPath%>/js/indexPost.js"></script>
 
+>>>>>>> branch 'main' of https://github.com/sist-edu-cenater-final-team/music-sns-project.git
 </head>

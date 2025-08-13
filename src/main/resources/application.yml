@@ -18,6 +18,118 @@ spring:
     base: ENC(eAV32/4c9hWU0yc8LNmFBlmzx1+M2uZ50FKV9xuYkdU=)
     https: ???
   mvc:
+<<<<<<< HEAD
+    path match:
+      matching-strategy: ant_path_matcher #????????? ???? ???? ???
+      #    jsp??
+    view:
+      prefix: /WEB-INF/views/
+      suffix: .jsp
+  datasource:
+    username: ENC(4sz2FTK2HFNofA68BoONy2cCuBOTlPdH)
+    password: ENC(KTcPu5Xk1/0b9KuxLcZh0g==)
+    driver-class-name: oracle.jdbc.OracleDriver
+    url: ENC(GwaAj5RzenqeuRYVPYx/82FkjVpCs5a5DCqkxabK0E67eueuig+pJpfTEa3DWTAU)
+  jpa:
+    open-in-view: false
+    show-sql: true
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ENC(ln5fmmF8MHKflm3zwAmhs6+9B5+pChyxVc8QAr6MXYQ=)
+    password: ENC(CwV/gt+RhaMB7qQesvayTALLI1kLWSjMtCfh1X1SjrE=)
+    properties:
+      mail:
+        smtp:
+          auth: true
+          timeout: 20000 # 20?
+          starttls:
+            enable: true
+  #              Identity Manager ??? SSL? ???? SMTP? ????? ?????.
+  servlet:
+    multipart:
+      max-file-size: 10MB #??? 1MB
+      max-request-size: 20MB #??? 10MB
+  data:
+    redis:
+      host: ENC(0p2kKHWaQnA1J667rTSG9QX5weT1LIJ6)
+      port: 6379
+      timeout: 3000
+  #Azure Storage
+  cloud:
+    azure:
+      storage:
+        blob:
+          account-name: ENC(qSaMwi3ynCApmB2cF4je/04HXXEbkl0kpKBrtTlBKbY=)
+          endpoint: ENC(fiXr1qU7rFW2eFWyHgPWBkiZs+zDLYfeGz8uWcKvztvblArRXBzLpApVETK2F8d4dG0DAqwIXbsCnjfYmq1McQ==)
+          container-name: ENC(x8vr3ZBICXMa4VL5h2xuUhxQKrNfcNfTW+CX33iLvkymQ2hy+plEow==)
+          account-key: ENC(UVZI2NMSTWujhJJpsw4UC4TBv4t2Y7VU+Xo0a5yXIBCrOIoQsGETF5hyiDk98indKfwZc8EXY51x//1lGCVhGjEFIPRZC2KdarCx2bYb/JVmt36J9tjhaHU2Weoub3gury4bAuXQpkI=)
+
+
+mybatis:
+  mapper-locations: classpath:/mappers/**/*.xml
+  type-aliases-package: com.github.musicsnsproject.domain
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /my-docs.html
+  version: 1.0.0
+
+file:
+  upload:
+    directory: /uploads/
+
+portOne:
+  primary: ENC(DbwxFBSPGk5nC307yuIONt116Jej3zDJ)
+
+oauth:
+  microsoft:
+    client-id: ENC(l8mcLx7QDiYsTwRiPtFlq024tky+nCIgG19OhPPO/K6S5oPmk+mYBG7K/NgyLt05)
+    secret: ENC(G2W8T2wJnGI2YT2QLFbruaePd+TgOQB2POJT51IRAh8e6LfEczaDhDkNrIxCFZRJUTZIym57XEw=)
+    url:
+      auth: https://login.microsoftonline.com
+      api: https://graph.microsoft.com
+  twitter:
+    client-id: ENC(nFWZ+e0FzaGqbSXuHlQBAqRyT7NQ7XrDbKDHqtc26VwNIbkqRUBZf6lKIm4QxTqQ)
+    secret: ENC(yTOGJlRzEBIFgL0kxjY1+52p71TpqWrWpQxHvxQWLkg5e/vfoctF/7DIWnNvKHr5n0LsFL0/ulFl9ZKRnQO5Ow==)
+    url:
+      code: https://x.com
+      api: https://api.x.com
+  facebook:
+    client-id: ENC(qzUop3NaBKIS7iDr7GOB8/uMY27k+iE6wgItyJrNvNE=)
+    secret: ENC(6IpKXK0B2FAakWgMoMJjYRjqyqs23Bl2q4awbmk2koqJAzrd0B+AmzjapRUqa3w1)
+    url:
+      code: https://www.facebook.com
+      api: https://graph.facebook.com
+  kakao:
+    client-id: ENC(gjUFMFT1Kyqa9rpUO3mNOr/vR2wxzLcrIIVyVS5QYOad3nOotSmNXW0zypxNa50V)
+    secret: ENC(OiSWBApzK8Q2GOJygo2uKhan+KMYr2HrG9KG8kl4ZQP8CTUKP6jwd4E+6oXtKYLZ)
+    url:
+      auth: https://kauth.kakao.com
+      api: https://kapi.kakao.com
+  naver:
+    client-id: ENC(nH/XcmbwN4/PHHItYW2XtvBYU1EjqIZE+SdEOj8yi98=)
+    secret: ENC(wS40SiGJ4bPNGYfgcfPjHZMfje8HsK3l)
+    state: ENC(h9I5trQ5Jl/2wSgkE+yVAKUsy1evsno84t8lwzExAS4=)
+    url:
+      auth: https://nid.naver.com
+      api: https://openapi.naver.com
+  google:
+    client-id: ENC(t36nBH1/CPZ4i23e7T+mtn4dPREHfmox6Kyzmje0VdJfj0IQ/iQoeBIg+pFeypilWG6xuYZsknp7tdUMjF7XdwL+pp/MtfMfzB4j5Ya290I0J2fef/gOaw==)
+    secret: ENC(ArmCJ+zXlxmZ2wNyHDROb6dzwbXwFlV6TCeFKlD9HLnYncvicuczNdTergX8yhKM)
+    url:
+      code: https://accounts.google.com
+      auth: https://oauth2.googleapis.com
+      api: https://www.googleapis.com
+  github:
+    client-id: ENC(KbMoBUJk5DvVKa8bGowKowCkrP4xL9l5Hy/F8vx3Ek0=)
+    secret: ENC(m2akYCPA/+wAOD4403hpYAuxHxRNuprW2HPL8YWTJfP/djnCyF75O4mysJaATcXjCj+bE77ekyQ=)
+    url:
+      auth: https://github.com
+      api: https://api.github.com
+=======
     pathmatch:
       matching-strategy: ant_path_matcher #????????? ???? ???? ???
       #    jsp??
@@ -141,3 +253,4 @@ oauth:
       auth: https://github.com
       api: https://api.github.com
 
+>>>>>>> branch 'main' of https://github.com/sist-edu-cenater-final-team/music-sns-project.git
