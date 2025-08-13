@@ -9,7 +9,7 @@ public class MyUserVO {
     private String email;
 
     private String profile_image;
-    
+
     public MyUserVO(long userId, String nickname, String email, String profile_image) {
         this.userId = userId;
         this.nickname = nickname;

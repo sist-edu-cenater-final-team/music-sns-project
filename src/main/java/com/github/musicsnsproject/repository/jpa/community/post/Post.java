@@ -1,6 +1,5 @@
 package com.github.musicsnsproject.repository.jpa.community.post;
 
-
 import com.github.musicsnsproject.repository.jpa.emotion.UserEmotion;
 import jakarta.persistence.*;
 import lombok.Getter;
