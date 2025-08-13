@@ -6,12 +6,23 @@ import java.time.LocalDate;
 import java.util.List;
 
 @Builder
-public record TrackResponse(String trackId, String trackName, String duration, String trackSpotifyUrl, int trackPopularity,
-                            int trackNumber, List<TrackArtist> artist, TrackAlbum album) {
+public class TrackResponse {
+    private final String trackId;
+    private final String trackName;
+    private final String duration;
+    private final String trackSpotifyUrl;
+    private final int trackPopularity;
+    private final int trackNumber;
+    private final List<TrackArtist> artist;
+    private final TrackAlbum album;
 
-        public record TrackAlbum(String albumId, String albumName, String albumSpotifyUrl, String albumImageUrl,
-                                 LocalDate releaseDate, String albumType) {
-        @Builder
-        public TrackAlbum {} // 명시적 compact constructor
+    @Builder
+    public static class TrackAlbum {
+        private final String albumId;
+        private final String albumName;
+        private final String albumSpotifyUrl;
+        private final String albumImageUrl;
+        private final LocalDate releaseDate;
+        private final String albumType;
     }
 }
