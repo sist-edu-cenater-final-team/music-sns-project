@@ -8,7 +8,6 @@ import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
-import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.json.BasicJsonParser;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -92,7 +91,6 @@ public class JwtProvider {
             return new UsernamePasswordAuthenticationToken(sub, accessToken, roles);
     }
 
-    @Transactional
     public TokenDto tokenRefresh(String accessToken, String clientRefreshToken){
         //리프레시 토큰 유효성 검사와 파싱
         Jws<Claims> refreshTokenClaims = tokenParsing(clientRefreshToken);

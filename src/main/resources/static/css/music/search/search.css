@@ -1,0 +1,56 @@
+.search-container {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 8px;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    max-width: 400px; /* 필요시 조절 */
+}
+
+.search-top {
+    display: flex;
+    /*gap: 8px;*/
+}
+
+.search-select {
+    padding: 6px 10px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 14px;
+    background-color: #fafafa;
+    cursor: pointer;
+    margin-right: 5px;
+}
+
+.search-input {
+    flex: 1;
+    padding: 6px 10px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    outline: none;
+    font-size: 14px;
+}
+
+.search-input:focus {
+    border-color: #7b68ee;
+    box-shadow: 0 0 4px rgba(123,104,238,0.4);
+}
+
+.search-btn {
+    padding: 3px;
+    margin-left: 2px;
+    background-color: #7b68ee;
+    border: none;
+    color: white;
+    border-radius: 8px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background 0.2s;
+    width: 100%; /* 위 select + input 합친 너비와 동일하게 */
+}
+
+.search-btn:hover {
+    background-color: #6a5acd;
+}

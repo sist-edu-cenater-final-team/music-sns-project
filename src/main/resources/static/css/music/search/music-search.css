@@ -1,0 +1,194 @@
+:root{
+    --purple-50: #f3f0ff;
+    --purple-500: #7b68ee; /* 메인 포인트 */
+    --purple-600: #6a5acd;
+    --muted: #8a8f98;
+    --card-bg: #0f0f10; /* 다크-ish 배경이 어울린다면 조절 가능 */
+}
+
+/* 카드/폼 스타일 */
+#music-search-root .card {
+    border-radius: 12px;
+    box-shadow: 0 6px 18px rgba(123,104,238,0.08);
+    border: none;
+}
+
+/* 보라 버튼 */
+.btn-purple {
+    background: linear-gradient(90deg, var(--purple-500), var(--purple-600));
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    padding: 8px 12px;
+}
+.btn-purple:hover { filter: brightness(.95); }
+
+/* 리스트 항목 (1열) */
+.list-group-item.track-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 10px 14px;
+    border: none;
+    border-radius: 8px;
+    transition: background .12s, transform .12s;
+}
+.list-group-item.track-item + .list-group-item.track-item {
+    margin-top: 6px;
+}
+.list-group-item.track-item:hover {
+    background: rgba(123,104,238,0.06);
+    transform: translateY(-2px);
+}
+
+/* 앨범 이미지 */
+.track-thumb {
+    width: 56px;
+    height: 56px;
+    flex: 0 0 56px;
+    border-radius: 6px;
+    object-fit: cover;
+    background: linear-gradient(135deg, rgba(123,104,238,0.08), rgba(106,90,205,0.04));
+}
+
+/* 텍스트 영역: title / artist */
+.track-main {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+.track-title {
+    font-weight: 600;
+    font-size: 0.98rem;
+    color: #111827;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.track-artist {
+    font-size: 0.86rem;
+    color: var(--muted);
+    margin-top: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* 앨범명 가운데 컬럼 */
+.track-album {
+    width: 35%;
+    max-width: 320px;
+    min-width: 140px;
+    font-size: 0.88rem;
+    color: var(--muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* duration / action 모음 (오른쪽) */
+.track-right {
+    flex: 0 0 70px;
+    text-align: right;
+    min-width: 70px;
+}
+.track-duration {
+    font-size: 0.85rem;
+    color: var(--muted);
+    margin-bottom: 6px;
+}
+
+/* Spotify 버튼 */
+.btn-spotify {
+    font-size: 12px;
+    padding: 6px 8px;
+    border-radius: 6px;
+}
+
+/* 반응형: 작은 화면에서는 album 컬럼 숨기고 duration 작게 */
+@media (max-width: 768px) {
+    .track-album { display: none; }
+    .track-right { min-width: 56px; }
+}
+
+/* 로딩 스피너 보라색 */
+.spinner-border.text-purple { color: var(--purple-500); }
+
+/* 검색 메타 */
+#searchMeta { font-size: .9rem; color: var(--muted); }
+
+/* 빈 결과 */
+.no-results {
+    border-radius: 8px;
+    padding: 18px;
+    background: rgba(0,0,0,0.03);
+    text-align: center;
+    color: var(--muted);
+}
+/* -------------------------
+   Purple Themed Pagination
+   ------------------------- */
+.pagination-purple {
+    display: inline-flex;
+    gap: 6px;
+    align-items: center;
+    padding: 8px;
+}
+
+/* page item 기본 박스 */
+.pagination-purple .page-item .page-link {
+    border-radius: 999px;
+    min-width: 40px;
+    height: 40px;
+    line-height: 24px;
+    padding: 6px 10px;
+    border: none;
+    background: transparent;
+    color: #6f5bd8;
+    font-weight: 600;
+    box-shadow: none;
+    transition: transform .08s ease, background .12s ease, color .12s ease;
+}
+
+/* hover */
+.pagination-purple .page-item:not(.active):not(.disabled) .page-link:hover {
+    background: linear-gradient(90deg, rgba(123,104,238,0.08), rgba(106,90,205,0.06));
+    transform: translateY(-3px);
+    color: #533bd1;
+}
+
+/* active (현재 페이지) - 보라색 채움 */
+.pagination-purple .page-item.active .page-link {
+    background: linear-gradient(90deg, #8d7bf5, #6b57e6);
+    color: white;
+    box-shadow: 0 6px 18px rgba(107,87,230,0.18);
+}
+
+/* disabled */
+.pagination-purple .page-item.disabled .page-link {
+    color: #cfc9f8;
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* first / last 아이콘 스타일 (작고 가볍게) */
+.pagination-purple .page-link .icon {
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    vertical-align: -1px;
+    margin-right: 6px;
+    opacity: 0.92;
+}
+
+/* 반응형: 작은 화면에서는 숫자 개수 줄이기 (JS에서 이미 제어) */
+@media (max-width: 576px) {
+    .pagination-purple .page-item .page-link { min-width: 36px; padding: 6px 8px; }
+}
+
+/* 전체 컨테이너 중앙 정렬 & 여유 */
+nav .pagination-wrapper {
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    margin-top: 12px;
+}

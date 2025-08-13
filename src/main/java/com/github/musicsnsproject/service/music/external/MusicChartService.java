@@ -65,7 +65,7 @@ public abstract class MusicChartService {
 
     protected List<String> getAttrsOfElements(Document doc, String selector, String attr) {
         return doc.select(selector).stream()
-                .map(element -> element.attr(attr))
+                .map(element -> element.attr(attr).isEmpty() ? element.text() : element.attr(attr))
                 .toList();
     }
 
