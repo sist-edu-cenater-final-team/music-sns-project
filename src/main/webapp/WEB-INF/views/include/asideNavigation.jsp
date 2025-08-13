@@ -23,6 +23,9 @@
             <li>
                 <button type="button" class="btn setting">설정</button>
             </li>
+            <li>
+                <button type="button" class="btn post" data-toggle="modal" data-target="#postModal">게시물작성</button>
+            </li>
         </ul>
     </div>
 </div>
