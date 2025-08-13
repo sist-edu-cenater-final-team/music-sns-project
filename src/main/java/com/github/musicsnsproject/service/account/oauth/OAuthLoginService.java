@@ -27,7 +27,6 @@
     import org.springframework.data.redis.RedisConnectionFailureException;
     import org.springframework.http.HttpStatus;
     import org.springframework.stereotype.Service;
-
     import java.time.DateTimeException;
     import java.time.Duration;
     import java.time.LocalDateTime;

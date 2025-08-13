@@ -1,5 +1,6 @@
 package com.github.musicsnsproject.repository.jpa.account.follow;
 
+<<<<<<< HEAD
 import java.util.List;
 
 import com.github.musicsnsproject.domain.follow.FollowVO;
@@ -90,4 +91,12 @@ public class FollowQueryRepositoryImpl implements FollowQueryRepository {
 		    .fetch();
 	}
     
+=======
+import com.querydsl.jpa.impl.JPAQueryFactory;
+import lombok.RequiredArgsConstructor;
+
+@RequiredArgsConstructor
+public class FollowQueryRepositoryImpl implements FollowQueryRepository {
+    private final JPAQueryFactory queryFactory;
+>>>>>>> branch 'main' of https://github.com/sist-edu-cenater-final-team/music-sns-project.git
 }

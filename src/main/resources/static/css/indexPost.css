@@ -1,0 +1,13 @@
+/* 모달이 에디터 너비를 충분히 사용할 수 있도록 */
+#postModal .modal-dialog {
+    max-width: none; /* Bootstrap 기본 max-width 해제 */
+    width: auto;     /* JS에서 정확한 px를 넣어줌 */
+}
+/* 여백 제거: 에디터가 꽉 차게 */
+#postModal .modal-body {
+    padding: 0;
+}
+/* 스크롤바가 모달 바깥에 생기지 않도록 */
+#postModal .modal-content {
+    overflow: hidden;
+}

@@ -1,5 +1,6 @@
 package com.github.musicsnsproject.repository.jpa.account.follow;
 
+<<<<<<< HEAD
 import java.util.List;
 
 import com.github.musicsnsproject.domain.follow.FollowVO;
@@ -15,4 +16,7 @@ public interface FollowQueryRepository {
 	// 함께 아는 친구
 	List<FollowVO> findCommonFriend(String userId);
 	
+=======
+public interface FollowQueryRepository {
+>>>>>>> branch 'main' of https://github.com/sist-edu-cenater-final-team/music-sns-project.git
 }
