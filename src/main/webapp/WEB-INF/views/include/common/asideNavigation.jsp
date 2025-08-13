@@ -73,7 +73,7 @@
         <ul class="talk-list">
             <li>
                 <div class="talk-img">
-                    <img src="<%= ctxPath%>/static/images/emotion/angry.png" alt="사용자 프로필 이미지" />
+                    <img src="<%= ctxPath%>/images/emotion/angry.png" alt="사용자 프로필 이미지" />
                 </div>
                 <div class="talk-info">
                     <p class="talk-title">HanBinId</p>
@@ -82,7 +82,7 @@
             </li>
             <li>
                 <div class="talk-img">
-                    <img src="<%= ctxPath%>/static/images/emotion/angry.png" alt="사용자 프로필 이미지" />
+                    <img src="<%= ctxPath%>/images/emotion/angry.png" alt="사용자 프로필 이미지" />
                 </div>
                 <div class="talk-info">
                     <p class="talk-title">HanBinId</p>
@@ -91,7 +91,7 @@
             </li>
             <li>
                 <div class="talk-img">
-                    <img src="<%= ctxPath%>/static/images/emotion/angry.png" alt="사용자 프로필 이미지" />
+                    <img src="<%= ctxPath%>/images/emotion/angry.png" alt="사용자 프로필 이미지" />
                 </div>
                 <div class="talk-info">
                     <p class="talk-title">HanBinId</p>
@@ -100,7 +100,7 @@
             </li>
             <li>
                 <div class="talk-img">
-                    <img src="<%= ctxPath%>/static/images/emotion/angry.png" alt="사용자 프로필 이미지" />
+                    <img src="<%= ctxPath%>/images/emotion/angry.png" alt="사용자 프로필 이미지" />
                 </div>
                 <div class="talk-info">
                     <p class="talk-title">HanBinId</p>
@@ -109,7 +109,7 @@
             </li>
             <li>
                 <div class="talk-img">
-                    <img src="<%= ctxPath%>/static/images/emotion/angry.png" alt="사용자 프로필 이미지" />
+                    <img src="<%= ctxPath%>/images/emotion/angry.png" alt="사용자 프로필 이미지" />
                 </div>
                 <div class="talk-info">
                     <p class="talk-title">HanBinId</p>
@@ -118,7 +118,7 @@
             </li>
             <li>
                 <div class="talk-img">
-                    <img src="<%= ctxPath%>/static/images/emotion/angry.png" alt="사용자 프로필 이미지" />
+                    <img src="<%= ctxPath%>/images/emotion/angry.png" alt="사용자 프로필 이미지" />
                 </div>
                 <div class="talk-info">
                     <p class="talk-title">HanBinId</p>
@@ -127,7 +127,7 @@
             </li>
             <li>
                 <div class="talk-img">
-                    <img src="<%= ctxPath%>/static/images/emotion/angry.png" alt="사용자 프로필 이미지" />
+                    <img src="<%= ctxPath%>/images/emotion/angry.png" alt="사용자 프로필 이미지" />
                 </div>
                 <div class="talk-info">
                     <p class="talk-title">HanBinId</p>
@@ -136,7 +136,7 @@
             </li>
             <li>
                 <div class="talk-img">
-                    <img src="<%= ctxPath%>/static/images/emotion/angry.png" alt="사용자 프로필 이미지" />
+                    <img src="<%= ctxPath%>/images/emotion/angry.png" alt="사용자 프로필 이미지" />
                 </div>
                 <div class="talk-info">
                     <p class="talk-title">HanBinId</p>
@@ -145,7 +145,7 @@
             </li>
             <li>
                 <div class="talk-img">
-                    <img src="<%= ctxPath%>/static/images/emotion/angry.png" alt="사용자 프로필 이미지" />
+                    <img src="<%= ctxPath%>/images/emotion/angry.png" alt="사용자 프로필 이미지" />
                 </div>
                 <div class="talk-info">
                     <p class="talk-title">HanBinId</p>
@@ -154,7 +154,7 @@
             </li>
             <li>
                 <div class="talk-img">
-                    <img src="<%= ctxPath%>/static/images/emotion/angry.png" alt="사용자 프로필 이미지" />
+                    <img src="<%= ctxPath%>/images/emotion/angry.png" alt="사용자 프로필 이미지" />
                 </div>
                 <div class="talk-info">
                     <p class="talk-title">HanBinId</p>
