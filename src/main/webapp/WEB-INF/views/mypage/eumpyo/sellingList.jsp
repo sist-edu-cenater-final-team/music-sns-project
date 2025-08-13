@@ -23,9 +23,9 @@
   body{ color:var(--text); background:#fff; }
 
   /* ▼ 전체 영역: 고정폭 제거하고 좌우 66px 여백만 유지 (반응형) */
-  .page-wrap{ /* max-width:1080px;  -- 삭제 */
+  .page-wrap{
     margin:32px auto 80px;
-    padding:0 66px; /* NEW */
+    padding:0 66px;
   }
 
   /* 상단 보유 음표 배너 좌우 정렬 맞춤 */
@@ -41,15 +41,11 @@
     text-underline-offset:2px;
   }
 
-  
-
-  /* ▼ 3열 세로 구분선 */
-  .row.columns-3{ position:relative; } /* NEW */
+  .row.columns-2{ position:relative; } /* NEW */
   @media (min-width:992px){
-    .row.columns-3 > [class*="col-lg-4"]{ position:relative; }
-    .row.columns-3 > [class*="col-lg-4"]:not(:first-child)::before{
+    .row.columns-2 > [class*="col-lg-6"]{ position:relative; }
+    .row.columns-2 > [class*="col-lg-6"]:not(:first-child)::before{
       content:""; position:absolute; left:-12px; top:0; width:1px; height:100%;
-      background:var(--line); /* NEW */
     }
   }
 
@@ -67,8 +63,6 @@
   .btn-charge,.btn-usage{ min-width:96px; border:none; border-radius:8px; padding:8px 14px;
                           font-weight:700; background:var(--accent); color:#fff; }
   .btn-charge:hover,.btn-usage:hover{ opacity:.9; }
-  .panel{ background:#fff; border:1px solid var(--line); border-radius:12px; padding:8px 12px; }
-  .panel-title{ font-weight:800; padding:8px 4px 6px; }
   .price-chip{ display:inline-block; background:#efedff; border:1px solid #e0ddff; color:#3e36d1;
                font-weight:800; border-radius:8px; padding:6px 12px; min-width:96px; text-align:center; }
 
@@ -104,34 +98,24 @@
 
 <body>
 <div id="wrap">
-    <main class="">
+    <main class="eumopyoCharge">
         <%-- 왼쪽 사이드 네비게이션 & 관련 팝업들 --%>
         <jsp:include page="../../include/common/asideNavigation.jsp" />
-        <%-- //왼쪽 사이드 네비게이 --%>
+        <%-- //왼쪽 사이드 네비게이션 & 관련 팝업들 --%>
 
-        <%-- 메인 컨텐츠 시작 --%>
+		<%-- 메인 컨텐츠 시작 --%>
         <div class="main-contents">
-        	<%-- 보유 음표 영역 --%>
-			<div class="inner">
+            <div class="inner">
+                <%-- 보유 음표 영역 --%>
                 <jsp:include page="../../include/mypage/mypagePointInfo.jsp" />
-            </div>
-            
-            <div class="page-wrap">
+                
+                <%-- 음표 충전 탭 --%>
+				<jsp:include page="../../include/mypage/eumpyoChargeTab.jsp" />
 			
-			<jsp:include page="../../include/mypage/eumpyoChargeTab.jsp" />
-			
-			  	<!-- 3열 -->
-			  	<div class="row">
-			
-			    <!-- 음표충전 -->
-			    <div class="col-lg-4">
-			      	<div class="panel">
-			        	<div class="panel-title">음표충전</div>
+				<%-- 음표충전 리스트 시작 --%>
+			  	<div class="row columns-2">
+				    <div class="col-lg-6">
 			        	<div class="charge-list">
-			         	<%-- 서버에서 내려줄 경우:
-			               chargeList: [{qty:1,  price:100}, {qty:5, price:500}, ...]
-			               <c:forEach var="p" items="${chargeList}">
-			          	--%>
 			          		<div class="row-item" data-qty="1" data-price="100">
 				            	<div class="item-left">
 				              		<span class="icon">🎵</span>
@@ -173,23 +157,17 @@
 			            		</div>
 			           			<button class="btn-charge" type="button">5,000원</button>
 			          		</div>
-			          	<%-- </c:forEach> --%>
-			        	</div>
-			      	</div>
-			    </div>
+				      	</div>
+				    </div>
 			
-			    <!-- 충전내역 -->
-			    <div class="col-lg-4">
-					<div class="panel">
-						<div class="panel-title">충전내역</div>
-			        	<div class="usage-list">
-				          	<%-- historyList: [{qty:100, amount:10000}, ...] --%>
+			    
+				    <div class="col-lg-6">
+			        	<div class="charge-list">
 				          	<div class="row-item">
 				            	<div class="item-left">
 				              		<span class="icon">🎵</span>
 				              		<div>
 				                		<div class="item-title">음표 100개</div>
-				                		<div class="item-sub">최근 충전</div>
 				              		</div>
 				            	</div>
 				            	<span class="price-chip">10,000원</span>
@@ -226,46 +204,15 @@
 			            		</div>
 			            		<span class="price-chip">100,000원</span>
 			          		</div>
-			        	</div>
-			      	</div>
-			    </div>
-			
-			    <!-- 사용내역 (샘플) -->
-			    <div class="col-lg-4">
-			      <div class="panel">
-			        <div class="panel-title">사용내역</div>
-			        <div class="usage-list">
-			          <%-- usageList 내려줄 때 동일 패턴으로 렌더링 --%>
-			          <div class="row-item">
-			            <div class="item-left">
-			              <span class="icon">🎵</span>
-			              <div class="item-title">음표 100개</div>
-			            </div>
-			            <span class="price-chip">10,000원</span>
-			          </div>
-			          <div class="row-item">
-			            <div class="item-left"><span class="icon">🎵</span><div class="item-title">음표 200개</div></div>
-			            <span class="price-chip">20,000원</span>
-			          </div>
-			          <div class="row-item">
-			            <div class="item-left"><span class="icon">🎵</span><div class="item-title">음표 300개</div></div>
-			            <span class="price-chip">30,000원</span>
-			          </div>
-			          <div class="row-item">
-			            <div class="item-left"><span class="icon">🎵</span><div class="item-title">음표 500개</div></div>
-			            <span class="price-chip">50,000원</span>
-			          </div>
-			          <div class="row-item">
-			            <div class="item-left"><span class="icon">🎵</span><div class="item-title">음표 1,000개</div></div>
-			            <span class="price-chip">100,000원</span>
-			          </div>
-			        </div>
-			      </div>
-			    </div>
-		  	</div>
+				      	</div>
+			    	</div>
+		  		</div>
+		  		<%-- 음표충전 리스트 끝 --%>
+		  		
+			</div>
 		</div>
+		<%-- 메인 컨텐츠 끝 --%>	
             
-        <%-- 메인 컨텐츠 끝 --%>
 
         <%-- 오늘의 감정 플레이리스트 --%>
         <jsp:include page="../../include/common/asidePlayList.jsp" />
