@@ -20,6 +20,20 @@
 
     <%--    부트스트랩 아이콘스--%>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+
+
+    <!-- TUI CSS (jsDelivr로 교체) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tui-color-picker@2.2.8/dist/tui-color-picker.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tui-image-editor@3.15.3/dist/tui-image-editor.min.css" />
+
+    <!-- JS (순서 중요, jsDelivr로 교체) -->
+    <script src="https://cdn.jsdelivr.net/npm/fabric@3.6.3/dist/fabric.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/tui-code-snippet@2.3.2/dist/tui-code-snippet.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/tui-color-picker@2.2.8/dist/tui-color-picker.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/tui-image-editor@3.15.3/dist/tui-image-editor.min.js"></script>
+
+
+
     <link rel="stylesheet" href="<%=ctxPath%>/css/reset.css" />
     <link rel="stylesheet" href="<%=ctxPath%>/css/common.css" />
 
@@ -30,4 +44,8 @@
 
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script src="<%=ctxPath%>/js/common.js" defer></script>
+
+    <link rel="stylesheet" href="<%=ctxPath%>/css/indexPost.css" />
+    <script src="<%=ctxPath%>/js/indexPost.js"></script>
+
 </head>
