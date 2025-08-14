@@ -1,5 +1,5 @@
 document.addEventListener("DOMContentLoaded", function () {
-    const form = document.getElementById("searchForm");
+    const form = document.getElementById("sideSearchForm");
     const keyword = document.getElementById("sideSearchKeyword");
 
     form.addEventListener("submit", function (e) {

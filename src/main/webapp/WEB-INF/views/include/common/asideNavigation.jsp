@@ -38,7 +38,7 @@
 <!-- 클릭했을 때 나오는 스으윽 팝업 -->
 <div id="searchLayer" class="aside-navigation-layer sidebar">
     <div class="inner">
-        <form id="searchForm" action="${pageContext.request.contextPath}/music/search" method="get" class="search-container">
+        <form id="sideSearchForm" action="${pageContext.request.contextPath}/music/search" method="get" class="search-container">
             <div class="search-top">
                 <label for="sideSearchCategory"></label>
                 <select name="searchType" id="sideSearchCategory" class="search-select">

@@ -45,8 +45,8 @@
                             </div>
                         </div>
 
-                        <input type="hidden" id="inputPage" name="page" value="${param.page != null ? param.page : '1'}">
-                        <input type="hidden" id="inputSize" name="size" value="${param.size != null ? param.size : '20'}">
+<%--                        <input type="hidden" id="inputPage" name="page" value="${param.page != null ? param.page : '1'}">--%>
+<%--                        <input type="hidden" id="inputSize" name="size" value="${param.size != null ? param.size : '20'}">--%>
 
                         <div class="mt-3">
                             <button id="btnSearch" class="btn btn-purple w-100" type="submit">검색</button>
@@ -59,12 +59,12 @@
                     <!-- 결과 리스트: 1열(전체 너비) -->
                     <div id="searchResults" class="list-group list-group-flush"></div>
 
-                    <!-- 페이지네이션 -->
-                    <nav aria-label="검색 페이지" class="mt-4">
-                        <div class="pagination-wrapper">
-                            <ul id="pagination" class="pagination justify-content-center"></ul>
-                        </div>
-                    </nav>
+                    <div class="text-center mt-3">
+                        <button id="loadMoreBtn" class="btn btn-loadmore d-none">
+                            더보기 <i class="bi bi-chevron-down arrow-down"></i>
+                        </button>
+                    </div>
+
 
 
                     <div id="loading" class="text-center my-4 d-none">

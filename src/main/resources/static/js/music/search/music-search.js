@@ -9,21 +9,23 @@ if (window.__musicSearchPurpleInitialized) {
     document.addEventListener('DOMContentLoaded', function () {
         const API_URL = '/api/music/spotify/search';
         const resultsEl = document.getElementById('searchResults');
-        const paginationEl = document.getElementById('pagination');
         const loadingEl = document.getElementById('loading');
         const errorBox = document.getElementById('errorBox');
         const searchMeta = document.getElementById('searchMeta');
+        const loadMoreBtn = document.getElementById('loadMoreBtn');
+
 
         const keywordInput = document.getElementById('searchKeyword');
         const categorySelect = document.getElementById('searchCategory');
         const sideKeywordInput = document.getElementById('sideSearchKeyword');
         const sideCategorySelect = document.getElementById('sideSearchCategory');
-        const inputPage = document.getElementById('inputPage');
-        const inputSize = document.getElementById('inputSize');
+        // const inputPage = document.getElementById('inputPage');
+        // const inputSize = document.getElementById('inputSize');
 
-        let currentPage = parseInt(inputPage.value || '1', 10) || 1;
-        let pageSize = parseInt(inputSize.value || '20', 10) || 20;
+        let currentPage = 1;
+        let pageSize = 20;
         let totalPages = 1;
+        let hasNext = false;
 
         // 중복 API 호출 방지 플래그 (in-flight)
         let inFlight = false;
@@ -32,8 +34,8 @@ if (window.__musicSearchPurpleInitialized) {
         const urlParams = new URLSearchParams(window.location.search);
         const urlKeyword = urlParams.get('keyword') || '';
         const urlSearchType = urlParams.get('searchType') || '';
-        const urlPage = parseInt(urlParams.get('page') || inputPage.value || '1', 10) || 1;
-        const urlSize = parseInt(urlParams.get('size') || inputSize.value || '20', 10) || 20;
+
+
         if (urlKeyword) {
             keywordInput.value = urlKeyword;
             sideKeywordInput.value = urlKeyword; // 사이드바 검색어도 동기화
@@ -42,13 +44,17 @@ if (window.__musicSearchPurpleInitialized) {
             categorySelect.value = urlSearchType;
             sideCategorySelect.value = urlSearchType; // 사이드바 카테고리도 동기화
         }
-        currentPage = urlPage;
-        pageSize = urlSize;
+        // currentPage = urlPage;
+        // pageSize = urlSize;
+
+        // alert(`초기화: keyword=${urlKeyword}, searchType=${urlSearchType}, page=${currentPage}, size=${pageSize}`);
 
         // 초기 로드: keyword가 있으면 한 번만 API 호출
         // (여기서 한 번 호출한 뒤에는 inFlight 로 중복 방지)
         if (keywordInput.value && keywordInput.value.trim() !== '') {
-            doSearch(currentPage);
+            // UI reset
+            resultsEl.innerHTML = '';
+            doSearch();
         }
 
         // doSearch: inFlight 체크로 중복 요청 차단
@@ -66,9 +72,9 @@ if (window.__musicSearchPurpleInitialized) {
                 return;
             }
 
-            // UI reset
-            resultsEl.innerHTML = '';
-            paginationEl.innerHTML = '';
+            // UI reset 필요시 호출하도록 함수밖으로 꺼냄
+            // resultsEl.innerHTML = '';
+            // paginationEl.innerHTML = '';
             errorBox.classList.add('d-none');
             searchMeta.classList.add('d-none');
             loadingEl.classList.remove('d-none');
@@ -85,12 +91,18 @@ if (window.__musicSearchPurpleInitialized) {
                 }
 
                 const resp = data.success.responseData;
+                console.log(resp);
                 currentPage = resp.page || page;
-                totalPages = resp.totalPages || 1;
+                hasNext = resp.hasNext || false;
+                // alert(`현재 페이지: ${currentPage}, 다음 페이지 여부: ${hasNext}`);
 
-                renderMeta(resp);
+                // renderMeta(resp);
                 renderItems(resp.items || []);
-                renderPaginationLinks(currentPage, totalPages);
+                if(hasNext)
+                    loadMoreBtn.classList.remove('d-none');
+                else
+                    loadMoreBtn.classList.add('d-none');
+                // renderPaginationLinks(currentPage, totalPages);
             } catch (err) {
                 console.error(err);
                 errorBox.textContent = err.response?.data?.message || err.message || '검색 중 오류가 발생했습니다.';
@@ -118,6 +130,7 @@ if (window.__musicSearchPurpleInitialized) {
             items.forEach(item => {
                 // const artists = (item.artist || []).map(a => a.artistName).join(', ');
                 const albumName = item.album?.albumName || '-';
+                const releaseDate = item.album?.releaseDate || '-';
                 const albumImage = item.album?.albumImageUrl || '/assets/default-album.png';
                 const duration = item.duration || '0:00';
                 // 아티스트들을 개별 span으로 생성
@@ -126,20 +139,28 @@ if (window.__musicSearchPurpleInitialized) {
                     return `${comma}<span class="artist-item" data-artist-id="${escapeHtml(artist.artistId || '')}">${escapeHtml(artist.artistName)}</span>`;
                 }).join('');
 
+
                 const a = document.createElement('a');
                 a.dataset.trackId = item.trackId;
                 a.dataset.albumId = item.album?.albumId || '';
 
-                a.href = '#';
+                // a.href = '#';
                 a.className = 'list-group-item list-group-item-action track-item';
 
                 a.innerHTML = `
-                    <img class="track-thumb" src="${escapeHtml(albumImage)}" alt="${escapeHtml(albumName)}">
+                    <img class="track-thumb" data-album-id="${escapeHtml(item.album?.albumId || '')}" src="${escapeHtml(albumImage)}" alt="${escapeHtml(albumName)}">
                     <div class="track-main">
-                        <div class="track-title">${escapeHtml(item.trackName)}</div>
+                        <div class="track-title" data-track-id="${escapeHtml(item.trackId)}">${escapeHtml(item.trackName)}</div>
                         <div class="track-artist">${artistsHtml}</div>
                     </div>
-                    <div class="track-album">${escapeHtml(albumName)}</div>
+                    <div class="track-album" data-album-id="${escapeHtml(item.album?.albumId || '')}">
+                        <div class="track-album-name">
+                             ${escapeHtml(albumName)}
+                        </div>
+                        <div class="track-release-date">
+                            ${escapeHtml(releaseDate)}                        
+                        </div>
+                    </div>
                     <div class="track-right">
                         <div class="track-duration">${escapeHtml(duration)}</div>
                         <div><a class="btn btn-sm btn-outline-primary btn-spotify" href="${escapeHtml(item.trackSpotifyUrl)}" target="_blank">Spotify</a></div>
@@ -148,98 +169,96 @@ if (window.__musicSearchPurpleInitialized) {
 
                 frag.appendChild(a);
             });
+            // 헤더 추가
+            if(currentPage === 1) {
+                const header = document.createElement('div');
+                header.className = 'track-header';
 
+                header.innerHTML = `
+                        <div class="track-thumb"></div>
+                        <div class="track-main">제목</div>
+                        <div class="track-album">앨범</div>
+                        <div class="track-right">
+                            <i class="bi bi-clock"></i>&nbsp;&nbsp;&nbsp;
+                        </div>
+                    `;
+                resultsEl.appendChild(header);
+            }
             resultsEl.appendChild(frag);
         }
 
         // renderPaginationLinks: 보라 테마, 처음/이전/숫자/다음/끝 포함, 링크는 페이지 이동 방식
-        function renderPaginationLinks(current, total) {
-            paginationEl.innerHTML = '';
-            if (total <= 1) return;
+        // function renderPaginationLinks(current, total) {
+        //     paginationEl.innerHTML = '';
+        //     if (total <= 1) return;
+        //
+        //     const buildUrl = (page) => {
+        //         const params = new URLSearchParams();
+        //         params.set('keyword', keywordInput.value || '');
+        //         params.set('searchType', categorySelect.value || '전체');
+        //         params.set('page', String(page));
+        //         return `${window.location.pathname}?${params.toString()}`;
+        //     };
+        //
+        //     const createLi = (labelHtml, href, disabled = false, active = false, ariaLabel = null) => {
+        //         const li = document.createElement('li');
+        //         li.className = 'page-item' + (disabled ? ' disabled' : '') + (active ? ' active' : '');
+        //         const a = document.createElement('a');
+        //         a.className = 'page-link';
+        //         a.href = disabled ? '#' : href;
+        //         a.innerHTML = labelHtml;
+        //         if (ariaLabel) a.setAttribute('aria-label', ariaLabel);
+        //         li.appendChild(a);
+        //         return li;
+        //     };
+        //
+        //     paginationEl.className = 'pagination pagination-purple';
+        //
+        //     // 이전
+        //     const prevPage = Math.max(1, current - 1);
+        //     paginationEl.appendChild(createLi('«', buildUrl(prevPage), current <= 1, false, '이전'));
+        //
+        //     const maxVisible = 5; // 항상 5개 버튼 고정
+        //     let start = Math.max(1, current - Math.floor(maxVisible / 2));
+        //     let end = start + maxVisible - 1;
+        //     if (end > total) {
+        //         end = total;
+        //         start = Math.max(1, end - maxVisible + 1);
+        //     }
+        //
+        //     // 앞쪽 생략 (... 표시)
+        //     if (start > 1) {
+        //         paginationEl.appendChild(createLi('1', buildUrl(1)));
+        //         if (start > 2) {
+        //             const li = document.createElement('li');
+        //             li.className = 'page-item disabled';
+        //             li.innerHTML = `<span class="page-link">…</span>`;
+        //             paginationEl.appendChild(li);
+        //         }
+        //     }
+        //
+        //     // 페이지 번호
+        //     for (let i = start; i <= end; i++) {
+        //         paginationEl.appendChild(createLi(String(i), buildUrl(i), false, i === current, i === current ? `페이지 ${i}, 현재` : `페이지 ${i}`));
+        //     }
+        //
+        //     // // 뒤쪽 생략 (... 표시)
+        //     // if (end < total) {
+        //     //     if (end < total - 1) {
+        //     //         const li = document.createElement('li');
+        //     //         li.className = 'page-item disabled';
+        //     //         li.innerHTML = `<span class="page-link">…</span>`;
+        //     //         paginationEl.appendChild(li);
+        //     //     }
+        //     //     paginationEl.appendChild(createLi(String(total), buildUrl(total)));
+        //     // }
+        //
+        //     // 다음
+        //     const nextPage = Math.min(total, current + 1);
+        //     paginationEl.appendChild(createLi('»', buildUrl(nextPage), current >= total, false, '다음'));
+        // }
 
-            // helper: URL 빌드
-            const buildUrl = (page) => {
-                const params = new URLSearchParams();
-                params.set('keyword', keywordInput.value || '');
-                params.set('searchType', categorySelect.value || '전체');
-                params.set('page', String(page));
-                params.set('size', String(pageSize));
-                return `${window.location.pathname}?${params.toString()}`;
-            };
 
-            // helper: li 생성
-            const createLi = (labelHtml, href, disabled = false, active = false, ariaLabel = null) => {
-                const li = document.createElement('li');
-                li.className = 'page-item' + (disabled ? ' disabled' : '') + (active ? ' active' : '');
-                const a = document.createElement('a');
-                a.className = 'page-link';
-                a.href = disabled ? '#' : href;
-                a.innerHTML = labelHtml;
-                if (ariaLabel) a.setAttribute('aria-label', ariaLabel);
-                li.appendChild(a);
-                return li;
-            };
-
-            // wrapper에 클래스 적용
-            paginationEl.className = 'pagination pagination-purple';
-
-            // 처음 (맨앞) - 1로 이동
-            const firstHtml = '<span class="icon">««</span><span class="visually-hidden">처음</span>';
-            paginationEl.appendChild(createLi(firstHtml, buildUrl(1), current <= 1, false, '처음'));
-
-            // 이전
-            const prevPage = Math.max(1, current - 1);
-            const prevHtml = '<span class="icon">«</span><span class="visually-hidden">이전</span>';
-            paginationEl.appendChild(createLi(prevHtml, buildUrl(prevPage), current <= 1, false, '이전'));
-
-            // 숫자 페이지 (최대 노출 개수는 화면 너비에 따라 다름)
-            const maxVisible = (window.innerWidth < 576) ? 5 : 9; // 작은 화면이면 5개, 넓으면 9개
-            let start = Math.max(1, current - Math.floor(maxVisible / 2));
-            let end = start + maxVisible - 1;
-            if (end > total) {
-                end = total;
-                start = Math.max(1, end - maxVisible + 1);
-            }
-
-            // 앞쪽 생략 표시
-            if (start > 1) {
-                paginationEl.appendChild(createLi('1', buildUrl(1)));
-                if (start > 2) {
-                    const li = document.createElement('li');
-                    li.className = 'page-item disabled';
-                    li.innerHTML = `<span class="page-link">…</span>`;
-                    paginationEl.appendChild(li);
-                }
-            }
-
-            for (let i = start; i <= end; i++) {
-                paginationEl.appendChild(createLi(String(i), buildUrl(i), false, i === current, i === current ? `페이지 ${i}, 현재` : `페이지 ${i}`));
-            }
-
-            // 뒤쪽 생략 표시
-            if (end < total) {
-                if (end < total - 1) {
-                    const li = document.createElement('li');
-                    li.className = 'page-item disabled';
-                    li.innerHTML = `<span class="page-link">…</span>`;
-                    paginationEl.appendChild(li);
-                }
-                paginationEl.appendChild(createLi(String(total), buildUrl(total)));
-            }
-
-            // 다음
-            const nextPage = Math.min(total, current + 1);
-            const nextHtml = '<span class="icon">»</span><span class="visually-hidden">다음</span>';
-            paginationEl.appendChild(createLi(nextHtml, buildUrl(nextPage), current >= total, false, '다음'));
-
-            // 마지막 (맨끝)
-            const lastHtml = '<span class="icon">»»</span><span class="visually-hidden">마지막</span>';
-            paginationEl.appendChild(createLi(lastHtml, buildUrl(total), current >= total, false, '마지막'));
-
-            // 접근성: 네비게이션 래퍼가 필요한 경우 감싸기
-            // (paginationEl은 ul 태그임을 가정)
-            // ul.pagination는 이미 적절하게 위치해 있으니 추가 래퍼는 필요 없음.
-        }
 
         function escapeHtml(text) {
             if (text === null || text === undefined) return '';
@@ -250,12 +269,26 @@ if (window.__musicSearchPurpleInitialized) {
                 .replaceAll('"', '&quot;')
                 .replaceAll("'", '&#39;');
         }
-
-        // 검색 폼 제출 시 page=1 로 세팅 (정상 submit -> 페이지 이동)
-        const searchForm = document.getElementById('searchForm');
-        searchForm.addEventListener('submit', function () {
-            inputPage.value = '1';
-            // 정상 submit 허용 (페이지 이동) — 클릭으로 AJAX 호출하지 않음
+        loadMoreBtn.addEventListener('click', ()=>{
+            loadMoreBtn.classList.add('d-none');
+            if(hasNext) {
+                currentPage++;
+                doSearch(currentPage);
+            }
         });
+        //검색 창에서 엔터 쳤을시 이벤트 등록
+        // keywordInput.addEventListener('keydown', function (e) {
+        //     if (e.key === 'Enter') {
+        //         e.preventDefault(); // 기본 엔터 동작 방지
+        //         currentPage = 1; // 페이지 초기화
+        //         doSearch(); // 검색 실행
+        //     }
+        // });
+
+        // // 검색 폼 제출 시 page=1 로 세팅 (정상 submit -> 페이지 이동)
+        // const searchForm = document.getElementById('searchForm');
+        // searchForm.addEventListener('submit', function (e) {
+        //     // inputPage.value = '1';
+        // });
     });
 }
