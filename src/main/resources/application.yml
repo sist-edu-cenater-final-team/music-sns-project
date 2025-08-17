@@ -18,7 +18,7 @@ spring:
     base: ENC(eAV32/4c9hWU0yc8LNmFBlmzx1+M2uZ50FKV9xuYkdU=)
     https: ???
   mvc:
-    path match:
+    pathmatch:
       matching-strategy: ant_path_matcher #????????? ???? ???? ???
       #    jsp??
     view:
@@ -83,6 +83,18 @@ file:
 portOne:
   primary: ENC(DbwxFBSPGk5nC307yuIONt116Jej3zDJ)
 
+spotify:
+  client-id: ENC(iflZaKZj+6Jx7LpWGiDsiSCdwdxeSmjdksPmPGJRxrHV1CizwCe6mnOyOtJ+FXA/)
+  client-secret: ENC(Xa5WiRFxU0hj6ELzxZsy4BuzqNAiwlh0qJtEPYm4wI3scGlPIS7lISX2WNfuslZI)
+music:
+  chart:
+    bugs: https://music.bugs.co.kr/chart
+    melon: https://www.melon.com/chart/index.htm
+    vibe: https://apis.naver.com/vibeWeb/musicapiweb/vibe/v1/chart/track/total
+    genie:
+      url1: https://www.genie.co.kr/chart/top200?rtm=Y&pg=1
+      url2: https://www.genie.co.kr/chart/top200?rtm=Y&pg=2
+
 oauth:
   microsoft:
     client-id: ENC(l8mcLx7QDiYsTwRiPtFlq024tky+nCIgG19OhPPO/K6S5oPmk+mYBG7K/NgyLt05)
@@ -128,3 +140,4 @@ oauth:
     url:
       auth: https://github.com
       api: https://api.github.com
+

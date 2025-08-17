@@ -1,11 +1,11 @@
 package com.github.musicsnsproject.repository.jpa.community.post;
 
-import com.github.musicsnsproject.repository.jpa.account.user.MyUser;
 import com.github.musicsnsproject.repository.jpa.emotion.UserEmotion;
 import jakarta.persistence.*;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table(name = "posts")
@@ -27,6 +27,8 @@ public class Post {
 
     private LocalDateTime createdAt;
 
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "post")
+    private List<PostImage> images;
     public static Post onlyId(long postId) {
         Post post = new Post();
         post.postId = postId;
