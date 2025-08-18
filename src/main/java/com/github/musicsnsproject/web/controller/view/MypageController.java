@@ -13,4 +13,10 @@ public class MypageController {
     public String musicCart(){
         return "mypage/cart";
     }
+
+    // 결제페이지
+    @GetMapping("payment")
+    public String payment(){
+        return "mypage/payment";
+    }
 }

@@ -115,6 +115,24 @@ public class SpotifyMusicService {
             throw new RuntimeException(e);
         }
     }
+
+    public TrackResponse getTrackResponseById(String trackId) {
+        try {
+
+            Track track = spotifyApi.getTrack(trackId)
+                    .setHeader("Accept-Language", "ko-KR,ko;q=0.9")
+                    .build().execute();
+            return convertToTrackResponse(track);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        } catch (SpotifyWebApiException e) {
+            throw new RuntimeException(e);
+        } catch (ParseException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+
     //0nV8nwkfGIQyzvdfVVRaoW 띵곡 추천곡
     //6IZ7kJDFvRoM3EP0JTVEMi 유튜버 때껄룩
     //0uoSKc1UI9jVeKEN7b4SaW 꼬실때듣는 플리
@@ -135,4 +153,5 @@ public class SpotifyMusicService {
             throw new RuntimeException(e);
         }
     }
+
 }
