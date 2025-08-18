@@ -159,6 +159,11 @@ public class SpotifyMusicService {
 
         return null;
     }
+
+    public TrackResponse getTrackResponseById(String trackId) {
+        Track track = spotifyDao.findTrackById(trackId);
+        return convertToTrackResponse(track);
+    }
 }
 
 

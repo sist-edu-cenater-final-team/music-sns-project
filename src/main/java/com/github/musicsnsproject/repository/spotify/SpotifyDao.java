@@ -14,6 +14,7 @@ import se.michaelthelin.spotify.requests.data.albums.GetAlbumRequest;
 import se.michaelthelin.spotify.requests.data.artists.GetArtistRequest;
 import se.michaelthelin.spotify.requests.data.artists.GetArtistsAlbumsRequest;
 import se.michaelthelin.spotify.requests.data.search.simplified.SearchTracksRequest;
+import se.michaelthelin.spotify.requests.data.tracks.GetTrackRequest;
 
 import java.io.IOException;
 
@@ -72,5 +73,12 @@ public class SpotifyDao {
                 .setHeader("Accept-Language", "ko-KR,ko;q=0.9")
                 .build();
         return requestExecute(request);
+    }
+    public Track findTrackById(String trackId) {
+        GetTrackRequest request = spotifyApi.getTrack(trackId)
+                .setHeader("Accept-Language", "ko-KR,ko;q=0.9")
+                .build();
+        return requestExecute(request);
+
     }
 }
