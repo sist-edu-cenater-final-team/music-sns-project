@@ -5,14 +5,14 @@
 
 <mapper namespace="eumpyoHistory">
 
- 	<!-- 충전 내역 총 건수 -->
+ 	<!-- 충전내역 총 건수 -->
   	<select id="countChargeHistory" resultType="int">
     	select count(*)
     	from coin_history
     	where user_id = #{userId}
   	</select>
 
-    <!-- [충전내역] 페이지 조회 -->
+    <!-- 충전내역 페이지 조회 -->
   	<select id="findChargeHistoryPage" resultType="map">
     	 select t.coin as "chargedCoin",
 		      	t.paid_amount as "paidAmount",

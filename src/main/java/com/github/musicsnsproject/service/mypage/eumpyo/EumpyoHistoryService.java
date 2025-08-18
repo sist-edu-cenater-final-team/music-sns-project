@@ -4,10 +4,10 @@ import java.util.Map;
 
 public interface EumpyoHistoryService {
 	
-	// 충전 내역 조회
+	// 충전내역 조회
 	Map<String, Object> getChargeHistory(long userId, int page, int size);
     
-    // 사용 내역 조회
-	Map<String, Object> getUseHistory(long userId, int page, int size);
+    // 구매내역 조회
+	Map<String, Object> getPurchaseHistory(long userId, int page, int size);
     
 }

@@ -5,15 +5,15 @@ import java.util.Map;
 
 public interface EumpyoHistoryDAO {
 
-    // 충전 내역 총 건수
+    // 충전내역 총 건수
     int countChargeHistory(long userId);
 
-    // 충전 내역 페이지 조회
+    // 충전내역 페이지 조회
     List<Map<String, Object>> findChargeHistoryPage(long userId, int offset, int limit);
 
-    // 사용 내역 총 건수
-    int countUseHistory(long userId);
+    // 구매내역 총 건수
+    int countPurchaseHistory(long userId);
 
-    // 사용 내역 페이지 조회
-    List<Map<String, Object>> findUseHistoryPage(long userId, int offset, int limit);
+    // 구매내역 페이지 조회
+    List<Map<String, Object>> findPurchaseHistoryPage(long userId, int offset, int limit);
 }

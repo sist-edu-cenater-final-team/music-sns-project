@@ -86,14 +86,14 @@ public class MypageController {
         return mav;
     }
 
-    // 음표 사용내역 페이지
-    @GetMapping("/eumpyo/useHistory")
+    // 음표 구매내역 페이지
+    @GetMapping("/eumpyo/purchaseHistory")
     public ModelAndView useHistoryPage(@AuthenticationPrincipal CustomUserDetails loginUser,
                                        @RequestParam(defaultValue = "1") int page,
                                        @RequestParam(defaultValue = "10") int size,
                                        HttpServletRequest request) {
 
-        ModelAndView mav = new ModelAndView("mypage/eumpyo/useHistory");
+        ModelAndView mav = new ModelAndView("mypage/eumpyo/purchaseHistory");
 
         page = Math.max(1, page);
         size = Math.max(1, Math.min(50, size));
@@ -109,7 +109,7 @@ public class MypageController {
         }
 
         long userId = loginUser.getUserId();
-        Map<String, Object> map = eumpyoHistoryService.getUseHistory(userId, page, size);
+        Map<String, Object> map = eumpyoHistoryService.getPurchaseHistory(userId, page, size);
 
         int totalCount = ((Number) map.getOrDefault("totalCount", 0)).intValue();
         int sizePerPage = ((Number) map.getOrDefault("size", size)).intValue();
@@ -120,7 +120,7 @@ public class MypageController {
         mav.addObject("currentShowPageNo", currentShowPageNo);
         mav.addObject("sizePerPage", sizePerPage);
 
-        String baseUrl = request.getContextPath() + "/mypage/eumpyo/useHistory";
+        String baseUrl = request.getContextPath() + "/mypage/eumpyo/purchaseHistory";
         String pageBar = makePageBar(totalCount, sizePerPage, currentShowPageNo, baseUrl);
         mav.addObject("pageBar", pageBar);
 

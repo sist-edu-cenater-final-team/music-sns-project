@@ -85,6 +85,6 @@
   </li>
   <li>
     <a class="tab${active eq 'useHistory' ? ' active' : ''}"
-       href="<%= ctxPath %>/mypage/eumpyo/useHistory">사용내역</a>
+       href="<%= ctxPath %>/mypage/eumpyo/purchaseHistory">구매내역</a>
   </li>
 </ul>

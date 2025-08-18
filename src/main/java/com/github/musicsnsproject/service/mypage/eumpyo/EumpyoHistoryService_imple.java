@@ -37,15 +37,15 @@ public class EumpyoHistoryService_imple implements EumpyoHistoryService {
     }
 
     @Override
-    public Map<String, Object> getUseHistory(long userId, int page, int size) {
-        int totalCount = dao.countUseHistory(userId);
+    public Map<String, Object> getPurchaseHistory(long userId, int page, int size) {
+        int totalCount = dao.countPurchaseHistory(userId);
         int totalPage  = (int) Math.ceil((double) totalCount / size);
         if (totalPage == 0) totalPage = 1;
 
         int current = Math.max(1, Math.min(page, totalPage));
         int offset  = (current - 1) * size;
 
-        List<Map<String, Object>> list = dao.findUseHistoryPage(userId, offset, size);
+        List<Map<String, Object>> list = dao.findPurchaseHistoryPage(userId, offset, size);
 
         Map<String, Object> out = new HashMap<>();
         out.put("result",      "success");
@@ -54,7 +54,7 @@ public class EumpyoHistoryService_imple implements EumpyoHistoryService {
         out.put("totalPage",   totalPage);
         out.put("page",        current);
         out.put("size",        size);
-        out.put("pageBar",     makePageBar(totalCount, size, current, "/mypage/eumpyo/history/use"));
+        out.put("pageBar",     makePageBar(totalCount, size, current, "/mypage/eumpyo/history/purchaseHistory"));
         return out;
     }
 

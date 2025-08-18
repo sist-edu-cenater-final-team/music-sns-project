@@ -207,7 +207,7 @@
 			            		</c:when>
 			            		<c:otherwise>
 			              			<tr>
-			                			<td colspan="5" class="text-center">충전 내역이 없습니다.</td>
+			                			<td colspan="5" class="text-center">충전내역이 없습니다.</td>
 			              			</tr>
 			            		</c:otherwise>
 			          		</c:choose>

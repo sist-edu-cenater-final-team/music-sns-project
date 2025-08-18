@@ -16,7 +16,7 @@ public class EumpyoHistoryController {
 
     private final EumpyoHistoryService historyService;
 
-    // 충전 내역 조회
+    // 충전내역 조회
     @GetMapping("/charge")
     public Map<String, Object> chargeHistory(@AuthenticationPrincipal CustomUserDetails loginUser,
                                              @RequestParam(defaultValue = "1") int page,
@@ -33,9 +33,9 @@ public class EumpyoHistoryController {
         return historyService.getChargeHistory(userId, page, size);
     }
 
-    // 사용 내역 조회
-    @GetMapping("/use")
-    public Map<String, Object> useHistory(@AuthenticationPrincipal CustomUserDetails loginUser,
+    // 구매내역 조회
+    @GetMapping("/purchaseHistory")
+    public Map<String, Object> purchaseHistory(@AuthenticationPrincipal CustomUserDetails loginUser,
                                           @RequestParam(defaultValue = "1") int page,
                                           @RequestParam(defaultValue = "10") int size) {
 
@@ -47,6 +47,6 @@ public class EumpyoHistoryController {
         }
 
         Long userId = loginUser.getUserId();
-        return historyService.getUseHistory(userId, page, size);
+        return historyService.getPurchaseHistory(userId, page, size);
     }
 }

@@ -30,16 +30,16 @@ public class EumpyoHistoryDAO_imple implements EumpyoHistoryDAO {
     }
 
     @Override
-    public int countUseHistory(long userId) {
-        return sql.selectOne("eumpyoHistory.countUseHistory", userId);
+    public int countPurchaseHistory(long userId) {
+        return sql.selectOne("eumpyoHistory.countPurchaseHistory", userId);
     }
 
     @Override
-    public List<Map<String, Object>> findUseHistoryPage(long userId, int offset, int limit) {
+    public List<Map<String, Object>> findPurchaseHistoryPage(long userId, int offset, int limit) {
         Map<String, Object> p = new HashMap<>();
         p.put("userId", userId);
         p.put("offset", offset);
         p.put("limit",  limit);
-        return sql.selectList("eumpyoHistory.findUseHistoryPage", p);
+        return sql.selectList("eumpyoHistory.findPurchaseHistoryPage", p);
     }
 }
