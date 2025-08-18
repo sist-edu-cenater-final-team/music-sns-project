@@ -20,7 +20,6 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class SpotifyMusicService {
-    private final WebClient.Builder webClientBuilder;
     private final SpotifyDao spotifyDao;
 
 
