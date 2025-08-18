@@ -2,8 +2,8 @@
 name: 'Issue: ✅FEATURE'
 about: 새로운 기능 추가에 대한 이슈
 title: "[FEATURE] "
-labels: ''
-assignees: ''
+labels: "✨FEATURE"
+assignees: SirimpCode
 
 ---
 
