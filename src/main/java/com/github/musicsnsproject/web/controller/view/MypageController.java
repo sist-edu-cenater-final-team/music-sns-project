@@ -34,7 +34,7 @@ public class MypageController {
     }
 
     // 장바구니
-    @GetMapping("cart")
+    @GetMapping("/cart")
     public String musicCart(){
         return "mypage/cart";
     }
@@ -54,9 +54,11 @@ public class MypageController {
 
         ModelAndView mav = new ModelAndView("mypage/eumpyo/chargeHistory");
 
+        page = Math.max(1, page);               
+        size = Math.max(1, Math.min(50, size));
+        
         // 로그인 사용자 확인
         if (loginUser == null) {
-            mav.addObject("chargeList", null);
             mav.addObject("list", null);
             mav.addObject("totalCount", 0);
             mav.addObject("currentShowPageNo", 1);
@@ -68,20 +70,19 @@ public class MypageController {
         long userId = loginUser.getUserId();
         Map<String, Object> map = eumpyoHistoryService.getChargeHistory(userId, page, size);
 
-        mav.addObject("chargeList", map.get("list"));
-        mav.addObject("list",       map.get("list"));
-        mav.addObject("totalCount", map.get("totalCount"));
-        mav.addObject("currentShowPageNo", ((Number) map.get("page")).intValue());
-        mav.addObject("sizePerPage", ((Number) map.get("size")).intValue());
+        int totalCount = ((Number) map.getOrDefault("totalCount", 0)).intValue();
+        int sizePerPage = ((Number) map.getOrDefault("size", size)).intValue();
+        int currentShowPageNo = ((Number) map.getOrDefault("page",       page)).intValue();
 
-        int totalCount = ((Number) map.get("totalCount")).intValue();
-        int sizePerPage = ((Number) map.get("size")).intValue();
-        int currentShowPageNo = ((Number) map.get("page")).intValue();
+        mav.addObject("list", map.get("list"));                       
+        mav.addObject("totalCount", totalCount);
+        mav.addObject("currentShowPageNo", currentShowPageNo);
+        mav.addObject("sizePerPage", sizePerPage);
 
         String baseUrl = request.getContextPath() + "/mypage/eumpyo/chargeHistory";
         String pageBar = makePageBar(totalCount, sizePerPage, currentShowPageNo, baseUrl);
-
         mav.addObject("pageBar", pageBar);
+
         return mav;
     }
 
@@ -94,10 +95,12 @@ public class MypageController {
 
         ModelAndView mav = new ModelAndView("mypage/eumpyo/useHistory");
 
+        page = Math.max(1, page);
+        size = Math.max(1, Math.min(50, size));
+        
         // 로그인 사용자 확인
         if (loginUser == null) {
-            mav.addObject("useList", null);
-            mav.addObject("list",    null);
+            mav.addObject("list", null);
             mav.addObject("totalCount", 0);
             mav.addObject("currentShowPageNo", 1);
             mav.addObject("sizePerPage", size);
@@ -108,20 +111,19 @@ public class MypageController {
         long userId = loginUser.getUserId();
         Map<String, Object> map = eumpyoHistoryService.getUseHistory(userId, page, size);
 
-        mav.addObject("useList", map.get("list"));
-        mav.addObject("list",    map.get("list"));
-        mav.addObject("totalCount", map.get("totalCount"));
-        mav.addObject("currentShowPageNo", ((Number) map.get("page")).intValue());
-        mav.addObject("sizePerPage", ((Number) map.get("size")).intValue());
+        int totalCount = ((Number) map.getOrDefault("totalCount", 0)).intValue();
+        int sizePerPage = ((Number) map.getOrDefault("size", size)).intValue();
+        int currentShowPageNo = ((Number) map.getOrDefault("page", page)).intValue();
 
-        int totalCount = ((Number) map.get("totalCount")).intValue();
-        int sizePerPage = ((Number) map.get("size")).intValue();
-        int currentShowPageNo = ((Number) map.get("page")).intValue();
+        mav.addObject("list", map.get("list"));               
+        mav.addObject("totalCount", totalCount);
+        mav.addObject("currentShowPageNo", currentShowPageNo);
+        mav.addObject("sizePerPage", sizePerPage);
 
         String baseUrl = request.getContextPath() + "/mypage/eumpyo/useHistory";
         String pageBar = makePageBar(totalCount, sizePerPage, currentShowPageNo, baseUrl);
-
         mav.addObject("pageBar", pageBar);
+
         return mav;
     }
 
@@ -137,7 +139,7 @@ public class MypageController {
 
         boolean isFirstPage   = (currentShowPageNo <= 1);
         boolean isLastPage    = (currentShowPageNo >= totalPage);
-        boolean showFirstLast = (currentShowPageNo > 5);  // 6페이지부터 « » 맨처음, 마지막 노출
+        boolean showFirstLast = (currentShowPageNo > blockSize);  // 6페이지부터 « » 맨처음, 마지막 노출
 
         StringBuilder sb = new StringBuilder();
         sb.append("<ul class='pg-bar'>");
