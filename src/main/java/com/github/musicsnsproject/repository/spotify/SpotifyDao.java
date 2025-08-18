@@ -8,11 +8,9 @@ import org.apache.hc.core5.http.ParseException;
 import org.springframework.stereotype.Repository;
 import se.michaelthelin.spotify.SpotifyApi;
 import se.michaelthelin.spotify.exceptions.SpotifyWebApiException;
-import se.michaelthelin.spotify.model_objects.specification.AlbumSimplified;
-import se.michaelthelin.spotify.model_objects.specification.Artist;
-import se.michaelthelin.spotify.model_objects.specification.Paging;
-import se.michaelthelin.spotify.model_objects.specification.Track;
+import se.michaelthelin.spotify.model_objects.specification.*;
 import se.michaelthelin.spotify.requests.data.AbstractDataRequest;
+import se.michaelthelin.spotify.requests.data.albums.GetAlbumRequest;
 import se.michaelthelin.spotify.requests.data.artists.GetArtistRequest;
 import se.michaelthelin.spotify.requests.data.artists.GetArtistsAlbumsRequest;
 import se.michaelthelin.spotify.requests.data.search.simplified.SearchTracksRequest;
@@ -64,6 +62,13 @@ public class SpotifyDao {
                 .setHeader("Accept-Language", "ko-KR,ko;q=0.9")
                 .offset(page*size)
                 .limit(size+1) // Spotify API는 최대 50개까지 한 번에 요청 가능
+                .build();
+        return requestExecute(request);
+    }
+
+    public Album findAlbumById(String albumId) {
+        GetAlbumRequest request = spotifyApi.getAlbum(albumId)
+                .setHeader("Accept-Language", "ko-KR,ko;q=0.9")
                 .build();
         return requestExecute(request);
     }

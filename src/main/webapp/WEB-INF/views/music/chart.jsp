@@ -64,7 +64,7 @@
                     </div>
 
                     <footer class="text-center small-muted">
-                        제공된 JSON 응답을 axios로 받아 화면에 렌더링합니다.
+<%--                        제공된 JSON 응답을 axios로 받아 화면에 렌더링합니다.--%>
                     </footer>
                 </div>
             </div>
