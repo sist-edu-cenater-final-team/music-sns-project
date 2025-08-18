@@ -57,6 +57,21 @@ if (window.__musicSearchPurpleInitialized) {
             doSearch();
         }
 
+        // 화면 절반 크기 팝업창으로 Spotify 페이지 열기
+        function openSpotifyPopup(url) {
+            const screenWidth = window.screen.width;
+            const screenHeight = window.screen.height;
+
+            const popupWidth = Math.floor(screenWidth / 2);
+            const popupHeight = Math.floor(screenHeight * 0.8);
+            const left = Math.floor((screenWidth - popupWidth) / 2);
+            const top = Math.floor((screenHeight - popupHeight) / 2);
+
+            const features = `width=${popupWidth},height=${popupHeight},left=${left},top=${top},scrollbars=yes,resizable=yes`;
+
+            window.open(url, 'spotifyPopup', features);
+        }
+
         // doSearch: inFlight 체크로 중복 요청 차단
         async function doSearch(page = 1) {
             if (inFlight) {
@@ -136,7 +151,7 @@ if (window.__musicSearchPurpleInitialized) {
                 // 아티스트들을 개별 span으로 생성
                 const artistsHtml = (item.artist || []).map((artist, index) => {
                     const comma = index > 0 ? ', ' : '';
-                    return `${comma}<span class="artist-item" data-artist-id="${escapeHtml(artist.artistId || '')}">${escapeHtml(artist.artistName)}</span>`;
+                    return `${comma}<a class="artist-item" href="${ctxPath}/music/artist/${escapeHtml(artist.artistId || '')}" data-artist-id="${escapeHtml(artist.artistId || '')}">${escapeHtml(artist.artistName)}</a>`;
                 }).join('');
 
 
@@ -163,11 +178,24 @@ if (window.__musicSearchPurpleInitialized) {
                     </div>
                     <div class="track-right">
                         <div class="track-duration">${escapeHtml(duration)}</div>
-                        <div><a class="btn btn-sm btn-outline-primary btn-spotify" href="${escapeHtml(item.trackSpotifyUrl)}" target="_blank">Spotify</a></div>
+                        
                     </div>
                 `;
+                // ⬆️track-duration 아래 에있던 거 주석처리 <div><a class="btn btn-sm btn-outline-primary btn-spotify" href="${escapeHtml(item.trackSpotifyUrl)}" target="_blank">Spotify</a></div>
 
                 frag.appendChild(a);
+
+                // 트랙 제목 클릭 이벤트 추가
+                const trackTitle = a.querySelector('.track-title');
+                trackTitle.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+
+                    const spotifyUrl = item.trackSpotifyUrl;
+                    if (spotifyUrl) {
+                        openSpotifyPopup(spotifyUrl);
+                    }
+                });
             });
             // 헤더 추가
             if(currentPage === 1) {

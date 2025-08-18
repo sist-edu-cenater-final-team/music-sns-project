@@ -3,6 +3,7 @@ package com.github.musicsnsproject.web.controller.rest.music;
 import com.github.musicsnsproject.common.myenum.MusicSearchType;
 import com.github.musicsnsproject.service.music.SpotifyMusicService;
 import com.github.musicsnsproject.web.dto.music.spotify.SimplifiedAlbum;
+import com.github.musicsnsproject.web.dto.music.spotify.album.AlbumResponse;
 import com.github.musicsnsproject.web.dto.music.spotify.artist.ArtistResponse;
 import com.github.musicsnsproject.web.dto.music.spotify.track.TrackResponse;
 import com.github.musicsnsproject.web.dto.pageable.PaginationResponse;
@@ -38,6 +39,11 @@ public class SpotifyMusicController {
     public CustomSuccessResponse<ArtistResponse> searchArtistById(@RequestParam String artistId) {
         ArtistResponse response = spotifyMusicService.searchArtistById(artistId);
         return CustomSuccessResponse.ofOk("Spotify 아티스트 조회 성공", response);
+    }
+    @GetMapping("/album")
+    public CustomSuccessResponse<AlbumResponse> searchAlbumById(@RequestParam String albumId) {
+        AlbumResponse response = spotifyMusicService.searchAlbumById(albumId);
+        return CustomSuccessResponse.ofOk("Spotify 앨범 조회 성공", response);
     }
 
     @GetMapping("/artist/albums")

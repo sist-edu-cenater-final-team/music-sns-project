@@ -3,6 +3,7 @@ package com.github.musicsnsproject.service.music;
 import com.github.musicsnsproject.common.myenum.MusicSearchType;
 import com.github.musicsnsproject.repository.spotify.SpotifyDao;
 import com.github.musicsnsproject.web.dto.music.spotify.SimplifiedAlbum;
+import com.github.musicsnsproject.web.dto.music.spotify.album.AlbumResponse;
 import com.github.musicsnsproject.web.dto.music.spotify.artist.ArtistResponse;
 import com.github.musicsnsproject.web.dto.music.spotify.SimplifiedArtist;
 import com.github.musicsnsproject.web.dto.music.spotify.track.TrackResponse;
@@ -19,7 +20,6 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class SpotifyMusicService {
-    private final WebClient.Builder webClientBuilder;
     private final SpotifyDao spotifyDao;
 
 
@@ -153,6 +153,16 @@ public class SpotifyMusicService {
     }
 
 
+    public AlbumResponse searchAlbumById(String albumId) {
+        Album album = spotifyDao.findAlbumById(albumId);
+
+        return null;
+    }
+
+    public TrackResponse getTrackResponseById(String trackId) {
+        Track track = spotifyDao.findTrackById(trackId);
+        return convertToTrackResponse(track);
+    }
 }
 
 

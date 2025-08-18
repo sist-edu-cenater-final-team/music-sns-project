@@ -5,6 +5,7 @@
     --color-bugs:  #FF9F43;   /* 주황 */
     --card-bg: #ffffff;
     --muted: #6c757d;
+    --normal: black;
 }
 
 body{
@@ -93,6 +94,8 @@ body{
     white-space:nowrap;
     text-overflow:ellipsis;
     overflow:hidden;
+    text-decoration: none;
+    color:var(--normal);
 }
 .meta .artist { color:var(--muted); font-size:0.9rem; white-space:nowrap; text-overflow:ellipsis; overflow:hidden; }
 

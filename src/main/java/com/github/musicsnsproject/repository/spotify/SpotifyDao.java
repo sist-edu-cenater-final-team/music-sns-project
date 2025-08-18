@@ -8,14 +8,13 @@ import org.apache.hc.core5.http.ParseException;
 import org.springframework.stereotype.Repository;
 import se.michaelthelin.spotify.SpotifyApi;
 import se.michaelthelin.spotify.exceptions.SpotifyWebApiException;
-import se.michaelthelin.spotify.model_objects.specification.AlbumSimplified;
-import se.michaelthelin.spotify.model_objects.specification.Artist;
-import se.michaelthelin.spotify.model_objects.specification.Paging;
-import se.michaelthelin.spotify.model_objects.specification.Track;
+import se.michaelthelin.spotify.model_objects.specification.*;
 import se.michaelthelin.spotify.requests.data.AbstractDataRequest;
+import se.michaelthelin.spotify.requests.data.albums.GetAlbumRequest;
 import se.michaelthelin.spotify.requests.data.artists.GetArtistRequest;
 import se.michaelthelin.spotify.requests.data.artists.GetArtistsAlbumsRequest;
 import se.michaelthelin.spotify.requests.data.search.simplified.SearchTracksRequest;
+import se.michaelthelin.spotify.requests.data.tracks.GetTrackRequest;
 
 import java.io.IOException;
 
@@ -59,6 +58,7 @@ public class SpotifyDao {
         }
     }
 
+
     public Paging<AlbumSimplified> findArtistAlbums(String artistId, int page, int size) {
         GetArtistsAlbumsRequest request = spotifyApi.getArtistsAlbums(artistId)
                 .setHeader("Accept-Language", "ko-KR,ko;q=0.9")
@@ -66,5 +66,19 @@ public class SpotifyDao {
                 .limit(size+1) // Spotify API는 최대 50개까지 한 번에 요청 가능
                 .build();
         return requestExecute(request);
+    }
+
+    public Album findAlbumById(String albumId) {
+        GetAlbumRequest request = spotifyApi.getAlbum(albumId)
+                .setHeader("Accept-Language", "ko-KR,ko;q=0.9")
+                .build();
+        return requestExecute(request);
+    }
+    public Track findTrackById(String trackId) {
+        GetTrackRequest request = spotifyApi.getTrack(trackId)
+                .setHeader("Accept-Language", "ko-KR,ko;q=0.9")
+                .build();
+        return requestExecute(request);
+
     }
 }

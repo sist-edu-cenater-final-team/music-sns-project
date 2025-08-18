@@ -7,7 +7,7 @@ import com.github.musicsnsproject.repository.jpa.music.cart.MusicCartRepository;
 import com.github.musicsnsproject.service.music.SpotifyMusicService;
 import com.github.musicsnsproject.web.advice.ExceptionControllerAdvice;
 import com.github.musicsnsproject.web.dto.music.cart.CartResponse;
-import com.github.musicsnsproject.web.dto.music.spotify.track.TrackArtist;
+import com.github.musicsnsproject.web.dto.music.spotify.SimplifiedArtist;
 import com.github.musicsnsproject.web.dto.music.spotify.track.TrackResponse;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
@@ -45,11 +45,12 @@ public class CartService_imple implements CartService {
                 .map(cart -> {
                     TrackResponse tr = spotifyMusicService.getTrackResponseById(cart.getMusicId());
 
-                    String albumName = (tr != null && tr.album() != null) ? tr.album().albumName() : null;
-                    String albumImageUrl = (tr != null && tr.album() != null) ? tr.album().albumImageUrl() : null;
-                    String artistName = (tr != null && tr.artist() != null)
-                            ? tr.artist().stream()
-                            .map(TrackArtist::artistName)
+
+                    String albumName = (tr != null && tr.getAlbum() != null) ? tr.getAlbum().getAlbumName() : null;
+                    String albumImageUrl = (tr != null && tr.getAlbum() != null) ? tr.getAlbum().getAlbumImageUrl() : null;
+                    String artistName = (tr != null && tr.getArtist() != null)
+                            ? tr.getArtist().stream()
+                            .map(SimplifiedArtist::artistName)
                             .distinct()
                             .collect(java.util.stream.Collectors.joining(", "))
                             : null;
@@ -58,7 +59,7 @@ public class CartService_imple implements CartService {
                             .cartId(cart.getMusicCartId())
                             .userId(cart.getMyUser().getUserId())
                             .musicId(cart.getMusicId())
-                            .musicName(tr != null ? tr.trackName() : null)
+                            .musicName(tr != null ? tr.getTrackName() : null)
                             .albumName(albumName)
                             .albumImageUrl(albumImageUrl)
                             .artistName(artistName)
@@ -90,6 +91,7 @@ public class CartService_imple implements CartService {
                             .myUser(user)
                             .build()
             );
+
         }
 
         // 업데이트 된 장바구니 반환
