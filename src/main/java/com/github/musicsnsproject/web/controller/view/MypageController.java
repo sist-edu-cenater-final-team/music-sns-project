@@ -1,26 +1,37 @@
 package com.github.musicsnsproject.web.controller.view;
 
-import java.util.List;
+import java.util.Map;
 
-import org.springframework.data.domain.Page;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.ModelAndView;
 
 import com.github.musicsnsproject.common.security.userdetails.CustomUserDetails;
-import com.github.musicsnsproject.service.mypage.MypageService;
+import com.github.musicsnsproject.service.mypage.eumpyo.EumpyoChargeService;
+import com.github.musicsnsproject.service.mypage.eumpyo.EumpyoHistoryService;
 
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
 
 @Controller
 @RequestMapping("/mypage")
+@RequiredArgsConstructor
 public class MypageController {
 
+    private final EumpyoChargeService eumpyoChargeService;
+    private final EumpyoHistoryService eumpyoHistoryService;
+
+    // 모든 /mypage/* 뷰에 보유 코인 주입
+    @ModelAttribute("myCoinBalance")
+    public Long myCoinBalance(@AuthenticationPrincipal CustomUserDetails loginUser) {
+        if (loginUser == null) return 0L;
+        Long coin = eumpyoChargeService.getUserCoin(loginUser.getUserId());
+        return (coin == null ? 0L : coin);
+    }
 
     // 장바구니
     @GetMapping("cart")
@@ -28,134 +39,179 @@ public class MypageController {
         return "mypage/cart";
     }
 
-
     // 음표 충전 페이지
-    @GetMapping("/eumpyo/sellingList")
-    public String sellingList() {
-        return "mypage/eumpyo/sellingList";
+    @GetMapping("/eumpyo/charge")
+    public String charge() {
+        return "mypage/eumpyo/charge";
     }
-
-    // 음표 사용내역 페이지
-    @GetMapping("/eumpyo/purchasedProductList")
-    public String purchasedProductList() {
-        return "mypage/eumpyo/purchasedProductList";
-    }
-
-    // 음표 충전 페이지
-    @GetMapping("/eumpyo/purchasedList")
-    public String purchasedList() {
-        return "mypage/eumpyo/purchasedList";
-    }
-
-/*
-    // 음표 사용내역 페이지
-    @GetMapping("/eumpyo/purchasedProductList")
-    public String purchasedProductList(@RequestParam(value="pageno",    defaultValue="1") int currentShowPageNo,
-            						   Model model,
-            						   HttpServletRequest request, HttpServletResponse response) {
-
-		int sizePerPage = 5;
-
-		int totalPage = 0;        // 전체 페이지 개수
-		long totalDataCount = 0;  // 전체 데이터의 개수
-		String pageBar = "";      // 페이지바
-
-		try {
-			Page<purchasedProductListServiceService> pagePurchaseHistory = purchasedProductListServiceService.getPurchaseHistory(currentShowPageNo, sizePerPage);
-
-			totalPage = pagePurchaseHistory.getTotalPages(); // 전체 페이지수 개수
-		//	System.out.println("~~~ 확인용 전체 페이지수 개수 : " + totalPage);
-
-			if(currentShowPageNo > totalPage) {
-				currentShowPageNo = totalPage;
-				pagePurchaseHistory = purchasedProductListServiceService.getPurchaseHistory(currentShowPageNo, sizePerPage);
-			}
-
-			totalDataCount = pagePurchaseHistory.getTotalElements(); // 전체 데이터의 개수
-		//	System.out.println("~~~ 확인용 전체 데이터의 개수 : " + totalDataCount);
-
-			List<PurchaseHistory> PurchaseHistoryList = pagePurchaseHistory.getContent(); // 현재 페이지의 데이터 목록
-
-			// 현재 페이지의 데이터 목록인 List<PurchaseHistory> 를 List<PurchaseHistoryDTO> 로 변환한다.
-			List<PurchaseHistoryDTO> purchaseHistoryDtoList = purchaseHistoryList.stream()
-													         .map(PurchaseHistory::toDTO)
-												             .collect(Collectors.toList());
-
-			for(BoardDTO dto : boardDtoList) {
-				System.out.println("~~~ 확인용 글제목 : " + dto.getSubject());
-			}
-
-			model.addAttribute("boardDtoList", purchaseHistoryDtoList);
-
-			// ================ 페이지바 만들기 시작 ====================== //
-
-			int blockSize = 10;
-
-			int loop = 1;
-
-			int pageno = ((currentShowPageNo - 1)/blockSize) * blockSize + 1;
-
-
-			pageBar = "<ul style='list-style:none;'>";
-			String url = "/board/list";
-
-			// === [맨처음][이전] 만들기 === //
-			if(pageno != 1) {
-				pageBar += "<li style='display:inline-block; width:70px; font-size:12pt;'><a href='"+url+"?searchType="+searchType+"&searchWord="+searchWord+"&pageno=1'>[맨처음]</a></li>";
-				pageBar += "<li style='display:inline-block; width:50px; font-size:12pt;'><a href='"+url+"?searchType="+searchType+"&searchWord="+searchWord+"&pageno="+(pageno-1)+"'>[이전]</a></li>";
-			}
-
-			while( !(loop > blockSize || pageno > totalPage) ) {
-
-				if(pageno == currentShowPageNo) {
-					pageBar += "<li style='display:inline-block; width:30px; font-size:12pt; border:solid 1px gray; color:red; padding:2px 4px;'>"+pageno+"</li>";
-				}
-				else {
-					pageBar += "<li style='display:inline-block; width:30px; font-size:12pt;'><a href='"+url+"?searchType="+searchType+"&searchWord="+searchWord+"&pageno="+pageno+"'>"+pageno+"</a></li>";
-				}
-
-				loop++;
-				pageno++;
-			}// end of while------------------------
-
-			// === [다음][마지막] 만들기 === //
-			if(pageno <= totalPage) {
-				pageBar += "<li style='display:inline-block; width:50px; font-size:12pt;'><a href='"+url+"?searchType="+searchType+"&searchWord="+searchWord+"&pageno="+pageno+"'>[다음]</a></li>";
-				pageBar += "<li style='display:inline-block; width:70px; font-size:12pt;'><a href='"+url+"?searchType="+searchType+"&searchWord="+searchWord+"&pageno="+totalPage+"'>[마지막]</a></li>";
-			}
-
-			pageBar += "</ul>";
-
-			model.addAttribute("pageBar", pageBar);
-
-			// ================ 페이지바 만들기 끝 ====================== //
-
-			model.addAttribute("totalDataCount", totalDataCount); // 페이징 처리시 보여주는 순번을 나타내기 위한 것임.
-			model.addAttribute("currentShowPageNo", currentShowPageNo); // 페이징 처리시 보여주는 순번을 나타내기 위한 것임.
-			model.addAttribute("sizePerPage", sizePerPage); // 페이징 처리시 보여주는 순번을 나타내기 위한 것임.
-
-			Cookie cookie = new Cookie("listURL", listURL);
-
-			cookie.setMaxAge(24*60*60);  // 쿠키수명은 1일로 함
-			cookie.setPath("/eumpyo/");  // 쿠키가 브라우저에서 전송될 URL 경로 범위(Path)를 지정하는 설정임
-
-			response.addCookie(cookie);
-
-		} catch(Exception e) {
-
-		}
-
-		return "mypage/eumpyo/purchasedProductList";
-
-    }
-
 
     // 음표 충전내역 페이지
-    @GetMapping("/eumpyo/purchasedList")
-    public String purchasedList(@AuthenticationPrincipal CustomUserDetails user, Model model) {
-        Long userId = user.getUserId();
-        model.addAttribute("purchasedList", purchaseHistoryService.getPurchasedList(userId));
-        return "mypage/eumpyo/purchasedList";
+    @GetMapping("/eumpyo/chargeHistory")
+    public ModelAndView chargeHistoryPage(@AuthenticationPrincipal CustomUserDetails loginUser,
+                                          @RequestParam(defaultValue = "1") int page,
+                                          @RequestParam(defaultValue = "10") int size,
+                                          HttpServletRequest request) {
+
+        ModelAndView mav = new ModelAndView("mypage/eumpyo/chargeHistory");
+
+        // 로그인 사용자 확인
+        if (loginUser == null) {
+            mav.addObject("chargeList", null);
+            mav.addObject("list", null);
+            mav.addObject("totalCount", 0);
+            mav.addObject("currentShowPageNo", 1);
+            mav.addObject("sizePerPage", size);
+            mav.addObject("pageBar", "");
+            return mav;
+        }
+
+        long userId = loginUser.getUserId();
+        Map<String, Object> map = eumpyoHistoryService.getChargeHistory(userId, page, size);
+
+        mav.addObject("chargeList", map.get("list"));
+        mav.addObject("list",       map.get("list"));
+        mav.addObject("totalCount", map.get("totalCount"));
+        mav.addObject("currentShowPageNo", ((Number) map.get("page")).intValue());
+        mav.addObject("sizePerPage", ((Number) map.get("size")).intValue());
+
+        int totalCount = ((Number) map.get("totalCount")).intValue();
+        int sizePerPage = ((Number) map.get("size")).intValue();
+        int currentShowPageNo = ((Number) map.get("page")).intValue();
+
+        String baseUrl = request.getContextPath() + "/mypage/eumpyo/chargeHistory";
+        String pageBar = makePageBar(totalCount, sizePerPage, currentShowPageNo, baseUrl);
+
+        mav.addObject("pageBar", pageBar);
+        return mav;
     }
-*/
+
+    // 음표 사용내역 페이지
+    @GetMapping("/eumpyo/useHistory")
+    public ModelAndView useHistoryPage(@AuthenticationPrincipal CustomUserDetails loginUser,
+                                       @RequestParam(defaultValue = "1") int page,
+                                       @RequestParam(defaultValue = "10") int size,
+                                       HttpServletRequest request) {
+
+        ModelAndView mav = new ModelAndView("mypage/eumpyo/useHistory");
+
+        // 로그인 사용자 확인
+        if (loginUser == null) {
+            mav.addObject("useList", null);
+            mav.addObject("list",    null);
+            mav.addObject("totalCount", 0);
+            mav.addObject("currentShowPageNo", 1);
+            mav.addObject("sizePerPage", size);
+            mav.addObject("pageBar", "");
+            return mav;
+        }
+
+        long userId = loginUser.getUserId();
+        Map<String, Object> map = eumpyoHistoryService.getUseHistory(userId, page, size);
+
+        mav.addObject("useList", map.get("list"));
+        mav.addObject("list",    map.get("list"));
+        mav.addObject("totalCount", map.get("totalCount"));
+        mav.addObject("currentShowPageNo", ((Number) map.get("page")).intValue());
+        mav.addObject("sizePerPage", ((Number) map.get("size")).intValue());
+
+        int totalCount = ((Number) map.get("totalCount")).intValue();
+        int sizePerPage = ((Number) map.get("size")).intValue();
+        int currentShowPageNo = ((Number) map.get("page")).intValue();
+
+        String baseUrl = request.getContextPath() + "/mypage/eumpyo/useHistory";
+        String pageBar = makePageBar(totalCount, sizePerPage, currentShowPageNo, baseUrl);
+
+        mav.addObject("pageBar", pageBar);
+        return mav;
+    }
+
+    // 페이지바 생성
+    private String makePageBar(int totalCount, int sizePerPage, int currentShowPageNo, String baseUrl) {
+        int totalPage = (int) Math.ceil((double) totalCount / sizePerPage);
+        if (totalPage <= 0) totalPage = 1;
+
+        final int blockSize = 5;
+
+        int startNo = ((currentShowPageNo - 1) / blockSize) * blockSize + 1;
+        int endNo   = Math.min(startNo + blockSize - 1, totalPage);
+
+        boolean isFirstPage   = (currentShowPageNo <= 1);
+        boolean isLastPage    = (currentShowPageNo >= totalPage);
+        boolean showFirstLast = (currentShowPageNo > 5);  // 6페이지부터 « » 맨처음, 마지막 노출
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("<ul class='pg-bar'>");
+
+        // « 맨처음
+        if (showFirstLast) {
+            if (isFirstPage) {
+                sb.append("<li class='pg-item pg-item--first is-disabled'>")
+                  .append("<span class='pg-text pg-text--icon' aria-hidden='true'>&laquo;</span>")
+                  .append("</li>");
+            } else {
+                sb.append("<li class='pg-item pg-item--first'>")
+                  .append("<a class='pg-link pg-link--icon pg-first' aria-label='맨처음' href='")
+                  .append(baseUrl).append("?page=1&size=").append(sizePerPage).append("'>")
+                  .append("<span aria-hidden='true'>&laquo;</span></a></li>");
+            }
+        }
+
+        // ‹ 이전
+        if (isFirstPage) {
+            sb.append("<li class='pg-item pg-item--prev is-disabled'>")
+              .append("<span class='pg-text pg-text--icon' aria-hidden='true'>&lsaquo;</span>")
+              .append("</li>");
+        } else {
+            sb.append("<li class='pg-item pg-item--prev'>")
+              .append("<a class='pg-link pg-link--icon pg-prev' aria-label='이전' href='")
+              .append(baseUrl).append("?page=").append(currentShowPageNo - 1)
+              .append("&size=").append(sizePerPage).append("'>")
+              .append("<span aria-hidden='true'>&lsaquo;</span></a></li>");
+        }
+
+        // 페이지
+        for (int pageNo = startNo; pageNo <= endNo; pageNo++) {
+            if (pageNo == currentShowPageNo) {
+                sb.append("<li class='pg-item pg-item--num is-current'>")
+                  .append("<span class='pg-current' aria-current='page'>").append(pageNo).append("</span>")
+                  .append("</li>");
+            } else {
+                sb.append("<li class='pg-item pg-item--num'>")
+                  .append("<a class='pg-link' href='").append(baseUrl)
+                  .append("?page=").append(pageNo)
+                  .append("&size=").append(sizePerPage).append("'>").append(pageNo).append("</a></li>");
+            }
+        }
+
+        // › 다음
+        if (isLastPage) {
+            sb.append("<li class='pg-item pg-item--next is-disabled'>")
+              .append("<span class='pg-text pg-text--icon' aria-hidden='true'>&rsaquo;</span>")
+              .append("</li>");
+        } else {
+            sb.append("<li class='pg-item pg-item--next'>")
+              .append("<a class='pg-link pg-link--icon pg-next' aria-label='다음' href='")
+              .append(baseUrl).append("?page=").append(currentShowPageNo + 1)
+              .append("&size=").append(sizePerPage).append("'>")
+              .append("<span aria-hidden='true'>&rsaquo;</span></a></li>");
+        }
+
+        // » 마지막
+        if (showFirstLast) {
+            if (isLastPage) {
+                sb.append("<li class='pg-item pg-item--last is-disabled'>")
+                  .append("<span class='pg-text pg-text--icon' aria-hidden='true'>&raquo;</span>")
+                  .append("</li>");
+            } else {
+                sb.append("<li class='pg-item pg-item--last'>")
+                  .append("<a class='pg-link pg-link--icon pg-last' aria-label='마지막' href='")
+                  .append(baseUrl).append("?page=").append(totalPage)
+                  .append("&size=").append(sizePerPage).append("'>")
+                  .append("<span aria-hidden='true'>&raquo;</span></a></li>");
+            }
+        }
+
+        sb.append("</ul>");
+        return sb.toString();
+    }
 }

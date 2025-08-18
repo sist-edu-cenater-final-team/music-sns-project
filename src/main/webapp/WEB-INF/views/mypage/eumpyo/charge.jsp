@@ -11,135 +11,163 @@
 <html>
 <jsp:include page="../../include/common/head.jsp" />
 <link rel="stylesheet" href="../../css/mypage.css" />
-<link rel="stylesheet" href="../../css/sellingList.css" />
 
 <style>
-  :root{
-    --accent:#6C63FF;
-    --text:#1e1e2d;
-    --muted:#9aa0a6;
-    --line:#eceef3;
-    --chip:#f6f7fb;
-  }
-  body{ color:var(--text); background:#fff; }
-
-  .page-wrap{
-    margin:32px auto 80px;
-    padding:0 66px;
-  }
-
-  /* 상단 보유 음표 배너 좌우 정렬 맞춤 */
-  .balance-bar-wrap{ padding:0 66px; } /* NEW */
-  .balance-bar{
-    display:flex; align-items:center; justify-content:space-between;
-    background:var(--chip); border:1px solid var(--line); border-radius:12px;
-    padding:12px 16px; margin-bottom:24px;
-  }
-  .balance-bar .label{ color:#6b7280; font-weight:600; }
-  .balance-bar .value{
-    color:#4f46e5; font-weight:800; font-size:18px; text-decoration:underline;
-    text-underline-offset:2px;
-  }
-
-  .row.columns-2{ position:relative; } /* NEW */
-  @media (min-width:992px){
-    .row.columns-2 > [class*="chargeOptions"]{ position:relative; }
-    .row.columns-2 > [class*="chargeOptions"]:not(:first-child)::before{
-      content:""; position:absolute; left:-12px; top:0; width:1px; height:100%;
-    }
-  }
-
-  .chargePrices .row-item, .usage-list .row-item{
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    padding:25px 30px;
-    border-bottom:1px solid var(--line);
-  }
-  .row-item:last-child{ border-bottom:0; }
+ .row-item {
+	display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 25px 30px;
+    border-bottom: 1px solid #E0E0E0;
+ }
   
  .item-left,
  .item-right {
-	display:flex;
-	align-items:center;
-	gap:14px;
+	display: flex;
+	align-items: center;
+	gap: 14px;
+	flex-wrap: nowrap;   /* 줄바꿈 방지(한 줄 유지) */
+    min-width: 0;        /* ... 처리 */
  }
  
-  .chargeOption {
+ .chargeOption {
  	position: relative;
     width: 100%;
     padding: 0px 30px;
  }
 	
-	
-  .item-right{ display:flex; align-items:center; gap:12px; }
-  #eumpyoIcon { display:inline-flex; align-items:center; justify-content:center;
-         width:28px; height:28px; border-radius:6px; background:#f3f2ff; font-size:16px; }
+ .coinIcon {
+    width: 28px;
+    border-radius: 6px;
+    background: #F3F2F8;
+ }
          
-  .item-title {
-  	color:#5A5A5A;
-  	font-weight:500;
-  	
-  }
-  .item-sub{ font-size:13px; color:var(--muted); }
-  .btn-charge,.btn-usage {
-  	min-width:100px;
-  	border:none;
-  	border-radius:8px;
-  	padding:8px 14px;
-    font-weight:600;
-    background:#6633FF;
-    color:#fff; 
-   }
+ .item-title {
+	color: #5A5A5A;
+  	font-size: 16px;
+  	font-weight: 500;
+  	white-space: nowrap;      /* 줄바꿈 금지 */
+    word-break: keep-all;     /* 한국어 단어 중간 줄바꿈 방지 */
+    overflow: hidden;         /* 넘치면 숨김 */
+    text-overflow: ellipsis;  /* 말줄임표(...) */
+    max-width: 100%;          /* 컨테이너 폭 내에서 처리 */
+ }
+  
+ .btn-charge {
+	min-width: 100px;
+  	border: none;
+  	border-radius: 8px;
+  	padding: 8px 10px;
+  	font-size: 16px;
+    font-weight: 600;
+    background: #6633FF;
+    color: #fff; 
+ }
     
-  .btn-charge:hover,.btn-usage:hover{ opacity:.9; }
-  .price-chip { 
-  display:inline-block;
-  background:#efedff;
-  border:1px solid #e0ddff;
-  color:#3e36d1;
-  font-weight:800;
-  border-radius:8px;
-  padding:6px 12px;
-  min-width:96px;
-  text-align:center; }
-
-  @media (max-width: 991.98px){
-    .page-wrap{ padding:0 20px; } /* 모바일에서 여백 축소 */
-    .col-lg-4 + .col-lg-4{ margin-top:24px; }
-    .tabs{ padding:0 20px; }
-    .balance-bar-wrap{ padding:0 20px; }
-  }
+ .btn-charge:hover { 
+	background:#7547FF;
+ }
 </style>
 
-<script type="text/javascript" src="https://code.jquery.com/jquery-1.12.4.min.js" ></script>
+
 <script type="text/javascript" src="https://service.iamport.kr/js/iamport.payment-1.1.2.js"></script>
 
 <script type="text/javascript">
-  // 상세보기 이동
-  $('#btnBalanceDetail').on('click', function(){
-    window.location.href = '<%=ctxPath%>/mypage/eumpyo/history';
-  });
 
-  // 충전 버튼 클릭 샘플
-  $('.btn-charge').on('click', function(){
-    const $row = $(this).closest('.row-item');
-    const qty  = Number($row.data('qty'));
-    const price= Number($row.data('price'));
-    $.ajax({
-      url: '<%=ctxPath%>/api/eumpyo/charge',
-      method: 'POST',
-      contentType: 'application/json; charset=UTF-8',
-      data: JSON.stringify({ quantity: qty, amount: price }),
-      success: function(){ alert('충전 요청이 접수되었습니다. (샘플)'); location.reload(); },
-      error: function(){ alert('충전 요청 중 오류가 발생했습니다.'); }
-    });
-  });
+	// PortOne(Iamport) 초기화
+	var IMP = window.IMP;
+	IMP.init('imp26556260'); // 가맹점 식별코드
+	
+	// 금액 버튼 클릭 이벤트
+	$(document).on('click', '.btn-charge', function () {
+		var $button = $(this);
+	  	var paymentAmount = parseInt($button.data('amount'), 10); // 결제금액(원)
+	
+	  	if (!paymentAmount || paymentAmount <= 0) {
+	    	alert('선택한 금액이 올바르지 않습니다.');
+	    	return;
+	  	}
+	
+	  	// 결제 준비
+	  	$.ajax({
+	    	url: '<%= ctxPath %>/mypage/eumpyo/charge/ready',
+	    	type: 'POST',
+	    	contentType: 'application/json; charset=UTF-8',
+	    	dataType: 'json',
+	    	data: JSON.stringify({ amount: paymentAmount }),
+	    	success: function (readyResponse) {
+	      		if (!readyResponse || readyResponse.result !== 'success'
+		        	|| !readyResponse.merchantUid
+		        	|| typeof readyResponse.amountKRW !== 'number'
+		        	|| typeof readyResponse.chargedCoin !== 'number') {
+	        		alert(readyResponse?.message || '지금은 결제를 시작할 수 없습니다.');
+	       		 	return;
+	     		}
+	
+	      		// PortOne 결제창 호출
+	      		IMP.request_pay({
+	        		pg: 'html5_inicis',
+	        		pay_method: 'card',
+	        		merchant_uid: readyResponse.merchantUid,
+	        		name: '음표 ' + readyResponse.chargedCoin + '개', // 타이틀 표시는 코인 개수
+	        		amount: readyResponse.amountKRW                 // 실제 결제 금액(원)
+	      		}, function (paymentResponse) {
+	        		if (!paymentResponse || !paymentResponse.success) {
+	          			const reason = paymentResponse?.error_msg || '';
+	          			if (reason.includes('취소')) {
+	            			alert('결제를 취소하셨습니다.');
+	          			} else {
+	            			alert('결제가 완료되지 않았습니다.');
+	          			}
+	          			return;
+	        		}
+	
+		        	// 결제 완료 검증
+		        	$.ajax({
+		          		url: '<%= ctxPath %>/mypage/eumpyo/charge/complete',
+		          		type: 'POST',
+		          		contentType: 'application/json; charset=UTF-8',
+		          		dataType: 'json',
+		          		data: JSON.stringify({
+		            		impUid: paymentResponse.imp_uid,
+		            		merchantUid: paymentResponse.merchant_uid
+		          		}),
+		          		success: function (verifyResult) {
+		            		if (verifyResult && verifyResult.result == 'success') {
+		              			alert(
+		                			'음표 충전이 완료되었습니다.\n'
+		                			+ '결제금액: ₩' + (verifyResult.amount || 0).toLocaleString() + '\n'
+		                			+ '충전음표: ' + (verifyResult.chargedCoin || 0).toLocaleString() + '개\n'
+		                			+ '보유음표: ' + (verifyResult.coinBalance || 0).toLocaleString() + '개'
+		              			);
+		
+		              			var $coinBalance = $('#myCoinBalance');
+		              			if ($coinBalance.length) {
+		                			$coinBalance.text((verifyResult.coinBalance || 0).toLocaleString());
+		              			}
+		              			location.reload();
+		            		} else {
+		              			alert(verifyResult?.message || '결제 확인에 실패했습니다.');
+		            		}
+		         		},
+		          		error: function (errorResponse) {
+		            		alert('결제 확인 중 오류가 발생했습니다.');
+		          		}
+	        		});
+		        	
+	      		});
+	    	},
+	    	error: function (errorResponse) {
+	      		alert('처리 중 오류가 발생했습니다.');
+	    	}
+	  	});
+	});// end of $(document).on('click', '.btn-charge', function ()-----------------
 </script>
+
 
 <body>
 <div id="wrap">
-    <main class="eumopyoCharge">
+    <main class="charge">
         <%-- 왼쪽 사이드 네비게이션 & 관련 팝업들 --%>
         <jsp:include page="../../include/common/asideNavigation.jsp" />
         <%-- //왼쪽 사이드 네비게이션 & 관련 팝업들 --%>
@@ -159,38 +187,38 @@
 			        	<div class="chargePrices">
 			        		<div class="row-item">
 					      		<div class="item-left">
-					      			<img src="<%= ctxPath%>/images/mypage/eumpyo.png" id="eumpyoIcon" />
+					      			<img src="<%= ctxPath%>/images/mypage/eumpyo.png" class="coinIcon" />
 					      			<div class="item-title">음표 1개</div>
 					      		</div>
-					      		<button type="button" class="price-btn btn-charge" data-amount="100" data-qty="1">100원</button>
+					      		<button type="button" class="price-btn btn-charge" data-amount="100" data-coin="1">100원</button>
 					    	</div>
 					    	<div class="row-item">
 					      		<div class="item-left">
-					      			<img src="<%= ctxPath%>/images/mypage/eumpyo.png" id="eumpyoIcon" />
+					      			<img src="<%= ctxPath%>/images/mypage/eumpyo.png" class="coinIcon" />
 					      			<div class="item-title">음표 5개</div>
 					      		</div>
-					      		<button type="button" class="price-btn btn-charge" data-amount="500" data-qty="1">500원</button>
+					      		<button type="button" class="price-btn btn-charge" data-amount="500" data-coin="5">500원</button>
 					    	</div>
 					    	<div class="row-item">
 					      		<div class="item-left">
-					      			<img src="<%= ctxPath%>/images/mypage/eumpyo.png" id="eumpyoIcon" />
+					      			<img src="<%= ctxPath%>/images/mypage/eumpyo.png" class="coinIcon" />
 					      			<div class="item-title">음표 10개</div>
 					      		</div>
-					      		<button type="button" class="price-btn btn-charge" data-amount="1000" data-qty="1">1,000원</button>
+					      		<button type="button" class="price-btn btn-charge" data-amount="1000" data-coin="10">1,000원</button>
 					    	</div>
 					    	<div class="row-item">
 					      		<div class="item-left">
-					      			<img src="<%= ctxPath%>/images/mypage/eumpyo.png" id="eumpyoIcon" />
+					      			<img src="<%= ctxPath%>/images/mypage/eumpyo.png" class="coinIcon" />
 					      			<div class="item-title">음표 30개</div>
 					      		</div>
-					      		<button type="button" class="price-btn btn-charge" data-amount="3000" data-qty="1">3,000원</button>
+					      		<button type="button" class="price-btn btn-charge" data-amount="3000" data-coin="30">3,000원</button>
 					    	</div>
 					    	<div class="row-item">
 					      		<div class="item-left">
-					      			<img src="<%= ctxPath%>/images/mypage/eumpyo.png" id="eumpyoIcon" />
+					      			<img src="<%= ctxPath%>/images/mypage/eumpyo.png" class="coinIcon" />
 					      			<div class="item-title">음표 50개</div>
 					      		</div>
-					      		<button type="button" class="price-btn btn-charge" data-amount="5000" data-qty="1">5,000원</button>
+					      		<button type="button" class="price-btn btn-charge" data-amount="5000" data-coin="50">5,000원</button>
 					    	</div>
 				      	</div>
 				    </div>
@@ -199,38 +227,38 @@
 					  	<div class="chargePrices">
 					    	<div class="row-item">
 					      		<div class="item-right">
-					      			<img src="<%= ctxPath%>/images/mypage/eumpyo.png" id="eumpyoIcon" />
+					      			<img src="<%= ctxPath%>/images/mypage/eumpyo.png" class="coinIcon" />
 					      			<div class="item-title">음표 100개</div>
 					      		</div>
-					      		<button type="button" class="price-btn btn-charge" data-amount="10000" data-qty="100">10,000원</button>
+					      		<button type="button" class="price-btn btn-charge" data-amount="10000" data-coin="100">10,000원</button>
 					    	</div>
 					    	<div class="row-item">
 					      		<div class="item-right">
-					      			<img src="<%= ctxPath%>/images/mypage/eumpyo.png" id="eumpyoIcon" />
+					      			<img src="<%= ctxPath%>/images/mypage/eumpyo.png" class="coinIcon" />
 					      			<div class="item-title">음표 200개</div>
 					      		</div>
-					      		<button type="button" class="price-btn btn-charge" data-amount="20000" data-qty="200">20,000원</button>
+					      		<button type="button" class="price-btn btn-charge" data-amount="20000" data-coin="200">20,000원</button>
 					    	</div>
 					    	<div class="row-item">
 					      		<div class="item-right">
-					      			<img src="<%= ctxPath%>/images/mypage/eumpyo.png" id="eumpyoIcon" />
+					      			<img src="<%= ctxPath%>/images/mypage/eumpyo.png" class="coinIcon" />
 					      			<div class="item-title">음표 300개</div>
 					      		</div>
-					      		<button type="button" class="price-btn btn-charge" data-amount="30000" data-qty="300">30,000원</button>
+					      		<button type="button" class="price-btn btn-charge" data-amount="30000" data-coin="300">30,000원</button>
 					    	</div>
 					    	<div class="row-item">
 					      		<div class="item-right">
-					      			<img src="<%= ctxPath%>/images/mypage/eumpyo.png" id="eumpyoIcon" />
+					      			<img src="<%= ctxPath%>/images/mypage/eumpyo.png" class="coinIcon" />
 					      			<div class="item-title">음표 500개</div>
 					      		</div>
-					      		<button type="button" class="price-btn btn-charge" data-amount="50000" data-qty="500">50,000원</button>
+					      		<button type="button" class="price-btn btn-charge" data-amount="50000" data-coin="500">50,000원</button>
 					    	</div>
 					    	<div class="row-item">
 					      		<div class="item-right">
-					      			<img src="<%= ctxPath%>/images/mypage/eumpyo.png" id="eumpyoIcon" />
+					      			<img src="<%= ctxPath%>/images/mypage/eumpyo.png" class="coinIcon" />
 					      			<div class="item-title">음표 1,000개</div>
 					      		</div>
-					      		<button type="button" class="price-btn btn-charge" data-amount="100000" data-qty="1000">100,000원</button>
+					      		<button type="button" class="price-btn btn-charge" data-amount="100000" data-coin="1000">100,000원</button>
 					    	</div>
 				      	</div>
 			    	</div>
@@ -240,7 +268,6 @@
 			</div>
 		</div>
 		<%-- 메인 컨텐츠 끝 --%>	
-            
 
         <%-- 오늘의 감정 플레이리스트 --%>
         <jsp:include page="../../include/common/asidePlayList.jsp" />
