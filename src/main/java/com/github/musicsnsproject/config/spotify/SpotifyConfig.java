@@ -12,6 +12,7 @@ import se.michaelthelin.spotify.requests.authorization.client_credentials.Client
 
 import java.io.IOException;
 import java.util.Date;
+import java.util.function.Function;
 
 @Configuration
 public class SpotifyConfig {
@@ -50,6 +51,13 @@ public class SpotifyConfig {
         } catch (IOException | SpotifyWebApiException | ParseException e) {
             throw new RuntimeException("Spotify API 토큰 발급 실패", e);
         }
+    }
+    @Bean
+    public Function<Void, Void> refreshSpotifyToken() {
+        return (Void) -> {
+            refreshAccessToken();
+            return null;
+        };
     }
 
     @Scheduled(fixedRate = 3300000) // 55분마다 실행 (3300초)

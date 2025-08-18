@@ -17,12 +17,15 @@ import se.michaelthelin.spotify.requests.data.search.simplified.SearchTracksRequ
 import se.michaelthelin.spotify.requests.data.tracks.GetTrackRequest;
 
 import java.io.IOException;
+import java.util.function.Function;
 
 
 @Repository
 @RequiredArgsConstructor
 public class SpotifyDao {
     private final SpotifyApi spotifyApi;
+    private final Function<Void, Void> refreshSpotifyToken;
+
 
     public Paging<Track> findTracksByKeyword(String keyword, int page, int size){
 
@@ -54,6 +57,7 @@ public class SpotifyDao {
         } catch (ParseException e) {
             throw CustomNotAcceptException.of().customMessage("Spotify 변환 실패").systemMessage(e.getMessage()).build();
         } catch (SpotifyWebApiException e) {
+            refreshSpotifyToken.apply(null);
             throw CustomServerException.of().customMessage("Spotify API 에러").systemMessage(e.getMessage()).build();
         }
     }
