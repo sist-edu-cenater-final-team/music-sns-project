@@ -63,6 +63,7 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    cursor: pointer;
 }
 .track-artist {
     font-size: 0.86rem;
@@ -272,4 +273,8 @@
 .track-header .track-right {
     width: 80px;
     text-align: right;
+}
+
+.artist-item {
+    color: var(--card-bg);
 }

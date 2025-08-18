@@ -26,8 +26,10 @@
             <div class="inner">
                 <div class="artist-profile">
                     <div class="artist-header">
-                        <img class="artist-image" src="" alt="아티스트 이미지">
-                        <div class="artist-info">
+                        <div class="artist-image-container">
+                            <img class="artist-image loading" src="" alt="Artist Image">
+                            <div class="loading-spinner"></div>
+                        </div>                        <div class="artist-info">
                             <h1 class="artist-name"></h1>
                             <p class="artist-genres"></p>
                             <p class="artist-followers"></p>

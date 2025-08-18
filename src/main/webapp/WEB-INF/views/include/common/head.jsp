@@ -47,5 +47,8 @@
 
     <link rel="stylesheet" href="<%=ctxPath%>/css/indexPost.css" />
     <script src="<%=ctxPath%>/js/indexPost.js"></script>
+    <script>
+        const ctxPath = '<%=ctxPath%>';
+    </script>
 
 </head>
