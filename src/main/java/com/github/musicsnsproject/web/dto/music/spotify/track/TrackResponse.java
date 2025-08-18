@@ -1,10 +1,13 @@
 package com.github.musicsnsproject.web.dto.music.spotify.track;
 
+import com.github.musicsnsproject.web.dto.music.spotify.SimplifiedAlbum;
+import com.github.musicsnsproject.web.dto.music.spotify.SimplifiedArtist;
 import lombok.Builder;
+import lombok.Getter;
 
 import java.time.LocalDate;
 import java.util.List;
-
+@Getter
 @Builder
 public class TrackResponse {
     private final String trackId;
@@ -13,16 +16,6 @@ public class TrackResponse {
     private final String trackSpotifyUrl;
     private final int trackPopularity;
     private final int trackNumber;
-    private final List<TrackArtist> artist;
-    private final TrackAlbum album;
-
-    @Builder
-    public static class TrackAlbum {
-        private final String albumId;
-        private final String albumName;
-        private final String albumSpotifyUrl;
-        private final String albumImageUrl;
-        private final LocalDate releaseDate;
-        private final String albumType;
-    }
+    private final List<SimplifiedArtist> artist;
+    private final SimplifiedAlbum album;
 }

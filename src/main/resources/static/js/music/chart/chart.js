@@ -12,7 +12,7 @@
     const chartTitle = document.getElementById('chart-title');
     const chartSub = document.getElementById('chart-sub');
     const refreshBtn = document.getElementById('refreshBtn');
-    let currentSource = 'genie';
+    let currentSource = 'vibe';
 
     // attach tab click handlers
     document.querySelectorAll('#tabs .source-pill').forEach(p => {
@@ -103,25 +103,37 @@
             // album art
             const album = document.createElement('div');
             album.className = 'album';
-            album.innerHTML = `<img src="${escapeHtml(item.albumArt)}" alt="${escapeHtml(item.albumName)}" loading="lazy">`;
+            album.innerHTML = `
+    <a href="${ctxPath}/music/search?searchType=album&keyword=${escapeHtml(item.albumName)}">
+        <img src="${escapeHtml(item.albumArt)}" alt="${escapeHtml(item.albumName)}" loading="lazy">
+    </a>
+`;
 
             // meta
             const meta = document.createElement('div');
             meta.className = 'meta';
+            console.log(ctxPath)
             meta.innerHTML = `
-            <div class="title">${escapeHtml(item.title)}</div>
-            <div class="artist">${escapeHtml(item.artistName)}</div>
-            <div class="small-muted">${escapeHtml(item.albumName)}</div>
+                <a class="title" href="${ctxPath}/music/search?searchType=all&keyword=${escapeHtml(item.title)}">
+                    ${escapeHtml(item.title)}
+                </a>            
+                            
+                <a class="artist" href="${ctxPath}/music/search?searchType=artist&keyword=${escapeHtml(item.artistName)}">
+                    ${escapeHtml(item.artistName)}
+                </a>
+                <a class="small-muted" href="${ctxPath}/music/search?searchType=album&keyword=${escapeHtml(item.albumName)}">
+                    ${escapeHtml(item.albumName)}
+                </a>
           `;
 
             // right small text
             const right = document.createElement('div');
             right.className = 'text-end small-muted';
             right.style.minWidth = '90px';
-            right.innerHTML = `
-            <div>Song #${escapeHtml(String(item.songNumber))}</div>
-            <div style="font-size:.82rem;">&nbsp;</div>
-          `;
+          //   right.innerHTML = `
+          //   <div>Song #${escapeHtml(String(item.songNumber))}</div>
+          //   <div style="font-size:.82rem;">&nbsp;</div>
+          // `;
 
             card.appendChild(rankBadge);
             card.appendChild(album);

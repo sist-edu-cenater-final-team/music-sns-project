@@ -31,8 +31,8 @@
                         <div class="d-flex align-items-center gap-2">
                             <div id="tabs" class="d-flex gap-2">
                                 <div class="source-pill source-melon" data-source="melon"><img style="height:1.2em;vertical-align:middle;" alt="멜론 로고" src="https://upload.wikimedia.org/wikipedia/commons/c/c5/Melon_logo.png"/></div>
-                                <div class="source-pill source-vibe"  data-source="vibe"><img style="height:1em;vertical-align:middle;" alt="바이브 로고" src="https://i.namu.wiki/i/sxMPdR5wxHn0htIVvoEg3LUxfG2Mu4wOXTvETGl9u_ksTBHKIItx6Ht_xS8y_N80rCKmkKKeh9Cw2ZXrrVIZIg.svg"/></div>
-                                <div class="source-pill source-genie active" data-source="genie"><img style="height:1.5em;vertical-align:middle;" alt="지니 로고" src="https://www.geniemusic.co.kr/assets/images/common/sub_love_logo01.png"/></div>
+                                <div class="source-pill source-vibe active"  data-source="vibe"><img style="height:1em;vertical-align:middle;" alt="바이브 로고" src="https://i.namu.wiki/i/sxMPdR5wxHn0htIVvoEg3LUxfG2Mu4wOXTvETGl9u_ksTBHKIItx6Ht_xS8y_N80rCKmkKKeh9Cw2ZXrrVIZIg.svg"/></div>
+                                <div class="source-pill source-genie" data-source="genie"><img style="height:1.5em;vertical-align:middle;" alt="지니 로고" src="https://www.geniemusic.co.kr/assets/images/common/sub_love_logo01.png"/></div>
                                 <div class="source-pill source-bugs"  data-source="bugs"><img style="height:1.3em;vertical-align:middle;" alt="벅스 로고" src="${pageContext.request.contextPath}/images/music/logo/bugs-music.png"/></div>
                             </div>
                         </div>
@@ -64,7 +64,7 @@
                     </div>
 
                     <footer class="text-center small-muted">
-                        제공된 JSON 응답을 axios로 받아 화면에 렌더링합니다.
+<%--                        제공된 JSON 응답을 axios로 받아 화면에 렌더링합니다.--%>
                     </footer>
                 </div>
             </div>

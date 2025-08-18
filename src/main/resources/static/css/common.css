@@ -86,6 +86,9 @@
 .aside-navigation .setting {
     background-image: url("../images/common/icon/settings.png");
 }
+.aside-navigation .post {
+    background-image: url("../images/common/icon/post.png");
+}
 
 /* 왼쪽 사이드바 메뉴 팝업 */
 .aside-navigation-layer {

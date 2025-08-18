@@ -1,7 +1,7 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <html>
 <jsp:include page="../include/common/head.jsp" />
-<script src="${pageContext.request.contextPath}js/cart/cart.js"></script>
+<script src="${pageContext.request.contextPath}/js/cart/cart.js" defer></script>
 <link rel="stylesheet" href="${pageContext.request.contextPath}/css/mypage.css" />
 <body>
 <div id="wrap">
@@ -25,11 +25,11 @@
                     <div class="music-check-info">
                         <div>
                             <p class="title">선택 곡 수 : </p>
-                            <p class="text">1곡</p>
+                            <p class="text"><span id="musicCount">0</span>곡</p>
                         </div>
                         <div>
                             <p class="title point">총 결제 음표 : </p>
-                            <p class="text">1음표</p>
+                            <p class="text"><span id="musicPrice">0</span>음표</p>
                         </div>
                     </div>
                 </div>
@@ -37,9 +37,7 @@
                     <thead>
                         <tr>
                             <th scope="col">
-                                <label for="cartAllCheck">
-                                    <input type="checkbox" id="cartAllCheck">
-                                </label>
+                                <input type="checkbox" id="cartAllCheck" />
                             </th>
                             <th scope="col">번호</th>
                             <th scope="col">노래제목</th>
@@ -49,36 +47,7 @@
                             <th scope="col">삭제</th>
                         </tr>
                     </thead>
-                    <tbody>
-                        <tr>
-                            <td>
-                                <label for="cartCheck">
-                                    <input type="checkbox" id="cartCheck" name="cartCheck">
-                                </label>
-                            </td>
-                            <td scope="row">1</td>
-                            <td>
-                                <div class="music-info">
-                                    <div class="music-img">
-                                        <img src="/static/images/common/no_image.png" alt="노래 이미지" />
-                                    </div>
-                                    <p class="music-text">Golden</p>
-                                </div>
-                            </td>
-                            <td>
-                                <p class="music-artist">데몬 헌터스</p>
-                            </td>
-                            <td>
-                                <p class="music-artist">데몬 헌터스 l HUNTR/X</p>
-                            </td>
-                            <td>
-                                <p class="music-text">1음표</p>
-                            </td>
-                            <td>
-                                <button type="button" class="btn-cart-delete"></button>
-                            </td>
-                        </tr>
-                    </tbody>
+                    <tbody id="cartBody"></tbody>
                 </table>
                 <%-- //음악 장바구니 리스트 --%>
             </div>
@@ -90,6 +59,8 @@
         <%-- //오늘의 감정 플레이리스트 --%>
     </main>
 </div>
-
+<input type="hidden" id="userId" value="${userId}" />
+<input type="text" id="trackId" value="" />
+<input type="text" id="cartId" value="" />
 </body>
 </html>
