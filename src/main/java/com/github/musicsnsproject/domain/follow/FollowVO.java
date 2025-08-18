@@ -14,13 +14,22 @@ public class FollowVO {
 	private boolean favorite;
 	private LocalDateTime favoriteAt;
 	private LocalDateTime createdAt;
-
+	private boolean teist;
+	private long teistCount;
 	private MyUserVO user;
 	
 
-    public FollowVO(Long followee, Long follower, MyUserVO user) {
+    public FollowVO(Long followee, Long follower, MyUserVO user, boolean teist) {
         this.followee = followee;
         this.follower = follower;
         this.user = user;
+        this.teist = teist;
     }
+    
+    public FollowVO(Long teistCount, MyUserVO user) {
+        this.teistCount = teistCount;
+        this.user = user;
+    }
+    
+    
 }

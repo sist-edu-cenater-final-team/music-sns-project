@@ -1,10 +1,13 @@
 package com.github.musicsnsproject.web.controller.rest.follow;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.github.musicsnsproject.domain.follow.FollowVO;
@@ -34,9 +37,29 @@ public class FollowController {
     
     // 함께 아는 친구
     @GetMapping("/findCommonFriend/{userId}")
-    public List<FollowVO> findMutualConnections(@PathVariable String userId) {
+    public List<FollowVO> findMutualConnections(@PathVariable("userId") String userId) {
     	return followService.findCommonFriend(userId);
     }
+    
+    // 팔로우 하기
+    @GetMapping("addFollow")
+    public int addFollow(@RequestParam("followee") String followee, @RequestParam("follower") String follower) {
+
+    	Map<String, String> map = new HashMap<>();
+    	map.put("followee", followee);
+    	map.put("follower", follower);
+    	
+    	return followService.addFollow(map);
+    }
+    
+    @GetMapping("searchUser")
+    public List<FollowVO> searchUser(@RequestParam("searchWord") String searchWord,
+    								 @RequestParam("userId") String userId){
+    	
+    	
+    	return followService.searchUser(searchWord, userId);
+    }
+    
     
 	
 	

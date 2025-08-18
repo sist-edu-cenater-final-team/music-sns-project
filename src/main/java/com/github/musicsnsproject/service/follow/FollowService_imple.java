@@ -1,12 +1,14 @@
 package com.github.musicsnsproject.service.follow;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.stereotype.Service;
 
 import com.github.musicsnsproject.domain.follow.FollowVO;
 import com.github.musicsnsproject.repository.jpa.account.follow.FollowRepository;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -14,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 public class FollowService_imple implements FollowService {
 
 	private final FollowRepository followRepository;
+	
 	
 	@Override
 	public List<FollowVO> getFollowerList(String userId) {
@@ -31,6 +34,21 @@ public class FollowService_imple implements FollowService {
 	@Override
 	public List<FollowVO> findCommonFriend(String userId) {
 		return followRepository.findCommonFriend(userId);
+	}
+
+
+	@Override
+	@Transactional
+	public int addFollow(Map<String, String> map) {
+
+		return followRepository.addFollow(map);
+	}
+
+
+	@Override
+	public List<FollowVO> searchUser(String searchWord, String userId) {
+		
+		return followRepository.searchUser(searchWord, userId);
 	}
 	
 	
