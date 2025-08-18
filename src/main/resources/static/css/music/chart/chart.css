@@ -41,16 +41,16 @@ body{
 .source-bugs  { background: linear-gradient(90deg, rgba(255,159,67,0.12), rgba(255,159,67,0.04)); color: #6a3b00; }
 
 .chart-grid {
-    display: grid;
+    /*display: grid;*/
     grid-template-columns: 1fr; /* 항상 1열 */
     gap: 12px;
 }
-@media (min-width:700px) {
-    .chart-grid { grid-template-columns: 1fr; }
-}
-@media (min-width:1100px) {
-    .chart-grid { grid-template-columns: 1fr; }
-}
+/*@media (min-width:700px) {*/
+/*    .chart-grid { grid-template-columns: 1fr; }*/
+/*}*/
+/*@media (min-width:1100px) {*/
+/*    .chart-grid { grid-template-columns: 1fr; }*/
+/*}*/
 
 .track-card{
     display:flex;

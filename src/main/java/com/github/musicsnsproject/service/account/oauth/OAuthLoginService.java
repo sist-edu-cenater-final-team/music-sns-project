@@ -21,7 +21,6 @@
     import com.github.musicsnsproject.web.dto.account.oauth.response.AuthResult;
     import com.github.musicsnsproject.web.dto.account.oauth.response.OAuthSignUpDto;
     import jakarta.servlet.http.HttpServletRequest;
-
     import lombok.RequiredArgsConstructor;
     import org.springframework.beans.factory.ObjectFactory;
     import org.springframework.data.redis.RedisConnectionFailureException;

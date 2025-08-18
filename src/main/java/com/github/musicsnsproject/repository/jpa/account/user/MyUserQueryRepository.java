@@ -14,6 +14,5 @@ public interface MyUserQueryRepository {
 
     void updateFailureCountByEmail(CustomUserDetails failUser);
 
-
 //    Optional<CustomUserDetails> findBySocialIdPkOrUserEmailForAuth(SocialIdPk socialIdPk, String email);
 }

@@ -12,7 +12,7 @@
     const chartTitle = document.getElementById('chart-title');
     const chartSub = document.getElementById('chart-sub');
     const refreshBtn = document.getElementById('refreshBtn');
-    let currentSource = 'genie';
+    let currentSource = 'vibe';
 
     // attach tab click handlers
     document.querySelectorAll('#tabs .source-pill').forEach(p => {

@@ -38,7 +38,7 @@
 <!-- 클릭했을 때 나오는 스으윽 팝업 -->
 <div id="searchLayer" class="aside-navigation-layer sidebar">
     <div class="inner">
-        <form id="searchForm" action="${pageContext.request.contextPath}/music/search" method="get" class="search-container">
+        <form id="sideSearchForm" action="${pageContext.request.contextPath}/music/search" method="get" class="search-container">
             <div class="search-top">
                 <label for="sideSearchCategory"></label>
                 <select name="searchType" id="sideSearchCategory" class="search-select">
@@ -73,7 +73,7 @@
         <ul class="talk-list">
             <li>
                 <div class="talk-img">
-                    <img src="<%= ctxPath%>/static/images/emotion/angry.png" alt="사용자 프로필 이미지" />
+                    <img src="<%= ctxPath%>/images/emotion/angry.png" alt="사용자 프로필 이미지" />
                 </div>
                 <div class="talk-info">
                     <p class="talk-title">HanBinId</p>
@@ -82,7 +82,7 @@
             </li>
             <li>
                 <div class="talk-img">
-                    <img src="<%= ctxPath%>/static/images/emotion/angry.png" alt="사용자 프로필 이미지" />
+                    <img src="<%= ctxPath%>/images/emotion/angry.png" alt="사용자 프로필 이미지" />
                 </div>
                 <div class="talk-info">
                     <p class="talk-title">HanBinId</p>
@@ -91,7 +91,6 @@
             </li>
             <li>
                 <div class="talk-img">
-                    <img src="<%= ctxPath%>/static/images/emotion/angry.png" alt="사용자 프로필 이미지" />
                 </div>
                 <div class="talk-info">
                     <p class="talk-title">HanBinId</p>
@@ -100,7 +99,6 @@
             </li>
             <li>
                 <div class="talk-img">
-                    <img src="<%= ctxPath%>/static/images/emotion/angry.png" alt="사용자 프로필 이미지" />
                 </div>
                 <div class="talk-info">
                     <p class="talk-title">HanBinId</p>
@@ -109,7 +107,6 @@
             </li>
             <li>
                 <div class="talk-img">
-                    <img src="<%= ctxPath%>/static/images/emotion/angry.png" alt="사용자 프로필 이미지" />
                 </div>
                 <div class="talk-info">
                     <p class="talk-title">HanBinId</p>
@@ -118,7 +115,6 @@
             </li>
             <li>
                 <div class="talk-img">
-                    <img src="<%= ctxPath%>/static/images/emotion/angry.png" alt="사용자 프로필 이미지" />
                 </div>
                 <div class="talk-info">
                     <p class="talk-title">HanBinId</p>
@@ -127,7 +123,6 @@
             </li>
             <li>
                 <div class="talk-img">
-                    <img src="<%= ctxPath%>/static/images/emotion/angry.png" alt="사용자 프로필 이미지" />
                 </div>
                 <div class="talk-info">
                     <p class="talk-title">HanBinId</p>
@@ -136,7 +131,6 @@
             </li>
             <li>
                 <div class="talk-img">
-                    <img src="<%= ctxPath%>/static/images/emotion/angry.png" alt="사용자 프로필 이미지" />
                 </div>
                 <div class="talk-info">
                     <p class="talk-title">HanBinId</p>
@@ -145,7 +139,6 @@
             </li>
             <li>
                 <div class="talk-img">
-                    <img src="<%= ctxPath%>/static/images/emotion/angry.png" alt="사용자 프로필 이미지" />
                 </div>
                 <div class="talk-info">
                     <p class="talk-title">HanBinId</p>
@@ -154,7 +147,6 @@
             </li>
             <li>
                 <div class="talk-img">
-                    <img src="<%= ctxPath%>/static/images/emotion/angry.png" alt="사용자 프로필 이미지" />
                 </div>
                 <div class="talk-info">
                     <p class="talk-title">HanBinId</p>
@@ -165,3 +157,51 @@
     </div>
     <button type="button" class="btn-talk-write">작성버튼</button>
 </div>
+
+
+
+<!-- post 모달 -->
+<div class="modal fade" id="postModal" tabindex="-1" aria-labelledby="postModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+
+            <!-- 헤더 -->
+            <div class="modal-header">
+                <h5 class="modal-title" id="postModalLabel">새 게시물 만들기</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="닫기">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
+            <!-- 바디 -->
+            <div class="modal-body text-center">
+
+                <!-- STEP 1 -->
+                <div id="step1" style="width: 500px; margin: 15% auto;">
+                    <textarea class="form-control mb-3" id="contents" name="contents" rows="4" placeholder="문구를 입력하세요..."></textarea>
+                    <div class="d-flex justify-content-between">
+                        <button type="button" class="btn btn-secondary" id="btnNext">다음</button>
+                        <button type="button" class="btn btn-primary" id="btnUploadStep1">올리기</button>
+                    </div>
+                </div>
+
+                <!-- STEP 2 -->
+                <div id="step2" style="display:none;">
+                    <button type="button" class="btn btn-secondary" id="imageSave">이미지저장</button>
+                    <div id="tui-image-editor" style="height:500px;"></div>
+                    <button type="button" class="btn btn-primary mt-3" id="btnNextStep2">다음</button>
+                </div>
+
+                <div id="step3" style="display:none;">
+                    <img id="previewImage" style="width: 500px; height: 500px;" class="mt-3"/>
+                    <div class="mt-3" style="width: 500px; height: 200px; margin: auto" >
+                        <p id="previewText" style="text-align: left"></p>
+                    </div>
+                    <button type="button" id="btnUploadStep3" class="btn btn-success mt-5 mb-4">올리기</button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+<%-- 여기까지 post 모달 --%>

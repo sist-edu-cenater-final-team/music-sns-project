@@ -6,5 +6,4 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class MusicCartQueryRepositoryImpl implements MusicCartQueryRepository {
     private final JPAQueryFactory queryFactory;
-
 }
