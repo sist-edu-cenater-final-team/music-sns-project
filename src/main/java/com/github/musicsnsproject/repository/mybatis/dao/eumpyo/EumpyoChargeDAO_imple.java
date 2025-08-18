@@ -40,11 +40,4 @@ public class EumpyoChargeDAO_imple implements EumpyoChargeDAO {
         map.put("userId", userId);
         return sql.selectOne("eumpyoCharge.selectUserCoin", map);
     }
-    
-    // 보유 코인(coin_history 합계) 조회
-    @Override
-    public Long getUserCoin(Long userId) {
-        Long sum = sql.selectOne("eumpyoCharge.sumUserCoinFromHistory", userId);
-        return (sum == null ? 0L : sum);
-    }
 }

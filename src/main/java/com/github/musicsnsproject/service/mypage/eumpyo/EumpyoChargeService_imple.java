@@ -60,7 +60,7 @@ public class EumpyoChargeService_imple implements EumpyoChargeService {
         map.put("result", "success");
         map.put("merchantUid", merchantUid);
         map.put("amountKRW", amount);        // 실제 결제 금액(원)
-        map.put("chargedCoin", chargedCoin); // 충전 음표(개)
+        map.put("chargedCoin", chargedCoin); // 충전 코인(개)
         return map;
     }
 
@@ -76,7 +76,7 @@ public class EumpyoChargeService_imple implements EumpyoChargeService {
             map.put("message", "이미 처리되었거나 유효하지 않은 요청입니다.");
             return map;
         }
-
+        
         if (orderTemp.userId != userId) {
             map.put("result", "fail");
             map.put("message", "회원 정보가 일치하지 않습니다.");
@@ -84,8 +84,8 @@ public class EumpyoChargeService_imple implements EumpyoChargeService {
         }
 
         try {
-            int atThatPrice = orderTemp.expectedAmount;  // 결제금액(원)
-            int coin = convertAmountToCoin(atThatPrice); // 100원=1음표
+        	int atThatPrice = orderTemp.expectedAmount;  // 결제금액(원)
+        	int coin = convertAmountToCoin(atThatPrice); // 100원=1코인
 
             if (coin <= 0) {
                 map.put("result", "fail");
@@ -93,15 +93,21 @@ public class EumpyoChargeService_imple implements EumpyoChargeService {
                 return map;
             }
 
+            int updated = eumpyoChargeDAO.increaseUserCoin(userId, coin);
+            if (updated != 1) {
+                map.put("result", "fail");
+                map.put("message", "회원 정보를 확인할 수 없습니다.");
+                return map;
+            }
+
             // 충전 이력: 코인 개수 + 총 결제금액(원) 저장
             eumpyoChargeDAO.insertChargeHistory(userId, coin, atThatPrice);
 
-            // 보유음표 = coin_history 합계로 계산
-            Long current = eumpyoChargeDAO.getUserCoin(userId);
+            Long current = eumpyoChargeDAO.selectUserCoin(userId);
             int coinBalance = (current == null) ? 0 : current.intValue();
 
             map.put("result", "success");
-            map.put("amount", atThatPrice);
+            map.put("amount", atThatPrice);   
             map.put("chargedCoin", coin);
             map.put("coinBalance", coinBalance);
             map.put("message", "충전이 완료되었습니다.");
@@ -114,11 +120,12 @@ public class EumpyoChargeService_imple implements EumpyoChargeService {
         }
     }
 
-    // 보유음표
+    
+    // 보유 코인 주입
     @Override
     public Long getUserCoin(long userId) {
-        // 보유음표 = coin_history 합계
-        Long sum = eumpyoChargeDAO.getUserCoin(userId);
-        return (sum == null ? 0L : sum);
+        Long coin = eumpyoChargeDAO.selectUserCoin(userId);
+        return (coin == null ? 0L : coin);
     }
-}
+}    
+    
