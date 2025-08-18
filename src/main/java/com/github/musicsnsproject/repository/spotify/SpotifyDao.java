@@ -57,6 +57,7 @@ public class SpotifyDao {
         }
     }
 
+
     public Paging<AlbumSimplified> findArtistAlbums(String artistId, int page, int size) {
         GetArtistsAlbumsRequest request = spotifyApi.getArtistsAlbums(artistId)
                 .setHeader("Accept-Language", "ko-KR,ko;q=0.9")
