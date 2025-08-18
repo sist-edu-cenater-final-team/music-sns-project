@@ -1,0 +1,197 @@
+.artist-profile {
+    background: #fff;
+    padding: 20px;
+    border-radius: 16px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.artist-header {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+.artist-header .spotify-link {
+    width: 150px;
+    margin-top: 10px;
+    padding: 8px 14px;
+    font-size: 0.9rem;
+    text-align: center;
+}
+
+.artist-image {
+    width: 160px;
+    height: 160px;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 3px solid #7d4de6; /* 보라색 테마 */
+}
+
+.artist-info {
+    flex: 1;
+}
+
+.artist-name {
+    font-size: 2rem;
+    margin-bottom: 8px;
+}
+
+.artist-genres {
+    color: #666;
+    font-size: 0.95rem;
+    margin-bottom: 4px;
+}
+
+.artist-followers {
+    color: #999;
+    font-size: 0.9rem;
+}
+
+.spotify-link {
+    display: block;
+    margin-top: 10px;
+    background: #6533fc;
+    color: white;
+    padding: 5px 0;
+    border-radius: 20px;
+    text-decoration: none;
+    font-size: 0.7rem;
+    transition: background 0.2s;
+    margin-left: auto;
+    width: 70px;
+}
+
+
+.spotify-link:hover {
+    background: #531fea;
+    text-decoration: none;
+    box-shadow: 0 2px 6px rgba(83, 31, 234, 0.3);
+    transform: translateY(-2px);
+    color: white;
+}
+
+.artist-stats {
+    display: flex;
+    justify-content: space-around;
+    margin-top: 20px;
+}
+
+.stat-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 24px;
+    gap: 0 30px;
+    text-align: center;
+    width: 100%;
+    margin-top: 28px;
+}
+
+.stat-label {
+    display: block;
+    color: #6633FF;
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+.stat-value {
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+.popularity-bar {
+    flex:1;
+    height: 25px;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.popularity-bar .progress-bar {
+    font-size: 0.85rem;
+    font-weight: bold;
+    text-align: center;
+}
+
+/*앨범목록*/
+
+.album-container {
+    max-width: 800px;
+    margin: 100px auto auto auto;
+
+}
+
+.album-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 20px;
+}
+
+.album-card {
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    overflow: hidden;
+    text-align: center;
+    padding: 10px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease; /* 부드러운 애니메이션 */
+}
+.album-card:hover {
+    transform: translateY(-5px); /* 위로 5px 이동 */
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15); /* 그림자 조금 진하게 */
+}
+
+.album-card img {
+    width: 100%;
+    border-radius: 6px;
+}
+
+.album-name {
+    font-size: 14px;
+    margin: 8px 0 4px 0;
+    font-weight: bold;
+}
+
+.album-date {
+    font-size: 12px;
+    color: #777;
+}
+
+/*.album-card a {*/
+/*    display: inline-block;*/
+/*    margin-top: 6px;*/
+/*    padding: 6px 12px;*/
+/*    font-size: 12px;*/
+/*    background: #1db954;*/
+/*    color: white;*/
+/*    border-radius: 20px;*/
+/*    text-decoration: none;*/
+/*}*/
+
+.load-more {
+    display: block;
+    margin: 20px auto;
+    padding: 10px 20px;
+    font-size: 14px;
+    background: #6200ea;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.load-more:hover {
+    background: #4500b5;
+}
+.album-artists {
+    font-size: 12px;
+    color: #555;
+    margin-top: 12px;
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    font-weight: bold;
+}
+.album-details {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}

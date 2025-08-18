@@ -3,11 +3,9 @@
 #wrap {
     min-width: 1024px;
 }
-
-body {
-    background-color: #f6f6fa;
+.point {
+    color: #6633FF !important;
 }
-
 .blind {
     position: absolute;
     width: 1px;
@@ -25,24 +23,25 @@ body {
 
 /* 왼쪽 네비게이션 */
 .aside-navigation {
-    width: 140px;
+    width: 62px;
     left: 0;
     background-color: #6633FF;
     z-index: 10;
+    border-right: 1px solid #dbdbdb;
 }
 
 .aside-navigation .inner {
-    padding: 20px;
+    padding: 20px 0;
 }
 
 .aside-navigation .btn {
     display: block;
-    width: 60px;
-    height: 60px;
+    width: 40px;
+    height: 40px;
     border-radius: 8px;
     background-repeat: no-repeat;
     background-position: center;
-    background-size: 34px;
+    background-size: 24px;
     text-indent: -999999px;
 }
 .aside-navigation .btn:not(.btn-home):hover,
@@ -52,11 +51,11 @@ body {
 
 .aside-navigation .btn-logo {
     display: block;
-    width: 80px;
-    height: 80px;
+    width: 40px;
+    height: 40px;
     background: url("../images/common/icon/logo.png") no-repeat center;
     background-size: 100% 100%;
-    margin: 0 auto 40px;
+    margin: 0 auto 150px;
 }
 .aside-navigation .navigation-list li {
     display: flex;
@@ -90,7 +89,7 @@ body {
 
 /* 왼쪽 사이드바 메뉴 팝업 */
 .aside-navigation-layer {
-    left: 140px;
+    left: 62px;
     background: #fff;
     width: 360px;
     border-radius: 0 24px 24px 0;
@@ -139,18 +138,20 @@ body {
 
 /* 메인 컨텐츠 */
 .main-contents {
-    width: calc(100% - 140px);
+    width: calc(100% - 500px);
     min-height: 100vh;
-    margin-left: auto;
+    margin-left: 100px;
+    margin-right: auto;
 }
 .main-contents .inner {
-    padding: 30px;
+    padding: 80px 30px;
 }
 
 /* 오른쪽 뮤직리스트 */
 .aside-playlist {
     right: 0;
     background-color: #fff;
+    border-left: 1px solid #dbdbdb;
 }
 .aside-playlist .inner {
     padding: 34px 30px;
@@ -319,4 +320,19 @@ body {
     color: #333;
     font-weight: bold;
     padding: 8px 0;
+}
+
+
+.btn-form .btn {
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 20px;
+    border-radius: 5px;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: normal;
+    border: none;
+    outline: none;
+    text-align: center;
+    cursor: pointer;
 }
