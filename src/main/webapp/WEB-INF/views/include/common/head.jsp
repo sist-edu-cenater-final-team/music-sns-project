@@ -1,7 +1,12 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<% String ctxPath = request.getContextPath(); %>
+
+<% 
+	String ctxPath = request.getContextPath();
+%>
 <head>
+
     <title>muodle</title>
 
     <script src="<%=ctxPath%>/lib/jquery-3.7.1.min.js"></script>
@@ -39,5 +44,44 @@
 
     <link rel="stylesheet" href="<%=ctxPath%>/css/indexPost.css" />
     <script src="<%=ctxPath%>/js/indexPost.js"></script>
+	
+	<%-- 추후 필요하면 확인 후 추가
+	<script type="text/javascript">
+		axios.interceptors.request.use(function(config){
+        	try {
+          		const t = localStorage.getItem('ACCESS_TOKEN');
+          		if (t) config.headers['Authorization'] = 'Bearer ' + t;
+        	} catch (e) { }
+        	return config;
+		});
 
+      	axios.interceptors.response.use(
+        	function(res){ return res; },
+        	function(err){
+          	const status = err && err.response ? err.response.status : 0;
+          	if (status === 401 || status === 403) {
+            	alert("로그인이 필요합니다.");
+            	window.location.href = '<%=ctxPath%>/login';
+          	}
+          	return Promise.reject(err);
+        	}
+      	);
+
+      	$(function(){
+        	$(document).ajaxSend(function(e, xhr){
+          		try {
+            		const t = localStorage.getItem('ACCESS_TOKEN');
+           		 	if (t) xhr.setRequestHeader('Authorization', 'Bearer ' + t);
+          		} catch (e) { /* noop */ }
+        	});
+
+        	$(document).ajaxError(function(e, xhr){
+          		if (xhr.status === 401 || xhr.status === 403) {
+            		alert("로그인이 필요합니다.");
+            		location.href = '<%=ctxPath%>/login';
+          		}
+        	});
+      	});
+    </script>
+    --%>
 </head>

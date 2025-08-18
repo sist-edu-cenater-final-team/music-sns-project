@@ -10,4 +10,7 @@ public interface EumpyoChargeDAO {
 
     // 사용자 현재 코인 조회
     Long selectUserCoin(long userId);
+
+    // 보유 코인(coin_history 합계) 조회
+	Long getUserCoin(Long userId);
 }

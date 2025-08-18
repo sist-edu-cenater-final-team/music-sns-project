@@ -18,11 +18,18 @@
   		values (#{userId}, #{coin}, #{atThatPrice}, systimestamp)
 	</insert>
 
-    <!-- 현재 코인 조회 (null 안전/타입 명시) -->
+    <!-- 현재 코인 조회 -->
     <select id="selectUserCoin" parameterType="HashMap" resultType="java.lang.Long">
         select NVL(coin, 0) as coin
         from users
         where user_id = #{userId}
     </select>
+    
+    <!-- 보유 코인(coin_history 합계) 조회 -->
+	<select id="sumUserCoinFromHistory" parameterType="long" resultType="long">
+    	select nvl(sum(ch.coin), 0)
+      	from coin_history ch
+     	where ch.user_id = #{userId}
+	</select>
 
 </mapper>
