@@ -35,11 +35,11 @@
       font-size: 20px;
     }
 
-    /* 버튼 스타일 */
+    
 .custom-btn {
   width:200px;
-  background-color: #f7f5fb; /* 연한 회색-보라톤 */
-  border-radius: 8px; /* 둥근 모서리 */
+  background-color: #f7f5fb; 
+  border-radius: 8px; 
   font-weight: bold;
 }
 .custom-btn:hover {
@@ -67,18 +67,18 @@
 					<div>
 						<h4 class="mb-3">leess</h4>
 						<div class="d-flex mb-3 mr-3 profile-stats">
-							<span class="mr-2" style="color: #CCCCCC; font-weight: 500; font-size: 13pt">게시물</span>
+							<span class="mr-2" style="c font-weight: 500; font-size: 13pt">게시물</span>
 							<div class="text-center mr-3">
 								<strong>300</strong>
 							</div>
 							<div class="mr-3 text-center">
-								<span class="mr-2" style="color: #CCCCCC; font-weight: 500; font-size: 13pt">팔로워</span>
+								<span class="mr-2" style=" font-weight: 500; font-size: 13pt">팔로워</span>
 								<a href="<%= ctxPath%>/mypage/myFollowers" class="text-dark ml-2 mr-2 text-center">
 									<strong >33.3만</strong>
 								</a>
 							</div>
 							<div class="text-center">
-								<span class="mr-3" style="color: #CCCCCC; font-weight: 600; font-size: 13pt">팔로우</span>
+								<span class="mr-3" style=" font-weight: 600; font-size: 13pt">팔로우</span>
 								<a href="<%= ctxPath%>/mypage/myFollowing" class="text-dark text-center">
 									<strong>333</strong>
 								</a>
