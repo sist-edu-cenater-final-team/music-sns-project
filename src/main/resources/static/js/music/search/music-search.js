@@ -147,16 +147,16 @@ if (window.__musicSearchPurpleInitialized) {
                 const albumName = item.album?.albumName || '-';
                 const releaseDate = item.album?.releaseDate || '-';
                 const albumImage = item.album?.albumImageUrl || '/assets/default-album.png';
-                const duration = item.duration || '0:00';
+                const duration = item.track.duration || '0:00';
                 // 아티스트들을 개별 span으로 생성
-                const artistsHtml = (item.artist || []).map((artist, index) => {
+                const artistsHtml = (item.track.artists || []).map((artist, index) => {
                     const comma = index > 0 ? ', ' : '';
                     return `${comma}<a class="artist-item" href="${ctxPath}/music/artist/${escapeHtml(artist.artistId || '')}" data-artist-id="${escapeHtml(artist.artistId || '')}">${escapeHtml(artist.artistName)}</a>`;
                 }).join('');
 
 
                 const a = document.createElement('a');
-                a.dataset.trackId = item.trackId;
+                a.dataset.trackId = item.track.trackId;
                 a.dataset.albumId = item.album?.albumId || '';
 
                 // a.href = '#';
@@ -165,7 +165,7 @@ if (window.__musicSearchPurpleInitialized) {
                 a.innerHTML = `
                     <img class="track-thumb" data-album-id="${escapeHtml(item.album?.albumId || '')}" src="${escapeHtml(albumImage)}" alt="${escapeHtml(albumName)}">
                     <div class="track-main">
-                        <div class="track-title" data-track-id="${escapeHtml(item.trackId)}">${escapeHtml(item.trackName)}</div>
+                        <div class="track-title" data-track-id="${escapeHtml(item.trackId)}">${escapeHtml(item.track.trackName)}</div>
                         <div class="track-artist">${artistsHtml}</div>
                     </div>
                     <div class="track-album" data-album-id="${escapeHtml(item.album?.albumId || '')}">
@@ -191,7 +191,7 @@ if (window.__musicSearchPurpleInitialized) {
                     e.preventDefault();
                     e.stopPropagation();
 
-                    const spotifyUrl = item.trackSpotifyUrl;
+                    const spotifyUrl = item.track.trackSpotifyUrl;
                     if (spotifyUrl) {
                         openSpotifyPopup(spotifyUrl);
                     }

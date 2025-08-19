@@ -1,14 +1,12 @@
 package com.github.musicsnsproject.service.music.cart;
 
-import com.github.musicsnsproject.common.exceptions.CustomNotFoundException;
 import com.github.musicsnsproject.repository.jpa.account.user.MyUser;
 import com.github.musicsnsproject.repository.jpa.music.cart.MusicCart;
 import com.github.musicsnsproject.repository.jpa.music.cart.MusicCartRepository;
 import com.github.musicsnsproject.service.music.SpotifyMusicService;
-import com.github.musicsnsproject.web.advice.ExceptionControllerAdvice;
 import com.github.musicsnsproject.web.dto.music.cart.CartResponse;
-import com.github.musicsnsproject.web.dto.music.spotify.SimplifiedArtist;
-import com.github.musicsnsproject.web.dto.music.spotify.track.TrackResponse;
+import com.github.musicsnsproject.web.dto.music.spotify.artist.SimplifiedArtist;
+import com.github.musicsnsproject.web.dto.music.spotify.track.TrackResponseV1;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -43,7 +41,7 @@ public class CartService_imple implements CartService {
 
         List<CartResponse> cartResponseList = carts.stream()
                 .map(cart -> {
-                    TrackResponse tr = spotifyMusicService.getTrackResponseById(cart.getMusicId());
+                    TrackResponseV1 tr = spotifyMusicService.getTrackResponseById(cart.getMusicId());
 
 
                     String albumName = (tr != null && tr.getAlbum() != null) ? tr.getAlbum().getAlbumName() : null;

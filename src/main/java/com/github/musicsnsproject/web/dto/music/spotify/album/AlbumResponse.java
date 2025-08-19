@@ -1,21 +1,18 @@
 package com.github.musicsnsproject.web.dto.music.spotify.album;
 
-import com.github.musicsnsproject.web.dto.music.spotify.SimplifiedAlbum;
-import com.github.musicsnsproject.web.dto.music.spotify.SimplifiedArtist;
+import com.github.musicsnsproject.web.dto.music.spotify.track.SimplifiedTrack;
+import lombok.Builder;
 import lombok.Getter;
 
 import java.util.List;
 
-
-public record AlbumResponse(
-        SimplifiedAlbum album,
-        List<SimplifiedArtist> artists,
-        int popularity
-        ) {
-    public static AlbumResponse of(SimplifiedAlbum album, List<SimplifiedArtist> artists) {
-        return new AlbumResponse(album, artists,0);
-    }
-    public static AlbumResponse of(SimplifiedAlbum album, List<SimplifiedArtist> artists, int popularity) {
-        return new AlbumResponse(album, artists, popularity);
-    }
+@Getter
+@Builder
+public class AlbumResponse {
+    private final SimplifiedAlbum album;
+    private final List<String> genres;
+    private final List<String> copyrights;
+    private final String label;
+    private final List<SimplifiedTrack> tracks;
+    private final int popularity;
 }

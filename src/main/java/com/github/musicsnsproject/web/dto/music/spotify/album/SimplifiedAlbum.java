@@ -1,8 +1,8 @@
-package com.github.musicsnsproject.web.dto.music.spotify;
+package com.github.musicsnsproject.web.dto.music.spotify.album;
 
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.github.musicsnsproject.web.dto.music.spotify.artist.SimplifiedArtist;
 import lombok.Builder;
 import lombok.Getter;
 

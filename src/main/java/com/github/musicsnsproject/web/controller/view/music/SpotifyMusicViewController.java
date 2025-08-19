@@ -2,8 +2,6 @@ package com.github.musicsnsproject.web.controller.view.music;
 
 import com.github.musicsnsproject.common.myenum.MusicSearchType;
 import com.github.musicsnsproject.service.music.SpotifyMusicService;
-import com.github.musicsnsproject.web.dto.music.spotify.track.TrackResponse;
-import com.github.musicsnsproject.web.dto.pageable.PaginationResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -16,7 +14,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 @RequestMapping("/music")
 @RequiredArgsConstructor
 public class SpotifyMusicViewController {
-    private final SpotifyMusicService spotifyMusicService;
 
     @GetMapping("/search")
     public String searchBySpotify(
@@ -28,7 +25,17 @@ public class SpotifyMusicViewController {
         return "music/search";
     }
     @GetMapping("/artist/{artistId}")
-    public String searchArtistById( @PathVariable String artistId ){
+    public String searchArtistById( @PathVariable String artistId,
+                                    Model model
+    ){
+        model.addAttribute("boot", "5.3.2");
         return "music/artist";
+    }
+    @GetMapping("/album/{albumId}")
+    public String searchAlbumById( @PathVariable String albumId,
+                                   Model model
+    ){
+        model.addAttribute("boot", "5.3.2");
+        return "music/album";
     }
 }
