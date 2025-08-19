@@ -50,6 +50,33 @@ public class FollowService_imple implements FollowService {
 		
 		return followRepository.searchUser(searchWord, userId);
 	}
+
+
+	@Override
+	@Transactional
+	public long unFollow(Map<String, String> map) {
+		return followRepository.unFollow(map);
+	}
+
+
+	@Override
+	public List<FollowVO> getfavoriteList(String userId) {
+		return followRepository.getfavoriteList(userId);
+	}
+
+
+	@Override
+	@Transactional
+	public long unFavorite(Map<String, String> map) {		
+		return followRepository.unFavorite(map);
+	}
+
+
+	@Override
+	@Transactional
+	public long addFavorite(Map<String, String> map) {
+		return followRepository.addFavorite(map);
+	}
 	
 	
 }
