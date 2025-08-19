@@ -178,8 +178,8 @@ if (window.__musicSearchPurpleInitialized) {
                     </div>
                     <div class="track-right">
                         <div class="track-duration">${escapeHtml(duration)}</div>
-                        
                     </div>
+                    <div class="track-basket">1</div>
                 `;
                 // ⬆️track-duration 아래 에있던 거 주석처리 <div><a class="btn btn-sm btn-outline-primary btn-spotify" href="${escapeHtml(item.trackSpotifyUrl)}" target="_blank">Spotify</a></div>
 

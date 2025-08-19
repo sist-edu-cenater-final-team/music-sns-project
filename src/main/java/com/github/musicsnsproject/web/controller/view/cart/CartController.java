@@ -15,7 +15,7 @@ public class CartController {
     }
 
     // 주문페이지
-    @GetMapping("/order/{userId}")
+    @GetMapping("/order")
     public String musicCartOrder(){
         return "cart/order";
     }

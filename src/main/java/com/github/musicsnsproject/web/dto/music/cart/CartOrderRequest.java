@@ -6,6 +6,5 @@ import java.util.List;
 
 @Data
 public class CartOrderRequest {
-    private Long userId;
     private List<Long> cartIdList;
 }
