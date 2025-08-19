@@ -34,12 +34,7 @@
                             <p class="artist-genres"></p>
                             <p class="artist-followers"></p>
                         </div>
-
-                        <p class="artist-name">
-                            <a target="_blank">
-                                <i class="bi bi-spotify"></i>
-                            </a>
-                        </p>
+                        <a class="spotify-link" href="#" target="_blank"></a>
                     </div>
                     <div class="stat-item">
                         <span class="stat-label"><i class="bi bi-bar-chart-fill"></i> 인기도</span>

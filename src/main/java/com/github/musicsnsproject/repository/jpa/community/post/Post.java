@@ -29,6 +29,7 @@ public class Post {
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "post")
     private List<PostImage> images;
+
     public static Post onlyId(long postId) {
         Post post = new Post();
         post.postId = postId;
