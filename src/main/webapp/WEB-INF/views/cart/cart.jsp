@@ -5,7 +5,7 @@
 <link rel="stylesheet" href="${pageContext.request.contextPath}/css/mypage.css" />
 <body>
 <div id="wrap">
-    <main id="musicCart">
+    <main id="musicCart" class="cart-container">
         <%-- 왼쪽 사이드 네비게이션 & 관련 팝업들 --%>
         <jsp:include page="../include/common/asideNavigation.jsp" />
         <%-- //왼쪽 사이드 네비게이션 & 관련 팝업들 --%>
@@ -20,7 +20,7 @@
                 <div class="music-cart-top">
                     <div class="btn-form">
                         <button type="button" class="btn btn-delete">선택 삭제</button>
-                        <button type="button" class="btn btn-payment">결제하기</button>
+                        <button type="button" class="btn btn-order">주문하기</button>
                     </div>
                     <div class="music-check-info">
                         <div>
@@ -50,6 +50,9 @@
                     <tbody id="cartBody"></tbody>
                 </table>
                 <%-- //음악 장바구니 리스트 --%>
+                <%-- 장바구니 페이징 --%>
+                <div id="cartPagination"></div>
+                <%-- //장바구니 페이징 --%>
             </div>
         </div>
         <!-- //메인 컨텐츠 -->
@@ -59,8 +62,5 @@
         <%-- //오늘의 감정 플레이리스트 --%>
     </main>
 </div>
-<input type="hidden" id="userId" value="${userId}" />
-<input type="text" id="trackId" value="" />
-<input type="text" id="cartId" value="" />
 </body>
 </html>
