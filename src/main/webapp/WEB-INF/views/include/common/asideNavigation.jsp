@@ -185,28 +185,61 @@
             <div class="modal-body text-center">
 
                 <!-- STEP 1 -->
-                <div id="step1" style="width: 500px; margin: 15% auto;">
+                <div class="post_step1">
+                    <div class="emotions">
+                        <!-- class active 추가 시 활성화 -->
+                        <button type="button" class="btn natural active" value="CALM"><span class="blind">평온</span></button>
+                        <button type="button" class="btn happy" value="HAPPY"><span class="blind">행복</span></button>
+                        <button type="button" class="btn love" value="LOVE"><span class="blind">사랑</span></button>
+                        <button type="button" class="btn sad" value="SAD"><span class="blind">우울</span></button>
+                        <button type="button" class="btn angry" value="ANGRY"><span class="blind">분노</span></button>
+                        <button type="button" class="btn tire" value="TIRED"><span class="blind">힘듬</span></button>
+                    </div>
+                </div>
+
+                <div id="step1" style="width: 500px; margin: 5% auto;">
+                    <textarea id="title" name="title" class="form-control mb-3" rows="1" cols="1" placeholder="제목을 입력하세요..."></textarea>
                     <textarea class="form-control mb-3" id="contents" name="contents" rows="4" placeholder="문구를 입력하세요..."></textarea>
                     <div class="d-flex justify-content-between">
                         <button type="button" class="btn btn-secondary" id="btnNext">다음</button>
-                        <button type="button" class="btn btn-primary" id="btnUploadStep1">올리기</button>
+                        <button type="button" class="btn btn-primary" id="btnUploadStep1" data-context-path="${pageContext.request.contextPath}">올리기</button>
                     </div>
                 </div>
 
                 <!-- STEP 2 -->
                 <div id="step2" style="display:none;">
-                    <button type="button" class="btn btn-secondary" id="imageSave">이미지저장</button>
+                    <button type="button" class="btn btn-secondary mb-3" id="imageSave">이미지저장</button>
+                    <div id="selectImageDelete"></div>
                     <div id="tui-image-editor" style="height:500px;"></div>
+                    <button type="button" class="btn btn-danger mr-3 mt-3" id="btnBeforeStep2">이전</button>
                     <button type="button" class="btn btn-primary mt-3" id="btnNextStep2">다음</button>
                 </div>
 
+                <%-- STEP 3 --%>
                 <div id="step3" style="display:none;">
-                    <img id="previewImage" style="width: 500px; height: 500px;" class="mt-3"/>
-                    <div class="mt-3" style="width: 500px; height: 200px; margin: auto" >
+                    <div id="previewCarousel" class="carousel slide mt-3" data-ride="carousel" data-interval="3000" style="width: 500px; height: 500px; margin: auto;">
+                        <ol class="carousel-indicators"></ol>
+                        <div class="carousel-inner" style="width:100%; height:100%; background:#000;">
+                            <!-- 자바스크립트로 슬라이드 아이템 주입 -->
+                        </div>
+                        <a class="carousel-control-prev" href="#previewCarousel" role="button" data-slide="prev">
+                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                            <span class="sr-only">이전</span>
+                        </a>
+                        <a class="carousel-control-next" href="#previewCarousel" role="button" data-slide="next">
+                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                            <span class="sr-only">다음</span>
+                        </a>
+                    </div>
+
+                    <div class="mt-3" style="width: 500px; height: 100px; margin: auto" >
+                        <h3 class="mb-4" id="previewTitle" style="text-align: left; font-weight: bold"></h3>
                         <p id="previewText" style="text-align: left"></p>
                     </div>
-                    <button type="button" id="btnUploadStep3" class="btn btn-success mt-5 mb-4">올리기</button>
+                    <button type="button" class="btn btn-danger mr-3 mt-5 mb-4" id="btnBeforeStep3">이전</button>
+                    <button type="button" id="btnUploadStep3" class="btn btn-success mt-5 mb-4" data-context-path="${pageContext.request.contextPath}">올리기</button>
                 </div>
+
 
             </div>
         </div>
