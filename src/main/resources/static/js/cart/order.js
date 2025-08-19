@@ -49,11 +49,15 @@ const order = {
     createList : () => {
         // 장바구니에서 세션에 저장한 cartIdLIst 꺼내기
         const cartIdList = JSON.parse(sessionStorage.getItem("cartIdList"));
+        // userId 토큰 꺼내기
+        const userId = localStorage.getItem("userId");
 
-        const userId = sessionStorage.getItem("userId");
+        // console.log("cartIdList:", `${cartIdList.join(",")}`);
 
-        console.log("cartIdList:", `${cartIdList.join(",")}`);
-        fetch(`/api/cart/order/${userId}?cartIdList=${cartIdList.join(",")}`)
+        // 스프링 시큐리티 인증 토큰을 헤더에 추가하여 주문 목록 요청
+        fetch(`/api/cart/order?cartIdList=${cartIdList.join(",")}`, {
+            headers: { 'Authorization': userId },
+        })
             .then(res => res.json())
             .then(data => {
                 console.log("주문 목록:", data);

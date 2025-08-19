@@ -6,6 +6,5 @@ import java.util.List;
 @Data
 // 장바구니 삭제용
 public class CartDeleteRequest {
-    private Long userId;
     private List<Long> cartIdList;
 }
