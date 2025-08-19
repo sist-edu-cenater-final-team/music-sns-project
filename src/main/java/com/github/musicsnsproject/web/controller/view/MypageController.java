@@ -44,6 +44,13 @@ public class MypageController {
     public String charge() {
         return "mypage/eumpyo/charge";
     }
+    
+    private int asInt(Object obj, int def) {
+        if (obj == null) return def;
+        if (obj instanceof Number) return ((Number) obj).intValue();
+        try { return Integer.parseInt(String.valueOf(obj)); }
+        catch (Exception ignore) { return def; }
+    }
 
     // 음표 충전내역 페이지
     @GetMapping("/eumpyo/chargeHistory")
@@ -70,17 +77,27 @@ public class MypageController {
         long userId = loginUser.getUserId();
         Map<String, Object> map = eumpyoHistoryService.getChargeHistory(userId, page, size);
 
-        int totalCount = ((Number) map.getOrDefault("totalCount", 0)).intValue();
-        int sizePerPage = ((Number) map.getOrDefault("size", size)).intValue();
-        int currentShowPageNo = ((Number) map.getOrDefault("page",       page)).intValue();
+        int totalCount = asInt(map.get("totalCount"), 0);
+        int sizePerPage = asInt(map.getOrDefault("size", size), size);
+        int currentShowPageNo = asInt(map.getOrDefault("page", page), page);
 
-        mav.addObject("list", map.get("list"));                       
+        int totalPage = (int) Math.ceil((double) totalCount / Math.max(1, sizePerPage));
+        if (totalPage <= 0) totalPage = 1;
+        if (currentShowPageNo > totalPage) currentShowPageNo = totalPage;
+        if (currentShowPageNo < 1) currentShowPageNo = 1;
+        
+        mav.addObject("list", map.get("list"));
         mav.addObject("totalCount", totalCount);
         mav.addObject("currentShowPageNo", currentShowPageNo);
         mav.addObject("sizePerPage", sizePerPage);
 
-        String baseUrl = request.getContextPath() + "/mypage/eumpyo/chargeHistory";
-        String pageBar = makePageBar(totalCount, sizePerPage, currentShowPageNo, baseUrl);
+        String baseUrl = request.getContextPath() + "/mypage/eumpyo/purchaseHistory";
+
+        // 0건이면 페이지바 숨김
+        String pageBar = (totalCount > 0)
+                ? makePageBar(totalCount, sizePerPage, currentShowPageNo, baseUrl)
+                : "";
+
         mav.addObject("pageBar", pageBar);
 
         return mav;
@@ -88,7 +105,7 @@ public class MypageController {
 
     // 음표 구매내역 페이지
     @GetMapping("/eumpyo/purchaseHistory")
-    public ModelAndView useHistoryPage(@AuthenticationPrincipal CustomUserDetails loginUser,
+    public ModelAndView purchaseHistoryPage(@AuthenticationPrincipal CustomUserDetails loginUser,
                                        @RequestParam(defaultValue = "1") int page,
                                        @RequestParam(defaultValue = "10") int size,
                                        HttpServletRequest request) {

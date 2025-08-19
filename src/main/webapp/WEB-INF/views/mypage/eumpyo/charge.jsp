@@ -69,7 +69,6 @@
  }
 </style>
 
-
 <script type="text/javascript" src="https://service.iamport.kr/js/iamport.payment-1.1.2.js"></script>
 
 <script type="text/javascript">
@@ -166,114 +165,114 @@
 
 
 <body>
-<div id="wrap">
-    <main class="charge">
-        <%-- 왼쪽 사이드 네비게이션 & 관련 팝업들 --%>
-        <jsp:include page="../../include/common/asideNavigation.jsp" />
-        <%-- //왼쪽 사이드 네비게이션 & 관련 팝업들 --%>
-
-		<%-- 메인 컨텐츠 시작 --%>
-        <div class="main-contents">
-            <div class="inner">
-                <%-- 보유 음표 영역 --%>
-                <jsp:include page="../../include/mypage/mypagePointInfo.jsp" />
-                
-                <%-- 음표 충전 탭 --%>
-				<jsp:include page="../../include/mypage/eumpyoChargeTab.jsp" />
-			
-				<%-- 음표충전 리스트 시작 --%>
-			  	<div class="row columns-2">
-				    <div class="col-lg-6 chargeOptions">
-			        	<div class="chargePrices">
-			        		<div class="row-item">
-					      		<div class="item-left">
-					      			<img src="<%= ctxPath%>/images/mypage/eumpyo.png" class="coinIcon" />
-					      			<div class="item-title">음표 1개</div>
-					      		</div>
-					      		<button type="button" class="price-btn btn-charge" data-amount="100" data-coin="1">100원</button>
-					    	</div>
-					    	<div class="row-item">
-					      		<div class="item-left">
-					      			<img src="<%= ctxPath%>/images/mypage/eumpyo.png" class="coinIcon" />
-					      			<div class="item-title">음표 5개</div>
-					      		</div>
-					      		<button type="button" class="price-btn btn-charge" data-amount="500" data-coin="5">500원</button>
-					    	</div>
-					    	<div class="row-item">
-					      		<div class="item-left">
-					      			<img src="<%= ctxPath%>/images/mypage/eumpyo.png" class="coinIcon" />
-					      			<div class="item-title">음표 10개</div>
-					      		</div>
-					      		<button type="button" class="price-btn btn-charge" data-amount="1000" data-coin="10">1,000원</button>
-					    	</div>
-					    	<div class="row-item">
-					      		<div class="item-left">
-					      			<img src="<%= ctxPath%>/images/mypage/eumpyo.png" class="coinIcon" />
-					      			<div class="item-title">음표 30개</div>
-					      		</div>
-					      		<button type="button" class="price-btn btn-charge" data-amount="3000" data-coin="30">3,000원</button>
-					    	</div>
-					    	<div class="row-item">
-					      		<div class="item-left">
-					      			<img src="<%= ctxPath%>/images/mypage/eumpyo.png" class="coinIcon" />
-					      			<div class="item-title">음표 50개</div>
-					      		</div>
-					      		<button type="button" class="price-btn btn-charge" data-amount="5000" data-coin="50">5,000원</button>
-					    	</div>
-				      	</div>
-				    </div>
-			    
-					<div class="col-lg-6 chargeOptions">
-					  	<div class="chargePrices">
-					    	<div class="row-item">
-					      		<div class="item-right">
-					      			<img src="<%= ctxPath%>/images/mypage/eumpyo.png" class="coinIcon" />
-					      			<div class="item-title">음표 100개</div>
-					      		</div>
-					      		<button type="button" class="price-btn btn-charge" data-amount="10000" data-coin="100">10,000원</button>
-					    	</div>
-					    	<div class="row-item">
-					      		<div class="item-right">
-					      			<img src="<%= ctxPath%>/images/mypage/eumpyo.png" class="coinIcon" />
-					      			<div class="item-title">음표 200개</div>
-					      		</div>
-					      		<button type="button" class="price-btn btn-charge" data-amount="20000" data-coin="200">20,000원</button>
-					    	</div>
-					    	<div class="row-item">
-					      		<div class="item-right">
-					      			<img src="<%= ctxPath%>/images/mypage/eumpyo.png" class="coinIcon" />
-					      			<div class="item-title">음표 300개</div>
-					      		</div>
-					      		<button type="button" class="price-btn btn-charge" data-amount="30000" data-coin="300">30,000원</button>
-					    	</div>
-					    	<div class="row-item">
-					      		<div class="item-right">
-					      			<img src="<%= ctxPath%>/images/mypage/eumpyo.png" class="coinIcon" />
-					      			<div class="item-title">음표 500개</div>
-					      		</div>
-					      		<button type="button" class="price-btn btn-charge" data-amount="50000" data-coin="500">50,000원</button>
-					    	</div>
-					    	<div class="row-item">
-					      		<div class="item-right">
-					      			<img src="<%= ctxPath%>/images/mypage/eumpyo.png" class="coinIcon" />
-					      			<div class="item-title">음표 1,000개</div>
-					      		</div>
-					      		<button type="button" class="price-btn btn-charge" data-amount="100000" data-coin="1000">100,000원</button>
-					    	</div>
-				      	</div>
-			    	</div>
-		  		</div>
-		  		<%-- 음표충전 리스트 끝 --%>
-		  		
+	<div id="wrap">
+	    <main class="charge">
+	        <%-- 왼쪽 사이드 네비게이션 & 관련 팝업들 --%>
+	        <jsp:include page="../../include/common/asideNavigation.jsp" />
+	        <%-- //왼쪽 사이드 네비게이션 & 관련 팝업들 --%>
+	
+			<%-- 메인 컨텐츠 시작 --%>
+	        <div class="main-contents">
+	            <div class="inner">
+	                <%-- 보유 음표 영역 --%>
+	                <jsp:include page="../../include/mypage/mypagePointInfo.jsp" />
+	                
+	                <%-- 음표 충전 탭 --%>
+					<jsp:include page="../../include/mypage/eumpyoChargeTab.jsp" />
+				
+					<%-- 음표충전 리스트 시작 --%>
+				  	<div class="row columns-2">
+					    <div class="col-lg-6 chargeOptions">
+				        	<div class="chargePrices">
+				        		<div class="row-item">
+						      		<div class="item-left">
+						      			<img src="<%= ctxPath%>/images/mypage/eumpyo.png" class="coinIcon" />
+						      			<div class="item-title">음표 1개</div>
+						      		</div>
+						      		<button type="button" class="price-btn btn-charge" data-amount="100" data-coin="1">100원</button>
+						    	</div>
+						    	<div class="row-item">
+						      		<div class="item-left">
+						      			<img src="<%= ctxPath%>/images/mypage/eumpyo.png" class="coinIcon" />
+						      			<div class="item-title">음표 5개</div>
+						      		</div>
+						      		<button type="button" class="price-btn btn-charge" data-amount="500" data-coin="5">500원</button>
+						    	</div>
+						    	<div class="row-item">
+						      		<div class="item-left">
+						      			<img src="<%= ctxPath%>/images/mypage/eumpyo.png" class="coinIcon" />
+						      			<div class="item-title">음표 10개</div>
+						      		</div>
+						      		<button type="button" class="price-btn btn-charge" data-amount="1000" data-coin="10">1,000원</button>
+						    	</div>
+						    	<div class="row-item">
+						      		<div class="item-left">
+						      			<img src="<%= ctxPath%>/images/mypage/eumpyo.png" class="coinIcon" />
+						      			<div class="item-title">음표 30개</div>
+						      		</div>
+						      		<button type="button" class="price-btn btn-charge" data-amount="3000" data-coin="30">3,000원</button>
+						    	</div>
+						    	<div class="row-item">
+						      		<div class="item-left">
+						      			<img src="<%= ctxPath%>/images/mypage/eumpyo.png" class="coinIcon" />
+						      			<div class="item-title">음표 50개</div>
+						      		</div>
+						      		<button type="button" class="price-btn btn-charge" data-amount="5000" data-coin="50">5,000원</button>
+						    	</div>
+					      	</div>
+					    </div>
+				    
+						<div class="col-lg-6 chargeOptions">
+						  	<div class="chargePrices">
+						    	<div class="row-item">
+						      		<div class="item-right">
+						      			<img src="<%= ctxPath%>/images/mypage/eumpyo.png" class="coinIcon" />
+						      			<div class="item-title">음표 100개</div>
+						      		</div>
+						      		<button type="button" class="price-btn btn-charge" data-amount="10000" data-coin="100">10,000원</button>
+						    	</div>
+						    	<div class="row-item">
+						      		<div class="item-right">
+						      			<img src="<%= ctxPath%>/images/mypage/eumpyo.png" class="coinIcon" />
+						      			<div class="item-title">음표 200개</div>
+						      		</div>
+						      		<button type="button" class="price-btn btn-charge" data-amount="20000" data-coin="200">20,000원</button>
+						    	</div>
+						    	<div class="row-item">
+						      		<div class="item-right">
+						      			<img src="<%= ctxPath%>/images/mypage/eumpyo.png" class="coinIcon" />
+						      			<div class="item-title">음표 300개</div>
+						      		</div>
+						      		<button type="button" class="price-btn btn-charge" data-amount="30000" data-coin="300">30,000원</button>
+						    	</div>
+						    	<div class="row-item">
+						      		<div class="item-right">
+						      			<img src="<%= ctxPath%>/images/mypage/eumpyo.png" class="coinIcon" />
+						      			<div class="item-title">음표 500개</div>
+						      		</div>
+						      		<button type="button" class="price-btn btn-charge" data-amount="50000" data-coin="500">50,000원</button>
+						    	</div>
+						    	<div class="row-item">
+						      		<div class="item-right">
+						      			<img src="<%= ctxPath%>/images/mypage/eumpyo.png" class="coinIcon" />
+						      			<div class="item-title">음표 1,000개</div>
+						      		</div>
+						      		<button type="button" class="price-btn btn-charge" data-amount="100000" data-coin="1000">100,000원</button>
+						    	</div>
+					      	</div>
+				    	</div>
+			  		</div>
+			  		<%-- 음표충전 리스트 끝 --%>
+			  		
+				</div>
 			</div>
-		</div>
-		<%-- 메인 컨텐츠 끝 --%>	
-
-        <%-- 오늘의 감정 플레이리스트 --%>
-        <jsp:include page="../../include/common/asidePlayList.jsp" />
-        
-    </main>
-</div>
-
+			<%-- 메인 컨텐츠 끝 --%>	
+	
+	        <%-- 오늘의 감정 플레이리스트 --%>
+	        <jsp:include page="../../include/common/asidePlayList.jsp" />
+	        
+	    </main>
+	</div>
+	
 </body>
 </html>
