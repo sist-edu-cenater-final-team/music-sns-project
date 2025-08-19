@@ -41,7 +41,9 @@ document.addEventListener("DOMContentLoaded", function() {
             document.querySelector(".artist-name").textContent = artist.artist.artistName;
             document.querySelector(".artist-genres").textContent = artist.artistGenres.join(", ");
             document.querySelector(".artist-followers").textContent = `팔로워: ${artist.totalFollowers.toLocaleString()}`;
-            document.querySelector(".spotify-link").href = artist.artist.artistSpotifyUrl;
+            const spotifyLinkElement = document.querySelector(".spotify-link");
+            spotifyLinkElement.href = artist.artist.artistSpotifyUrl;
+            spotifyLinkElement.innerHTML = `<i class="bi bi-spotify"></i>&nbsp Spotify`;
 
             // 인기도 퍼센트 반영
             const popularity = artist.artistPopularity;

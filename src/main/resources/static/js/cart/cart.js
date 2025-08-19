@@ -1,19 +1,12 @@
 document.addEventListener("DOMContentLoaded", function () {
 
-    if(document.querySelector('#musicCart')) {
-        cart.createList();
-
-        // 선택 삭제
-        document.querySelector('.btn-delete')?.addEventListener('click', cart.selectDelete);
-
-        // 주문하러가기
-        document.querySelector('.btn-order')?.addEventListener('click', cart.order);
-    }
-    // 장바구니 추가하기
-    //document.querySelector('.btn-cart-add').addEventListener('click', cart.add);
+    cart.createList();
+    // 선택 삭제
+    document.querySelector('.btn-delete')?.addEventListener('click', cart.selectDelete);
+    // 주문하러가기
+    document.querySelector('.btn-order')?.addEventListener('click', cart.order);
 
 });
-const userId = 23;
 
 const cart = {
     tbody : document.querySelector('#cartBody'),
@@ -65,7 +58,9 @@ const cart = {
         cart.initCheckEvents();
     },
     createList : () => {
-        fetch(`/api/cart/list?userId=${encodeURIComponent(userId)}`)
+        fetch(`/api/cart/list`, {
+            headers: { 'Authorization': "Bearer eyJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE3NTU1ODExNTIsImV4cCI6MTc1NTU4NDc1Miwic3ViIjoiMjMiLCJyb2xlcyI6IlJPTEVfVVNFUiJ9.lkCq8vt0ivRzwcK3T4q4CJQzAyWn4lOSVFHFfRt3f8g" },
+        })
         .then(response => response.json())
         .then(data => {
             //console.log('cart list:', data);
