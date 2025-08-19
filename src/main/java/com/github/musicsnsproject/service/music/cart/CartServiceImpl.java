@@ -126,7 +126,7 @@ public class CartServiceImpl implements CartService {
         List<CartResponse> cartResponseList = carts.stream()
                 .filter(cart -> cartIdList.contains(cart.getMusicCartId()))
                 .map(cart -> {
-                    TrackResponse tr = spotifyMusicService.getTrackResponseById(cart.getMusicId());
+                    TrackResponseV1 tr = spotifyMusicService.getTrackResponseById(cart.getMusicId());
 
                     String albumName = (tr != null && tr.getAlbum() != null) ? tr.getAlbum().getAlbumName() : null;
                     String albumImageUrl = (tr != null && tr.getAlbum() != null) ? tr.getAlbum().getAlbumImageUrl() : null;
