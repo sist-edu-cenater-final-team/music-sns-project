@@ -1,15 +1,17 @@
 document.addEventListener("DOMContentLoaded", function () {
-    cart.createList();
 
+    if(document.querySelector('#musicCart')) {
+        cart.createList();
 
-    // 선택 삭제
-    document.querySelector('.btn-delete').addEventListener('click', cart.selectDelete);
+        // 선택 삭제
+        document.querySelector('.btn-delete')?.addEventListener('click', cart.selectDelete);
 
-    // 결제하러가기
-    document.querySelector('.btn-payment').addEventListener('click', cart.payment);
-
+        // 주문하러가기
+        document.querySelector('.btn-order')?.addEventListener('click', cart.order);
+    }
     // 장바구니 추가하기
     //document.querySelector('.btn-cart-add').addEventListener('click', cart.add);
+
 });
 const userId = 23;
 
@@ -17,15 +19,21 @@ const cart = {
     tbody : document.querySelector('#cartBody'),
     checkAll : document.querySelector('#cartAllCheck'),
     renderCart : (cartData) => {
-        console.log('cartData:', cartData);
+        //console.log('cartData:', cartData);
+
         let cartHTML = ``;
-        cartData.forEach( (item, index) => {
+        // 장바구니가 비어있을 경우
+        if(cartData.length === 0) {
+            cart.tbody.innerHTML = `<tr><td colspan="7">장바구니가 비어있습니다.</td></tr>`;
+            return;
+        }
+        cartData.forEach((item, index) => {
             cartHTML += `
                 <tr>
                     <td>
-                        <input type="checkbox" id="cartCheck${index+1}" name="cartCheck" data-cart-id="${item.cartId}">
+                        <input type="checkbox" id="cartCheck${index + 1}" name="cartCheck" data-cart-id="${item.cartId}">
                     </td>
-                    <td scope="row">${index+1}</td>
+                    <td scope="row">${index + 1}</td>
                     <td>
                         <div class="music-info">
                             <div class="music-img">
@@ -49,6 +57,7 @@ const cart = {
                 </tr>
             `;
         });
+
 
         cart.tbody.innerHTML = cartHTML;
 
@@ -107,25 +116,53 @@ const cart = {
             cart.checkAll.indeterminate = true;
         }
     },
-    // 선택된 cartId 배열 반환
-    getSelectedCartIds: () => {
-        return Array.from(cart.tbody.querySelectorAll('input[name="cartCheck"]:checked'))
-            .map(cb => cb.dataset.cartId);
-    },
     selectDelete : () => {
-        const cartId = document.querySelector("#cartId");
-        cartId.value = cart.getSelectedCartIds();
-
-        //
-        const cartIdList = cartId.value.split(',');
+        // 받아온 cartId 배열 만들기
+        const cartIdList = Array.from(cart.tbody.querySelectorAll('input[name="cartCheck"]:checked'))
+            .map(cb => Number(cb.dataset.cartId));
 
         cart.deleteItem(1, cartIdList);
     },
     // 바로 삭제하기
     directDelete : (e) => {
-        const cartId = e.dataset.cartId;
+        const cartId = Number(e.dataset.cartId);
         cart.deleteItem(0, cartId);
         console.log(cartId);
+    },
+    deleteItem : (status, cartIdList) => {
+        // status 0 : 바로 삭제
+        // ststus 1 : 선택 삭제
+        if (status !== 0 && cart.tbody.querySelectorAll('input[name="cartCheck"]:checked').length < 1) {
+            alert("삭제할 상품을 선택해주세요!");
+            return;
+        }
+        if (!confirm('정말 상품을 삭제하시겠습니까?')) return;
+
+        fetch('/api/cart/delete', {
+            method: 'DELETE',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                userId : userId,
+                cartIdList : cartIdList
+            })
+        })
+            .then(async (response) => {
+                console.log("response : ", response);
+                console.log("response.status : ", response.status);
+                const msg = await response.text();
+
+                if (response.status !== 200) {
+                    alert("상품 삭제에 실패하였습니다."+ msg);
+                    return;
+                }
+                alert("상품을 삭제하였습니다.");
+
+                cart.createList();
+            })
+            .catch(error => {
+                console.error('삭제 중 오류 발생:', error.message);
+                alert('서버 또는 네트워크 오류입니다.');
+            });
     },
     add : () => {
         fetch('/api/cart/add', {
@@ -151,42 +188,45 @@ const cart = {
                 alert('장바구니 추가 중 오류가 발생했습니다.');
             });
     },
-    deleteItem : (status, cartId) => {
-        // status 0 : 바로 삭제
-        // ststus 1 : 선택 삭제
-        if (status !== 0 && cart.tbody.querySelectorAll('input[name="cartCheck"]:checked').length < 1) {
-            alert("삭제할 상품을 선택해주세요!");
+    order : () => {
+        // 받아온 cartId 배열 만들기
+        const cartIdList = Array.from(cart.tbody.querySelectorAll('input[name="cartCheck"]:checked'))
+            .map(cb => Number(cb.dataset.cartId));
+
+        if (cart.tbody.querySelectorAll('input[name="cartCheck"]:checked').length < 1) {
+            alert("주문할 상품을 선택해주세요!");
             return;
         }
-        if (!confirm('정말 상품을 삭제하시겠습니까?')) return;
 
-        fetch('/api/cart/delete', {
-            method: 'DELETE',
+        fetch('/api/cart/order', {
+            method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                userId: userId,
-                cartId: cartId
+                userId : userId,
+                cartIdList : cartIdList
             })
         })
-        .then(async (response) => {
-            console.log("response : ", response);
-            console.log("response.status : ", response.status);
-            const msg = await response.text();
+            .then(async (response) => {
+                console.log("response : ", response);
+                console.log("response.status : ", response.status);
+                const msg = await response.text();
 
-            if (response.status !== 200) {
-                alert("상품 삭제에 실패하였습니다."+ msg);
-                return;
-            }
-            alert("상품을 삭제하였습니다.");
+                if (response.status !== 200) {
+                    alert("상품 주문에 실패하였습니다."+ msg);
+                    return;
+                }
 
-            cart.createList();
-        })
-        .catch(error => {
-            console.error('삭제 중 오류 발생:', error.message);
-            alert('서버 또는 네트워크 오류입니다.');
-        });
-    },
-    payment : () => {
+                // 선택한 cartIdList를 sessionStorage에 저장
+                sessionStorage.setItem("cartIdList", JSON.stringify(cartIdList));
+                sessionStorage.setItem("userId", String(userId));
 
+                location.href = ctxPath+`/cart/order/`+userId;
+
+            })
+            .catch(error => {
+                console.error('삭제 중 오류 발생:', error.message);
+                alert('서버 또는 네트워크 오류입니다.');
+            });
     }
 }
+

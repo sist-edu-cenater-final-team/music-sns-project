@@ -2,11 +2,11 @@ package com.github.musicsnsproject.web.controller.rest.music;
 
 import com.github.musicsnsproject.common.myenum.MusicSearchType;
 import com.github.musicsnsproject.service.music.SpotifyMusicService;
-import com.github.musicsnsproject.web.dto.music.spotify.SimplifiedAlbum;
+import com.github.musicsnsproject.web.dto.music.spotify.album.SimplifiedAlbum;
 import com.github.musicsnsproject.web.dto.music.spotify.album.AlbumResponse;
 import com.github.musicsnsproject.web.dto.music.spotify.artist.ArtistResponse;
 import com.github.musicsnsproject.web.dto.music.spotify.track.TrackResponse;
-import com.github.musicsnsproject.web.dto.pageable.PaginationResponse;
+import com.github.musicsnsproject.web.dto.music.spotify.track.TrackResponseV1;
 import com.github.musicsnsproject.web.dto.pageable.ScrollResponse;
 import com.github.musicsnsproject.web.dto.response.CustomSuccessResponse;
 import lombok.RequiredArgsConstructor;

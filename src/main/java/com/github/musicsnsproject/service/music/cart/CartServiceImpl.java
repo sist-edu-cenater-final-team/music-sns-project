@@ -1,14 +1,12 @@
 package com.github.musicsnsproject.service.music.cart;
 
-import com.github.musicsnsproject.common.exceptions.CustomNotFoundException;
 import com.github.musicsnsproject.repository.jpa.account.user.MyUser;
 import com.github.musicsnsproject.repository.jpa.music.cart.MusicCart;
 import com.github.musicsnsproject.repository.jpa.music.cart.MusicCartRepository;
 import com.github.musicsnsproject.service.music.SpotifyMusicService;
-import com.github.musicsnsproject.web.advice.ExceptionControllerAdvice;
 import com.github.musicsnsproject.web.dto.music.cart.CartResponse;
-import com.github.musicsnsproject.web.dto.music.spotify.SimplifiedArtist;
-import com.github.musicsnsproject.web.dto.music.spotify.track.TrackResponse;
+import com.github.musicsnsproject.web.dto.music.spotify.artist.SimplifiedArtist;
+import com.github.musicsnsproject.web.dto.music.spotify.track.TrackResponseV1;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -21,7 +19,7 @@ import static com.github.musicsnsproject.repository.jpa.music.cart.QMusicCart.mu
 
 @Service
 @RequiredArgsConstructor
-public class CartService_imple implements CartService {
+public class CartServiceImpl implements CartService {
 
     private final MusicCartRepository musicCartRepository;
     private final SpotifyMusicService spotifyMusicService;
@@ -43,7 +41,7 @@ public class CartService_imple implements CartService {
 
         List<CartResponse> cartResponseList = carts.stream()
                 .map(cart -> {
-                    TrackResponse tr = spotifyMusicService.getTrackResponseById(cart.getMusicId());
+                    TrackResponseV1 tr = spotifyMusicService.getTrackResponseById(cart.getMusicId());
 
 
                     String albumName = (tr != null && tr.getAlbum() != null) ? tr.getAlbum().getAlbumName() : null;
@@ -110,8 +108,52 @@ public class CartService_imple implements CartService {
             for (Long cartId : cartIdList){
                 musicCartRepository.deleteById(cartId);
             }
-
         }
+    }
+
+
+    // 주문하기
+    @Override
+    public List<CartResponse> getCartOrderList(Long userId, List<Long> cartIdList) {
+
+        List<MusicCart> carts = jpaQueryFactory
+                .selectFrom(musicCart)
+                .join(musicCart.myUser, myUser).fetchJoin()
+                .where(musicCart.myUser.userId.eq(userId))
+                .orderBy(musicCart.createdAt.desc())
+                .fetch();
+
+        List<CartResponse> cartResponseList = carts.stream()
+                .filter(cart -> cartIdList.contains(cart.getMusicCartId()))
+                .map(cart -> {
+                    TrackResponse tr = spotifyMusicService.getTrackResponseById(cart.getMusicId());
+
+                    String albumName = (tr != null && tr.getAlbum() != null) ? tr.getAlbum().getAlbumName() : null;
+                    String albumImageUrl = (tr != null && tr.getAlbum() != null) ? tr.getAlbum().getAlbumImageUrl() : null;
+                    String artistName = (tr != null && tr.getArtist() != null)
+                            ? tr.getArtist().stream()
+                            .map(SimplifiedArtist::artistName)
+                            .distinct()
+                            .collect(java.util.stream.Collectors.joining(", "))
+                            : null;
+
+                    return CartResponse.builder()
+                            .cartId(cart.getMusicCartId())
+                            .userId(cart.getMyUser().getUserId())
+                            .musicId(cart.getMusicId())
+                            .musicName(tr != null ? tr.getTrackName() : null)
+                            .albumName(albumName)
+                            .albumImageUrl(albumImageUrl)
+                            .artistName(artistName)
+                            .build();
+
+
+                })
+                .toList();
+
+
+        return cartResponseList;
+
     }
 
     // 사용자 조회 공통

@@ -2,7 +2,7 @@ document.addEventListener("DOMContentLoaded", function() {
     //마지막 경로변수 artistId 가져오기
     // 예시: const artistId = window.location.pathname.split('/').pop();
     const artistId = window.location.pathname.split('/').pop();
-    axios.get(`/api/music/spotify/artist?artistId=${artistId}`)
+    axios.get(`${ctxPath}/api/music/spotify/artist?artistId=${artistId}`)
         .then(response => {
             const artist = response.data.success.responseData;
 
@@ -38,10 +38,10 @@ document.addEventListener("DOMContentLoaded", function() {
             artistImage.src = artist.artistImageUrl || ctxPath+"/images/music/singer/singer-crop.png";
 
 
-            document.querySelector(".artist-name").textContent = artist.artistName;
+            document.querySelector(".artist-name").textContent = artist.artist.artistName;
             document.querySelector(".artist-genres").textContent = artist.artistGenres.join(", ");
             document.querySelector(".artist-followers").textContent = `팔로워: ${artist.totalFollowers.toLocaleString()}`;
-            document.querySelector(".spotify-link").href = artist.artistSpotifyUrl;
+            document.querySelector(".spotify-link").href = artist.artist.artistSpotifyUrl;
 
             // 인기도 퍼센트 반영
             const popularity = artist.artistPopularity;

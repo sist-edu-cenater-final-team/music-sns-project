@@ -2,6 +2,7 @@ package com.github.musicsnsproject.repository.spotify;
 
 import com.github.musicsnsproject.common.exceptions.CustomBindException;
 import com.github.musicsnsproject.common.exceptions.CustomNotAcceptException;
+import com.github.musicsnsproject.common.exceptions.CustomNotFoundException;
 import com.github.musicsnsproject.common.exceptions.CustomServerException;
 import lombok.RequiredArgsConstructor;
 import org.apache.hc.core5.http.ParseException;
@@ -15,6 +16,7 @@ import se.michaelthelin.spotify.requests.data.artists.GetArtistRequest;
 import se.michaelthelin.spotify.requests.data.artists.GetArtistsAlbumsRequest;
 import se.michaelthelin.spotify.requests.data.search.simplified.SearchTracksRequest;
 import se.michaelthelin.spotify.requests.data.tracks.GetTrackRequest;
+import se.michaelthelin.spotify.exceptions.detailed.NotFoundException;
 
 import java.io.IOException;
 import java.util.function.Function;
@@ -57,6 +59,14 @@ public class SpotifyDao {
         } catch (ParseException e) {
             throw CustomNotAcceptException.of().customMessage("Spotify 변환 실패").systemMessage(e.getMessage()).build();
         } catch (SpotifyWebApiException e) {
+            if(e instanceof NotFoundException){
+                String requestValue = request.getUri().getPath();
+                throw CustomNotFoundException.of()
+                        .customMessage("조회 결과가 없습니다.")
+                        .systemMessage(e.getMessage())
+                        .request(requestValue)
+                        .build();
+            }
             refreshSpotifyToken.apply(null);
             throw CustomServerException.of().customMessage("Spotify API 에러").systemMessage(e.getMessage()).build();
         }

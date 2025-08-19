@@ -1,0 +1,62 @@
+.album-info {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    max-width: 900px;
+    margin: 20px auto;
+}
+
+.album-header {
+    display: flex;
+    align-items: center;
+}
+
+.album-image {
+    width: 160px;
+    height: 160px;
+    object-fit: cover;
+}
+
+.album-details {
+    flex: 1;
+}
+
+.album-name {
+    font-size: 1.8rem;
+    font-weight: bold;
+}
+
+.artist-name a {
+    font-size: 1.1rem;
+    text-decoration: none;
+    color: #007bff;
+}
+
+.release-date,
+.album-type,
+.album-genres {
+    font-size: 1rem;
+    color: #555;
+}
+
+.popularity {
+    margin-top: 20px;
+}
+
+.popularity-text {
+    font-size: 1rem;
+    color: #007bff;
+    font-weight: bold;
+    display: inline-block;
+    margin-top: 5px;
+}
+
+.progress {
+    background-color: #f0f0f0;
+}
+
+.progress-bar {
+    background-color: #28a745;
+    transition: width 1s ease;
+}

@@ -8,9 +8,7 @@ import java.util.List;
 @Getter
 @Builder
 public class ArtistResponse {
-    public final String artistId;
-    public final String artistName;
-    public final String artistSpotifyUrl;
+    private final SimplifiedArtist artist;
     private final List<String> artistGenres;
     private final int totalFollowers;
     private final String artistImageUrl;

@@ -34,7 +34,7 @@ public class SpotifyConfig {
                 .build();
 
         refreshAccessToken(); // 초기 토큰 발급
-        scheduleTokenRefresh(); // 자동 갱신 스케줄링
+//        scheduleTokenRefresh(); // 자동 갱신 스케줄링
 
         return this.spotifyApi;
     }
@@ -59,12 +59,12 @@ public class SpotifyConfig {
             return null;
         };
     }
-
-    @Scheduled(fixedRate = 3300000) // 55분마다 실행 (3300초)
-    public void scheduleTokenRefresh() {
-        System.out.println("토큰 갱신 스케줄 실행 중...");
-        refreshAccessToken();
-    }
+//
+//    @Scheduled(fixedRate = 3300000) // 55분마다 실행 (3300초)
+//    public void scheduleTokenRefresh() {
+//        System.out.println("토큰 갱신 스케줄 실행 중...");
+//        refreshAccessToken();
+//    }
 
 
 }

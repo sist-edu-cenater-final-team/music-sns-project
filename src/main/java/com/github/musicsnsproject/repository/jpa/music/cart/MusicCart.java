@@ -31,12 +31,4 @@ public class MusicCart {
         // createdAt가 null이 아니라면 기존 시각을 보여준다.
         this.createdAt = this.createdAt == null ? LocalDateTime.now() : this.createdAt;
     }
-
-    public CartResponse toDTO(){
-        return CartResponse.builder()
-                .cartId(this.musicCartId)
-                .musicId(this.musicId)
-                .userId(this.myUser.getUserId())
-                .build();
-    }
 }
