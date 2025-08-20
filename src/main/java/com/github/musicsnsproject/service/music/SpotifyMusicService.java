@@ -181,6 +181,7 @@ public class SpotifyMusicService {
                 .trackId(track.getId())
                 .trackName(track.getName())
                 .duration(duration)
+                .durationMs(track.getDurationMs())
                 .trackSpotifyUrl(track.getExternalUrls().get("spotify"))
                 .trackNumber(track.getTrackNumber())
                 .trackType(track.getType().name())

@@ -157,23 +157,28 @@ if (window.__musicSearchPurpleInitialized) {
 
                 const a = document.createElement('a');
                 a.dataset.trackId = item.track.trackId;
-                a.dataset.albumId = item.album?.albumId || '';
+                const albumId = item.album?.albumId || '';
+                a.dataset.albumId = albumId;
 
                 // a.href = '#';
                 a.className = 'list-group-item list-group-item-action track-item';
 
                 a.innerHTML = `
-                    <img class="track-thumb" data-album-id="${escapeHtml(item.album?.albumId || '')}" src="${escapeHtml(albumImage)}" alt="${escapeHtml(albumName)}">
+                    <img class="track-thumb" data-album-id="${escapeHtml(item.album?.albumId || '')}" src="${escapeHtml(albumImage)}" alt="${escapeHtml(albumName)}" onclick="window.location.href='${ctxPath}/music/album/${escapeHtml(albumId)}'">
                     <div class="track-main">
                         <div class="track-title" data-track-id="${escapeHtml(item.trackId)}">${escapeHtml(item.track.trackName)}</div>
                         <div class="track-artist">${artistsHtml}</div>
                     </div>
                     <div class="track-album" data-album-id="${escapeHtml(item.album?.albumId || '')}">
                         <div class="track-album-name">
-                             ${escapeHtml(albumName)}
+                            <a href="${ctxPath}/music/album/${escapeHtml(item.album?.albumId || '')}" style="text-decoration: none; color: inherit;">
+                                ${escapeHtml(albumName)}
+                            </a>
                         </div>
                         <div class="track-release-date">
-                            ${escapeHtml(releaseDate)}                        
+                            <a href="${ctxPath}/music/album/${escapeHtml(item.album?.albumId || '')}" style="text-decoration: none; color: inherit;">
+                                ${escapeHtml(releaseDate)}                        
+                            <a href="${ctxPath}/music/album/${escapeHtml(item.album?.albumId || '')}" style="text-decoration: none; color: inherit;">
                         </div>
                     </div>
                     <div class="track-right">

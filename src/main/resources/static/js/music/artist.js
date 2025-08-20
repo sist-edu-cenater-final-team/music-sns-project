@@ -44,6 +44,7 @@ document.addEventListener("DOMContentLoaded", function() {
             const spotifyLinkElement = document.querySelector(".spotify-link");
             spotifyLinkElement.href = artist.artist.artistSpotifyUrl;
             spotifyLinkElement.innerHTML = `<i class="bi bi-spotify"></i>&nbsp Spotify`;
+            spotifyLinkElement.style.display = "block";
 
             // 인기도 퍼센트 반영
             const popularity = artist.artistPopularity;
@@ -141,7 +142,7 @@ document.addEventListener("DOMContentLoaded", function() {
               <div class="album-artists">${artistsHtml}</div>
           </div>
         
-          <a class="spotify-link" href="${album.albumSpotifyUrl}" target="_blank">Spotify</a>
+          <a class="spotify-link" href="${album.albumSpotifyUrl}" target="_blank"><i class="bi bi-spotify"></i>&nbsp Spotify</a>
       </div>
     `;
             list.appendChild(card);
