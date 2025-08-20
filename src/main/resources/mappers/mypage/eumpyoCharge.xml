@@ -5,31 +5,24 @@
 
 <mapper namespace="eumpyoCharge">
 
-    <!-- 사용자 코인 증가 -->
-    <update id="increaseUserCoin" parameterType="HashMap">
-        update users
-        set coin = NVL(coin,0) + #{coin}
-        where user_id = #{userId}
-    </update>
+	<!-- 사용자 코인 증가 -->
+  	<update id="increaseUserCoin" parameterType="hashmap">
+    	update users
+       		set coin = nvl(coin, 0) + #{coin}
+     	where user_id = #{userId}
+  	</update>
 
-    <!-- 코인 충전내역 기록 -->
-    <insert id="insertChargeHistory" parameterType="HashMap"> 
-  		insert into coin_history (user_id, coin, at_that_price, created_at)
-  		values (#{userId}, #{coin}, #{atThatPrice}, systimestamp)
-	</insert>
+  	<!-- 코인 충전내역 기록 -->
+  	<insert id="insertChargeHistory" parameterType="hashmap">
+    	insert into coin_history (user_id, coin, at_that_price, created_at)
+    	values (#{userId}, #{coin}, #{atThatPrice}, systimestamp)
+  	</insert>
 
-    <!-- 현재 코인 조회 -->
-    <select id="selectUserCoin" parameterType="HashMap" resultType="java.lang.Long">
-        select NVL(coin, 0) as coin
-        from users
-        where user_id = #{userId}
-    </select>
-    
-    <!-- 보유 코인(coin_history 합계) 조회 -->
-	<select id="sumUserCoinFromHistory" parameterType="long" resultType="long">
-    	select nvl(sum(ch.coin), 0)
-      	from coin_history ch
-     	where ch.user_id = #{userId}
-	</select>
-
+  	<!-- 사용자 현재 코인 조회 (users.coin) -->
+  	<select id="selectUserCoin" parameterType="long" resultType="long">
+    	select nvl(u.coin, 0)
+      	from users u
+     	where u.user_id = #{value}
+  	</select>
 </mapper>
+

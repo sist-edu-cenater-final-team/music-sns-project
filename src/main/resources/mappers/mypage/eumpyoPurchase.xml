@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- ==== mapper 기본설정 ==== -->
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="eumpyoPurchase">
+
+  	<!-- 사용자 코인 차감 -->
+  	<update id="decreaseUserCoin" parameterType="hashmap">
+    	update users
+       		set coin = nvl(coin, 0) - #{usedCoin}
+     	where user_id = #{userId}
+       		and nvl(coin, 0) &gt;= #{usedCoin}
+  	</update>
+
+  	<!-- 구매내역 기록 -->
+  	<insert id="insertPurchaseHistory" parameterType="hashmap">
+    	insert into purchase_history (user_id, music_id, used_coin, created_at)
+    	values (#{userId}, #{musicId}, #{usedCoin}, systimestamp)
+  	</insert>
+
+  	<!-- 현재 사용자 코인 조회 -->
+  	<select id="selectUserCoin" parameterType="hashmap" resultType="long">
+    	select nvl(coin, 0) from users where user_id = #{userId}
+  	</select>
+
+</mapper>

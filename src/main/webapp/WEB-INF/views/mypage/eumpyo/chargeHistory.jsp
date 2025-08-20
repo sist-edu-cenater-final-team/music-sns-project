@@ -115,7 +115,7 @@
 
  /* 비활성 스타일 표시 */
  #pagination .is-disabled {
-  	opacity: 0.3;
+  	opacity: 0.2;
  }
 
  #pagination .is-disabled a {
@@ -147,7 +147,6 @@
   		<main class="chargeHistory">
 		    <%-- 왼쪽 사이드 네비게이션 & 관련 팝업들 --%>
 	        <jsp:include page="../../include/common/asideNavigation.jsp" />
-	        <%-- //왼쪽 사이드 네비게이션 & 관련 팝업들 --%>
 	
 			<%-- 메인 컨텐츠 시작 --%>
 	        <div class="main-contents">
@@ -170,7 +169,7 @@
 			          		</tr>
 			          	</thead>
 						<tbody>
-			          		<c:set var="list" value="${not empty requestScope.chargeList ? requestScope.chargeList : requestScope.list}" />
+              				<c:set var="list" value="${requestScope.list}" />
 			          		<c:choose>
 			            		<c:when test="${not empty list}">
 				              		<c:forEach var="row" items="${list}" varStatus="st">

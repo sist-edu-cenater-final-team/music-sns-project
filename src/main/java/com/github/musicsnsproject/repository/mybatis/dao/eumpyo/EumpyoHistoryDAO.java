@@ -9,11 +9,11 @@ public interface EumpyoHistoryDAO {
     int countChargeHistory(long userId);
 
     // 충전내역 페이지 조회
-    List<Map<String, Object>> findChargeHistoryPage(long userId, int offset, int limit);
+    List<Map<String, Object>> findChargeHistoryPage(long userId, int offset, int size);
 
     // 구매내역 총 건수
     int countPurchaseHistory(long userId);
 
     // 구매내역 페이지 조회
-    List<Map<String, Object>> findPurchaseHistoryPage(long userId, int offset, int limit);
+    List<Map<String, Object>> findPurchaseHistoryPage(long userId, int offset, int size);
 }

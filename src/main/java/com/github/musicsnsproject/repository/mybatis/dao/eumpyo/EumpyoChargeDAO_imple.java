@@ -23,7 +23,8 @@ public class EumpyoChargeDAO_imple implements EumpyoChargeDAO {
         return sql.update("eumpyoCharge.increaseUserCoin", map);
     }
 
-    // 코인 충전 이력 저장
+    
+    // 코인 충전내역 기록
     @Override
     public int insertChargeHistory(long userId, int coin, int atThatPrice) { 
         Map<String, Object> map = new HashMap<>();
@@ -33,18 +34,11 @@ public class EumpyoChargeDAO_imple implements EumpyoChargeDAO {
         return sql.insert("eumpyoCharge.insertChargeHistory", map);
     }
 
-    // 사용자 현재 코인 조회
+    
+    // 사용자 현재 코인 조회 (users.coin)
     @Override
     public Long selectUserCoin(long userId) {
-        Map<String, Object> map = new HashMap<>();
-        map.put("userId", userId);
-        return sql.selectOne("eumpyoCharge.selectUserCoin", map);
+        return sql.selectOne("eumpyoCharge.selectUserCoin", userId);
     }
     
-    // 보유 코인(coin_history 합계) 조회
-    @Override
-    public Long getUserCoin(Long userId) {
-        Long sum = sql.selectOne("eumpyoCharge.sumUserCoinFromHistory", userId);
-        return (sum == null ? 0L : sum);
-    }
 }

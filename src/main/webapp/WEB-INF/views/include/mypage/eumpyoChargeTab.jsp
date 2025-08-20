@@ -10,7 +10,7 @@
 
 <style>
  .tabs.eumpyoTab {
-    display: flex;
+	display: flex;
     border-bottom: 1px solid #E0E0E0;
     margin: 60px 0 30px;
  }
@@ -69,7 +69,7 @@
 </c:choose>
 
 <%-- 예상치 못한 값이면 기본값을 charge로 --%>
-<c:if test="${active ne 'charge' and active ne 'chargeHistory' and active ne 'useHistory'}">
+<c:if test="${active ne 'charge' and active ne 'chargeHistory' and active ne 'purchaseHistory'}">
 	<c:set var="active" value="charge"/>
 </c:if>
 
@@ -84,7 +84,7 @@
        href="<%= ctxPath %>/mypage/eumpyo/chargeHistory">충전내역</a>
   </li>
   <li>
-    <a class="tab${active eq 'useHistory' ? ' active' : ''}"
+    <a class="tab${active eq 'purchaseHistory' ? ' active' : ''}"
        href="<%= ctxPath %>/mypage/eumpyo/purchaseHistory">구매내역</a>
   </li>
 </ul>
