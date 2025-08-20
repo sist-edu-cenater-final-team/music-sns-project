@@ -119,3 +119,10 @@
     color: #fff;
     margin-left: 12px;
 }
+
+#musicOrder .btn-order {
+    display: block;
+    font-size: 18px;
+    padding: 13px 60px;
+    margin: 40px auto;
+}

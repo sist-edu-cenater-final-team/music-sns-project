@@ -13,13 +13,10 @@
         <!-- 메인 컨텐츠 -->
         <div class="main-contents">
             <div class="inner">
-                <h2 class="cart-title">주문하기</h2>
+                <h2 class="cart-title">주문 확인</h2>
                 <table class="music-cart-table table">
                     <thead>
                     <tr>
-                        <th scope="col">
-                            <input type="checkbox" id="cartAllCheck" />
-                        </th>
                         <th scope="col">번호</th>
                         <th scope="col">노래제목</th>
                         <th scope="col">아티스트</th>
@@ -28,13 +25,22 @@
                     </thead>
                     <tbody id="orderCartBody"></tbody>
                 </table>
+                <div class="btn-form">
+                    <button type="button" class="btn btn-order">주문 확정하기</button>
+                </div>
             </div>
-            <%-- 오늘의 감정 플레이리스트 --%>
+            <%-- 주문 정보 --%>
             <jsp:include page="../include/common/asidePlayList.jsp" />
             <%-- //오늘의 감정 플레이리스트 --%>
         </div>
             <!-- //메인 컨텐츠 -->
     </main>
 </div>
+<script>
+    document.querySelector('.btn-order').addEventListener('click', order.order);
+    orderCheck = () => {
+
+    }
+</script>
 </body>
 </html>

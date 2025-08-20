@@ -23,6 +23,9 @@ public class CartRestController {
     @GetMapping("list")
     public ResponseEntity<List<CartResponse>> getCartList(@AuthenticationPrincipal Long userId){
 
+        // 로그인 안한 경우를 대비하여 기본값 설정
+        userId = userId == null ? 23 : userId;
+
         List<CartResponse> cartList = cartService.getCartList(userId);
         return ResponseEntity.ok(cartList);
     }
@@ -31,6 +34,9 @@ public class CartRestController {
     @PostMapping("add")
     public ResponseEntity<List<CartResponse>> addCart(@AuthenticationPrincipal Long userId,
                                                       @RequestParam("trackId") String trackId){
+
+        // 로그인 안한 경우를 대비하여 기본값 설정
+        userId = userId == null ? 23 : userId;
 
         List<CartResponse> responseList = cartService.addCart(userId, trackId);
         return ResponseEntity.ok(responseList);
@@ -41,6 +47,10 @@ public class CartRestController {
     public ResponseEntity<List<CartResponse>> deleteCart(@AuthenticationPrincipal Long userId,
                                                          @RequestBody CartDeleteRequest cartDeleteRequest){
 
+
+        // 로그인 안한 경우를 대비하여 기본값 설정
+        userId = userId == null ? 23 : userId;
+
         // 상품 삭제하기
         List<Long> cartIdList = cartDeleteRequest.getCartIdList();
         cartService.deleteCart(userId, cartIdList);
@@ -48,15 +58,17 @@ public class CartRestController {
         // 삭제된 상품 포함하여 최신 리스트 가져오기
         List<CartResponse> updatedList = cartService.getCartList(userId);
 
+
         return ResponseEntity.ok(updatedList);
     }
 
     // 주문하기
     @PostMapping("order")
     public ResponseEntity<List<CartResponse>> orderCart(@AuthenticationPrincipal Long userId,
-                                                        @RequestBody CartOrderRequest cartOrderRequest){
+                                                        @RequestParam("cartIdList") List<Long> cartIdList){
 
-        List<Long> cartIdList = cartOrderRequest.getCartIdList();
+        // 로그인 안한 경우를 대비하여 기본값 설정
+        userId = userId == null ? 23 : userId;
 
         return ResponseEntity.ok(cartService.getCartOrderList(userId, cartIdList));
     }
@@ -65,6 +77,9 @@ public class CartRestController {
     @GetMapping("/order")
     public ResponseEntity<List<CartResponse>> orderCartInfo(@AuthenticationPrincipal Long userId,
                                                             @RequestParam("cartIdList") List<Long> cartIdList) {
+
+        // 로그인 안한 경우를 대비하여 기본값 설정
+        userId = userId == null ? 23 : userId;
 
         return ResponseEntity.ok(cartService.getCartOrderList(userId, cartIdList));
     }
