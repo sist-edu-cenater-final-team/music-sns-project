@@ -11,6 +11,7 @@
 
 <html>
 <jsp:include page="../../include/common/head.jsp" />
+
 <!-- mypage-point 용 -->
 <link rel="stylesheet" href="../../css/mypage.css" />
 
@@ -25,7 +26,7 @@
  .purchaseHistory .table tbody td { padding: 15px; font-size: 15px; font-weight: 500; color: #000; border-top: 1px solid #E0E0E0; text-align:center; vertical-align: middle; }
  .purchaseHistory .table.table-hover tbody tr:hover { background: #FAFAFA; }
 
- * 열 폭 */
+ /* 열 폭 */
  .col-no { width: 6%; }
  .col-date { width: 14%; }
  .col-usedCoin { width: 12%; white-space: nowrap; }
@@ -162,8 +163,6 @@
  }
   
 </style>
-
-<script type="text/javascript">
 
 <body>
 	<div id="wrap">
