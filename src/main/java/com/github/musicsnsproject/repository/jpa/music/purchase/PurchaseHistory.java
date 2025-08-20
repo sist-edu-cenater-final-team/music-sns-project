@@ -14,16 +14,15 @@ public class PurchaseHistory {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long purchaseHistoryId;
 
-    private String musicId;
 
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private MyUser myUser;
 
-    @Column(nullable = false)
-    private Integer atThatCoin;
 
     @Column(nullable = false)
     private LocalDateTime purchasedAt;
+    @Column(name = "at_that_user_coin")
+    private long atThatUserCoin;
 }

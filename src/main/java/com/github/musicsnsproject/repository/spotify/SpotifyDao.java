@@ -59,6 +59,7 @@ public class SpotifyDao {
         } catch (ParseException e) {
             throw CustomNotAcceptException.of().customMessage("Spotify 변환 실패").systemMessage(e.getMessage()).build();
         } catch (SpotifyWebApiException e) {
+            e.printStackTrace();
             if(e instanceof NotFoundException){
                 String requestValue = request.getUri().getPath();
                 throw CustomNotFoundException.of()
