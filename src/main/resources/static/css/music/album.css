@@ -225,7 +225,7 @@
 
 .track-list-header {
     display: grid;
-    grid-template-columns: 50px 1fr 200px 80px 50px;
+    grid-template-columns: 50px 1fr 200px 80px; /* 마지막 50px 컬럼 제거 */
     gap: 15px;
     padding: 12px 0;
     background: linear-gradient(135deg, #6633ff, #8b5cf6);
@@ -248,14 +248,13 @@
 
 .track-item {
     display: grid;
-    grid-template-columns: 50px 1fr 200px 80px 50px;
+    grid-template-columns: 50px 1fr 200px 80px; /* 마지막 50px 컬럼 제거 */
     gap: 15px;
-    /*padding: 5px 10px; !* 15px에서 8px로 줄임 *!*/
     border-bottom: 1px solid rgba(102, 51, 255, 0.1);
     align-items: center;
     transition: all 0.3s ease;
     cursor: default;
-    min-height: 40px; /* 최소 높이 설정으로 일관성 유지 */
+    min-height: 40px;
 }
 
 .track-item:hover {
@@ -306,41 +305,57 @@
 
 .track-duration {
     color: #666;
-    font-size: 0.8rem; /* 0.9rem에서 0.8rem로 줄임 */
+    font-size: 0.8rem;
     text-align: center;
+    transition: opacity 0.2s ease;
+    /* absolute 제거하고 일반 배치로 변경 */
 }
 
 .track-actions {
+    position: relative;
     display: flex;
-    justify-content: left;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-
+    justify-content: center;
+    align-items: center;
+    min-height: 40px;
 }
 
-.track-item:hover .track-actions {
+
+/* 호버 시 duration 숨기고 장바구니 버튼 표시 */
+.track-item:hover .track-duration {
+    opacity: 0;
+}
+
+.track-item:hover .add-to-cart-btn {
     opacity: 1;
 }
 
 .add-to-cart-btn {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
     background: #6633ff;
     color: white;
     border: none;
     border-radius: 50%;
-    width: 28px; /* 32px에서 28px로 줄임 */
-    height: 28px; /* 32px에서 28px로 줄임 */
+    width: 28px;
+    height: 28px;
     display: flex;
     align-items: center;
     justify-content: center;
+    opacity: 0;
     transition: all 0.2s ease;
     cursor: pointer;
-    font-size: 0.8rem; /* 아이콘 크기도 약간 줄임 */
+    font-size: 0.8rem;
+    z-index: 2;
 }
-
 .add-to-cart-btn:hover {
     background: #531fea;
-    transform: scale(1.1);
+    transform: translate(-50%, -50%) scale(1.1);
     box-shadow: 0 4px 12px rgba(102, 51, 255, 0.3);
+}
+.add-to-cart-btn:active {
+    transform: translate(-50%, -50%) scale(0.95);
 }
 
 /* 스크롤바 스타일링 */

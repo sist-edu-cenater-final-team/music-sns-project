@@ -178,14 +178,10 @@ function groupTracksByDisc(tracks) {
 }
 function renderTrackList(tracks) {
     const trackListBody = document.querySelector('.track-list-body');
-
-    // 디스크별로 트랙 그룹핑
     const discGroups = groupTracksByDisc(tracks);
-
     let trackListHTML = '';
 
     discGroups.forEach((discTracks, discNumber) => {
-        // 멀티 디스크인 경우에만 디스크 헤더 표시
         if (discGroups.size > 1) {
             trackListHTML += `
                 <div class="disc-header">
@@ -194,7 +190,6 @@ function renderTrackList(tracks) {
             `;
         }
 
-        // 해당 디스크의 트랙들 렌더링
         const trackItems = discTracks.map(track => {
             const artistsTag = track.artists.map(artist =>
                 `<a href="${ctxPath}/music/artist/${artist.artistId}">${artist.artistName}</a>`
@@ -206,13 +201,11 @@ function renderTrackList(tracks) {
                 <div class="track-item" data-track-id="${track.trackId}">
                     <div class="track-number">${track.trackNumber}</div>
                     <div class="track-name">
-                        <span>
-                            ${track.trackName}
-                        </span>
+                        <span>${track.trackName}</span>
                     </div>
                     <div class="track-artist">${artistsTag}</div>
-                    <div class="track-duration">${durationFormatted}</div>
                     <div class="track-actions">
+                        <div class="track-duration">${durationFormatted}</div>
                         <button class="add-to-cart-btn" onclick="addToCart('${track.trackId}')" title="장바구니에 추가">
                             <i class="bi bi-cart-plus"></i>
                         </button>
@@ -225,7 +218,8 @@ function renderTrackList(tracks) {
     });
 
     trackListBody.innerHTML = trackListHTML;
-    // 트랙 네임에 클릭 이벤트 추가
+
+    // 트랙 네임 클릭 이벤트
     const trackNames = document.querySelectorAll('.track-name');
     trackNames.forEach(trackName => {
         trackName.addEventListener('click', function() {
@@ -233,7 +227,7 @@ function renderTrackList(tracks) {
             const spotifyUrl = `https://open.spotify.com/track/${trackId}`;
             openSpotifyPopup(spotifyUrl);
         });
-    })
+    });
 }
 
 function formatDuration(durationMs) {

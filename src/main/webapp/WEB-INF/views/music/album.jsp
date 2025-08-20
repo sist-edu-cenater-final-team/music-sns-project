@@ -61,7 +61,7 @@
                             <div class="track-header-title">제목</div>
                             <div class="track-header-artist">아티스트</div>
                             <div class="track-header-duration"><i class="bi bi-clock"></i></div>
-                            <div class="track-header-action"></div>
+<%--                            <div class="track-header-action"></div>--%>
                         </div>
                         <div class="track-list-body">
 
