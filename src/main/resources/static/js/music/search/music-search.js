@@ -329,30 +329,26 @@ if (window.__musicSearchPurpleInitialized) {
 
         const trackId = btn.closest('.track-item').dataset.trackId;
 
+        // 장바구니 추가 로직 구현
         fetch('/api/cart/add', {
             method: 'POST',
             headers: { 'Authorization': "Bearer eyJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE3NTU1ODczNTQsImV4cCI6MTc1NTU5MDk1NCwic3ViIjoiMjMiLCJyb2xlcyI6IlJPTEVfVVNFUiJ9.7SRttBXoDfWerjPyvmO90_a9U62Z7D5Hh80DFbx1EWY" },
             body: new URLSearchParams({
                 trackId: trackId,
             })
-        })
-            .then((res) => {
-                console.log(res);
-                if (res.status === 406) {
 
-                    alert('이미 장바구니에 추가된 곡입니다.');
-                    return Promise.reject(new Error('DUPLICATE'));
-                }
-                return res.json();
-            })
-            .then((data) => {
-                alert('장바구니에 담았습니다.');
-            })
-            .catch((err) => {
-                if (err.message !== 'DUPLICATE') {
-                    console.error(err);
-                    alert('네트워크 오류가 발생했습니다.');
-                }
-            });
+        })
+        .then(res => res.json())
+        .then(data => {
+            // customMessage 값 사용
+            if(data.error){
+                alert(data.error.customMessage);
+                return;
+            }
+            alert("장바구니에 추가하였습니다.");
+        })
+        .catch(() => {
+            alert("서버와 통신 중 오류가 발생했습니다.");
+        });
     }
 }

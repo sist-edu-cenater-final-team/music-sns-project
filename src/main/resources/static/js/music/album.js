@@ -262,8 +262,26 @@ function openSpotifyPopup(url) {
 
 function addToCart(trackId) {
     // 장바구니 추가 로직 구현
-    console.log('장바구니에 추가:', trackId);
-    // TODO: 실제 장바구니 API 호출
+    fetch('/api/cart/add', {
+        method: 'POST',
+        headers: { 'Authorization': "Bearer eyJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE3NTU1ODczNTQsImV4cCI6MTc1NTU5MDk1NCwic3ViIjoiMjMiLCJyb2xlcyI6IlJPTEVfVVNFUiJ9.7SRttBXoDfWerjPyvmO90_a9U62Z7D5Hh80DFbx1EWY" },
+        body: new URLSearchParams({
+            trackId: trackId,
+        })
+
+    })
+    .then(res => res.json())
+    .then(data => {
+        // customMessage 값 사용
+        if(data.error){
+            alert(data.error.customMessage);
+            return;
+        }
+        alert("장바구니에 추가하였습니다.");
+    })
+    .catch(() => {
+        alert("서버와 통신 중 오류가 발생했습니다.");
+    });
 }
 
 

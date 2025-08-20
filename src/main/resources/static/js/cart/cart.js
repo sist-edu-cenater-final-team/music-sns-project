@@ -8,7 +8,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
 });
 
-const token = "Bearer eyJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE3NTU1ODczNTQsImV4cCI6MTc1NTU5MDk1NCwic3ViIjoiMjMiLCJyb2xlcyI6IlJPTEVfVVNFUiJ9.7SRttBXoDfWerjPyvmO90_a9U62Z7D5Hh80DFbx1EWY";
+const token = "Bearer eyJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE3NTU2NzQ1OTQsImV4cCI6NDkwOTI3NDU5NCwic3ViIjoiMjMiLCJyb2xlcyI6IlJPTEVfVVNFUiJ9.J2-HxxZZuEVrfQIjmPeujwehl6ExKDm8gdtae291uu4";
 
 const cart = {
     tbody : document.querySelector('#cartBody'),
@@ -67,10 +67,11 @@ const cart = {
         })
         .then(response => response.json())
         .then(data => {
-            //console.log('cart list:', data);
+            console.log('cart list:', data);
             cart.renderCart(data);
         })
         .catch(error => {
+
             console.error('Error:', error);
             alert('장바구니 목록 조회 중 오류가 발생했습니다.');
         });
