@@ -96,7 +96,8 @@ public class FollowQueryRepositoryImpl implements FollowQueryRepository {
 
 		return queryFactory
 		    .select(Projections.constructor(FollowVO.class, 
-		        follow1.followPk.follower.userId.countDistinct().as("teistCount")
+		        follow1.followPk.follower.userId.countDistinct().as("teistCount"),
+		        follow1.followPk.follower.userId
 		    	,
 		    	Projections.constructor(MyUserVO.class,
 		                user.userId,
@@ -121,7 +122,12 @@ public class FollowQueryRepositoryImpl implements FollowQueryRepository {
 		                // 내가 이미 팔로우한 사람 제외
 		        )
 		    )
-		    .groupBy(user)
+		    .groupBy(follow1.followPk.follower.userId,
+		    	    user.userId,
+		    	    user.nickname,
+		    	    user.email,
+		    	    user.profileImage,
+		    	    user.profileMessage)
 		    .orderBy(follow1.followPk.follower.userId.countDistinct().desc())
 		    .fetch();
 	}

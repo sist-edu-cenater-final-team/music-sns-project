@@ -22,7 +22,7 @@
                 <button type="button" class="btn noti"  data-target="notiLayer">알림</button>
             </li>
             <li>
-                <button type="button" class="btn profile">프로필</button>
+                <button type="button" class="btn profile" onclick="location.href='<%= ctxPath%>/mypage/myinfo'">프로필</button>
             </li>
             <li>
                 <button type="button" class="btn setting">설정</button>

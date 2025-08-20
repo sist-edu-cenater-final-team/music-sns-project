@@ -2,11 +2,15 @@ package com.github.musicsnsproject.repository.jpa.account.user;
 
 import com.github.musicsnsproject.common.exceptions.CustomBadRequestException;
 import com.github.musicsnsproject.common.security.userdetails.CustomUserDetails;
+import com.github.musicsnsproject.domain.PostVO;
 import com.github.musicsnsproject.repository.jpa.account.history.login.QLoginHistory;
 import com.github.musicsnsproject.repository.jpa.account.role.QRole;
 import com.github.musicsnsproject.repository.jpa.account.role.Role;
 import com.github.musicsnsproject.repository.jpa.account.socialid.QSocialId;
 import com.github.musicsnsproject.repository.jpa.account.socialid.SocialIdPk;
+import com.github.musicsnsproject.repository.jpa.community.post.QPost;
+import com.github.musicsnsproject.repository.jpa.community.post.QPostImage;
+import com.github.musicsnsproject.repository.jpa.emotion.QUserEmotion;
 import com.querydsl.core.group.GroupBy;
 import com.querydsl.core.types.ExpressionUtils;
 import com.querydsl.core.types.Projections;
@@ -122,4 +126,36 @@ public class MyUserQueryRepositoryImpl implements MyUserQueryRepository {
                                         user.getSocialIds().stream().anyMatch(id -> id.getSocialIdPk().equals(socialIdPk)))
                                 .findFirst().orElse(null);
     }
+
+    
+    
+	@Override
+	public List<PostVO> getUserPost(Long userId) {
+		QPost post = QPost.post;
+		QUserEmotion emotion = QUserEmotion.userEmotion;
+		QPostImage image = QPostImage.postImage;
+		
+		return 	queryFactory.select(
+					emotion.myUser.userId,
+					post.postId,
+					image.postImageUrl,
+					post.title
+				)
+				.from(post)
+				.join(emotion)
+				.on(post.userEmotion.userEmotionId.eq(emotion.userEmotionId))
+				.leftJoin(image)
+				.on(image.post.postId.eq(post.postId))
+				.where(emotion.myUser.userId.eq(userId))
+				.transform(
+						GroupBy.groupBy(post.postId)
+						.list(Projections.fields(PostVO.class, 
+								emotion.myUser.userId,
+								post.postId,
+								post.title,
+								GroupBy.list(image.postImageUrl).as("postImageUrl")
+								)
+						)
+				);
+	}
 }

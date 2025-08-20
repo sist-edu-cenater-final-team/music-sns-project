@@ -4,18 +4,24 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import com.github.musicsnsproject.repository.jpa.account.follow.Follow;
+import com.github.musicsnsproject.service.mypage.MypageService;
 
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.RequiredArgsConstructor;
 
 @Controller
 @RequestMapping("/mypage/")
+@RequiredArgsConstructor
 public class FollowInfoController {
 
+	private final MypageService service;
+	
 	@GetMapping("myinfo")
 	public String myInfoPage() {
 		
-		return "follow/myinfo";
+		
+		
+		return "follow/mypage/myinfo";
 	}
 	
 	@GetMapping("myFollowers")
