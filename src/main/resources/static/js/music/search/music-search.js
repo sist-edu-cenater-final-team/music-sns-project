@@ -292,7 +292,6 @@ if (window.__musicSearchPurpleInitialized) {
         // }
 
 
-
         function escapeHtml(text) {
             if (text === null || text === undefined) return '';
             return String(text)
@@ -324,4 +323,36 @@ if (window.__musicSearchPurpleInitialized) {
         //     // inputPage.value = '1';
         // });
     });
+
+    // 장바구니 담기
+    function addCart(btn) {
+
+        const trackId = btn.closest('.track-item').dataset.trackId;
+
+        fetch('/api/cart/add', {
+            method: 'POST',
+            headers: { 'Authorization': "Bearer eyJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE3NTU1ODczNTQsImV4cCI6MTc1NTU5MDk1NCwic3ViIjoiMjMiLCJyb2xlcyI6IlJPTEVfVVNFUiJ9.7SRttBXoDfWerjPyvmO90_a9U62Z7D5Hh80DFbx1EWY" },
+            body: new URLSearchParams({
+                trackId: trackId,
+            })
+        })
+            .then((res) => {
+                console.log(res);
+                if (res.status === 406) {
+
+                    alert('이미 장바구니에 추가된 곡입니다.');
+                    return Promise.reject(new Error('DUPLICATE'));
+                }
+                return res.json();
+            })
+            .then((data) => {
+                alert('장바구니에 담았습니다.');
+            })
+            .catch((err) => {
+                if (err.message !== 'DUPLICATE') {
+                    console.error(err);
+                    alert('네트워크 오류가 발생했습니다.');
+                }
+            });
+    }
 }

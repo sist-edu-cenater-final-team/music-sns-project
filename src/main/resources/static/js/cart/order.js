@@ -1,8 +1,8 @@
 document.addEventListener("DOMContentLoaded", function () {
     order.createList();
 });
-//const userId = 23;
 
+const token = "Bearer eyJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE3NTU1ODczNTQsImV4cCI6MTc1NTU5MDk1NCwic3ViIjoiMjMiLCJyb2xlcyI6IlJPTEVfVVNFUiJ9.7SRttBXoDfWerjPyvmO90_a9U62Z7D5Hh80DFbx1EWY";
 const order = {
     tbody : document.querySelector('#orderCartBody'),
     checkAll : document.querySelector('#cartAllCheck'),
@@ -10,17 +10,10 @@ const order = {
         //console.log('cartData:', cartData);
 
         let cartHTML = ``;
-        // 장바구니가 비어있을 경우
-        if(cartData.length === 0) {
-            order.tbody.innerHTML = `<tr><td colspan="7">장바구니가 비어있습니다.</td></tr>`;
-            return;
-        }
+
         cartData.forEach((item, index) => {
             cartHTML += `
                 <tr>
-                    <td>
-                        <input type="checkbox" id="cartCheck${index + 1}" name="cartCheck" data-cart-id="${item.cartId}">
-                    </td>
                     <td scope="row">${index + 1}</td>
                     <td>
                         <div class="music-info">
@@ -43,20 +36,14 @@ const order = {
 
         order.tbody.innerHTML = cartHTML;
 
-        // 체크박스 이벤트 연결
-        order.initCheckEvents();
     },
     createList : () => {
         // 장바구니에서 세션에 저장한 cartIdLIst 꺼내기
         const cartIdList = JSON.parse(sessionStorage.getItem("cartIdList"));
-        // userId 토큰 꺼내기
-        const userId = localStorage.getItem("userId");
-
-        // console.log("cartIdList:", `${cartIdList.join(",")}`);
 
         // 스프링 시큐리티 인증 토큰을 헤더에 추가하여 주문 목록 요청
         fetch(`/api/cart/order?cartIdList=${cartIdList.join(",")}`, {
-            headers: { 'Authorization': userId },
+            headers: { 'Authorization': token }
         })
             .then(res => res.json())
             .then(data => {
@@ -64,46 +51,6 @@ const order = {
                 order.renderOrderList(data); // 주문 상품 목록 렌더링 함수
             })
             .catch(err => console.error(err));
-    },
-    initCheckEvents: () => {
-        const rowChecks = order.tbody.querySelectorAll('input[name="cartCheck"]');
-
-        // 전체 선택 클릭 시
-        order.checkAll.addEventListener('change', () => {
-            rowChecks.forEach(item => item.checked = order.checkAll.checked);
-            order.updateMasterState();
-        });
-
-        // 개별 체크박스 클릭 시
-        rowChecks.forEach(item => {
-            item.addEventListener('change', () => order.updateMasterState());
-        });
-
-        // 초기 상태 반영
-        order.updateMasterState();
-    },
-    updateMasterState: () => {
-        const rowChecks = order.tbody.querySelectorAll('input[name="cartCheck"]');
-        const checkedCount = order.tbody.querySelectorAll('input[name="cartCheck"]:checked').length;
-
-        //document.querySelector("#musicCount").innerHTML = checkedCount;
-
-        // let musicPrice = 0;
-        // order.tbody.querySelectorAll('input[name="cartCheck"]:checked').forEach(item => {
-        //     musicPrice += Number(item.closest('tr').querySelector('.music-price').innerHTML);
-        // })
-        // document.querySelector("#musicPrice").innerHTML = musicPrice;
-
-        // if (checkedCount === 0) {
-        //     cart.checkAll.checked = false;
-        //     cart.checkAll.indeterminate = false;
-        // } else if (checkedCount === rowChecks.length) {
-        //     cart.checkAll.checked = true;
-        //     cart.checkAll.indeterminate = false;
-        // } else {
-        //     cart.checkAll.checked = false;
-        //     cart.checkAll.indeterminate = true;
-        // }
     }
 }
 
