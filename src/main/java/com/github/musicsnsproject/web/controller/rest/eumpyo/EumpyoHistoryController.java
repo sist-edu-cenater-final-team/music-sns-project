@@ -5,6 +5,7 @@ import com.github.musicsnsproject.service.mypage.eumpyo.EumpyoHistoryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -23,9 +24,13 @@ public class EumpyoHistoryController {
     @GetMapping("/charge")
     public Map<String, Object> chargeHistory(@AuthenticationPrincipal CustomUserDetails loginUser,
                                              @RequestParam(defaultValue = "1") int page,
-                                             @RequestParam(defaultValue = "10") int size) {
+                                             @RequestParam(defaultValue = "10") int size,
+      			 					   	   	 @RequestHeader(name = "X-Dev-UserId", required = false) Long devUserId)
+      			 						   	 {
     	
-        Long userId = (loginUser != null ? loginUser.getUserId() : null);
+        // 로그인 사용자 확인
+    //  Long userId = (loginUser != null ? loginUser.getUserId() : null);
+        Long userId = (devUserId != null) ? devUserId : (loginUser != null ? loginUser.getUserId() : null);
 
         if (userId == null) {
             Map<String, Object> fail = new HashMap<>();
@@ -45,9 +50,13 @@ public class EumpyoHistoryController {
     @GetMapping("/purchase")
     public Map<String, Object> purchaseHistory(@AuthenticationPrincipal CustomUserDetails loginUser,
                                                @RequestParam(defaultValue = "1") int page,
-                                               @RequestParam(defaultValue = "10") int size) {
+                                               @RequestParam(defaultValue = "10") int size,
+        			 					   	   @RequestHeader(name = "X-Dev-UserId", required = false) Long devUserId)
+        			 						   {
     	
-        Long userId = (loginUser != null ? loginUser.getUserId() : null);
+        // 로그인 사용자 확인
+    //  Long userId = (loginUser != null ? loginUser.getUserId() : null);
+        Long userId = (devUserId != null) ? devUserId : (loginUser != null ? loginUser.getUserId() : null);
 
         if (userId == null) {
             Map<String, Object> fail = new HashMap<>();

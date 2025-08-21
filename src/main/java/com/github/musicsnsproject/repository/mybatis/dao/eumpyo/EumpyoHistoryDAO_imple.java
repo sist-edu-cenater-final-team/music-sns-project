@@ -1,18 +1,20 @@
 package com.github.musicsnsproject.repository.mybatis.dao.eumpyo;
 
-import lombok.RequiredArgsConstructor;
-import org.mybatis.spring.SqlSessionTemplate;
-import org.springframework.stereotype.Repository;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.mybatis.spring.SqlSessionTemplate;
+import org.springframework.stereotype.Repository;
+
+import lombok.RequiredArgsConstructor;
+
+// MyBatis SqlSessionTemplate으로 XML 쿼리 호출
 @Repository
 @RequiredArgsConstructor
 public class EumpyoHistoryDAO_imple implements EumpyoHistoryDAO {
 
-    private final SqlSessionTemplate sql;
+    private final SqlSessionTemplate sql; 
 
     // 충전내역 총 건수
     @Override
@@ -21,31 +23,37 @@ public class EumpyoHistoryDAO_imple implements EumpyoHistoryDAO {
     }
 
     
-    // 충전내역 페이지 조회
-    @Override
-    public List<Map<String, Object>> findChargeHistoryPage(long userId, int offset, int size) {
-        Map<String, Object> p = new HashMap<>();
-        p.put("userId", userId);
-        p.put("offset", Math.max(0, offset));
-        p.put("size",  Math.max(1, size));
-        return sql.selectList("eumpyoHistory.findChargeHistoryPage", p);
-    }
-
-    
     // 구매내역 총 건수
     @Override
     public int countPurchaseHistory(long userId) {
         return sql.selectOne("eumpyoHistory.countPurchaseHistory", userId);
     }
+
     
+    // 충전내역 페이지 조회
+    @Override
+    public List<Map<String, Object>> findChargeHistoryPage(long userId, int offset, int size) {
+    	
+        Map<String, Object> map = new HashMap<>();
+        
+        map.put("userId", userId);   // 사용자 ID
+        map.put("offset", offset);   // 페이징 시작 위치
+        map.put("size", size);       // 페이지 크기
+        
+        return sql.selectList("eumpyoHistory.findChargeHistoryPage", map);
+    }
+
     
     // 구매내역 페이지 조회
     @Override
     public List<Map<String, Object>> findPurchaseHistoryPage(long userId, int offset, int size) {
-        Map<String, Object> p = new HashMap<>();
-        p.put("userId", userId);
-        p.put("offset", Math.max(0, offset));
-        p.put("size",  Math.max(1, size)); 
-        return sql.selectList("eumpyoHistory.findPurchaseHistoryPage", p);
+    	
+        Map<String, Object> map = new HashMap<>();
+        
+        map.put("userId", userId);
+        map.put("offset", offset);
+        map.put("size", size);
+        
+        return sql.selectList("eumpyoHistory.findPurchaseHistoryPage", map);
     }
 }

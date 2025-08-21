@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import com.github.musicsnsproject.common.security.userdetails.CustomUserDetails;
 
 @RestController
-@RequestMapping("/mypage/eumpyo/charge")
+@RequestMapping("/api/mypage/eumpyo/charge")
 @RequiredArgsConstructor
 public class EumpyoChargeController {
 
@@ -21,12 +21,15 @@ public class EumpyoChargeController {
     // 결제 준비
     @PostMapping("/ready")
     public Map<String, Object> ready(@AuthenticationPrincipal CustomUserDetails loginUser,
-                                     @RequestBody(required = false) Map<String, Object> request) {
+                                     @RequestBody(required = false) Map<String, Object> request,
+    								 @RequestHeader(name = "X-Dev-UserId", required = false) Long devUserId)
+    								 {
     	
         Map<String, Object> responseBody = new HashMap<>();
 
         // 로그인 사용자 확인
-        Long userId = (loginUser != null ? loginUser.getUserId() : null);
+    //  Long userId = (loginUser != null ? loginUser.getUserId() : null);
+        Long userId = (devUserId != null) ? devUserId : (loginUser != null ? loginUser.getUserId() : null);
 
         if (userId == null) {
         	
@@ -63,12 +66,15 @@ public class EumpyoChargeController {
     // 결제 완료(검증 및 적립)
     @PostMapping("/complete")
     public Map<String, Object> complete(@AuthenticationPrincipal CustomUserDetails loginUser,
-                                        @RequestBody(required = false) Map<String, String> request) {
+                                        @RequestBody(required = false) Map<String, String> request,
+       								 	@RequestHeader(name = "X-Dev-UserId", required = false) Long devUserId)
+       								 	{
     	
         Map<String, Object> map = new HashMap<>();
 
         // 로그인 사용자 확인
-        Long userId = (loginUser != null ? loginUser.getUserId() : null);
+    //  Long userId = (loginUser != null ? loginUser.getUserId() : null);
+        Long userId = (devUserId != null) ? devUserId : (loginUser != null ? loginUser.getUserId() : null);
 
         if (userId == null) {
             map.put("result", "fail");
@@ -95,12 +101,15 @@ public class EumpyoChargeController {
     
     // 사용자 현재 코인 조회 (users.coin)
     @GetMapping("/balance")
-    public Map<String, Object> balance(@AuthenticationPrincipal CustomUserDetails loginUser
-    ) {
+    public Map<String, Object> balance(@AuthenticationPrincipal CustomUserDetails loginUser,
+			 					   	   @RequestHeader(name = "X-Dev-UserId", required = false) Long devUserId)
+			 						   {
+    	
         Map<String, Object> map = new HashMap<>();
 
         // 로그인 사용자 확인
-        Long userId = (loginUser != null ? loginUser.getUserId() : null);
+    //  Long userId = (loginUser != null ? loginUser.getUserId() : null);
+        Long userId = (devUserId != null) ? devUserId : (loginUser != null ? loginUser.getUserId() : null);
 
         if (userId == null) {
         	map.put("result", "fail");

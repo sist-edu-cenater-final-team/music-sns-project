@@ -117,7 +117,7 @@
 
     	// 결제 준비
     	$.ajax({
-      		url: '<%= ctxPath %>/mypage/eumpyo/charge/ready',
+      		url: '<%= ctxPath %>/api/mypage/eumpyo/charge/ready',
       		type: 'POST',
       		contentType: 'application/json; charset=UTF-8',
       		dataType: 'json',
@@ -152,7 +152,7 @@
 
          			// 결제 완료 검증
          			$.ajax({
-           				url: '<%= ctxPath %>/mypage/eumpyo/charge/complete',
+           				url: '<%= ctxPath %>/api/mypage/eumpyo/charge/complete',
            				type: 'POST',
            				contentType: 'application/json; charset=UTF-8',
            				dataType: 'json',
@@ -171,7 +171,7 @@
 
              					// 결제 후 표시값은 항상 users.coin 재조회로 동기화
              					$.ajax({
-             						url: '<%= ctxPath %>/mypage/eumpyo/charge/balance',
+             						url: '<%= ctxPath %>/api/mypage/eumpyo/charge/balance',
              						type: 'GET',
              						dataType: 'json',
              						success: function(r) {

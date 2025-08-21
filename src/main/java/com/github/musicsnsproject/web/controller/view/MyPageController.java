@@ -6,6 +6,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
@@ -27,9 +28,13 @@ public class MyPageController {
 
     // 모든 /mypage/* 뷰에 보유 코인 주입
     @ModelAttribute("myCoinBalance")
-    public Long myCoinBalance(@AuthenticationPrincipal CustomUserDetails loginUser) {
+    public Long myCoinBalance(@AuthenticationPrincipal CustomUserDetails loginUser,
+		   	   				  @RequestHeader(name = "X-Dev-UserId", required = false) Long devUserId)
+			   				  {
     	
-        Long userId = (loginUser != null ? loginUser.getUserId() : null);
+        // 로그인 사용자 확인
+    //  Long userId = (loginUser != null ? loginUser.getUserId() : null);
+        Long userId = (devUserId != null) ? devUserId : (loginUser != null ? loginUser.getUserId() : null);        
         
         if (userId == null) return 0L;
         Long coin = eumpyoChargeService.getUserCoin(userId); // users.coin 기준
@@ -57,6 +62,7 @@ public class MyPageController {
     public ModelAndView chargeHistoryPage(@AuthenticationPrincipal CustomUserDetails loginUser,
                                           @RequestParam(defaultValue = "1") int page,
                                           @RequestParam(defaultValue = "10") int size,
+            		   	   				  @RequestHeader(name = "X-Dev-UserId", required = false) Long devUserId,
                                           HttpServletRequest request) {
 
         ModelAndView mav = new ModelAndView("mypage/eumpyo/chargeHistory");
@@ -64,7 +70,10 @@ public class MyPageController {
         page = Math.max(1, page);
         size = Math.max(1, Math.min(50, size));
 
-        Long userId = (loginUser != null ? loginUser.getUserId() : null);
+        // 로그인 사용자 확인
+    //  Long userId = (loginUser != null ? loginUser.getUserId() : null);
+        Long userId = (devUserId != null) ? devUserId : (loginUser != null ? loginUser.getUserId() : null);    
+        
         if (userId == null) {
             mav.addObject("list", null);
             mav.addObject("totalCount", 0);
@@ -105,6 +114,7 @@ public class MyPageController {
     public ModelAndView purchaseHistoryPage(@AuthenticationPrincipal CustomUserDetails loginUser,
                                             @RequestParam(defaultValue = "1") int page,
                                             @RequestParam(defaultValue = "10") int size,
+                                            @RequestHeader(name = "X-Dev-UserId", required = false) Long devUserId,
                                             HttpServletRequest request) {
 
         ModelAndView mav = new ModelAndView("mypage/eumpyo/purchaseHistory");
@@ -112,7 +122,9 @@ public class MyPageController {
         page = Math.max(1, page);
         size = Math.max(1, Math.min(50, size));
 
-        Long userId = (loginUser != null ? loginUser.getUserId() : null);
+        // 로그인 사용자 확인
+    //  Long userId = (loginUser != null ? loginUser.getUserId() : null);
+        Long userId = (devUserId != null) ? devUserId : (loginUser != null ? loginUser.getUserId() : null);  
         
         if (userId == null) {
             mav.addObject("list", null);

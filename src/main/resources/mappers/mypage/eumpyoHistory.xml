@@ -5,71 +5,73 @@
 
 <mapper namespace="eumpyoHistory">
 
-	<!-- 충전내역 총 건수 -->
-  	<select id="countChargeHistory" parameterType="long" resultType="int">
-    	select count(*) from coin_history where user_id = #{value}
-  	</select>
+    <!-- 충전내역 총 건수 -->
+    <select id="countChargeHistory" parameterType="long" resultType="int">
+        select count(*)
+          from coin_history
+         where user_id = #{value}
+    </select>
 
-  	<!-- 구매내역 총 건수 -->
-  	<select id="countPurchaseHistory" parameterType="long" resultType="int">
-    	select count(*) from purchase_history where user_id = #{value}
-  	</select>
+    <!-- 구매내역 총 건수 -->
+    <select id="countPurchaseHistory" parameterType="long" resultType="int">
+        select count(*)
+          from purchase_history
+         where user_id = #{value}
+    </select>
 
-  	<!-- 충전내역 페이지 (충전 후 잔액) -->
-  	<select id="findChargeHistoryPage" parameterType="hashmap" resultType="map">
-    	select
-      		to_char(ch.created_at, 'YYYY.MM.DD') as "chargedAt",
-      		ch.coin as "chargedCoin",
-      		( nvl((
-          		select sum(c2.coin)
-            	from coin_history c2
-           		where c2.user_id = ch.user_id
-             	and (
-                	cast(c2.created_at as timestamp) &lt;  cast(ch.created_at as timestamp)
-                	or (cast(c2.created_at as timestamp) = cast(ch.created_at as timestamp)
-                	    and c2.coin_history_id &lt;= ch.coin_history_id)
-             	)
-        	), 0)
-        	-
-        	nvl((
-          		select sum(p2.at_that_coin)
-            	from purchase_history p2
-           		where p2.user_id = ch.user_id
-             	and cast(p2.purchased_at as timestamp) &lt;= cast(ch.created_at as timestamp)
-        	), 0)
-      		) as "coinBalance", ch.at_that_price as "paidAmount", cast(null as varchar2(255)) as "musicId"
-		from coin_history ch
-    	where ch.user_id = #{userId}
-    	order BY ch.created_at desc, ch.coin_history_id desc
-    	offset #{offset} rows fetch next #{size} rows only
-  	</select>
+    <!-- 충전내역 페이지 -->
+    <select id="findChargeHistoryPage" parameterType="hashmap" resultType="map">
+        select
+            to_char(ch.created_at, 'YYYY.MM.DD') as "chargedAt",
+            ch.coin                              as "chargedCoin",
+            ch.at_that_user_coin                 as "coinBalance",
+            ch.at_that_price                     as "paidAmount",
+            cast(null as varchar2(255))          as "musicId"
+        from coin_history ch
+       where ch.user_id = #{userId}
+       order by ch.created_at desc, ch.coin_history_id desc
+       offset #{offset} rows fetch next #{size} rows only
+    </select>
 
- 
-	<!-- 구매내역 페이지 (구매 후 잔액) -->
- 	 <select id="findPurchaseHistoryPage" parameterType="hashmap" resultType="map">
-    	SELECT
-      		to_char(ph.purchased_at, 'YYYY.MM.DD') as "purchasedAt",
-      		ph.at_that_coin as "usedCoin",
-      		(
-        	/* 전체 충전 합계 */
-        	nvl((
-          		select sum(c2.coin)
-            	from coin_history c2
-           		where c2.user_id = ph.user_id
-        	), 0)
-        	-
-        	/* 현재 구매행까지의 누적 사용(현재행 포함) */
-        	nvl((
-          		select sum(p2.at_that_coin)
-            	from purchase_history p2
-           		where p2.user_id = ph.user_id
-             	and p2.purchase_history_id &lt;= ph.purchase_history_id
-       		), 0)
-      		) as "coinBalance", cast(null as number(10,0)) as "paidAmount",
-			  regexp_replace(ph.music_id, '.*:', '') as "musicId"
-    	from purchase_history ph
-    	where ph.user_id = #{userId}
-    	order by ph.purchased_at desc, ph.purchase_history_id desc
-    	offset #{offset} rows fetch next #{size} rows only
-  	</select>
+    <!-- 구매내역 페이지 -->
+    <select id="findPurchaseHistoryPage" parameterType="hashmap" resultType="map">
+        with
+        ph_base as (
+            select
+                ph.purchase_history_id,
+                ph.user_id,
+                ph.purchased_at,
+                ph.at_that_user_coin,
+                row_number() over (
+                    partition by ph.user_id
+                    order by ph.purchased_at asc, ph.purchase_history_id asc
+                ) as row_num
+            from purchase_history ph
+           where ph.user_id = #{userId}
+        ),
+        pm_agg as (
+            select
+                pm.purchase_history_id,
+                sum(pm.at_that_coin)        as used_coin,
+                min(pm.music_id)            as main_music_id,
+                count(pm.purchase_music_id) as music_count
+            from purchase_music pm
+           group by pm.purchase_history_id
+        )
+        select
+            to_char(ph.purchased_at, 'YYYY.MM.DD') as "purchasedAt",
+            nvl(pm.used_coin, 0)                   as "usedCoin",
+            ph.at_that_user_coin                   as "coinBalance",
+            cast(null as number(10,0))             as "paidAmount",
+            ph.purchase_history_id                 as "purchaseHistoryId",
+            pm.main_music_id                       as "mainMusicId",
+            pm.music_count                         as "musicCount",
+            ph.row_num                             as "rowNum"
+        from ph_base ph
+        left join pm_agg pm
+          on pm.purchase_history_id = ph.purchase_history_id
+       order by ph.purchased_at desc, ph.purchase_history_id desc
+       offset #{offset} rows fetch next #{size} rows only
+    </select>
+
 </mapper>

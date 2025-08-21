@@ -91,28 +91,39 @@ public class EumpyoChargeService_imple implements EumpyoChargeService {
         }
 
         try {
-            int atThatPrice = orderTemp.expectedAmount;        // 결제금액(원)
-            int coin = convertAmountToCoin(atThatPrice);       // 100원=1음표
+            int atThatPrice = orderTemp.expectedAmount;  // 결제금액(원)
+            int coin = convertAmountToCoin(atThatPrice); // 100원=1음표
             if (coin <= 0) {
                 map.put("result", "fail");
                 map.put("message", "결제 금액을 확인할 수 없습니다.");
-                
                 return map;
             }
+            
+            // 사용자 음표 조회(잠금/동시수정불가)
+            Long before = eumpyoChargeDAO.selectUserCoinForUpdate(userId);
 
-            // 충전 내역 기록
-            eumpyoChargeDAO.insertChargeHistory(userId, coin, atThatPrice);
+            // 거래 전 음표
+            long beforeBalance = (before == null ? 0L : before);
+            
+            // 거래 후 음표
+            long afterBalance  = beforeBalance + coin;
+            
+            // 충전 이력 저장(충전 후 잔액 포함)
+            int ins = eumpyoChargeDAO.insertChargeHistory(userId, coin, atThatPrice, afterBalance);
+            if (ins != 1) {
+                throw new IllegalStateException("coin_history insert failed");
+            }
 
-            // 사용자 코인(users.coin) 증가
-            eumpyoChargeDAO.increaseUserCoin(userId, coin);
-
-            // 현재 보유 잔액 조회
-            Long coinBalance = eumpyoChargeDAO.selectUserCoin(userId);
-
+            // 최종 잔액 그대로 저장
+            int upd = eumpyoChargeDAO.setUserCoin(userId, afterBalance);
+            if (upd != 1) {
+                throw new IllegalStateException("users coin update failed");   
+            }
+            
             map.put("result", "success");
             map.put("amount", atThatPrice);
             map.put("chargedCoin", coin);
-            map.put("coinBalance", (coinBalance == null ? 0L : coinBalance));
+            map.put("coinBalance", afterBalance);
             map.put("message", "충전이 완료되었습니다.");
             
             return map;
@@ -131,6 +142,7 @@ public class EumpyoChargeService_imple implements EumpyoChargeService {
     @Override
     @Transactional(readOnly = true)
     public Long getUserCoin(long userId) {
+    	
         Long coin = eumpyoChargeDAO.selectUserCoin(userId);
         
         return (coin == null ? 0L : coin);

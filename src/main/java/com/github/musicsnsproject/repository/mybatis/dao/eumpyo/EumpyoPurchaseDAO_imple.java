@@ -1,12 +1,11 @@
 package com.github.musicsnsproject.repository.mybatis.dao.eumpyo;
 
-import java.util.HashMap;
-import java.util.Map;
-
+import lombok.RequiredArgsConstructor;
 import org.mybatis.spring.SqlSessionTemplate;
 import org.springframework.stereotype.Repository;
 
-import lombok.RequiredArgsConstructor;
+import java.util.HashMap;
+import java.util.Map;
 
 @Repository
 @RequiredArgsConstructor
@@ -14,43 +13,27 @@ public class EumpyoPurchaseDAO_imple implements EumpyoPurchaseDAO {
 
     private final SqlSessionTemplate sql;
 
-    // 구매 시 사용자 코인 차감
-    @Override
-    public int decreaseUserCoin(long userId, int usedCoin) {
-        Map<String, Object> p = new HashMap<>();
-        p.put("userId", userId);
-        p.put("usedCoin", usedCoin);
-        return sql.update("eumpyoPurchase.decreaseUserCoin", p);
-    }
-
-    
-    // 구매 내역(insert) 기록
+    // 구매 내역 1건 추가
     @Override
     public int insertPurchaseHistory(long userId, String musicId, int usedCoin) {
-        Map<String, Object> p = new HashMap<>();
-        p.put("userId", userId);
-        p.put("musicId", musicId);
-        p.put("usedCoin", usedCoin);
-        return sql.insert("eumpyoPurchase.insertPurchaseHistory", p);
+        Map<String, Object> map = new HashMap<>();
+        map.put("userId", userId);
+        map.put("musicId", musicId);
+        map.put("usedCoin", usedCoin);
+        return sql.insert("eumpyoPurchase.insertPurchaseHistory", map);
     }
 
-    
-    // 사용자 현재 코인 조회 (users.coin)
+    // 현재 사용자 코인 조회 
     @Override
     public Long selectUserCoin(long userId) {
-        Map<String, Object> p = new HashMap<>();
-        p.put("userId", userId);
-        return sql.selectOne("eumpyoPurchase.selectUserCoin", p);
+        return sql.selectOne("eumpyoPurchase.selectUserCoin", userId);
     }
 
-    
-    // 충전/구매 내역 기반으로 코인 재계산
+    // 사용자 음표 재정산 (충전/구매 내역 기준)
     @Override
     public int recalcUserCoinFromHistory(long userId) {
-        Map<String, Object> p = new HashMap<>();
-        p.put("userId", userId);
-        return sql.update("eumpyoPurchase.recalcUserCoinFromHistory", p);
+        Map<String, Object> map = new HashMap<>();
+        map.put("userId", userId);
+        return sql.update("eumpyoPurchase.recalcUserCoinFromHistory", map);
     }
-
-    
 }
