@@ -70,10 +70,10 @@ public class PostQueryRepositoryImpl implements PostQueryRepository {
     @Override
     public Long findbyCntByPostId(List<Long> postIdForLikeCnt) {
 
-        Long n = 0L;
-                /*queryFactory.select(Wildcard.count)
+        Long n = queryFactory.select(Wildcard.count)
+                .from(QLike.like)
                 .where(QLike.like.likePk.post.postId.in(postIdForLikeCnt))
-                .fetchOne();*/
+                .fetchOne();
         return n;
     }
 

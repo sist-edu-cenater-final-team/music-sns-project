@@ -20,7 +20,6 @@ public class FollowPostVO {
     private List<String> post_image_urls;
 
     private boolean myLiked;
-    private Long LikeCnt;
 
 
     public void liked(long loginUserId){
