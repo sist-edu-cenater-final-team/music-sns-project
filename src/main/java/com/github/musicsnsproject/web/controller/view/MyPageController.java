@@ -34,12 +34,6 @@ public class MyPageController {
         return (coin == null ? 0L : coin);
     }
 
-    // 장바구니
-    @GetMapping("/cart")
-    public String musicCart(){
-        return "mypage/cart";
-    }
-
     // 음표 충전 페이지
     @GetMapping("/eumpyo/charge")
     public String charge() {
