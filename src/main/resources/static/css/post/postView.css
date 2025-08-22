@@ -1,0 +1,117 @@
+/* feed 전체 컨테이너 */
+.feed-container {
+    max-width: 600px;
+    margin: 20px auto;
+    padding: 0;
+    font-family: Arial, sans-serif;
+}
+
+/* 게시글 박스 */
+.feed-container .post {
+    background: #fff;
+    border: 1px solid #dbdbdb;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    overflow: hidden;
+}
+
+/* 게시글 헤더 */
+.feed-container .post-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+}
+
+/* 왼쪽: 프로필 이미지 + 닉네임 + 시간 */
+.feed-container .post-header-left {
+    display: flex;
+    align-items: center;
+}
+
+.feed-container .post-header-left img {
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    margin-right: 10px;
+    object-fit: cover;
+}
+
+.feed-container .post-header-left .username {
+    font-weight: bold;
+    font-size: 14px;
+}
+
+.feed-container .post-header-left .time {
+    color: gray;
+    font-size: 12px;
+    margin-left: 8px;
+}
+
+/* 오른쪽: ⋮ 메뉴 버튼 */
+.feed-container .post-header-right .menu-btn {
+    background: none;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+}
+
+/* 게시글 이미지 */
+.feed-container .post-img {
+    width: 100%;
+    display: block;
+    max-height: 700px;
+    object-fit: cover;
+}
+
+/* 액션 버튼 (좋아요, 댓글, 공유) */
+.feed-container .post-actions {
+    padding: 10px;
+}
+
+.feed-container .post-actions button {
+    background: none;
+    border: none;
+    font-size: 20px;
+    margin-right: 12px;
+    cursor: pointer;
+}
+
+/* 게시글 본문 */
+.feed-container .post-content {
+    padding: 0 10px 10px 10px;
+}
+
+.feed-container .post-content .likes {
+    font-weight: bold;
+    margin-bottom: 5px;
+    font-size: 14px;
+}
+
+.feed-container .post-content .caption {
+    font-size: 14px;
+    line-height: 1.4;
+}
+.post-img {
+    max-height: 420px;
+    object-fit: cover;
+}
+
+/* 버튼 공통: background 초기화를 color만 투명으로 */
+.feed-container .post-actions button {
+    background-color: transparent; /* background: none; 사용 금지 */
+    border: none;
+    font-size: 20px;
+    margin-right: 12px;
+    cursor: pointer;
+}
+
+/* like 버튼: 더 구체적인 선택자로 배경 적용 */
+.feed-container .post-actions button.btn.like {
+    background: url("/images/like/emptyLove.png") no-repeat center/contain;
+    width: 24px;
+    height: 24px;
+    display: inline-block;
+    padding: 0;
+}
+
