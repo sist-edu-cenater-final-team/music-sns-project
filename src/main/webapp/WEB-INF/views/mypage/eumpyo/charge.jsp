@@ -96,7 +96,7 @@
  }
  
  .btn-charge:hover {
- 	background:#7547FF;
+ 	background:#845BFE;
  }
 </style>
 

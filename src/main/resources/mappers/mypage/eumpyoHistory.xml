@@ -23,10 +23,10 @@
     <select id="findChargeHistoryPage" parameterType="hashmap" resultType="map">
         select
             to_char(ch.created_at, 'YYYY.MM.DD') as "chargedAt",
-            ch.coin                              as "chargedCoin",
-            ch.at_that_user_coin                 as "coinBalance",
-            ch.at_that_price                     as "paidAmount",
-            cast(null as varchar2(255))          as "musicId"
+            ch.coin as "chargedCoin",
+            ch.at_that_user_coin as "coinBalance",
+            ch.at_that_price as "paidAmount",
+            cast(null as varchar2(255)) as "musicId"
         from coin_history ch
        where ch.user_id = #{userId}
        order by ch.created_at desc, ch.coin_history_id desc
@@ -52,21 +52,21 @@
         pm_agg as (
             select
                 pm.purchase_history_id,
-                sum(pm.at_that_coin)        as used_coin,
-                min(pm.music_id)            as main_music_id,
+                sum(pm.at_that_coin) as used_coin,
+                min(pm.music_id) as main_music_id,
                 count(pm.purchase_music_id) as music_count
             from purchase_music pm
            group by pm.purchase_history_id
         )
         select
             to_char(ph.purchased_at, 'YYYY.MM.DD') as "purchasedAt",
-            nvl(pm.used_coin, 0)                   as "usedCoin",
-            ph.at_that_user_coin                   as "coinBalance",
-            cast(null as number(10,0))             as "paidAmount",
-            ph.purchase_history_id                 as "purchaseHistoryId",
-            pm.main_music_id                       as "mainMusicId",
-            pm.music_count                         as "musicCount",
-            ph.row_num                             as "rowNum"
+            nvl(pm.used_coin, 0) as "usedCoin",
+            ph.at_that_user_coin as "coinBalance",
+            cast(null as number(10,0)) as "paidAmount",
+            ph.purchase_history_id as "purchaseHistoryId",
+            pm.main_music_id as "mainMusicId",
+            pm.music_count as "musicCount",
+            ph.row_num as "rowNum"
         from ph_base ph
         left join pm_agg pm
           on pm.purchase_history_id = ph.purchase_history_id

@@ -165,7 +165,7 @@
 					<jsp:include page="../../include/mypage/eumpyoChargeTab.jsp" />
 	
 			        <!-- 충전내역 리스트 시작 -->
-			        <table class="table table-hover chargeList">
+			        <table class="table chargeList">
 			          	<thead>
 			          		<tr>
 			            		<th class="col-no">번호</th>

@@ -55,7 +55,7 @@
 }
 
 .purchaseHistory .table.table-hover tbody tr:hover {
-	background: #FAFAFA;
+	background: #F3F2F8;
 }
 
 /* 음악 셀 내부 레이아웃 */
@@ -69,8 +69,8 @@
 }
 
 .music-img {
-	width: 48px;
-	height: 48px;
+	width: 30px;
+	height: 30px;
 	border-radius: 6px;
 	overflow: hidden;
 	background: #eee;
@@ -78,8 +78,8 @@
 }
 
 .music-img img {
-	width: 48px;
-	height: 48px;
+	width:30px;
+	height: 30px;
 	object-fit: cover;
 	display: block;
 }
