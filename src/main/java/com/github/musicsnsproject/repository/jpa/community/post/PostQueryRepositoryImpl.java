@@ -25,6 +25,8 @@ public class PostQueryRepositoryImpl implements PostQueryRepository {
     }
 
     public void test () {
+    	
+    	
         List<Post> a = queryFactory.selectFrom(QPost.post)
                 .join(QPost.post.userEmotion, QUserEmotion.userEmotion).fetchJoin()
                 .join(QUserEmotion.userEmotion.myUser, QMyUser.myUser).fetchJoin()

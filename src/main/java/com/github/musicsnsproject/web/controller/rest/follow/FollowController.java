@@ -9,8 +9,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import com.github.musicsnsproject.config.database.RedisConfig;
+
 import com.github.musicsnsproject.domain.follow.FollowVO;
+import com.github.musicsnsproject.domain.user.MyUserVO;
 import com.github.musicsnsproject.service.follow.FollowService;
 
 import lombok.RequiredArgsConstructor;
