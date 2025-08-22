@@ -76,7 +76,7 @@ public class SignUpLoginService {
         String accessToken = jwtProvider.createNewAccessToken(authentication.getName(), roles);
         String refreshToken = jwtProvider.createNewRefreshToken();
         try {
-            return jwtProvider.saveRefreshTokenAndCreateTokenDto(accessToken, refreshToken, Duration.ofMinutes(3));
+            return jwtProvider.saveRefreshTokenAndCreateTokenDto(accessToken, refreshToken, JwtProvider.REFRESH_TOKEN_EXPIRATION);
         } catch (RedisConnectionFailureException e) {
             throw CustomServerException.of()
                     .systemMessage(e.getMessage()+"   "+e.getCause().getMessage())

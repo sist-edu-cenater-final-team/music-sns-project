@@ -32,7 +32,7 @@ public class JwtProvider {
     private final SecretKey key;//= Jwts.SIG.HS256.key().build();  이건 랜덤키 자동생성
 
 
-    private static final Duration REFRESH_TOKEN_EXPIRATION = Duration.ofDays(7);//7일
+    public static final Duration REFRESH_TOKEN_EXPIRATION = Duration.ofDays(7);//7일
     private static final Duration ACCESS_TOKEN_EXPIRATION = Duration.ofMinutes(10);//10분
     public static String getTokenType(){
         return "Bearer";
