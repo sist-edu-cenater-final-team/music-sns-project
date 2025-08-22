@@ -157,6 +157,7 @@
     border-left: 1px solid #dbdbdb;
 }
 .aside-playlist .inner {
+    max-width: 338px;
     padding: 34px 30px;
 }
 .aside-playlist h2 {

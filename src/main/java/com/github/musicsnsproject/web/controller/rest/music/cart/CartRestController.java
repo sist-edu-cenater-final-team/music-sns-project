@@ -3,7 +3,6 @@ package com.github.musicsnsproject.web.controller.rest.music.cart;
 
 import com.github.musicsnsproject.service.music.cart.CartService;
 import com.github.musicsnsproject.web.dto.music.cart.CartDeleteRequest;
-import com.github.musicsnsproject.web.dto.music.cart.CartOrderRequest;
 import com.github.musicsnsproject.web.dto.music.cart.CartResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -11,6 +10,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Objects;
 
 @RestController
 @RequestMapping("/api/cart")
@@ -19,11 +19,19 @@ public class CartRestController {
 
     private final CartService cartService;
 
+    //TODO 로그인 안한 경우를 대비하여 기본값 설정 추후 제거 예정
+    private static final Long defaultUserId = 23L; // 임시로 설정한 기본 사용자 ID
+
+    private Long uid(@AuthenticationPrincipal Long userId) {
+        return Objects.requireNonNullElse(userId, defaultUserId);
+        // userId가 null인 경우 defaultUserId를 반환
+    }
+
     // 장바구니 리스트
     @GetMapping("list")
     public ResponseEntity<List<CartResponse>> getCartList(@AuthenticationPrincipal Long userId){
 
-        List<CartResponse> cartList = cartService.getCartList(userId);
+        List<CartResponse> cartList = cartService.getCartList(uid(userId));
         return ResponseEntity.ok(cartList);
     }
 
@@ -32,7 +40,7 @@ public class CartRestController {
     public ResponseEntity<List<CartResponse>> addCart(@AuthenticationPrincipal Long userId,
                                                       @RequestParam("trackId") String trackId){
 
-        List<CartResponse> responseList = cartService.addCart(userId, trackId);
+        List<CartResponse> responseList = cartService.addCart(uid(userId), trackId);
         return ResponseEntity.ok(responseList);
     }
 
@@ -43,30 +51,13 @@ public class CartRestController {
 
         // 상품 삭제하기
         List<Long> cartIdList = cartDeleteRequest.getCartIdList();
-        cartService.deleteCart(userId, cartIdList);
+        cartService.deleteCart(uid(userId), cartIdList);
 
         // 삭제된 상품 포함하여 최신 리스트 가져오기
-        List<CartResponse> updatedList = cartService.getCartList(userId);
+        List<CartResponse> updatedList = cartService.getCartList(uid(userId));
+
 
         return ResponseEntity.ok(updatedList);
-    }
-
-    // 주문하기
-    @PostMapping("order")
-    public ResponseEntity<List<CartResponse>> orderCart(@AuthenticationPrincipal Long userId,
-                                                        @RequestBody CartOrderRequest cartOrderRequest){
-
-        List<Long> cartIdList = cartOrderRequest.getCartIdList();
-
-        return ResponseEntity.ok(cartService.getCartOrderList(userId, cartIdList));
-    }
-
-    // 주문 정보 가져오기
-    @GetMapping("/order")
-    public ResponseEntity<List<CartResponse>> orderCartInfo(@AuthenticationPrincipal Long userId,
-                                                            @RequestParam("cartIdList") List<Long> cartIdList) {
-
-        return ResponseEntity.ok(cartService.getCartOrderList(userId, cartIdList));
     }
 
 }

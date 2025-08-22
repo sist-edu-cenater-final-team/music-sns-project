@@ -8,6 +8,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
 });
 
+const token = "Bearer eyJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE3NTU2NzQ1OTQsImV4cCI6NDkwOTI3NDU5NCwic3ViIjoiMjMiLCJyb2xlcyI6IlJPTEVfVVNFUiJ9.J2-HxxZZuEVrfQIjmPeujwehl6ExKDm8gdtae291uu4";
+
 const cart = {
     tbody : document.querySelector('#cartBody'),
     checkAll : document.querySelector('#cartAllCheck'),
@@ -54,19 +56,22 @@ const cart = {
 
         cart.tbody.innerHTML = cartHTML;
 
+        document.querySelector("#musicCartCount").innerHTML = cartData.length;
+
         // 체크박스 이벤트 연결
         cart.initCheckEvents();
     },
     createList : () => {
         fetch(`/api/cart/list`, {
-            headers: { 'Authorization': "Bearer eyJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE3NTU1ODExNTIsImV4cCI6MTc1NTU4NDc1Miwic3ViIjoiMjMiLCJyb2xlcyI6IlJPTEVfVVNFUiJ9.lkCq8vt0ivRzwcK3T4q4CJQzAyWn4lOSVFHFfRt3f8g" },
+            headers: { 'Authorization': token },
         })
         .then(response => response.json())
         .then(data => {
-            //console.log('cart list:', data);
+            console.log('cart list:', data);
             cart.renderCart(data);
         })
         .catch(error => {
+
             console.error('Error:', error);
             alert('장바구니 목록 조회 중 오류가 발생했습니다.');
         });
@@ -120,11 +125,12 @@ const cart = {
     },
     // 바로 삭제하기
     directDelete : (e) => {
-        const cartId = Number(e.dataset.cartId);
+        const cartId = [Number(e.dataset.cartId)];
         cart.deleteItem(0, cartId);
-        console.log(cartId);
     },
     deleteItem : (status, cartIdList) => {
+
+        console.log("cartIdList : " + cartIdList);
         // status 0 : 바로 삭제
         // ststus 1 : 선택 삭제
         if (status !== 0 && cart.tbody.querySelectorAll('input[name="cartCheck"]:checked').length < 1) {
@@ -135,9 +141,11 @@ const cart = {
 
         fetch('/api/cart/delete', {
             method: 'DELETE',
-            headers: { 'Content-Type': 'application/json' },
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': token
+            },
             body: JSON.stringify({
-                userId : userId,
                 cartIdList : cartIdList
             })
         })
@@ -159,30 +167,6 @@ const cart = {
                 alert('서버 또는 네트워크 오류입니다.');
             });
     },
-    add : () => {
-        fetch('/api/cart/add', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json'
-            },
-            body: JSON.stringify({
-                userId: userId,
-                trackId: trackid
-            })
-        })
-            .then(response => response.json())
-            .then(data => {
-                console.log('cart add:', data);
-                alert('장바구니에 담았습니다.');
-
-                cart.createList();
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('장바구니 추가 중 오류가 발생했습니다.');
-            });
-    },
     order : () => {
         // 받아온 cartId 배열 만들기
         const cartIdList = Array.from(cart.tbody.querySelectorAll('input[name="cartCheck"]:checked'))
@@ -192,12 +176,11 @@ const cart = {
             alert("주문할 상품을 선택해주세요!");
             return;
         }
-
-        fetch('/api/cart/order', {
+        console.log("선택된 cartIdList : " + cartIdList);
+        fetch('/api/order/create', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                userId : userId,
+            headers: { 'Authorization': token },
+            body: new URLSearchParams({
                 cartIdList : cartIdList
             })
         })
@@ -207,19 +190,19 @@ const cart = {
                 const msg = await response.text();
 
                 if (response.status !== 200) {
-                    alert("상품 주문에 실패하였습니다."+ msg);
+                    alert("상품 주문 미리보기에 실패하였습니다."+ msg);
                     return;
                 }
 
                 // 선택한 cartIdList를 sessionStorage에 저장
                 sessionStorage.setItem("cartIdList", JSON.stringify(cartIdList));
-                sessionStorage.setItem("userId", String(userId));
 
-                location.href = ctxPath+`/cart/order/`+userId;
+                // 주문 미리보기페이지 이동
+                location.href = `${ctxPath}/order/preview`;
 
             })
             .catch(error => {
-                console.error('삭제 중 오류 발생:', error.message);
+                console.error('주문 중 오류 발생:', error.message);
                 alert('서버 또는 네트워크 오류입니다.');
             });
     }

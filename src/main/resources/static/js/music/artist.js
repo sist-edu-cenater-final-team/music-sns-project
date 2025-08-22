@@ -44,6 +44,7 @@ document.addEventListener("DOMContentLoaded", function() {
             const spotifyLinkElement = document.querySelector(".spotify-link");
             spotifyLinkElement.href = artist.artist.artistSpotifyUrl;
             spotifyLinkElement.innerHTML = `<i class="bi bi-spotify"></i>&nbsp Spotify`;
+            spotifyLinkElement.style.display = "block";
 
             // 인기도 퍼센트 반영
             const popularity = artist.artistPopularity;
@@ -131,20 +132,35 @@ document.addEventListener("DOMContentLoaded", function() {
             }).join('');
 
             card.innerHTML = `
-    <div class="album-image">   
-      <img src="${album.albumImageUrl}" alt="${album.albumName}">
-    </div>
-      <div class="album-details">
-          <div class="album-info">
-              <div class="album-name">${album.albumName}</div>
-              <div class="album-date">${album.releaseDate}</div>
-              <div class="album-artists">${artistsHtml}</div>
-          </div>
-        
-          <a class="spotify-link" href="${album.albumSpotifyUrl}" target="_blank">Spotify</a>
-      </div>
-    `;
+            <div class="album-image-container">
+                <img class="cursor-pointer album-image loading" src="${album.albumImageUrl}" alt="${album.albumName}" onclick="goToTheAlbumPage('${album.albumId}')" />
+                <div class="album-loading-spinner"></div>
+            </div>
+            <div class="album-details">
+                <div class="album-info">
+                    <div class="cursor-pointer album-name" onclick="goToTheAlbumPage('${album.albumId}')">${album.albumName}</div>
+                    <div class="album-date">${album.releaseDate}</div>
+                    <div class="album-artists">${artistsHtml}</div>
+                </div>
+                <a class="spotify-link" href="${album.albumSpotifyUrl}" target="_blank"><i class="bi bi-spotify"></i>&nbsp Spotify</a>
+            </div>
+        `;
             list.appendChild(card);
+            // 이미지 로딩 완료 처리
+            const img = card.querySelector('.album-image');
+            const spinner = card.querySelector('.album-loading-spinner');
+            img.onload = function() {
+                this.classList.remove('loading');
+                spinner.classList.add('hidden');
+            };
+
+            img.onerror = function() {
+                this.classList.remove('loading');
+                spinner.classList.add('hidden');
+                // 기본 이미지로 대체
+                this.src = ctxPath + "/images/music/album/default-album.png";
+            };
+
         });
     }
 
@@ -202,4 +218,7 @@ function applyGradientBackground(colors) {
     const artistProfile = document.querySelector('.artist-profile');
     const gradient = `linear-gradient(180deg, ${colors.lightColor} 0%, ${colors.lightColor} 80%, ${colors.darkColor} 100%)`;
     artistProfile.style.background = gradient;
+}
+function goToTheAlbumPage(albumId) {
+    window.location.href = `${ctxPath}/music/album/${albumId}`;
 }

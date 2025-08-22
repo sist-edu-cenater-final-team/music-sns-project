@@ -1,0 +1,113 @@
+(function () {
+//Auth 인증 관련 - 동적으로 헤더 생성하는 함수
+    function getAuthHeader() {
+        const accessToken = localStorage.getItem('accessToken');
+        const tokenType = localStorage.getItem('tokenType');
+
+        if (accessToken && tokenType) {
+            return {
+                'Authorization': `${tokenType} ${accessToken}`
+            };
+        }
+        return {};
+    }
+
+// 토큰 만료 시 자동 갱신 및 재시도 함수
+    async function apiRequest(requestFn, maxRetries = 1) {
+        console.log("일단요청시작")
+        try {
+            return await requestFn();
+        } catch (error) {
+            console.log("에러받음")
+            // 401 에러이고 토큰 만료인 경우
+            if (error?.response?.status === 401 &&
+                error?.response?.data?.error?.customMessage === "만료된 토큰" &&
+                maxRetries > 0) {
+
+                try {
+                    // 토큰 갱신
+                    console.log("갱신요청긔")
+                    await refreshAuthToken();
+                    // 재시도
+                    return await apiRequest(requestFn, maxRetries - 1);
+                } catch (refreshError) {
+                    // 토큰 갱신 실패 시 원래 에러 던지기
+                    throw error;
+                }
+            }
+            // 다른 에러는 그대로 던지기
+            throw error;
+        }
+    }
+
+// 로그아웃 함수
+    const logout = async () => {
+        try {
+            // localStorage에서 액세스 토큰 가져오기
+            const authHeader = getAuthHeader();
+
+            if (!authHeader) {
+                throw new Error('로그인 상태가 아닙니다.');
+            }
+
+            const response = await axios.post('/api/auth/logout', {}, {
+                headers: authHeader,
+                withCredentials: true // 쿠키 포함
+            });
+
+            // 성공 시 로컬 스토리지에서 토큰 제거
+            localStorage.removeItem('accessToken');
+            localStorage.removeItem('tokenType');
+
+            return response.data;
+
+        } catch (error) {
+            console.error('로그아웃 실패:', error);
+
+            // 401 에러인 경우 토큰이 이미 만료되었으므로 로컬 스토리지 정리
+            if (error.response?.status === 401) {
+                localStorage.removeItem('accessToken');
+                localStorage.removeItem('tokenType');
+            }
+
+            throw error;
+        }
+    };
+    // 전역으로 노출 (일반 스크립트용)
+    window.AuthFunc = {
+        getAuthHeader,
+        apiRequest,
+        logout
+    };
+    // // ES6 모듈로도 export (모듈 스크립트용)
+    // if (typeof module !== 'undefined' && module.exports) {
+    //     module.exports = { getAuthHeader, apiRequest, logout };
+    // }
+    //
+    // // ES6 export (브라우저 모듈용)
+    // if (typeof window !== 'undefined') {
+    //     window.getAuthHeader = getAuthHeader;
+    //     window.apiRequest = apiRequest;
+    //     window.logout = logout;
+    // }
+})();
+
+
+function refreshAuthToken() {
+    return axios.post(`${ctxPath}/api/auth/refresh`,{}, {
+        headers: AuthFunc.getAuthHeader(),
+        withCredentials: true
+    })
+        .then(response => {
+            const responseData = response.data.success.responseData;
+            localStorage.setItem('accessToken', responseData.accessToken);
+            localStorage.setItem('tokenType', responseData.tokenType);
+
+        }).catch(error => {
+            console.error('Error refreshing token:', error);
+            console.error(error.response.data.error);
+            alert('세션이 만료되었습니다. 다시 로그인해주세요.');
+            // window.location.href = ctxPath + '/auth/login';
+            throw error; // 에러를 다시 던져서 상위에서 처리할 수 있도록
+        });
+}

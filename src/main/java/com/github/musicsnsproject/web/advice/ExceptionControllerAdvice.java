@@ -8,6 +8,7 @@ import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.Path;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -131,15 +132,16 @@ public class ExceptionControllerAdvice {
             ConstraintViolationException.class,
             HttpMessageNotReadableException.class
     }) // Valid 익셉션 처리
-    public CustomErrorResponse<Object> handleValidException(Exception ex) {
+    @ResponseStatus(HttpStatus.BAD_REQUEST) //잘못된 요청
+    public CustomErrorResponse<?> handleValidException(Exception ex) {
         if (ex instanceof MethodArgumentNotValidException validException) {
-            return handleBadRequestException(notValidToBadRequestException(validException));
+            return makeResponse(HttpStatus.BAD_REQUEST, notValidToBadRequestException(validException));
         } else if (ex instanceof MethodArgumentTypeMismatchException validException) {
-            return handleBadRequestException(typeMismatchToBadRequestException(validException));
+            return makeResponse(HttpStatus.BAD_REQUEST, typeMismatchToBadRequestException(validException));
         } else if (ex instanceof ConstraintViolationException validException) {
-            return handleBadRequestException(constraintViolationToBadRequestException(validException));
+            return makeResponse(HttpStatus.BAD_REQUEST, constraintViolationToBadRequestException(validException));
         } else {
-            return handleBadRequestException(genericExToBadRequestException(ex));
+            return makeResponse(HttpStatus.BAD_REQUEST, genericExToBadRequestException(ex));
         }
     }
 

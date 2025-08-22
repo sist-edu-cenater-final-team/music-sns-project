@@ -25,8 +25,5 @@ public class RedisRepository {
     public String getAndDeleteValue(String key){
         return valueOperations.getAndDelete(key);
     }
-    public String deleteTest(String key){
-        return valueOperations.getAndDelete(key);
-    }
 
 }

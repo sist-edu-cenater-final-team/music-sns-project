@@ -81,6 +81,6 @@
 
 
 
-<script src="${pageContext.request.contextPath}/js/music/chart/chart.js"></script>
+<script src="${pageContext.request.contextPath}/js/music/chart/chart.js" defer></script>
 </body>
 </html>

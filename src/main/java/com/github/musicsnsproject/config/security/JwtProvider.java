@@ -1,6 +1,7 @@
 package com.github.musicsnsproject.config.security;
 
 
+import com.github.musicsnsproject.common.exceptions.CustomNotAcceptException;
 import com.github.musicsnsproject.repository.redis.RedisRepository;
 import com.github.musicsnsproject.web.dto.account.auth.response.TokenDto;
 import io.jsonwebtoken.Claims;
@@ -8,6 +9,8 @@ import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import lombok.extern.log4j.Log4j;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.json.BasicJsonParser;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -21,7 +24,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
 
-
+@Log4j2
 @Component
 public class JwtProvider {
     private final RedisRepository redisRepository;
@@ -29,8 +32,8 @@ public class JwtProvider {
     private final SecretKey key;//= Jwts.SIG.HS256.key().build();  이건 랜덤키 자동생성
 
 
-    private static final long REFRESH_TOKEN_EXPIRATION = 1000*60*10;//테스트를 위해 10분
-    private static final long ACCESS_TOKEN_EXPIRATION = 1000*60*60;//60분
+    private static final Duration REFRESH_TOKEN_EXPIRATION = Duration.ofDays(7);//7일
+    private static final Duration ACCESS_TOKEN_EXPIRATION = Duration.ofMinutes(10);//10분
     public static String getTokenType(){
         return "Bearer";
     }
@@ -47,7 +50,7 @@ public class JwtProvider {
         Date now = new Date();
         return Jwts.builder()
                 .issuedAt(now)
-                .expiration(new Date(now.getTime()+ACCESS_TOKEN_EXPIRATION))
+                .expiration(new Date(now.getTime()+ACCESS_TOKEN_EXPIRATION.toMillis()))
                 .subject(userId)
                 .claim("roles", roles)
                 .signWith(key, Jwts.SIG.HS256)
@@ -55,7 +58,7 @@ public class JwtProvider {
     }
     //새로운 리프레시 토큰 생성
     public String createNewRefreshToken() {
-        return createRefreshToken(new Date(new Date().getTime()+REFRESH_TOKEN_EXPIRATION));
+        return createRefreshToken(new Date(new Date().getTime()+REFRESH_TOKEN_EXPIRATION.toMillis()));
     }
 
     //만료시간 지정 리프레시 토큰 생성
@@ -81,6 +84,13 @@ public class JwtProvider {
 
     public Authentication getAuthentication(String accessToken) {
             Jws<Claims> claimsJws = tokenParsing(accessToken);//검증은 여기서 내부적으로 진행됨
+            boolean isBlackList = redisRepository.getValue("blacklist:"+accessToken) != null;
+            if(isBlackList) throw CustomNotAcceptException.of()
+                    .systemMessage("블랙리스트에 등록된 토큰입니다.")
+                    .customMessage("로그아웃된 토큰입니다. 다시 로그인해주세요.")
+                    .request(accessToken)
+                    .build();
+
 
             Claims payload = claimsJws.getPayload();
             if(payload.getSubject()==null) throw new NullPointerException("payload의 subject값이 null 입니다.");
@@ -127,5 +137,21 @@ public class JwtProvider {
     public Jws<Claims> tokenParsing(String token){
         return Jwts.parser().verifyWith(key).build()
                 .parseSignedClaims(token);
+    }
+
+    public void deleteRefreshToken(String accessToken) {
+        String refreshToken = redisRepository.getAndDeleteValue(accessToken);
+        if (refreshToken != null) {
+            log.info("리프레시 토큰 삭제 완료 - refreshToken: {}", refreshToken);
+        } else {
+            log.warn("삭제할 리프레시 토큰이 없음 - accessToken: {}", accessToken);
+        }
+    }
+
+    public void blackListAccessToken(String accessToken) {
+        Jws<Claims> claimsJws = tokenParsing(accessToken);
+        Date expiration = claimsJws.getPayload().getExpiration();
+        Duration blackListDuration = Duration.between(Instant.now(), expiration.toInstant());
+        redisRepository.save("blacklist:"+accessToken, "logout", blackListDuration);
     }
 }

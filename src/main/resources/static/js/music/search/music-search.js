@@ -157,31 +157,37 @@ if (window.__musicSearchPurpleInitialized) {
 
                 const a = document.createElement('a');
                 a.dataset.trackId = item.track.trackId;
-                a.dataset.albumId = item.album?.albumId || '';
+                const albumId = item.album?.albumId || '';
+                a.dataset.albumId = albumId;
 
                 // a.href = '#';
                 a.className = 'list-group-item list-group-item-action track-item';
 
                 a.innerHTML = `
-                    <img class="track-thumb" data-album-id="${escapeHtml(item.album?.albumId || '')}" src="${escapeHtml(albumImage)}" alt="${escapeHtml(albumName)}">
-                    <div class="track-main">
-                        <div class="track-title" data-track-id="${escapeHtml(item.trackId)}">${escapeHtml(item.track.trackName)}</div>
-                        <div class="track-artist">${artistsHtml}</div>
-                    </div>
-                    <div class="track-album" data-album-id="${escapeHtml(item.album?.albumId || '')}">
-                        <div class="track-album-name">
-                             ${escapeHtml(albumName)}
-                        </div>
-                        <div class="track-release-date">
-                            ${escapeHtml(releaseDate)}                        
-                        </div>
-                    </div>
-                    <div class="track-right">
-                        <div class="track-duration">${escapeHtml(duration)}</div>
-                    </div>
-                    <div class="track-basket">1</div>
-                `;
-                // ⬆️track-duration 아래 에있던 거 주석처리 <div><a class="btn btn-sm btn-outline-primary btn-spotify" href="${escapeHtml(item.trackSpotifyUrl)}" target="_blank">Spotify</a></div>
+            <img class="track-thumb" data-album-id="${escapeHtml(item.album?.albumId || '')}" src="${escapeHtml(albumImage)}" alt="${escapeHtml(albumName)}" onclick="window.location.href='${ctxPath}/music/album/${escapeHtml(albumId)}'">
+            <div class="track-main">
+                <div class="track-title" data-track-id="${escapeHtml(item.trackId)}">${escapeHtml(item.track.trackName)}</div>
+                <div class="track-artist">${artistsHtml}</div>
+            </div>
+            <div class="track-album" data-album-id="${escapeHtml(item.album?.albumId || '')}">
+                <div class="track-album-name">
+                    <a href="${ctxPath}/music/album/${escapeHtml(item.album?.albumId || '')}" style="text-decoration: none; color: inherit;">
+                        ${escapeHtml(albumName)}
+                    </a>
+                </div>
+                <div class="track-release-date">
+                    <a href="${ctxPath}/music/album/${escapeHtml(item.album?.albumId || '')}" style="text-decoration: none; color: inherit;">
+                        ${escapeHtml(releaseDate)}
+                    </a>
+                </div>
+            </div>
+            <div class="track-right">
+                <div class="track-duration">${escapeHtml(duration)}</div>
+                <button class="add-to-cart-btn" onclick="addCart(this)" title="장바구니에 추가">
+                    <i class="bi bi-cart-plus"></i>
+                </button>
+            </div>
+        `;
 
                 frag.appendChild(a);
 
@@ -201,15 +207,14 @@ if (window.__musicSearchPurpleInitialized) {
             if(currentPage === 1) {
                 const header = document.createElement('div');
                 header.className = 'track-header';
-
                 header.innerHTML = `
-                        <div class="track-thumb"></div>
-                        <div class="track-main">제목</div>
-                        <div class="track-album">앨범</div>
-                        <div class="track-right">
-                            <i class="bi bi-clock"></i>&nbsp;&nbsp;&nbsp;
-                        </div>
-                    `;
+            <div class="track-thumb"></div>
+            <div class="track-main">제목</div>
+            <div class="track-album">앨범</div>
+            <div class="track-right">
+                <i class="bi bi-clock"></i>
+            </div>
+        `;
                 resultsEl.appendChild(header);
             }
             resultsEl.appendChild(frag);
@@ -287,7 +292,6 @@ if (window.__musicSearchPurpleInitialized) {
         // }
 
 
-
         function escapeHtml(text) {
             if (text === null || text === undefined) return '';
             return String(text)
@@ -319,4 +323,32 @@ if (window.__musicSearchPurpleInitialized) {
         //     // inputPage.value = '1';
         // });
     });
+
+    // 장바구니 담기
+    function addCart(btn) {
+
+        const trackId = btn.closest('.track-item').dataset.trackId;
+
+        // 장바구니 추가 로직 구현
+        fetch('/api/cart/add', {
+            method: 'POST',
+            headers: { 'Authorization': "Bearer eyJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE3NTU1ODczNTQsImV4cCI6MTc1NTU5MDk1NCwic3ViIjoiMjMiLCJyb2xlcyI6IlJPTEVfVVNFUiJ9.7SRttBXoDfWerjPyvmO90_a9U62Z7D5Hh80DFbx1EWY" },
+            body: new URLSearchParams({
+                trackId: trackId,
+            })
+
+        })
+        .then(res => res.json())
+        .then(data => {
+            // customMessage 값 사용
+            if(data.error){
+                alert(data.error.customMessage);
+                return;
+            }
+            alert("장바구니에 추가하였습니다.");
+        })
+        .catch(() => {
+            alert("서버와 통신 중 오류가 발생했습니다.");
+        });
+    }
 }
