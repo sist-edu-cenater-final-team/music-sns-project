@@ -26,12 +26,12 @@
 }
 
 .purchaseHistory .table thead th {
-	border-top: 1px solid #E0E0E0;
-	border-bottom: 1px solid #E0E0E0;
-	padding: 12px;
+	padding: 20px;
 	font-size: 16px;
-	font-weight: 700;
-	color: #8A8A8A;
+	font-weight: 500;
+	border: none;
+	color: black;
+	background-color: #F3F2F8;
 	white-space: nowrap;
 	text-align: center;
 }
@@ -47,15 +47,14 @@
 	font-size: 15px;
 	font-weight: 500;
 	color: #000;
-	border-top: 1px solid #E0E0E0;
-}
+s}
 
 .purchaseHistory .table tbody td.col-usedCoin {
 	color: #AE1932;
 }
 
 .purchaseHistory .table.table-hover tbody tr:hover {
-	background: #F3F2F8;
+	background: #FAFAFB;
 }
 
 /* 음악 셀 내부 레이아웃 */
@@ -192,7 +191,85 @@
 	font-size: 25px;
 	font-weight: 700;
 }
+
+.purchase-history-row { cursor: pointer; }
 </style>
+
+
+<script type="text/javascript">
+(function($){
+  const ctxPath = '<%= ctxPath %>';
+
+  function renderMusic($detailRow, music) {
+    const $content = $detailRow.find('.detail-content');
+    if (!music || music.length === 0) {
+      $content.html('<div>구매한 음악이 없습니다.</div>');
+      return;
+    }
+
+    let html = '<ul style="margin:0; padding:0; list-style:none; display:grid; grid-template-columns:repeat(2, minmax(0,1fr)); gap:10px;">';
+    music.forEach(function(t){
+      const img = t.albumImageUrl ?
+        `<img src="${t.albumImageUrl}" alt="${t.musicName || t.musicId || '-'}" style="width:44px;height:44px;border-radius:6px;object-fit:cover;" />` :
+        `<img src="${ctxPath}/images/mypage/noAlbumImage.png" alt="-" style="width:44px;height:44px;border-radius:6px;object-fit:cover;" />`;
+
+      const title = (t.musicName || t.musicId || '-');
+      const artist = (t.artistName || '');
+      const album  = (t.albumName  || '');
+      const used   = (typeof t.usedCoin === 'number') ? t.usedCoin : (t.usedCoin || '');
+
+      html += `
+        <li style="display:flex;align-items:center;gap:12px;padding:8px 10px;border:1px solid #eee;border-radius:8px;background:#fff;">
+          <div>${img}</div>
+          <div style="min-width:0; flex:1;">
+            <div style="font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${title}</div>
+            <div style="font-size:12px; color:#666; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${artist}${artist && album ? ' · ' : ''}${album}</div>
+          </div>
+          <div style="font-variant-numeric:tabular-nums; white-space:nowrap;">-${used} 음표</div>
+        </li>`;
+    });
+    html += '</ul>';
+    $content.html(html);
+  }
+
+  // 행 클릭 이벤트 위임
+  $(document).on('click', '.purchase-history-row', function(){
+    const $row = $(this);
+    const pid  = $row.data('pid');
+    const $detailRow = $('.purchase-detail[data-pid="'+pid+'"]');
+
+    // 이미 로드된 경우 토글만
+    if ($detailRow.data('loaded') === true) {
+      $detailRow.toggle();
+      return;
+    }
+
+    // 최초 로드
+    $detailRow.show();
+    const $loading = $detailRow.find('.detail-loading');
+    $loading.show();
+
+    $.ajax({
+      url: ctxPath + '/api/mypage/eumpyo/history/purchase/' + pid + '/music',
+      method: 'GET',
+      success: function(resp){
+        $loading.hide();
+        if (!resp || resp.result !== 'success') {
+          $detailRow.find('.detail-content').html('<div>목록을 불러오지 못했습니다.</div>');
+          return;
+        }
+        renderMusic($detailRow, resp.music || []);
+        $detailRow.data('loaded', true);
+      },
+      error: function(){
+        $loading.hide();
+        $detailRow.find('.detail-content').html('<div>오류가 발생했습니다.</div>');
+      }
+    });
+  });
+})(jQuery);
+</script>
+
 
 <body>
 	<div id="wrap">
@@ -226,7 +303,7 @@
 								<c:when test="${not empty list}">
 									<c:forEach var="row" items="${list}" varStatus="st">
 										<c:set var="no" value="${requestScope.totalCount - (requestScope.currentShowPageNo - 1) * requestScope.sizePerPage - st.index}" />
-										<tr>
+                                		<tr class="purchase-history-row" data-pid="${row.purchaseHistoryId}">
 											<!-- 번호 / 구매일자 -->
 											<td class="col-no"><c:out value="${no}" /></td>
 											<td class="col-date"><c:out value="${row.purchasedAt}" /></td>
@@ -294,17 +371,27 @@
 												</c:choose>
 											</td>
 										</tr>
-									</c:forEach>
-								</c:when>
-								<c:otherwise>
-									<tr>
-										<td colspan="5" class="text-center">구매내역이 없습니다.</td>
-									</tr>
-								</c:otherwise>
-							</c:choose>
-						</tbody>
-					</table>
-					<%-- 구매내역 리스트 끝 --%>
+										
+										<!-- 구매내역 상세 표시 -->
+	                                	<tr class="purchase-detail" data-pid="${row.purchaseHistoryId}" style="display:none;">
+	                                    	<td colspan="5"">
+	                                        	<div class="detail-container" style="padding:16px;">
+	                                            	<div class="detail-loading" style="display:none;">불러오는 중...</div>
+	                                            	<div class="detail-content"></div>
+	                                        	</div>
+	                                    	</td>
+	                                	</tr>
+	                            	</c:forEach>
+	                        	</c:when>
+	                        	<c:otherwise>
+	                            	<tr>
+	                                	<td colspan="5" class="text-center">구매내역이 없습니다.</td>
+	                            	</tr>
+	                        	</c:otherwise>
+	                    	</c:choose>
+	                	</tbody>
+	                </table>
+	                <%-- 구매내역 리스트 끝 --%>
 
 					<!-- 페이지바 -->
 					<div id="pagination">

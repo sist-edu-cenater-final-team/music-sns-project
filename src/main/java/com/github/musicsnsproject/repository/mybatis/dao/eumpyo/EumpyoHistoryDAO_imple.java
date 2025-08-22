@@ -56,4 +56,32 @@ public class EumpyoHistoryDAO_imple implements EumpyoHistoryDAO {
         
         return sql.selectList("eumpyoHistory.findPurchaseHistoryPage", map);
     }
+    
+    
+    // 로그인한 유저의 구매내역인지 확인
+    @Override
+    public boolean existsPurchaseByUser(long userId, long purchaseHistoryId) {
+    	
+        Map<String, Object> map = new HashMap<>();
+        
+        map.put("userId", userId);
+        map.put("purchaseHistoryId", purchaseHistoryId);
+        
+        Integer cnt = sql.selectOne("eumpyoHistory.existsPurchaseByUser", map);
+        
+        return cnt != null && cnt > 0;
+    }
+
+    
+    // 구매음악 조회 (purchase_music)
+    @Override
+    public List<Map<String, Object>> findPurchaseMusic(long userId, long purchaseHistoryId) {
+    	
+        Map<String, Object> map = new HashMap<>();
+        
+        map.put("userId", userId);
+        map.put("purchaseHistoryId", purchaseHistoryId);
+        
+        return sql.selectList("eumpyoHistory.findPurchaseMusic", map);
+    }
 }
