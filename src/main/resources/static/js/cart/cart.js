@@ -176,8 +176,8 @@ const cart = {
             alert("주문할 상품을 선택해주세요!");
             return;
         }
-
-        fetch('/api/cart/order', {
+        console.log("선택된 cartIdList : " + cartIdList);
+        fetch('/api/order/create', {
             method: 'POST',
             headers: { 'Authorization': token },
             body: new URLSearchParams({
@@ -190,14 +190,15 @@ const cart = {
                 const msg = await response.text();
 
                 if (response.status !== 200) {
-                    alert("상품 주문에 실패하였습니다."+ msg);
+                    alert("상품 주문 미리보기에 실패하였습니다."+ msg);
                     return;
                 }
 
                 // 선택한 cartIdList를 sessionStorage에 저장
                 sessionStorage.setItem("cartIdList", JSON.stringify(cartIdList));
 
-                location.href = `${ctxPath}/cart/order`;
+                // 주문 미리보기페이지 이동
+                location.href = `${ctxPath}/order/preview`;
 
             })
             .catch(error => {

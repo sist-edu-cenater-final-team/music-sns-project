@@ -24,6 +24,14 @@
                     </tr>
                     </thead>
                     <tbody id="orderCartBody"></tbody>
+					<tfoot id="orderCartFoot">
+						<tr>
+							<td colspan="4" class="text-left">
+								<span>총 결제 음표 : </span>
+								<span id="orderTotalPrice">0</span> 음표
+							</td>
+						</tr>
+					</tfoot>
                 </table>
                 <div class="btn-form">
                     <button type="button" class="btn btn-order">주문 확정하기</button>
@@ -36,11 +44,5 @@
             <!-- //메인 컨텐츠 -->
     </main>
 </div>
-<script>
-    document.querySelector('.btn-order').addEventListener('click', order.order);
-    orderCheck = () => {
-
-    }
-</script>
 </body>
 </html>

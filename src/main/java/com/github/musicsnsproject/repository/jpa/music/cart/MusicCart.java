@@ -1,7 +1,6 @@
 package com.github.musicsnsproject.repository.jpa.music.cart;
 
 import com.github.musicsnsproject.repository.jpa.account.user.MyUser;
-import com.github.musicsnsproject.web.dto.music.cart.CartResponse;
 import jakarta.persistence.*;
 import lombok.*;
 
