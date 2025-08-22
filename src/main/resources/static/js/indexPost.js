@@ -222,6 +222,9 @@ $(document).ready(function () {
             contentType: 'application/json; charset=UTF-8',
             processData: false, // 문자열을 그대로 보냄
             dataType: "json",
+            headers: {
+                Authorization: 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE3NTU2NzA1ODYsImV4cCI6MTc1NTY3NDE4Niwic3ViIjoiNDEiLCJyb2xlcyI6IlJPTEVfVVNFUiJ9.nztMQcRWqqWFaWQTUhxiuXDKHo599ZaMAn_l97S4xFY'
+            },
             data: JSON.stringify({
                 title: title,
                 contents: contents,
@@ -303,7 +306,7 @@ $(document).ready(function () {
                     type: 'POST',
                     contentType: 'application/json',
                     headers: {
-                        Authorization: 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE3NTU1MDQ4MjYsImV4cCI6MTc1NTUwODQyNiwic3ViIjoiNCIsInJvbGVzIjoiUk9MRV9VU0VSIn0.Plvz5srjjJ05H7xIa9ToB7xnOAeDordOeJ7HKET01k4'
+                         Authorization: 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE3NTU3NTc5NTIsImV4cCI6MTc1NTc2MTU1Miwic3ViIjoiODIiLCJyb2xlcyI6IlJPTEVfVVNFUiJ9.ScQaNslAXl2WdN-3T0b8GGoi4nkT-RYeqPENyCT9SvU'
                     },
                     data: JSON.stringify(postLoad),
                     success: function (json) {
@@ -311,7 +314,7 @@ $(document).ready(function () {
                         imageArray = [];
                         $('#postModal').modal('hide');
                         // 필요 시 성공 알림/리다이렉트 등
-                        location.href = '/post/postView?postId='+encodeURIComponent(json);
+                        location.href = '/index';
                     },
                     error: function (request, status, error) {
                         console.error('게시글 저장 실패:', status, error, request.responseText);

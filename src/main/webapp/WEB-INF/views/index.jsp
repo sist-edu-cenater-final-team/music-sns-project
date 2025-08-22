@@ -12,9 +12,9 @@
 
         <!-- 메인 컨텐츠 -->
         <div class="main-contents">
-            <div class="inner">
-                메인컨텐츠츠츠으으
-            </div>
+
+                <jsp:include page="/post/postView" />
+
         </div>
         <!-- //메인 컨텐츠 -->
 

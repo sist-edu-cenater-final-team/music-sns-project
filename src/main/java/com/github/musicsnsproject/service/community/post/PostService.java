@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -54,8 +55,17 @@ public class PostService {
     }
 
     //
-    public List<FollowPostVO> followPostSelect(@AuthenticationPrincipal Long userId) {
+    public List<FollowPostVO> followPostSelect(Long testUserId) {
 
-        return postRepository.findFollowPostByuserId(userId);
+        List<FollowPostVO> followPostVOList = postRepository.findFollowPostByUserId(testUserId);
+
+        return followPostVOList;
+    }
+
+    public Long findbyCntByPostId(List<Long> postIdForLikeCnt) {
+
+        Long n = postRepository.findbyCntByPostId(postIdForLikeCnt);
+
+        return n;
     }
 }
