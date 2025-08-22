@@ -1,0 +1,81 @@
+@charset "UTF-8";
+
+.flex.stats {
+  display: flex;
+  justify-content: center;
+  gap: 60px; /* 숫자들 사이 간격 */
+  margin-top: 20px;
+}
+
+.flex.stats > div {
+  text-align: center;
+}
+
+.font-bold {
+  font-weight: bold;
+  font-size: 14pt;
+  margin-bottom: 4px;
+}
+
+.label-text {
+  font-size: 10pt;
+  color: #666;
+}
+
+.number-color {
+	color: #6C63FF;
+}
+.playlist-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.playlist-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 5px;
+  border-bottom: 1px solid #ddd;
+}
+
+.song-title {
+  flex: 2;
+  margin-top: 5px;
+}
+
+  .song-artist {
+    position: relative;
+    overflow: hidden;
+    width: 150px;
+    height: 20px;
+    white-space: nowrap;
+  }
+
+  .song-artist span {
+    display: inline-block;
+    padding-right: 100px; /* 여백을 줘서 자연스럽게 연결 */
+  }
+
+  .song-artist:hover .scrolling {
+    animation: scroll-loop 8s linear infinite;
+  }
+
+  .scrolling-wrapper {
+    display: inline-block;
+    white-space: nowrap;
+  }
+
+  @keyframes scroll-loop {
+    0% {
+      transform: translateX(0);
+    }
+    100% {
+      transform: translateX(-50%);
+    }
+  }
+
+.song-button {
+  flex: 0.5;
+  text-align: right;
+  margin-top: 10px;
+}

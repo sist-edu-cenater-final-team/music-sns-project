@@ -3,6 +3,8 @@ package com.github.musicsnsproject.repository.jpa.account.user;
 import com.github.musicsnsproject.common.exceptions.CustomBadRequestException;
 import com.github.musicsnsproject.common.security.userdetails.CustomUserDetails;
 import com.github.musicsnsproject.domain.PostVO;
+import com.github.musicsnsproject.domain.user.MyUserVO;
+import com.github.musicsnsproject.repository.jpa.account.follow.QFollow;
 import com.github.musicsnsproject.repository.jpa.account.history.login.QLoginHistory;
 import com.github.musicsnsproject.repository.jpa.account.role.QRole;
 import com.github.musicsnsproject.repository.jpa.account.role.Role;
@@ -15,6 +17,7 @@ import com.querydsl.core.group.GroupBy;
 import com.querydsl.core.types.ExpressionUtils;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.core.types.dsl.NumberExpression;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
@@ -157,5 +160,44 @@ public class MyUserQueryRepositoryImpl implements MyUserQueryRepository {
 								)
 						)
 				);
+	}
+	@Override
+	public MyUserVO getUserInfo(Long fakeUserId) {
+		QMyUser user = QMyUser.myUser;
+		QFollow follow = QFollow.follow;
+		QFollow follow2 = new QFollow("follow2");
+		QUserEmotion emotion = QUserEmotion.userEmotion;
+		return queryFactory
+			    .select(Projections.fields(MyUserVO.class,
+			            user.userId,
+			            user.nickname,
+			            user.username,
+			            user.profileImage,
+			            user.profileMessage,
+			            ExpressionUtils.as(
+			                JPAExpressions
+			                    .select(follow.followPk.follower.userId.countDistinct())
+			                    .from(follow)
+			                    .where(follow.followPk.followee.userId.eq(user.userId)),
+			                "followerCount"   
+			            ),
+			            ExpressionUtils.as(
+			                JPAExpressions
+			                    .select(follow2.followPk.followee.userId.countDistinct())
+			                    .from(follow2)
+			                    .where(follow2.followPk.follower.userId.eq(user.userId)),
+			                "followeeCount"  
+			            ),
+			            ExpressionUtils.as(
+			            		JPAExpressions
+			            			.select(emotion.userEmotionId.countDistinct())
+			            			.from(emotion)
+			            			.where(emotion.myUser.userId.eq(user.userId))
+			            			, "postCount")
+			        ))
+			        .from(user)
+			        .where(user.userId.eq(fakeUserId))
+			        .fetchOne();
+
 	}
 }

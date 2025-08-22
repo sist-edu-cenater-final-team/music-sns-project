@@ -15,15 +15,25 @@ body {
 /* 컨테이너 */
 .profile-container {
     margin: 40px auto;
-    width: 80%;
+    width: 90%;
     max-width: 935px;
     background: #fff;
     padding: 40px;
-    border: 0px;
     border-radius: 12px;
 }
 
+/* 상단 프로필 영역 */
+.profile-top {
+    display: flex;
+    flex-wrap: wrap; /* 화면 좁아지면 줄바꿈 */
+    gap: 20px;
+    align-items: center;
+}
+
 /* 프로필 이미지 */
+.profile-img-wrap {
+    flex: 0 0 auto; /* 이미지 고정 */
+}
 .profile-img {
     width: 150px;
     height: 150px;
@@ -32,9 +42,11 @@ body {
     border: 1px solid #dbdbdb;
 }
 
+/* 사용자 정보 */
 #user_info {
-	margin-left: 3%;
-
+    flex: 1 1 0; /* 남은 공간 채우기 */
+    min-width: 0;
+    word-break: break-word;
 }
 
 /* 이름 */
@@ -47,7 +59,8 @@ body {
 /* 통계 */
 .profile-stats {
     display: flex;
-    gap: 30px;
+    flex-wrap: wrap;
+    gap: 20px;
     margin-bottom: 12px;
 }
 .profile-stats span {
@@ -67,9 +80,15 @@ body {
     margin-top: 8px;
 }
 
-/* 버튼 */
+/* 버튼 그룹 */
+.profile-btns {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 20px 0;
+}
 .custom-btn {
-    flex: 1;
+    flex: 1 1 120px; /* 최소 120px, 화면 좁으면 밑으로 내려감 */
     height: 36px;
     border-radius: 8px;
     border: 1px solid #dbdbdb;
@@ -132,8 +151,22 @@ body {
 /* 게시물 그리드 */
 .post-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr); /* 컬럼 너비 200px 이상, 유연하게 채움 */
-    gap: 16px; /* 아이템 간 간격 */
+    grid-template-columns: repeat(3, 1fr); /* 최대 3열 고정 */
+    gap: 16px;
+    justify-content: center; /* 빈 공간 중앙 배치 */
+}
+
+/* 모바일 대응 */
+@media (max-width: 768px) {
+    .post-grid {
+        grid-template-columns: repeat(2, 1fr); /* 태블릿에서는 2열 */
+    }
+}
+
+@media (max-width: 480px) {
+    .post-grid {
+        grid-template-columns: 1fr; /* 모바일에서는 1열 */
+    }
 }
 
 /* 각 게시물 */
@@ -145,7 +178,7 @@ body {
     cursor:pointer;
 }
 
-/* 사진 없는 게시물 카드 스타일 */
+/* 사진 없는 게시물 카드 */
 .post-item.no-image {
     display: flex;
     align-items: center;
@@ -160,124 +193,142 @@ body {
     padding: 10px;
     cursor: default;
     transition: background 0.2s;
-    cursor:pointer;
 }
-
 .post-item.no-image:hover {
     background-color: #e0e0e0;
+}
+
+/* 반응형 */
+@media (max-width: 768px) {
+    .profile-container {
+        padding: 20px;
+    }
+    .profile-img {
+        width: 100px;
+        height: 100px;
+    }
+    .profile-container h2 {
+        font-size: 20px;
+    }
+    .custom-btn {
+        font-size: 12px;
+        min-width: 100px;
+    }
+    .post-item img, .post-item.no-image {
+        height: 150px;
+    }
+}
+
+@media (max-width: 480px) {
+    .profile-stats {
+        flex-direction: column;
+        gap: 10px;
+    }
+    .profile-btns {
+        flex-direction: column;
+    }
 }
 </style>
 
 <script type="text/javascript">
+$(function(){
+    const userId = '41';
+    getUserPost(userId);
+});
 
-	$(function(){
-		const userId = '41';
-		
-		getUserPost(userId);
-		
-	}); // enf od $(function(){}) -----------
+function getUserPost(userId) {
+    $.ajax({
+        url:"<%= ctxPath%>/api/userInfo/post",
+        data:{"userId":userId},
+        dataType:"json",
+        success:function(json){
+            let post = $('.post-list');
+            post.empty();
 
-	function getUserPost(userId) {
-	    $.ajax({
-	        url:"<%= ctxPath%>/api/userInfo/post",
-	        data:{"userId":userId},
-	        dataType:"json",
-	        success:function(json){
-	        	console.log(json);
-	            let post = $('.post-list');
-	            post.empty();
-	            
-	            if(json.length === 0) {
-	                post.html(
-	                    '<div class="empty-posts">' +
-	                        '<p class="mb-1">작성하신 게시물이 없습니다.</p>' +
-	                        '<a class="btn post" data-toggle="modal" data-target="#postModal">첫 게시물을 만들어보세요.</a>' +
-	                    '</div>'
-	                );
-	            } else {
-	                let html = '<div class="post-grid">';
-	                for(let i=0; i<json.length; i++){
-	                    let item = json[i];
-	                    let images = Array.isArray(item.postImageUrl) ? item.postImageUrl : [];
-	                    let firstImage = images[0];
-	                    let icon = ''
-	                    if(images == 0) {
-	                    	html += `<div class="post-item no-image">\${item.title} </div>`	
-	                    }
-	                    else{
-		                    html += `<div class="post-item">
-		                                <img src="\${firstImage}" alt="post image">
-		                            </div>`;
-	                    }
-	                }
-	                html += '</div>';
-	                
-	                post.html(html);
-	            }
-	        },
-	        error: function(request, status, error) {
-	            alert("code: " + request.status + "\nmessage: " + request.responseText + "\nerror: " + error);
-	        }
-	    });
-	}
+            if(json.length === 0) {
+                post.html(
+                    '<div class="empty-posts">' +
+                        '<p class="mb-1">작성하신 게시물이 없습니다.</p>' +
+                        '<a class="btn post" data-toggle="modal" data-target="#postModal">첫 게시물을 만들어보세요.</a>' +
+                    '</div>'
+                );
+            } else {
+                let html = '<div class="post-grid">';
+                json.forEach(item => {
+                    // postImageUrl이 배열이면 그대로, 문자열이면 배열로 변환
+                    let images = Array.isArray(item.postImageUrl) ? item.postImageUrl : (item.postImageUrl ? [item.postImageUrl] : []);
+                    if(images.length === 0) {
+                        html += `<div class="post-item no-image">\${item.title || ''}</div>`;
+                    } else {
+                        html += `<div class="post-item"><img src="\${images[0]}" alt="post image"></div>`;
+                    }
+                });
+                html += '</div>';
+                post.html(html);
+            }
+        },
+        error: function(request, status, error) {
+            alert("code: " + request.status + "\nmessage: " + request.responseText + "\nerror: " + error);
+        }
+    });
+}
 </script>
 
 <div id="wrap">
-	<main class="">
-		<%-- 왼쪽 사이드 네비게이션 & 관련 팝업들 --%>
+	<main>
 		<jsp:include page="../../include/common/asideNavigation.jsp" />
-		<%-- //왼쪽 사이드 네비게이션 & 관련 팝업들 --%>
 
 		<div class="main-contents">
 			<div class="inner">
 				<div class="col-10 p-4 profile-container">
 
-					<div class="d-flex align-items-center mb-4">
-						<img src="<%= ctxPath%>/images/common/userprofile/test.jpg"
-							class="rounded-circle mr-4 profile-img" alt="">
+					<!-- 상단 프로필 -->
+					<div class="profile-top mb-4">
+						<div class="profile-img-wrap">
+							<img src="<%= ctxPath%>/images/common/userprofile/test.jpg"
+								class="profile-img" alt="">
+						</div>
 
-						<div id = "user_info">
-							<h2 class="mb-3">leess</h2>
-							<div class="d-flex mb-3 mr-3 profile-stats">
+						<div id="user_info">
+							<h2 class="mb-3">${mvo.nickname}</h2>
+							<div class="profile-stats mb-3">
 								<div class="text-center mr-1">
-									<span class="mr-3" style="font-weight: 600; font-size: 14pt">게시물</span>
-									<a href="" class="text-dark text-center"> <strong
-										class="mr-2">300</strong>
-									</a>
+									<span style="font-weight: 600; font-size: 14pt">게시물</span>
+									<strong class="mr-2">${mvo.postCount}</strong>
 								</div>
 
 								<div class="mr-3 text-center">
-									<span class="mr-3" style="font-weight: 600; font-size: 14pt">팔로워</span>
-									<a href="<%= ctxPath%>/mypage/myFollowers"
-										class="text-dark text-center"> <strong class="mr-2">33.3만</strong>
+									<span style="font-weight: 600; font-size: 14pt">팔로워</span>
+									<a href="<%= ctxPath%>/mypage/myFollowers" class="text-dark text-center">
+										<strong class="mr-2">${mvo.followeeCount}</strong>
 									</a>
 								</div>
 
 								<div class="text-center">
-									<span class="mr-3" style="font-weight: 600; font-size: 14pt">팔로우</span>
-									<a href="<%= ctxPath%>/mypage/myFollowers"
-										class="text-dark text-center"> <strong class="mr-2">333</strong>
+									<span style="font-weight: 600; font-size: 14pt">팔로우</span>
+									<a href="<%= ctxPath%>/mypage/myFollowers" class="text-dark text-center">
+										<strong class="mr-2">${mvo.followerCount}</strong>
 									</a>
 								</div>
 							</div>
 
-							<div class="my-3">이순신</div>
-
-							<p class="mb-0 text-muted">자기소개 자기소개 자기소개 자기소개 자기소개 자기소개 자기소개
-								자기소개 자기소개 자기소개</p>
+							<div class="my-3">${mvo.username}</div>
+							<p class="mb-0 text-muted">${mvo.profileMessage}</p>
 						</div>
 					</div>
 
-					<div class="d-flex my-5">
-						<button class="btn flex-fill mx-2 custom-btn">프로필 편집</button>
-						<button class="btn flex-fill mx-2 custom-btn">위시리스트</button>
-						<button class="btn flex-fill mx-2 custom-btn" onclick="location.href='<%= ctxPath%>/cart/list'">장바구니</button>
+					<!-- 버튼 그룹 -->
+					<div class="profile-btns">
+						<button class="btn custom-btn" onclick="location.href='<%= ctxPath%>/mypage/updateInfo'">프로필 편집</button>
+						<button class="btn custom-btn">위시리스트</button>
+						<button class="btn custom-btn" onclick="location.href='<%= ctxPath%>/cart/list'">장바구니</button>
 
 						<div class="dropdown">
-							<button class="btn mx-2 custom-btn dropdown-toggle" type="button"
+							<button class="btn custom-btn dropdown-toggle" type="button"
 								id="dropdownMenuButton" data-toggle="dropdown"
-								aria-haspopup="true" aria-expanded="false"
-								style="width: 50px; padding: 0 10px;">...</button>
+								aria-haspopup="true" aria-expanded="false">
+								...
+							</button>
 							<div class="dropdown-menu dropdown-menu-right shadow-sm"
 								aria-labelledby="dropdownMenuButton"
 								style="min-width: 150px; border-radius: 10px;">
@@ -289,16 +340,16 @@ body {
 						</div>
 					</div>
 
-					<!-- 게시물 없음 영역 -->
+					<!-- 게시물 영역 -->
 					<div class="post-list"></div>
 					
 				</div>
 			</div>
 		</div>
 
-		<%-- 오늘의 감정 플레이리스트 --%>
+		
+
 		<jsp:include page="../../include/common/asidePlayList.jsp" />
-		<%-- //오늘의 감정 플레이리스트 --%>
 	</main>
 </div>
 </body>

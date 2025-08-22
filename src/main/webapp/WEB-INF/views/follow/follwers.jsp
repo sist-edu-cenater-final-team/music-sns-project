@@ -360,7 +360,7 @@ button#clearBtn {
 	    	        	a_html = `
 	    	        		   <div style="display:flex; align-items:center; gap: 10px; margin-top: 10px;">
 	    	        		       <button type="button" style="background-color: #9966FF; border-radius: 8px; height:40px; margin: auto 0; color:white; width:200px;" 
-	    	        		               id="${user.userId}" onclick="gofollow('${user.userId}')">맞팔로우 하기</button>
+	    	        		               id="${user.userId}" onclick="gofollow('\${user.userId}')">맞팔로우 하기 </button>
 
 	    	        		       <div class="dropdown" style="position: relative;">
 	    	        		           <button class="btn menu-btn">...</button>

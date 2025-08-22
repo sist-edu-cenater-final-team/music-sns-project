@@ -3,6 +3,7 @@ package com.github.musicsnsproject.repository.jpa.account.user;
 
 import com.github.musicsnsproject.common.security.userdetails.CustomUserDetails;
 import com.github.musicsnsproject.domain.PostVO;
+import com.github.musicsnsproject.domain.user.MyUserVO;
 import com.github.musicsnsproject.repository.jpa.account.socialid.SocialIdPk;
 
 import java.util.List;
@@ -17,6 +18,7 @@ public interface MyUserQueryRepository {
     void updateFailureCountByEmail(CustomUserDetails failUser);
 
 	List<PostVO> getUserPost(Long userId);
-
+	// 유저 인포
+	MyUserVO getUserInfo(Long fakeUserId);
 //    Optional<CustomUserDetails> findBySocialIdPkOrUserEmailForAuth(SocialIdPk socialIdPk, String email);
 }

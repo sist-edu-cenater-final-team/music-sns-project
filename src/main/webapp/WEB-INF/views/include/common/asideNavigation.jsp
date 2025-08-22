@@ -1,9 +1,34 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <% String ctxPath= request.getContextPath(); %>
-
-
+<%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<link rel="stylesheet" href="<%=ctxPath%>/css/profile.css" />
 <link rel="stylesheet" href="<%=ctxPath%>/css/music/search/search.css" />
 <script type="text/javascript" src="<%=ctxPath%>/js/music/search/search.js"></script>
+
+<script type="text/javascript">
+	$(function(){
+		const userId = '41';
+		getInfo(userId);
+		
+		
+		
+	}); // end of $(function(){}) -----
+
+	function getInfo(userId) {
+		$.ajax({
+			url:"<%= ctxPath%>/api/userInfo/getInfo/"+userId,
+			dataType:"json",
+			success:function(json){
+				console.log(json);
+			},
+			error: function(request, status, error) {
+	            alert("code: " + request.status + "\nmessage: " + request.responseText + "\nerror: " + error);
+	        }
+		});
+	}
+
+</script>
+
 <!-- 왼쪽 네비게이션 사이드바 -->
 <div class="aside-navigation sidebar">
     <div class="inner">
@@ -22,7 +47,7 @@
                 <button type="button" class="btn noti"  data-target="notiLayer">알림</button>
             </li>
             <li>
-                <button type="button" class="btn profile" onclick="location.href='<%= ctxPath%>/mypage/myinfo'">프로필</button>
+                <button type="button" class="btn profile" data-target="profileLayer" >프로필</button>
             </li>
             <li>
                 <button type="button" class="btn setting">설정</button>
@@ -58,6 +83,74 @@
     <div class="inner">
         알림 스으윽
     </div>
+</div>
+
+
+
+<div id="profileLayer" class="aside-navigation-layer sidebar">
+  <div class="inner" style="background-color: #F2F0FF;">
+  
+    <div class="text-center" style="font-weight:bold; font-size: 16pt;">leess</div>
+    <div class="text-center" style="font-size: 12pt; margin-top: 10px;">거북선 사랑</div>
+    <div>
+      <img src="<%= ctxPath%>/images/common/userprofile/test.jpg"
+           class="rounded-circle mr-4 profile-img" style="width: 128px; height: 128px; margin: 10px 85px; cursor:pointer;"
+            onclick="location.href='<%= ctxPath%>/mypage/myinfo'" />
+           
+    </div>
+
+    <div class="flex stats">
+      
+      <div>
+        <div class="font-bold number-color">300</div>
+        <div class="label-text">게시물</div>
+      </div>
+      
+      <div>
+        <div class="font-bold number-color" style="cursor:pointer;" onclick="location.href = '<%= ctxPath%>/mypage/myFollowers'">33.3만</div>
+        <div class="label-text">팔로워</div>
+      </div>
+      
+      <div>
+        <div class="font-bold number-color" style="cursor:pointer;" onclick="location.href = '<%= ctxPath%>/mypage/myFollowers'">333</div>
+        <div class="label-text">팔로우</div>
+      </div>
+    </div>
+	
+  </div>
+
+  	<div class="inner">
+  		<div class="font-bold" style="display:flex; justify-content: space-between;">
+  		<span>leess님의 프로필 음악</span> 
+  		<button style="margin-right: 3px;">⋮</button>
+  		</div>
+  		<div class="playlist-section">
+
+		  <ul class="playlist-list mt-3">
+		    <%-- <c:forEach var="song" items="${songs}" varStatus="status" begin="0" end="9"> --%>
+		      <li class="playlist-item">
+		      	<img src="<%= ctxPath%>/images/common/userprofile/test.jpg" style="width: 40px; height: 40px; margin-right: 10px;"/>
+				
+				<!-- 여기 foreach문 돌릴거임  -->
+		        <div class="song-title">
+			        <strong>Golden</strong>
+			        <div class="song-artist">
+			        	<div class="scrolling-wrapper scrolling">
+					        <span>HUNTR/X,EJAE,AUDREY NUNA</span>
+					        <span>HUNTR/X, EJAE, AUDREY NUNA</span>
+					     </div>
+			        </div>
+		        </div>
+		        
+		        <div class="song-button">
+		          <button>x</button>
+		        </div>
+		      </li>
+		   
+		  </ul>
+		</div>
+  	</div>
+	
 </div>
 <!-- //클릭했을 때 나오는 스으윽 팝업 -->
 
