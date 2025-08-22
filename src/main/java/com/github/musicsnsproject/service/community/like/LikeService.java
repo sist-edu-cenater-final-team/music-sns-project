@@ -39,13 +39,4 @@ public class LikeService {
         
     }
 
-    public Long countLikeBy(Long postId) {
-
-        Long n = 0L;
-
-        n = likeRepository.countLikeBy(postId);
-
-        return n;
-
-    }
 }

@@ -29,10 +29,8 @@ public class LikeRestController {
 
         boolean isExist = likeService.isLiked(postId, testUserId);
 
-        Long n = likeService.countLikeBy(postId);
 
         Map<String, Object> paraMap = new HashMap<>();
-        paraMap.put("n", n);
         paraMap.put("isExist", isExist);
 
         return paraMap;

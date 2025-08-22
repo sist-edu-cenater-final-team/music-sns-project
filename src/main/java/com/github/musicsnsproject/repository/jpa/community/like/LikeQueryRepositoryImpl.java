@@ -8,13 +8,5 @@ import lombok.RequiredArgsConstructor;
 public class LikeQueryRepositoryImpl implements LikeQueryRepository{
     private final JPAQueryFactory queryFactory;
 
-    @Override
-    public Long countLikeBy(Long postId) {
 
-        Long n = queryFactory.select(Wildcard.count)
-                .from(QLike.like)
-                .where(QLike.like.likePk.post.postId.eq(postId))
-                .fetchOne();
-        return n;
-    }
 }
