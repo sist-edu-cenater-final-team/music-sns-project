@@ -12,6 +12,7 @@ import com.github.musicsnsproject.repository.spotify.wrapper.track.TrackBase;
 import com.github.musicsnsproject.repository.spotify.wrapper.track.TrackSimplifiedWrapper;
 import com.github.musicsnsproject.repository.spotify.wrapper.track.TrackWrapper;
 import com.github.musicsnsproject.web.dto.music.spotify.album.SimplifiedAlbum;
+import com.github.musicsnsproject.web.dto.music.spotify.search.RecommendSearch;
 import com.github.musicsnsproject.web.dto.music.spotify.track.SimplifiedTrack;
 import com.github.musicsnsproject.web.dto.music.spotify.album.AlbumResponse;
 import com.github.musicsnsproject.web.dto.music.spotify.artist.ArtistResponse;
@@ -26,8 +27,10 @@ import se.michaelthelin.spotify.model_objects.specification.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
+import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
@@ -181,6 +184,7 @@ public class SpotifyMusicService {
                 .trackId(track.getId())
                 .trackName(track.getName())
                 .duration(duration)
+                .durationMs(track.getDurationMs())
                 .trackSpotifyUrl(track.getExternalUrls().get("spotify"))
                 .trackNumber(track.getTrackNumber())
                 .trackType(track.getType().name())
@@ -209,6 +213,59 @@ public class SpotifyMusicService {
     public TrackResponseV1 getTrackResponseById(String trackId) {
         Track track = spotifyDao.findTrackById(trackId);
         return convertToTrackResponseV1(track);
+    }
+
+
+    private void artistArrToRecommendArtistList(ArtistSimplified[] artistArr, List<RecommendSearch.RecommendArtist> response){
+        for (ArtistSimplified artist : artistArr) {
+            RecommendSearch.RecommendArtist recommendArtist = RecommendSearch.RecommendArtist.of(
+                    artist.getId(),
+                    artist.getName()
+            );
+            response.add(recommendArtist);
+        }
+    }
+    private <T> List<T> getRandomElements(List<T> list, int count) {
+        if (list.size() <= count) {
+            return new ArrayList<>(list);
+        }
+        List<T> shuffled = new ArrayList<>(list);
+        Collections.shuffle(shuffled);
+        return shuffled.subList(0, count);
+    }
+
+    private void trackAddRecommendSong(Track track, List<String> trackNames, List<RecommendSearch.RecommendSong> recommendSongs){
+        trackNames.add(track.getName());
+        List<RecommendSearch.RecommendArtist> artists = new ArrayList<>();
+        artistArrToRecommendArtistList(track.getArtists(), artists);
+        RecommendSearch.RecommendSong recommendSong = RecommendSearch.RecommendSong.of(
+                track.getExternalUrls().get("spotify"),
+                track.getName(),
+                artists,
+                track.getAlbum().getId(),
+                track.getAlbum().getImages() != null && track.getAlbum().getImages().length > 0 ?
+                        track.getAlbum().getImages()[0].getUrl() : null
+        );
+        recommendSongs.add(recommendSong);
+    }
+    public RecommendSearch getRecommendSearchValue(){
+        Playlist test = spotifyDao.findMelonTop100();
+        List<String> trackNames = new ArrayList<>();
+        List<RecommendSearch.RecommendSong> recommendSongs = new ArrayList<>();
+        for(PlaylistTrack playlistTrack : test.getTracks().getItems()){
+            Track track = (Track) playlistTrack.getTrack();
+            trackAddRecommendSong(track, trackNames, recommendSongs);
+        }
+        int topSize = Math.min(4, trackNames.size());
+        List<String> top4TrackNames = new ArrayList<>(trackNames.subList(0, topSize));
+        trackNames.subList(0, topSize).clear();
+        int subSize = Math.min(6, trackNames.size());
+        List<String> subTrackNames = getRandomElements(trackNames.subList(0, subSize), subSize);
+
+        List<String> trackNameRes = Stream.concat(top4TrackNames.stream(), subTrackNames.stream()).toList();
+        List<RecommendSearch.RecommendSong> artistRes = getRandomElements(recommendSongs, 10);
+
+        return RecommendSearch.of(trackNameRes, artistRes);
     }
 }
 

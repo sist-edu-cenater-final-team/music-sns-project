@@ -122,6 +122,25 @@ button#clearBtn {
 .user-actions {
 	margin-left: auto;
 }
+
+
+.dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  display: none;
+  background: white;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  min-width: 150px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  z-index: 100;
+}
 </style>
 
 <script type="text/javascript">
@@ -199,14 +218,12 @@ button#clearBtn {
 	    });
 	
 	    // 메뉴 버튼 클릭 이벤트
-	    $(document).on("click", ".menu-btn", function(e) {
-	        e.stopPropagation();
-	        const userId = $(this).data("id");
-	        const menu = $(`#menu_${userId}`);
-	
-	        $(".dropdown-menu").not(menu).hide(); // 다른 메뉴 닫기
-	        menu.toggle(); // 현재 메뉴 토글
-	    });
+	  $(document).on("click", ".menu-btn", function(e) {
+	    e.stopPropagation();
+	    const dropdownMenu = $(this).siblings(".dropdown-menu");
+	    $(".dropdown-menu").not(dropdownMenu).hide(); // 다른 건 닫기
+	    dropdownMenu.toggle();
+	})
 	
 	    // 화면 아무데나 클릭 시 메뉴 닫기
 	    $(document).on("click", function() {
@@ -283,8 +300,7 @@ button#clearBtn {
 	    	                          data-id="${user.userId}"
 	    	                          style="width: 30px; height: 30px; cursor: pointer;" /> --%>
 	    	                     <button class ="btn menu-btn">...</button>
-	    	                     <div class="dropdown-menu" id="menu_${user.userId}" 
-	    	                          style="display:none; position:absolute; top:100%; right:0; background:white; border:1px solid #ccc; border-radius:6px; min-width:150px; box-shadow: 0 2px 6px rgba(0,0,0,0.2); z-index:100;">
+	    	                     <div class="dropdown-menu" id="menu_${user.userId}" style="display:none; position:absolute;">
 	    	                         <div class="dropdown-item" style="padding:8px; cursor:pointer;" onclick="addFavorite('\${user.userId}')">즐겨찾기 추가</div>
 	    	                         <div class="dropdown-item" style="padding:8px; cursor:pointer;" onclick="unfollow('\${user.userId}')">팔로우 취소</div>
 	    	                     </div>
@@ -333,29 +349,68 @@ button#clearBtn {
 	    		
 	    		
 	    		json.forEach(item => {
+	    			
+	    			
 	    	        const user = item.user;
 	    			
+	    	        
 	    	        let a_html = ``;
 	    	        
 	    	        if (!item.teist) {
-	                    a_html = `<button type="button" style="background-color: #9966FF; border-radius: 8px; height:40px; margin: auto 0; color:white; width:200px;" 
-	                                    id="${user.userId}" onclick="gofollow('\${user.userId}')">맞팔로우 하기</button>`;
+	    	        	a_html = `
+	    	        		   <div style="display:flex; align-items:center; gap: 10px; margin-top: 10px;">
+	    	        		       <button type="button" style="background-color: #9966FF; border-radius: 8px; height:40px; margin: auto 0; color:white; width:200px;" 
+	    	        		               id="${user.userId}" onclick="gofollow('\${user.userId}')">맞팔로우 하기 </button>
+
+	    	        		       <div class="dropdown" style="position: relative;">
+	    	        		           <button class="btn menu-btn">...</button>
+	    	        		           <div class="dropdown-menu" id="menu_${user.userId}">
+	    	        		               <div class="dropdown-item" style="padding:8px; cursor:pointer;" onclick="">뭐가</div>
+	    	        		               <div class="dropdown-item" style="padding:8px; cursor:pointer;" onclick="">좋을까</div>
+	    	        		           </div>
+	    	        		       </div>
+	    	        		   </div>
+	    	        		`;
+	                                    
 	                } else {
-	                    a_html = `<button type="button" style="background-color: #6633FF; border-radius: 8px; height:40px; margin: auto 0; color:white; width:200px;" 
-	                                    id="${user.userId}" onclick="">메세지 보내기</button>`;
+	                    a_html = `<div style="display:flex; align-items:center; gap: 10px; margin-top: 10px;">
+	                    			<button type="button" style="background-color: #6633FF; border-radius: 8px; height:40px; margin: auto 0; color:white; width:200px;" 
+	                                    id="${user.userId}" onclick="">메세지 보내기</button>
+	                                    
+	                                   
+	       	    	                 <div class="dropdown" style="position: relative;">
+	       	    	                     <%-- <img src="<%= ctxPath%>/images/common/icon/menu.png" 
+	       	    	                          class="menu-btn" 
+	       	    	                          data-id="${user.userId}"
+	       	    	                          style="width: 30px; height: 30px; cursor: pointer;" /> --%>
+	       	    	                     <button class ="btn menu-btn">...</button>
+	       	    	                     <div class="dropdown-menu" id="menu_${user.userId}">
+	       	    	                         <div class="dropdown-item" style="padding:8px; cursor:pointer;" onclick="addFavorite('\${user.userId}')">즐겨찾기 추가</div>
+	       	    	                         <div class="dropdown-item" style="padding:8px; cursor:pointer;" onclick="unfollow('\${user.userId}')">팔로우 취소</div>
+	       	    	                     </div>
+	       	    	                 </div>
+	       	    	              </div>
+	       	    	               `;
 	                }
 
-	    	        const v_html = `
-	    	        <div class="followInfo row">
-	    	            <div style="display:flex; align-items:center; ">
-	    		            <span class="">
-	    		            	<img style="width: 100px; height: 100px; object-fit: cover; border: 2px solid #ddd;" 
-	    		            			class="rounded-circle mr-4 profile-img" src="\${user.profile_image}"/>
-	    		            </span>
-	    		            <span>
-	    		            	<div>\${user.email}</div>
-	    		            	<div>\${user.nickname}</div>
-	    		            	<div>\${user.profileMessage}</div>
+	    	        let v_html = `
+	    	        	<div class="followInfo row">
+	    	        	    <div style="display:flex; align-items:center;">
+	    	        	        <span>
+	    	        	            <img style="width: 100px; height: 100px; object-fit: cover; border: 2px solid #ddd;" 
+	    	        	                 class="rounded-circle mr-4 profile-img" src="<%= ctxPath%>/images/common/userprofile/test.jpg"/>
+	    	        	        </span>
+	    	        	        <span>
+	    	        	            <div>\${user.email}</div>
+	    	        	            <div>\${user.nickname}</div>`;
+
+	    	        	if(user.profileMessage == null || user.profileMessage.trim() === "") {
+	    	        	    v_html += `<div>gggggggggggggg</div>`;
+	    	        	} else {
+	    	        	    v_html += `<div>${user.profileMessage}</div>`;
+	    	        	}
+
+	    	        	 v_html += `
 	    		            </span>
 	    	            </div>
 	    				

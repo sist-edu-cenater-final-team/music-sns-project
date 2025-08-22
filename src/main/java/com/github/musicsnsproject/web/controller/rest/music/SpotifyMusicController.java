@@ -5,6 +5,7 @@ import com.github.musicsnsproject.service.music.SpotifyMusicService;
 import com.github.musicsnsproject.web.dto.music.spotify.album.SimplifiedAlbum;
 import com.github.musicsnsproject.web.dto.music.spotify.album.AlbumResponse;
 import com.github.musicsnsproject.web.dto.music.spotify.artist.ArtistResponse;
+import com.github.musicsnsproject.web.dto.music.spotify.search.RecommendSearch;
 import com.github.musicsnsproject.web.dto.music.spotify.track.TrackResponse;
 import com.github.musicsnsproject.web.dto.music.spotify.track.TrackResponseV1;
 import com.github.musicsnsproject.web.dto.pageable.ScrollResponse;
@@ -53,5 +54,10 @@ public class SpotifyMusicController {
         return CustomSuccessResponse.ofOk("Spotify 아티스트 앨범 조회 성공", artistAlbums);
     }
 
+    @GetMapping("/side-bar")
+    public CustomSuccessResponse<RecommendSearch> recommendValueForSideBar() {
+     RecommendSearch response = spotifyMusicService.getRecommendSearchValue();
+     return CustomSuccessResponse.ofOk("Spotify 사이드바 추천 검색어 조회 성공", response);
+    }
 
 }

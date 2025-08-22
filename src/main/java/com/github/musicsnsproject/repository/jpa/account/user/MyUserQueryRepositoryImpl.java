@@ -2,15 +2,22 @@ package com.github.musicsnsproject.repository.jpa.account.user;
 
 import com.github.musicsnsproject.common.exceptions.CustomBadRequestException;
 import com.github.musicsnsproject.common.security.userdetails.CustomUserDetails;
+import com.github.musicsnsproject.domain.PostVO;
+import com.github.musicsnsproject.domain.user.MyUserVO;
+import com.github.musicsnsproject.repository.jpa.account.follow.QFollow;
 import com.github.musicsnsproject.repository.jpa.account.history.login.QLoginHistory;
 import com.github.musicsnsproject.repository.jpa.account.role.QRole;
 import com.github.musicsnsproject.repository.jpa.account.role.Role;
 import com.github.musicsnsproject.repository.jpa.account.socialid.QSocialId;
 import com.github.musicsnsproject.repository.jpa.account.socialid.SocialIdPk;
+import com.github.musicsnsproject.repository.jpa.community.post.QPost;
+import com.github.musicsnsproject.repository.jpa.community.post.QPostImage;
+import com.github.musicsnsproject.repository.jpa.emotion.QUserEmotion;
 import com.querydsl.core.group.GroupBy;
 import com.querydsl.core.types.ExpressionUtils;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.core.types.dsl.NumberExpression;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
@@ -122,4 +129,75 @@ public class MyUserQueryRepositoryImpl implements MyUserQueryRepository {
                                         user.getSocialIds().stream().anyMatch(id -> id.getSocialIdPk().equals(socialIdPk)))
                                 .findFirst().orElse(null);
     }
+
+    
+    
+	@Override
+	public List<PostVO> getUserPost(Long userId) {
+		QPost post = QPost.post;
+		QUserEmotion emotion = QUserEmotion.userEmotion;
+		QPostImage image = QPostImage.postImage;
+		
+		return 	queryFactory.select(
+					emotion.myUser.userId,
+					post.postId,
+					image.postImageUrl,
+					post.title
+				)
+				.from(post)
+				.join(emotion)
+				.on(post.userEmotion.userEmotionId.eq(emotion.userEmotionId))
+				.leftJoin(image)
+				.on(image.post.postId.eq(post.postId))
+				.where(emotion.myUser.userId.eq(userId))
+				.transform(
+						GroupBy.groupBy(post.postId)
+						.list(Projections.fields(PostVO.class, 
+								emotion.myUser.userId,
+								post.postId,
+								post.title,
+								GroupBy.list(image.postImageUrl).as("postImageUrl")
+								)
+						)
+				);
+	}
+	@Override
+	public MyUserVO getUserInfo(Long fakeUserId) {
+		QMyUser user = QMyUser.myUser;
+		QFollow follow = QFollow.follow;
+		QFollow follow2 = new QFollow("follow2");
+		QUserEmotion emotion = QUserEmotion.userEmotion;
+		return queryFactory
+			    .select(Projections.fields(MyUserVO.class,
+			            user.userId,
+			            user.nickname,
+			            user.username,
+			            user.profileImage,
+			            user.profileMessage,
+			            ExpressionUtils.as(
+			                JPAExpressions
+			                    .select(follow.followPk.follower.userId.countDistinct())
+			                    .from(follow)
+			                    .where(follow.followPk.followee.userId.eq(user.userId)),
+			                "followerCount"   
+			            ),
+			            ExpressionUtils.as(
+			                JPAExpressions
+			                    .select(follow2.followPk.followee.userId.countDistinct())
+			                    .from(follow2)
+			                    .where(follow2.followPk.follower.userId.eq(user.userId)),
+			                "followeeCount"  
+			            ),
+			            ExpressionUtils.as(
+			            		JPAExpressions
+			            			.select(emotion.userEmotionId.countDistinct())
+			            			.from(emotion)
+			            			.where(emotion.myUser.userId.eq(user.userId))
+			            			, "postCount")
+			        ))
+			        .from(user)
+			        .where(user.userId.eq(fakeUserId))
+			        .fetchOne();
+
+	}
 }

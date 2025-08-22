@@ -119,3 +119,42 @@
     color: #fff;
     margin-left: 12px;
 }
+
+#musicOrder .btn-order {
+    display: block;
+    font-size: 18px;
+    padding: 13px 60px;
+    margin: 40px auto;
+}
+
+#musicOrder #orderCartFoot td {
+    padding: 20px 0.75rem;
+    font-size: 18px;
+    font-weight: 500;
+    color: #000;
+}
+#musicOrder #orderCartFoot #orderTotalPrice {
+    color: #6633FF;
+    font-weight: bold;
+}
+
+#orderComplete .main-contents {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+#orderComplete .btn-form {
+    display: flex;
+    align-items: center;
+    margin-top: 40px;
+}
+#orderComplete .btn-form .btn {
+    padding: 14px 24px;
+    font-size: 16px;
+}
+#orderComplete .btn-form .btn-main {
+    border: 1px solid #6633FF;
+    color: #6633FF;
+}

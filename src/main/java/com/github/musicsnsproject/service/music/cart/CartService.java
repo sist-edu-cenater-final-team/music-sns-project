@@ -14,7 +14,4 @@ public interface CartService {
 
     // 장바구니 삭제하기
     void deleteCart(Long userId, List<Long> cartIdList);
-
-    // 주문하기
-    List<CartResponse> getCartOrderList(Long userId, List<Long> cartIdList);
 }

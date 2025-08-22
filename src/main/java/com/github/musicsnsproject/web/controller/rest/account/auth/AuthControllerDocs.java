@@ -8,7 +8,9 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.RequestBody;
 
 @Tag(name = "Auth", description = "회원 인증 관련 API")
@@ -182,7 +184,7 @@ public interface AuthControllerDocs {
                                       }
                                     }"""))
     )
-    CustomSuccessResponse<TokenDto> login(@RequestBody LoginRequest loginRequest);
+    ResponseEntity<CustomSuccessResponse<TokenDto>> login(@RequestBody LoginRequest loginRequest);
 
 
     @Operation(summary = "토큰 재발급", description = "리프레시 토큰을 이용해 새로운 액세스 토큰을 발급")
@@ -207,6 +209,6 @@ public interface AuthControllerDocs {
                                     }""")
             )
     )
-    CustomSuccessResponse<TokenDto> regenerateToken(@RequestBody TokenDto tokenDto);
+    ResponseEntity<CustomSuccessResponse<TokenDto>> regenerateToken(String authHeader, String refreshToken);
 
 }

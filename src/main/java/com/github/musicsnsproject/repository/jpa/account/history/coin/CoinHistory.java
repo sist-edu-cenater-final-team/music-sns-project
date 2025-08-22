@@ -24,6 +24,8 @@ public class CoinHistory {
 
     private long atThatPrice;
 
+    private long atThatUserCoin;
+
     @Column(nullable = false)
     private LocalDateTime createdAt;
 }

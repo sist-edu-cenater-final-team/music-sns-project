@@ -26,8 +26,9 @@ public class FollowVO {
         this.teist = teist;
     }
     
-    public FollowVO(Long teistCount, MyUserVO user) {
+    public FollowVO(Long teistCount, Long followee, MyUserVO user) {
         this.teistCount = teistCount;
+        this.followee = followee;
         this.user = user;
     }
     

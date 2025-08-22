@@ -5,6 +5,7 @@
 <link rel="stylesheet" href="${pageContext.request.contextPath}/css/mypage.css" />
 <body>
 <div id="wrap">
+    ${userId}
     <main id="musicCart" class="cart-container">
         <%-- 왼쪽 사이드 네비게이션 & 관련 팝업들 --%>
         <jsp:include page="../include/common/asideNavigation.jsp" />
@@ -23,6 +24,10 @@
                         <button type="button" class="btn btn-order">주문하기</button>
                     </div>
                     <div class="music-check-info">
+                        <div>
+                            <p class="title">담겨있는 곡 수 : </p>
+                            <p class="text"><span id="musicCartCount">0</span>곡</p>
+                        </div>
                         <div>
                             <p class="title">선택 곡 수 : </p>
                             <p class="text"><span id="musicCount">0</span>곡</p>
@@ -58,7 +63,7 @@
         <!-- //메인 컨텐츠 -->
 
         <%-- 오늘의 감정 플레이리스트 --%>
-        <jsp:include page="../include/common/asidePlayList.jsp" />
+<%--        <jsp:include page="../include/common/asidePlayList.jsp" />--%>
         <%-- //오늘의 감정 플레이리스트 --%>
     </main>
 </div>
