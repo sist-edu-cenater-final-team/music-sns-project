@@ -14,6 +14,7 @@ import se.michaelthelin.spotify.requests.data.AbstractDataRequest;
 import se.michaelthelin.spotify.requests.data.albums.GetAlbumRequest;
 import se.michaelthelin.spotify.requests.data.artists.GetArtistRequest;
 import se.michaelthelin.spotify.requests.data.artists.GetArtistsAlbumsRequest;
+import se.michaelthelin.spotify.requests.data.playlists.GetPlaylistRequest;
 import se.michaelthelin.spotify.requests.data.search.simplified.SearchTracksRequest;
 import se.michaelthelin.spotify.requests.data.tracks.GetTrackRequest;
 import se.michaelthelin.spotify.exceptions.detailed.NotFoundException;
@@ -95,5 +96,12 @@ public class SpotifyDao {
                 .build();
         return requestExecute(request);
 
+    }
+
+    public Playlist findMelonTop100() {
+        GetPlaylistRequest request = spotifyApi.getPlaylist("4cRo44TavIHN54w46OqRVc")
+                .setHeader("Accept-Language", "ko-KR,ko;q=0.9")
+                .build();
+        return requestExecute(request);
     }
 }

@@ -8,7 +8,6 @@ import com.github.musicsnsproject.common.exceptions.CustomServerException;
 import com.github.musicsnsproject.common.myenum.RoleEnum;
 import com.github.musicsnsproject.common.security.userdetails.CustomUserDetails;
 import com.github.musicsnsproject.config.security.JwtProvider;
-import com.github.musicsnsproject.repository.jpa.account.role.Role;
 import com.github.musicsnsproject.repository.jpa.account.user.MyUser;
 import com.github.musicsnsproject.repository.jpa.account.user.MyUserRepository;
 import com.github.musicsnsproject.web.dto.account.auth.request.LoginRequest;
@@ -16,6 +15,7 @@ import com.github.musicsnsproject.web.dto.account.auth.request.SignUpRequest;
 import com.github.musicsnsproject.web.dto.account.auth.response.TokenDto;
 import io.jsonwebtoken.ExpiredJwtException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.data.redis.RedisConnectionFailureException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -27,11 +27,11 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.DateTimeException;
 import java.time.Duration;
 import java.util.NoSuchElementException;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Log4j2
 public class SignUpLoginService {
 
     private final MyUserRepository myUsersRepository;
@@ -107,5 +107,20 @@ public class SignUpLoginService {
     public void errorTest() {
         MyUser user = myUsersRepository.findByEmail("abc@abc.com").orElseThrow();
         myUsersRepository.delete(user);
+    }
+
+    public void logoutInvalidationToken(String accessToken) {
+        try{
+            jwtProvider.deleteRefreshToken(accessToken);
+            jwtProvider.blackListAccessToken(accessToken);
+        }catch (RedisConnectionFailureException e){
+            throw CustomServerException.of()
+                    .systemMessage(e.getMessage()+"   "+e.getCause().getMessage())
+                    .customMessage("Redis 서버 연결 실패")
+                    .build();
+        } catch (Exception e){
+            log.error(e.getMessage(), e);
+        }
+
     }
 }

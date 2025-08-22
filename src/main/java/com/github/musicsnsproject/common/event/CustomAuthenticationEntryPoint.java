@@ -3,6 +3,7 @@ package com.github.musicsnsproject.common.event;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.github.musicsnsproject.common.exceptions.CustomNotAcceptException;
 import com.github.musicsnsproject.web.dto.response.CustomErrorResponse;
 import com.github.musicsnsproject.web.filters.JwtFilter;
 import com.nimbusds.jose.util.StandardCharset;
@@ -28,7 +29,8 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
             IllegalArgumentException.class, "올바르지 않은 토큰",
             ExpiredJwtException.class, "만료된 토큰",
             SignatureException.class, "잘못된 서명의 토큰",
-            NullPointerException.class, "잘못된 서명의 토큰" // NPE는 서명 검증 과정에서 발생 가능
+            NullPointerException.class, "잘못된 서명의 토큰", // NPE는 서명 검증 과정에서 발생 가능
+            CustomNotAcceptException.class, "로그아웃 후 무효화 된 토큰"
     );
     private static final String DEFAULT_ERROR_MESSAGE = "토큰 정보 없음";
 

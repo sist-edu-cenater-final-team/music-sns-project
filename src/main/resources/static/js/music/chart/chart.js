@@ -1,3 +1,8 @@
+// token.js에서 함수들 가져오기
+const authHeader = AuthFunc.getAuthHeader();//즉시호출
+const apiRequest = AuthFunc.apiRequest;//함수참조
+
+
 (function () {
     const signature = {
         melon: {name: 'MELON', colorClass: 'border-melon', pillClass: 'source-melon'},
@@ -45,8 +50,16 @@
     function fetchChart(source) {
         // Build endpoint. user said: axios로 /api/music/genie/chart get요청
         // We'll assume pattern /api/music/{source}/chart
-        const endpoint = `/api/music/${source}/chart`;
-        return axios.get(endpoint, {timeout: 10000}).then(r => r.data);
+        const endpoint = `${ctxPath}/api/music/${source}/chart`;
+
+        // apiRequest로 감싸서 자동 재시도 적용
+
+        return apiRequest(() =>
+            axios.get(endpoint, {
+                timeout: 10000,
+                headers: authHeader
+            }).then(r => r.data)
+        );
     }
     // 타임스탬프를 한국어 날짜 형식으로 변환하는 함수
     function formatKoreanDateTime(timestamp) {
@@ -112,7 +125,6 @@
             // meta
             const meta = document.createElement('div');
             meta.className = 'meta';
-            console.log(ctxPath)
             meta.innerHTML = `
                 <a class="title" href="${ctxPath}/music/search?searchType=all&keyword=${escapeHtml(item.title)}">
                     ${escapeHtml(item.title)}

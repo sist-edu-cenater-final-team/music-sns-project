@@ -52,6 +52,20 @@
             </div>
             <button type="submit" class="search-btn">검색</button>
         </form>
+        <!-- 추천 섹션 -->
+        <div class="side-recommend-section">
+            <!-- 인기 검색어 -->
+            <div class="side-popular-keywords">
+                <h4 class="side-section-title">인기 검색어</h4>
+                <div id="keywordList" class="side-keyword-list"></div>
+            </div>
+
+            <!-- 추천 곡 -->
+            <div class="side-recommend-tracks">
+                <h4 class="side-section-title">추천 곡</h4>
+                <div id="trackList" class="side-track-list"></div>
+            </div>
+        </div>
     </div>
 </div>
 <div id="notiLayer" class="aside-navigation-layer sidebar">
