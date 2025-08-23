@@ -76,9 +76,10 @@ public class AuthController implements AuthControllerDocs {
                                                            @CookieValue(value = "RefreshToken") String refreshToken){
         String accessToken = authHeader.replace("Bearer ", "");
         TokenDto tokenDto = TokenDto.builder().accessToken(accessToken).refreshToken(refreshToken).build();
+        TokenDto responseToken = signUpLoginService.refreshTokenByTokenDto(tokenDto);
         CustomSuccessResponse<TokenDto> response = CustomSuccessResponse
-                .ofOk("토큰 재발급", signUpLoginService.refreshTokenByTokenDto(tokenDto));
-        ResponseCookie cookie = createRefreshTokenCookie(refreshToken);
+                .ofOk("토큰 재발급", responseToken);
+        ResponseCookie cookie = createRefreshTokenCookie(responseToken.getRefreshToken());
         return ResponseEntity.status(HttpStatus.OK)
                 .header(HttpHeaders.SET_COOKIE, cookie.toString())
                 .body(response);

@@ -33,7 +33,7 @@ public class JwtProvider {
 
 
     public static final Duration REFRESH_TOKEN_EXPIRATION = Duration.ofDays(7);//7일
-    private static final Duration ACCESS_TOKEN_EXPIRATION = Duration.ofMinutes(10);//10분
+    private static final Duration ACCESS_TOKEN_EXPIRATION = Duration.ofMinutes(1);//10분
     public static String getTokenType(){
         return "Bearer";
     }
