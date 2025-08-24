@@ -115,7 +115,7 @@
             String refreshToken = jwtProvider.createNewRefreshToken();
             try {
                 //myUser.loginValueSetting(false);
-                return jwtProvider.saveRefreshTokenAndCreateTokenDto(accessToken, refreshToken, Duration.ofMinutes(3));
+                return jwtProvider.saveRefreshTokenAndCreateTokenDto(accessToken, refreshToken, JwtProvider.REFRESH_TOKEN_EXPIRATION);
             } catch (RedisConnectionFailureException e) {
                 throw CustomServerException.of()
                         .systemMessage(e.getMessage())
