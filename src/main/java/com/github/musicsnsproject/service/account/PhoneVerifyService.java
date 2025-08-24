@@ -27,11 +27,12 @@ public class PhoneVerifyService {
     @Value("${cool-sms.phone-number}")
     private String serverPhoneNumber;
 
-    private Message createMessage(String to, String text) {
+    private Message createMessage(String to, String code) {
+        String messageText = "[MusicSNS] 인증번호는 " + code + " 입니다. 10분 이내로 입력해주세요.";
         Message message = new Message();
         message.setFrom(serverPhoneNumber);
         message.setTo(to);
-        message.setText(text);
+        message.setText(messageText);
         return message;
     }
 
