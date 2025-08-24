@@ -13,15 +13,12 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.apache.hc.core5.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.Duration;
-
-import static com.github.musicsnsproject.common.ResponseEntityUtils.createResponseEntity;
+import static com.github.musicsnsproject.common.MyUtils.createResponseEntity;
 import static com.github.musicsnsproject.config.security.JwtProvider.*;
 
 @RestController

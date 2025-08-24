@@ -31,7 +31,7 @@ public class JwtProvider {
     private final RedisRepository redisRepository;
 
     private final SecretKey key;//= Jwts.SIG.HS256.key().build();  이건 랜덤키 자동생성
-    public JwtProvider(@Value("${jwtpassword.source}")String keySource, RedisRepository redisRepository) {
+    public JwtProvider(@Value("${jwt-password.source}")String keySource, RedisRepository redisRepository) {
         this.key = Keys.hmacShaKeyFor(Decoders.BASE64.decode(keySource));
         this.redisRepository = redisRepository;
     }
