@@ -2,17 +2,15 @@ package com.github.musicsnsproject.web.dto.account.auth.response;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.github.musicsnsproject.web.dto.account.oauth.response.OAuthDtoInterface;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.Setter;
 
 @Getter
 @Builder
-public class TokenDto implements OAuthDtoInterface {
+public class TokenResponse implements OAuthDtoInterface {
     @JsonInclude(JsonInclude.Include.NON_NULL)
     @NotBlank(message = "토큰 타입은 필수 입니다.")
     @Schema(description = "토큰 타입", example = "Bearer")
@@ -22,7 +20,6 @@ public class TokenDto implements OAuthDtoInterface {
     private String accessToken;
     @Schema(description = "리프레시 토큰", example = "eyJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE3MjkwNjA0NjcsImV4cCI6MTcyOTA2MTA2N30.y4lrehsGYXDBYM1i92LlGTkg2MbYmkoRt5baWHjh5bg")
     @JsonIgnore
-    @Setter
     private String refreshToken;
 
 }

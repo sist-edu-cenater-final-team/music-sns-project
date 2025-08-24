@@ -3,13 +3,12 @@ package com.github.musicsnsproject.config.security;
 
 import com.github.musicsnsproject.common.exceptions.CustomNotAcceptException;
 import com.github.musicsnsproject.repository.redis.RedisRepository;
-import com.github.musicsnsproject.web.dto.account.auth.response.TokenDto;
+import com.github.musicsnsproject.web.dto.account.auth.response.TokenResponse;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
-import lombok.extern.log4j.Log4j;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.json.BasicJsonParser;
@@ -33,7 +32,7 @@ public class JwtProvider {
 
 
     public static final Duration REFRESH_TOKEN_EXPIRATION = Duration.ofDays(7);//7일
-    private static final Duration ACCESS_TOKEN_EXPIRATION = Duration.ofMinutes(1);//10분
+    private static final Duration ACCESS_TOKEN_EXPIRATION = Duration.ofMinutes(1);//1분
     public static String getTokenType(){
         return "Bearer";
     }
@@ -71,11 +70,11 @@ public class JwtProvider {
     }
 
     //리프레시 토큰의 유효시간만큼 저장기간을 설정하고 레디스에 저장 이후 Dto 생성
-    public TokenDto saveRefreshTokenAndCreateTokenDto(String accessToken, String refreshToken, Duration exp){
+    public TokenResponse saveRefreshTokenAndCreateTokenDto(String accessToken, String refreshToken, Duration exp){
 
         redisRepository.save(accessToken, refreshToken, exp);
 
-        return TokenDto.builder()
+        return TokenResponse.builder()
                 .tokenType(getTokenType())
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
@@ -101,13 +100,13 @@ public class JwtProvider {
             return new UsernamePasswordAuthenticationToken(sub, accessToken, roles);
     }
 
-    public TokenDto tokenRefresh(String accessToken, String clientRefreshToken){
+    public TokenResponse tokenRefresh(String accessToken, String clientRefreshToken){
         //리프레시 토큰 유효성 검사와 파싱
         Jws<Claims> refreshTokenClaims = tokenParsing(clientRefreshToken);
         String dbRefreshToken = redisRepository.getAndDeleteValue(accessToken);//가져오면서 지움
         //사용자의 리프레시토큰과 db의 리프레시토큰 대조
         if(!clientRefreshToken.equals(dbRefreshToken))
-            throw new NoSuchElementException("Token cannot be used");
+            throw new NoSuchElementException("Redis DB에 해당 액세스 토큰의 리프레시 토큰이 없거나 일치하지 않음");
         //새로운 토큰 생성
         String newAccessToken = createANewAccessTokenWithOldAccessToken(accessToken);
 
@@ -149,9 +148,19 @@ public class JwtProvider {
     }
 
     public void blackListAccessToken(String accessToken) {
-        Jws<Claims> claimsJws = tokenParsing(accessToken);
-        Date expiration = claimsJws.getPayload().getExpiration();
-        Duration blackListDuration = Duration.between(Instant.now(), expiration.toInstant());
-        redisRepository.save("blacklist:"+accessToken, "logout", blackListDuration);
+        Map<String, Object> payload = extractPayloadFromToken(accessToken);
+        Object exp = payload.get("exp");
+        if (exp == null) return;
+
+        long expTimestamp = Long.parseLong(exp.toString());
+        Instant expInstant = Instant.ofEpochSecond(expTimestamp);
+        Instant now = Instant.now();
+        // 토큰이 이미 만료되었는지 확인
+        if (expInstant.isBefore(now) || expInstant.equals(now))
+            return; // 만료된 토큰은 블랙리스트에 추가할 필요 없음
+
+        Duration blackListDuration = Duration.between(now, expInstant);
+        redisRepository.save("blacklist:" + accessToken, "logout", blackListDuration);
+        log.info("토큰 블랙리스트 추가 완료 - 만료까지: {}초", blackListDuration.getSeconds());
     }
 }

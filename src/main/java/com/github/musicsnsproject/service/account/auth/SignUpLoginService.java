@@ -12,7 +12,7 @@ import com.github.musicsnsproject.repository.jpa.account.user.MyUser;
 import com.github.musicsnsproject.repository.jpa.account.user.MyUserRepository;
 import com.github.musicsnsproject.web.dto.account.auth.request.LoginRequest;
 import com.github.musicsnsproject.web.dto.account.auth.request.SignUpRequest;
-import com.github.musicsnsproject.web.dto.account.auth.response.TokenDto;
+import com.github.musicsnsproject.web.dto.account.auth.response.TokenResponse;
 import io.jsonwebtoken.ExpiredJwtException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -25,7 +25,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.DateTimeException;
-import java.time.Duration;
 import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
@@ -63,7 +62,7 @@ public class SignUpLoginService {
     }
 
     @Transactional(readOnly = true)
-    public TokenDto loginResponseToken(LoginRequest loginRequest) {
+    public TokenResponse loginResponseToken(LoginRequest loginRequest) {
         CustomUserDetails details = customUserDetailsService.loadUserByUsername(loginRequest.getEmailOrPhoneNumber());
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(details, loginRequest.getPassword(), details.getAuthorities())
@@ -85,29 +84,23 @@ public class SignUpLoginService {
         }
     }
 
-    public TokenDto refreshTokenByTokenDto(TokenDto tokenDto) {
+    public TokenResponse refreshTokenByTokens(String accessToken, String refreshToken) {
         try {
-            return jwtProvider.tokenRefresh(tokenDto.getAccessToken(), tokenDto.getRefreshToken());
+            return jwtProvider.tokenRefresh(accessToken, refreshToken);
         } catch (RedisConnectionFailureException e) {
             throw CustomServerException.of()
                     .systemMessage(e.getMessage()+"   "+e.getCause().getMessage())
                     .customMessage("Redis 서버 연결 실패")
-                    .request(tokenDto)
                     .build();
         } catch (ExpiredJwtException | NoSuchElementException e) {
             throw CustomBadCredentialsException.of()
                     .systemMessage(e.getMessage())
                     .customMessage(e instanceof ExpiredJwtException ? "리프레시 토큰 만료" : "재발급 받을 수 없는 액세스 토큰")
-                    .request(tokenDto)
                     .build();
         }
 
     }
 
-    public void errorTest() {
-        MyUser user = myUsersRepository.findByEmail("abc@abc.com").orElseThrow();
-        myUsersRepository.delete(user);
-    }
 
     public void logoutInvalidationToken(String accessToken) {
         try{

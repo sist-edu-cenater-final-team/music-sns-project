@@ -7,7 +7,7 @@ import com.github.musicsnsproject.common.myenum.RoleEnum;
 import com.github.musicsnsproject.service.account.auth.SignUpLoginService;
 import com.github.musicsnsproject.web.dto.account.auth.request.LoginRequest;
 import com.github.musicsnsproject.web.dto.account.auth.request.SignUpRequest;
-import com.github.musicsnsproject.web.dto.account.auth.response.TokenDto;
+import com.github.musicsnsproject.web.dto.account.auth.response.TokenResponse;
 import com.github.musicsnsproject.web.dto.response.CustomSuccessResponse;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -35,9 +35,7 @@ public class AuthController implements AuthControllerDocs {
         signUpLoginService.signUp(signUpRequest);
         CustomSuccessResponse<Void> signUpResponse = CustomSuccessResponse
                 .emptyData(HttpStatus.CREATED, "회원가입 완료");
-        return ResponseEntity
-                .status(signUpResponse.getHttpStatus())
-                .body(signUpResponse);
+        return createResponseEntity(null, signUpResponse);
     }
 
     private ResponseCookie createRefreshTokenCookie(String refreshToken) {
@@ -61,40 +59,40 @@ public class AuthController implements AuthControllerDocs {
 
     @Override
     @PostMapping("/login")
-    public ResponseEntity<CustomSuccessResponse<TokenDto>> login(@RequestBody @Valid LoginRequest loginRequest){
-        TokenDto tokenDto = signUpLoginService.loginResponseToken(loginRequest);
-        ResponseCookie cookie = createRefreshTokenCookie(tokenDto.getRefreshToken());
-        CustomSuccessResponse<TokenDto> response = CustomSuccessResponse
-                .ofOk("로그인 성공", tokenDto);
-        return ResponseEntity.status(HttpStatus.OK)
-                .header(HttpHeaders.SET_COOKIE, cookie.toString())
-                .body(response);
+    public ResponseEntity<CustomSuccessResponse<TokenResponse>> login(@RequestBody @Valid LoginRequest loginRequest){
+        TokenResponse tokenResponse = signUpLoginService.loginResponseToken(loginRequest);
+        return createResponseEntity(
+                tokenResponse.getRefreshToken(),
+                CustomSuccessResponse.ofOk("로그인 성공", tokenResponse)
+        );
     }
+    private <T> ResponseEntity<CustomSuccessResponse<T>> createResponseEntity(String refreshToken, CustomSuccessResponse<T> body) {
+        ResponseCookie cookie = refreshToken!=null ? createRefreshTokenCookie(refreshToken) : deleteRefreshTokenCookie();
+        return ResponseEntity.status(body.getHttpStatus())
+                .header(HttpHeaders.SET_COOKIE, cookie.toString())
+                .body(body);
+    }
+
+
     @Override
     @PostMapping("/refresh")
-    public ResponseEntity<CustomSuccessResponse<TokenDto>> regenerateToken(@RequestHeader("Authorization") String authHeader,
-                                                           @CookieValue(value = "RefreshToken") String refreshToken){
+    public ResponseEntity<CustomSuccessResponse<TokenResponse>> regenerateToken(@RequestHeader("Authorization") String authHeader,
+                                                                                @CookieValue(value = "RefreshToken") String refreshToken){
         String accessToken = authHeader.replace("Bearer ", "");
-        TokenDto tokenDto = TokenDto.builder().accessToken(accessToken).refreshToken(refreshToken).build();
-        TokenDto responseToken = signUpLoginService.refreshTokenByTokenDto(tokenDto);
-        CustomSuccessResponse<TokenDto> response = CustomSuccessResponse
-                .ofOk("토큰 재발급", responseToken);
-        ResponseCookie cookie = createRefreshTokenCookie(responseToken.getRefreshToken());
-        return ResponseEntity.status(HttpStatus.OK)
-                .header(HttpHeaders.SET_COOKIE, cookie.toString())
-                .body(response);
+        TokenResponse responseToken = signUpLoginService.refreshTokenByTokens(accessToken, refreshToken);
+        return createResponseEntity(
+                responseToken.getRefreshToken(),
+                CustomSuccessResponse.ofOk("토큰 재발급", responseToken)
+        );
     }
     @PostMapping("/logout")
     public ResponseEntity<CustomSuccessResponse<Void>> logout(@RequestHeader("Authorization") String authHeader
                                                               ){
         String accessToken = authHeader.replace("Bearer ", "");
         signUpLoginService.logoutInvalidationToken(accessToken);
-        ResponseCookie cookie = deleteRefreshTokenCookie();
         CustomSuccessResponse<Void> response = CustomSuccessResponse
                 .emptyDataOk("로그아웃 성공");
-        return ResponseEntity.status(HttpStatus.OK)
-                .header(HttpHeaders.SET_COOKIE, cookie.toString())
-                .body(response);
+        return createResponseEntity(null, response);
     }
 
 
