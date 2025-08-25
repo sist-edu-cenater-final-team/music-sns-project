@@ -25,13 +25,10 @@ public class EumpyoHistoryController {
     @GetMapping("/charge")
     public Map<String, Object> chargeHistory(@AuthenticationPrincipal CustomUserDetails loginUser,
                                              @RequestParam(defaultValue = "1") int page,
-                                             @RequestParam(defaultValue = "10") int size,
-      			 					   	   	 @RequestHeader(name = "X-Dev-UserId", required = false) Long devUserId)
-      			 						   	 {
+                                             @RequestParam(defaultValue = "10") int size) {
     	
         // 로그인 사용자 확인
-    //  Long userId = (loginUser != null ? loginUser.getUserId() : null);
-        Long userId = (devUserId != null) ? devUserId : (loginUser != null ? loginUser.getUserId() : null);
+    	Long userId = (loginUser != null ? loginUser.getUserId() : null);
 
         if (userId == null) {
             Map<String, Object> fail = new HashMap<>();
@@ -52,13 +49,10 @@ public class EumpyoHistoryController {
     @GetMapping("/purchase")
     public Map<String, Object> purchaseHistory(@AuthenticationPrincipal CustomUserDetails loginUser,
                                                @RequestParam(defaultValue = "1") int page,
-                                               @RequestParam(defaultValue = "10") int size,
-        			 					   	   @RequestHeader(name = "X-Dev-UserId", required = false) Long devUserId)
-        			 						   {
+                                               @RequestParam(defaultValue = "10") int size) {
     	
         // 로그인 사용자 확인
-    //  Long userId = (loginUser != null ? loginUser.getUserId() : null);
-        Long userId = (devUserId != null) ? devUserId : (loginUser != null ? loginUser.getUserId() : null);
+    	Long userId = (loginUser != null ? loginUser.getUserId() : null);
 
         if (userId == null) {
             Map<String, Object> fail = new HashMap<>();
@@ -78,20 +72,18 @@ public class EumpyoHistoryController {
     // 특정 구매내역의 1건의 구매음악 상세목록
     @GetMapping("/purchase/{purchaseHistoryId}/purchaseMusic")
     public Map<String, Object> purchaseTracks(@AuthenticationPrincipal CustomUserDetails loginUser,
-                                              @PathVariable("purchaseHistoryId") long purchaseHistoryId,
-                                              @RequestHeader(name = "X-Dev-UserId", required = false) Long devUserId) {
-
+                                              @PathVariable("purchaseHistoryId") long purchaseHistoryId) {
+    	
     	// 로그인 사용자 확인
-        //  Long userId = (loginUser != null ? loginUser.getUserId() : null);
-        Long userId = (devUserId != null) ? devUserId : (loginUser != null ? loginUser.getUserId() : null);
-        
+    	Long userId = (loginUser != null ? loginUser.getUserId() : null);
+    	
         if (userId == null) {
             Map<String, Object> fail = new HashMap<>();
             fail.put("result", "fail");
             fail.put("message", "로그인이 필요합니다.");
             return fail;
         }
-
+        
         return historyService.getPurchaseMusic(userId, purchaseHistoryId);
     }
 }

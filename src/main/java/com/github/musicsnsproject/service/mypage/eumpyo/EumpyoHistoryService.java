@@ -11,6 +11,6 @@ public interface EumpyoHistoryService {
     // 구매내역 페이지 조회
 	Map<String, Object> getPurchaseHistory(long userId, int page, int size);
 	
-	// 특정 구매내역의 1건의 구매음악 상세목록
+	// 특정 구매건의 구매음악 상세
     Map<String, Object> getPurchaseMusic(long userId, long purchaseHistoryId);
 }

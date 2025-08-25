@@ -10,6 +10,8 @@
 
 <html>
 <jsp:include page="../../include/common/head.jsp" />
+
+<!-- mypage-point 용 -->
 <link rel="stylesheet" href="../../css/mypage.css" />
 
 <style>
@@ -103,8 +105,21 @@
 <script type="text/javascript" src="https://service.iamport.kr/js/iamport.payment-1.1.2.js"></script>
 
 <script type="text/javascript">
-  	// PortOne(Iamport) 초기화
+
+	// PortOne(Iamport) 초기화
   	var IMP = window.IMP; IMP.init('imp26556260'); // 가맹점 식별코드
+
+  	const USE_CREDENTIALS = false; 
+
+  	$(function() {
+  		axios.get('<%= ctxPath %>/api/mypage/eumpyo/charge/balance', {
+  			headers: AuthFunc.getAuthHeader()
+  		}).then(function(r){
+  			if (r.data && r.data.result === 'success') {
+  				$('#myCoinBalance').text((r.data.coinBalance || 0).toLocaleString());
+  			}
+  		}).catch(function(){});
+  	});
 
   	// 금액 버튼 클릭 이벤트
   	$(document).on('click', '.btn-charge', function () {
@@ -115,89 +130,86 @@
       		return;
     	}
 
-    	// 결제 준비
-    	$.ajax({
+    	// 결제 준비 (401 만료 자동갱신을 위해 apiRequest로 래핑)
+    	AuthFunc.apiRequest(function () {
+    	  return $.ajax({
       		url: '<%= ctxPath %>/api/mypage/eumpyo/charge/ready',
       		type: 'POST',
       		contentType: 'application/json; charset=UTF-8',
       		dataType: 'json',
       		data: JSON.stringify({ amount: paymentAmount }),
-      		success: function (readyResponse) {
-        		if (!readyResponse || readyResponse.result !== 'success' ||
-            		!readyResponse.merchantUid ||
-            		typeof readyResponse.amountKRW !== 'number' ||
-            		typeof readyResponse.chargedCoin !== 'number') {
-          				alert(readyResponse?.message || '지금은 결제를 시작할 수 없습니다.');
-          				return;
-        			}
+      		headers: AuthFunc.getAuthHeader(),
+      		// xhrFields는 플래그가 true일 때만 주입
+      		xhrFields: USE_CREDENTIALS ? { withCredentials: true } : undefined
+    	  });
+    	}).then(function (readyResponse) {
+    		if (!readyResponse || readyResponse.result !== 'success' ||
+    		    !readyResponse.merchantUid ||
+    		    typeof readyResponse.amountKRW !== 'number' ||
+    		    typeof readyResponse.chargedCoin !== 'number') {
+    			alert(readyResponse?.message || '지금은 결제를 시작할 수 없습니다.');
+    			return;
+    		}
 
-       			// PortOne 결제창 호출
-       			IMP.request_pay({
-         			pg: 'html5_inicis',
-        			pay_method: 'card',
-        		 	merchant_uid: readyResponse.merchantUid,
-         			name: '음표 ' + readyResponse.chargedCoin + '개',
-         			amount: readyResponse.amountKRW
-       			}, function (paymentResponse) {
-         			if (!paymentResponse || !paymentResponse.success) {
-           				const reason = paymentResponse?.error_msg || '';
-           				if (reason.includes('취소')) {
-           					alert('결제를 취소하셨습니다.');
-           				}
-           				else {
-           					alert('결제가 완료되지 않았습니다.');
-           				}
-           				return;
-         			}
+   			// PortOne 결제창 호출
+   			IMP.request_pay({
+   			  pg: 'html5_inicis',
+   			  pay_method: 'card',
+   			  merchant_uid: readyResponse.merchantUid,
+   			  name: '음표 ' + readyResponse.chargedCoin + '개',
+   			  amount: readyResponse.amountKRW
+   			}, function (paymentResponse) {
+   			  if (!paymentResponse || !paymentResponse.success) {
+   			    const reason = paymentResponse?.error_msg || '';
+   			    if (reason.includes('취소')) alert('결제를 취소하셨습니다.');
+   			    else alert('결제가 완료되지 않았습니다.');
+   			    return;
+   			  }
 
-         			// 결제 완료 검증
-         			$.ajax({
-           				url: '<%= ctxPath %>/api/mypage/eumpyo/charge/complete',
-           				type: 'POST',
-           				contentType: 'application/json; charset=UTF-8',
-           				dataType: 'json',
-           				data: JSON.stringify({
-             				impUid: paymentResponse.imp_uid,
-             				merchantUid: paymentResponse.merchant_uid
-           				}),
-           				success: function (verifyResult) {
-          				 	if (verifyResult && verifyResult.result == 'success') {
-             					alert(
-	                  				'음표 충전이 완료되었습니다.\n' +
-	                  				'결제금액: ₩' + (verifyResult.amount || 0).toLocaleString() + '\n' +
-	                  				'충전음표: ' + (verifyResult.chargedCoin || 0).toLocaleString() + '개\n' +
-	                  				'보유음표: ' + (verifyResult.coinBalance || 0).toLocaleString() + '개'
-             					);
+   			  // 결제 완료 검증 (apiRequest로 래핑)
+   			  AuthFunc.apiRequest(function () {
+   			  	return $.ajax({
+   			      url: '<%= ctxPath %>/api/mypage/eumpyo/charge/complete',
+   			      type: 'POST',
+   			      contentType: 'application/json; charset=UTF-8',
+   			      dataType: 'json',
+   			      data: JSON.stringify({
+   			        impUid: paymentResponse.imp_uid,
+   			        merchantUid: paymentResponse.merchant_uid
+   			      }),
+   			      headers: AuthFunc.getAuthHeader(),
+   			      xhrFields: USE_CREDENTIALS ? { withCredentials: true } : undefined
+   			    });
+   			  }).then(function (verifyResult) {
+   			    if (verifyResult && verifyResult.result == 'success') {
+   			      alert(
+   			        '음표 충전이 완료되었습니다.\n' +
+   			        '결제금액: ₩' + (verifyResult.amount || 0).toLocaleString() + '\n' +
+   			        '충전음표: ' + (verifyResult.chargedCoin || 0).toLocaleString() + '개\n' +
+   			        '보유음표: ' + (verifyResult.coinBalance || 0).toLocaleString() + '개'
+   			      );
 
-             					// 결제 후 표시값은 항상 users.coin 재조회로 동기화
-             					$.ajax({
-             						url: '<%= ctxPath %>/api/mypage/eumpyo/charge/balance',
-             						type: 'GET',
-             						dataType: 'json',
-             						success: function(r) {
-               							if (r && r.result === 'success') {
-                 							var $coinBalance = $('#myCoinBalance');
-                 							if ($coinBalance.length) {
-                   								$coinBalance.text((r.coinBalance || 0).toLocaleString());
-                 							}
-              			 				}
-             						}
-             					});
-           					} else {
-             						alert(verifyResult?.message || '결제 확인에 실패했습니다.');
-           					}
-           				},
-           				error: function () {
-             				alert('결제 확인 중 오류가 발생했습니다.');
-           				}
-         			});
-       			});
-      		},
-      		error: function () {
-        		alert('처리 중 오류가 발생했습니다.');
-			}
+   			      // 결제 후 표시값 동기화
+   			      axios.get('<%= ctxPath %>/api/mypage/eumpyo/charge/balance', {
+   			        headers: AuthFunc.getAuthHeader()
+   			      }).then(function(r){
+   			        if (r.data && r.data.result === 'success') {
+   			          $('#myCoinBalance').text((r.data.coinBalance || 0).toLocaleString());
+   			        }
+   			      });
+   			    } else {
+   			      alert(verifyResult?.message || '결제 확인에 실패했습니다.');
+   			    }
+   			  }).catch(function () {
+   			    alert('결제 확인 중 오류가 발생했습니다.');
+   			  });
+
+   			});
+    	}).catch(function () {
+    	  alert('처리 중 오류가 발생했습니다.');
     	});
-  	}); // end of click handler
+
+  	}); 
 </script>
 
 <body>

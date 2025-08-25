@@ -15,14 +15,16 @@ public class EumpyoPurchaseDAO_imple implements EumpyoPurchaseDAO {
 
     // 구매 내역 1건 추가
     @Override
-    public int insertPurchaseHistory(long userId, String musicId, int usedCoin) {
-        Map<String, Object> map = new HashMap<>();
-        map.put("userId", userId);
-        map.put("musicId", musicId);
-        map.put("usedCoin", usedCoin);
-        return sql.insert("eumpyoPurchase.insertPurchaseHistory", map);
+    public int insertPurchaseHistory(Map<String, Object> params) {
+        return sql.insert("eumpyoPurchase.insertPurchaseHistory", params);
     }
 
+    // 해당 구매 내역에 속한 곡 N개 추가
+    @Override
+    public int insertPurchaseMusic(Map<String, Object> params) {
+        return sql.insert("eumpyoPurchase.insertPurchaseMusic", params);
+    }
+    
     // 현재 사용자 코인 조회 
     @Override
     public Long selectUserCoin(long userId) {
