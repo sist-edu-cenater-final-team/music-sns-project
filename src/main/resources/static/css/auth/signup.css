@@ -85,7 +85,7 @@
     align-items: center;
 }
 
-.signup-form .input-wrapper i {
+.signup-form .input-wrapper > i:not(.verification-timer i) {
     position: absolute;
     left: 15px;
     color: #6633ff;
@@ -227,7 +227,7 @@
     margin-bottom: 20px;
     padding: 15px;
     border-radius: 12px;
-    animation: slideDown 0.3s ease-out;
+    animation: slideDownSignUp 0.3s ease-out;
     font-size: 0.9rem;
 }
 
@@ -268,5 +268,151 @@
 
     .signup-form .row .col-md-6 {
         margin-bottom: 15px;
+    }
+}
+/*이메일 인증 스타일*/
+/* 이메일 인증 관련 스타일 */
+.email-verification-wrapper {
+    width: 100%;
+}
+
+.email-check-btn, .verify-btn {
+    position: absolute;
+    right: 10px;
+    background: #6633ff;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 8px 12px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    z-index: 3;
+    white-space: nowrap;
+}
+
+.email-check-btn:hover, .verify-btn:hover {
+    background: #531fea;
+    transform: translateY(-1px);
+}
+
+.email-check-btn:disabled, .verify-btn:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.email-check-btn.verified {
+    background: #48bb78;
+    cursor: default;
+}
+
+.email-check-btn.verified:hover {
+    background: #48bb78;
+    transform: none;
+}
+
+.verification-code-section {
+    margin-top: 12px;
+    animation: slideDownSignUp 0.3s ease-out;
+}
+
+.verification-status {
+    margin-top: 8px;
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    text-align: center;
+}
+
+.verification-status.success {
+    background: rgba(72, 187, 120, 0.1);
+    color: #48bb78;
+    border: 1px solid rgba(72, 187, 120, 0.3);
+}
+
+.verification-status.error {
+    background: rgba(245, 101, 101, 0.1);
+    color: #f56565;
+    border: 1px solid rgba(245, 101, 101, 0.3);
+}
+
+.verification-status.warning {
+    background: rgba(237, 137, 54, 0.1);
+    color: #ed8936;
+    border: 1px solid rgba(237, 137, 54, 0.3);
+}
+
+/* 이메일 입력창이 잠겼을 때 */
+.input-wrapper input:disabled {
+    background: #f0f0f0;
+    color: #666;
+    cursor: not-allowed;
+}
+
+.input-wrapper input.verified {
+    background: rgba(72, 187, 120, 0.05);
+    border-color: #48bb78;
+}
+.verification-timer {
+    position: absolute;
+    right: 85px; /* 인증확인 버튼 왼쪽에 위치 */
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    background: rgba(102, 51, 255, 0.1);
+    color: #6633ff;
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    border: 1px solid rgba(102, 51, 255, 0.2);
+    z-index: 2;
+}
+
+.verification-timer.warning {
+    background: rgba(237, 137, 54, 0.1);
+    color: #ed8936;
+    border-color: rgba(237, 137, 54, 0.3);
+}
+
+.verification-timer.danger {
+    background: rgba(245, 101, 101, 0.1);
+    color: #f56565;
+    border-color: rgba(245, 101, 101, 0.3);
+}
+
+/* 타이머 아이콘은 별도 스타일 */
+.verification-timer i {
+    font-size: 0.7rem;
+    position: static;
+    color: inherit;
+}
+
+/* 반응형 - 모바일에서 타이머 위치 조정 */
+@media (max-width: 768px) {
+    .verification-timer {
+        position: static;
+        transform: none;
+        margin-top: 8px;
+        justify-content: center;
+        width: fit-content;
+        margin-left: auto;
+        margin-right: auto;
+    }
+}
+
+
+@keyframes slideDownSignUp {
+    from {
+        transform: translateX(0) translateY(-100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0) translateY(0);
+        opacity: 1;
     }
 }

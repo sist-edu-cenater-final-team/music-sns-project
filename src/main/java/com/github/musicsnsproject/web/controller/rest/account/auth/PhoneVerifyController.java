@@ -21,4 +21,11 @@ public class PhoneVerifyController {
         String message = isVerified ? "인증번호가 일치합니다." : "인증번호가 일치하지 않습니다.";
         return CustomSuccessResponse.ofOk(message, isVerified);
     }
+    @GetMapping("/duplicate")
+    public CustomSuccessResponse<Boolean> duplicateCheckPhoneNumber(@RequestParam String phoneNumber) {
+        boolean isPhoneNumberAvailable = phoneVerifyService.duplicateCheckPhoneNumber(phoneNumber);
+        return CustomSuccessResponse
+                .ofOk(isPhoneNumberAvailable ? "핸드폰 번호 사용 가능" : "핸드폰 번호 중복",
+                        isPhoneNumberAvailable);
+    }
 }

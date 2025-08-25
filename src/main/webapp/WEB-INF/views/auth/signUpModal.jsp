@@ -41,9 +41,31 @@
                         <div class="col-md-6">
                             <div class="input-group">
                                 <label for="signupEmail">이메일 <span class="required">*</span></label>
-                                <div class="input-wrapper">
-                                    <i class="bi bi-envelope-fill"></i>
-                                    <input type="email" id="signupEmail" name="email" required>
+                                <div class="email-verification-wrapper">
+                                    <div class="input-wrapper">
+                                        <i class="bi bi-envelope-fill"></i>
+                                        <input type="email" id="signupEmail" name="email" required>
+                                        <button type="button" class="email-check-btn" id="emailCheckBtn" onclick="checkEmailDuplicate()">
+                                            중복확인
+                                        </button>
+                                    </div>
+                                    <!-- 이메일 상태 메시지 (항상 표시) -->
+                                    <div class="verification-status" id="emailStatus" style="display: none;"></div>
+                                    <!-- 인증번호 입력 섹션 -->
+                                    <div class="verification-code-section" id="verificationSection" style="display: none;">
+                                        <div class="input-wrapper">
+                                            <i class="bi bi-shield-check"></i>
+                                            <input type="text" id="verificationCode" placeholder="인증번호 6자리" maxlength="6">
+                                            <button type="button" class="verify-btn" id="verifyBtn" onclick="verifyEmail()">
+                                                인증확인
+                                            </button>
+                                            <div class="verification-timer" id="verificationTimer" style="display: none;">
+                                                <i class="bi bi-clock"></i>
+                                                <span id="timerText">10:00</span>
+                                            </div>
+                                        </div>
+                                        <div class="verification-status" id="verificationStatus" style="display: none;"></div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -87,7 +109,7 @@
 
                     <div class="terms-section">
                         <label class="terms-checkbox">
-                            <input type="checkbox" name="termsAgreed" required>
+                            <input id="agreeTerms" type="checkbox" name="termsAgreed" required>
                             <span class="checkmark"></span>
                             <span class="terms-text">
                                 <a href="#" class="terms-link">이용약관</a> 및 

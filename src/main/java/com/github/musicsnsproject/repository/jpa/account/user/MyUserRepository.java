@@ -35,6 +35,7 @@ public interface MyUserRepository extends JpaRepository<MyUser, Integer>, MyUser
 
 
     boolean existsByEmail(String email);
+    boolean existsByPhoneNumber(String phoneNumber);
 
 
 }

@@ -2,6 +2,7 @@ package com.github.musicsnsproject.service.account;
 
 import com.github.musicsnsproject.common.exceptions.CustomBadRequestException;
 import com.github.musicsnsproject.common.exceptions.CustomServerException;
+import com.github.musicsnsproject.repository.jpa.account.user.MyUserRepository;
 import com.github.musicsnsproject.repository.redis.RedisRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -12,6 +13,7 @@ import net.nurigo.sdk.message.model.Message;
 import net.nurigo.sdk.message.service.DefaultMessageService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
 
@@ -26,6 +28,7 @@ public class PhoneVerifyService {
     private final RedisRepository redisRepository;
     @Value("${cool-sms.phone-number}")
     private String serverPhoneNumber;
+    private final MyUserRepository myUserRepository;
 
     private Message createMessage(String to, String code) {
         String messageText = "[MusicSNS] 인증번호는 " + code + " 입니다. 10분 이내로 입력해주세요.";
@@ -77,5 +80,10 @@ public class PhoneVerifyService {
                     .customMessage("인증 코드가 만료되었습니다. 다시 시도해주세요.")
                     .build();
         return serverCode.equals(code);
+    }
+
+    @Transactional(readOnly = true)
+    public boolean duplicateCheckPhoneNumber(String phoneNumber) {
+        return !myUserRepository.existsByPhoneNumber(phoneNumber);
     }
 }
