@@ -45,7 +45,8 @@ public class PhoneVerifyService {
         } catch (NurigoMessageNotReceivedException e) {
             log.warn(e.getMessage(), e);
             throw CustomServerException.of()
-                    .customMessage("문자 발송 실패")
+                    .systemMessage(e.getMessage())
+                    .customMessage("수신 가능한 번호를 입력 해주세요.")
                     .build();
         } catch (NurigoEmptyResponseException e) {
             log.warn(e.getMessage(), e);

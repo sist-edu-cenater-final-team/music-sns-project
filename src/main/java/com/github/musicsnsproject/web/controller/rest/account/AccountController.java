@@ -18,5 +18,12 @@ public class AccountController implements AccountControllerDocs {
         return CustomSuccessResponse
                 .ofOk("유저 정보 조회 성공", accountService.myInfoByEmail(principal));
     }
+    @GetMapping("/nickname/duplicate")
+    public CustomSuccessResponse<Boolean> duplicateCheckNickname(String nickname){
+        boolean isNicknameAvailable = accountService.duplicateCheckNickname(nickname);
+        return CustomSuccessResponse
+                .ofOk(isNicknameAvailable ? "닉네임 사용 가능":"닉네임 중복",
+                        isNicknameAvailable);
+    }
 
 }

@@ -5,10 +5,10 @@ jwt-password:
   source: ENC(6b81wzyzcQ5WoKJdEtKeoEi3A48AAmimddIGBeu7bzR0lT51ZYtu5b0HPsWT5BJLIwp+0aOz8Q7mSIAxX/m+pu43WtljFpsXl/6hdPxbmyI=)
 
 cool-sms:
-  api-key: ENC(CJLHuVy5J38qMOv2yJgs6eKTfC8WFAG8o3rGfFMGqcc=)
-  api-secret: ENC(Lssx1pA4F5tBUTmrMKLnQjvOAcPWd0XSram8jkukBc8ApVxVB5NVLvVOgDw+sJG8)
+  api-key: ENC(zpPT/zdtRyzfCe3Sr2rvhSQ6QIF79KC1V6SC8+oq3/4=)
+  api-secret: ENC(CaCsmsaAwNd2l4wprRfq8STtunrSBInz9neFJsnitwJc177y/tvyPQh/okBXtIdv)
   domain : https://api.solapi.com
-  phone-number: ENC(DgjXQGDwsFscBdsbseVF0bwLwnLhTXJT) # ????
+  phone-number: ENC(BLpW8of2lRuzytBtswZcpK2AuZKxv8Nr) # ????
 
 server:
   tomcat:
