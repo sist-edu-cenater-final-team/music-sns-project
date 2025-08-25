@@ -16,6 +16,7 @@ public class FollowPostVO {
     private List<Long> likedUserPks;
     private Long postId;
     private Long userId;
+    private int postLikeCnt;
 
     private List<String> post_image_urls;
 
@@ -24,6 +25,7 @@ public class FollowPostVO {
 
     public void liked(long loginUserId){
         this.myLiked = likedUserPks.contains(loginUserId);
+        this.postLikeCnt = likedUserPks.size();
     }
 
 

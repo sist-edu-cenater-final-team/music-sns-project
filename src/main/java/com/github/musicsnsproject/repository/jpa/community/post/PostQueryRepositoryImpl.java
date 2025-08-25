@@ -21,7 +21,7 @@ public class PostQueryRepositoryImpl implements PostQueryRepository {
     private final JPAQueryFactory queryFactory;
 
     @Override
-    public List<FollowPostVO> findFollowPostByUserId(Long testUserId) {
+    public List<FollowPostVO> findFollowPostByUserId(Long userId) {
         QPost post = QPost.post;
         QUserEmotion ue = QUserEmotion.userEmotion;
         QMyUser author = QMyUser.myUser;
@@ -35,12 +35,12 @@ public class PostQueryRepositoryImpl implements PostQueryRepository {
                 .leftJoin(post.images, postImage)
                 .leftJoin(QLike.like).on(QLike.like.likePk.post.eq(post))
                 .where(
-                        author.userId.eq(testUserId)
+                        author.userId.eq(userId)
                                 .or(JPAExpressions
                                         .selectOne()
                                         .from(follow)
                                         .where(
-                                                follow.followPk.follower.userId.eq(testUserId)
+                                                follow.followPk.follower.userId.eq(userId)
                                                         .and(follow.followPk.followee.eq(author))
                                         )
                                         .exists()
