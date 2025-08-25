@@ -8,94 +8,94 @@
     <!-- 충전내역 총 건수 -->
     <select id="countChargeHistory" parameterType="long" resultType="int">
         select count(*)
-		from coin_history
-        where user_id = #{value}
+    	from coin_history
+    	where user_id = #{value}
     </select>
 
     <!-- 구매내역 총 건수 -->
     <select id="countPurchaseHistory" parameterType="long" resultType="int">
         select count(*)
-		from purchase_history
-        where user_id = #{value}
+    	from purchase_history
+    	where user_id = #{value}
     </select>
 
     <!-- 충전내역 페이지 -->
     <select id="findChargeHistoryPage" parameterType="hashmap" resultType="map">
         select
             to_char(ch.created_at, 'YYYY.MM.DD') as "chargedAt",
-            ch.coin as "chargedCoin",
-            ch.at_that_user_coin as "coinBalance",
-            ch.at_that_price as "paidAmount",
-            cast(null as varchar2(255)) as "musicId"
-        from coin_history ch
-		where ch.user_id = #{userId}
-       	order by ch.created_at desc, ch.coin_history_id desc
-       	offset #{offset} rows fetch next #{size} rows only
+            ch.coin                               as "chargedCoin",
+            ch.at_that_user_coin                  as "coinBalance",
+            ch.at_that_price                      as "paidAmount",
+            cast(null as varchar2(255))           as "musicId"
+          from coin_history ch
+         where ch.user_id = #{userId}
+         order by ch.created_at desc, ch.coin_history_id desc
+         offset #{offset} rows fetch next #{size} rows only
     </select>
 
     <!-- 구매내역 페이지 -->
     <select id="findPurchaseHistoryPage" parameterType="hashmap" resultType="map">
-        with
-        ph_base as (
-            select
-                ph.purchase_history_id,
-                ph.user_id,
-                ph.purchased_at,
-                ph.at_that_user_coin,
-                row_number() over (
-                    partition by ph.user_id
-                    order by ph.purchased_at asc, ph.purchase_history_id asc
-                ) as row_num
-            from purchase_history ph
-           where ph.user_id = #{userId}
+        with ph_base as (
+            select ph.purchase_history_id,
+                   ph.user_id,
+                   ph.purchased_at,
+                   ph.at_that_user_coin,
+                   row_number() over (
+                       partition by ph.user_id
+                       order by ph.purchased_at asc, ph.purchase_history_id asc
+                   ) as row_num
+              from purchase_history ph
+             where ph.user_id = #{userId}
         ),
         pm_agg as (
-            select
-                pm.purchase_history_id,
-                sum(pm.at_that_coin) as used_coin,
-                min(pm.music_id) as main_music_id,
-                count(pm.purchase_music_id) as music_count
-            from purchase_music pm
-           group by pm.purchase_history_id
+            select pm.purchase_history_id,
+                   sum(pm.at_that_coin)        as used_coin,
+                   min(pm.music_id)            as main_music_id,
+                   count(pm.purchase_music_id) as music_count
+              from purchase_music pm
+             where exists (                               <!-- [FIX] exists 괄호 닫힘 복구 -->
+                       select 1
+                         from ph_base b
+                        where b.purchase_history_id = pm.purchase_history_id
+                   )
+             group by pm.purchase_history_id             <!-- [FIX] group by가 exists 밖(CTE 내부)으로 -->
         )
-        select
-            to_char(ph.purchased_at, 'YYYY.MM.DD') as "purchasedAt",
-            nvl(pm.used_coin, 0) as "usedCoin",
-            ph.at_that_user_coin as "coinBalance",
-            cast(null as number(10,0)) as "paidAmount",
-            ph.purchase_history_id as "purchaseHistoryId",
-            pm.main_music_id as "mainMusicId",
-            pm.music_count as "musicCount",
-            ph.row_num as "rowNum"
-        from ph_base ph
-        left join pm_agg pm
-          on pm.purchase_history_id = ph.purchase_history_id
-       order by ph.purchased_at desc, ph.purchase_history_id desc
-       offset #{offset} rows fetch next #{size} rows only
+        select to_char(ph.purchased_at, 'YYYY.MM.DD') as "purchasedAt",
+               nvl(pm.used_coin, 0)                   as "usedCoin",
+               ph.at_that_user_coin                   as "coinBalance",
+               cast(null as number(10,0))             as "paidAmount",
+               ph.purchase_history_id                 as "purchaseHistoryId",
+               pm.main_music_id                       as "mainMusicId",
+               pm.music_count                         as "musicCount",
+               ph.row_num                             as "rowNum"
+          from ph_base ph
+          left join pm_agg pm
+            on pm.purchase_history_id = ph.purchase_history_id
+         order by ph.purchased_at desc, ph.purchase_history_id desc
+         offset #{offset} rows fetch next #{size} rows only
     </select>
 
-
-	<!-- 로그인한 유저의 구매내역인지 확인 -->
+    <!-- 로그인한 유저의 구매내역인지 확인 -->
     <select id="existsPurchaseByUser" parameterType="hashmap" resultType="int">
-    	select count(*)
-      	rom purchase_history ph
-     	where ph.user_id = #{userId}
-       	and ph.purchase_history_id = #{purchaseHistoryId}
-	</select>
+        select count(*)
+          from purchase_history ph
+         where ph.user_id = #{userId}
+           and ph.purchase_history_id = #{purchaseHistoryId}
+    </select>
 
     <!-- 구매음악 조회 (purchase_music) -->
     <select id="findPurchaseMusic" parameterType="hashmap" resultType="map">
-	    select
-			pm.purchase_music_id as "purchaseMusicId",
-	        pm.music_id          as "musicId",
-	        pm.at_that_coin      as "usedCoin",
-	        ph.purchased_at      as "purchasedAt"
-	    from purchase_music pm
-	    join purchase_history ph
-	    on ph.purchase_history_id = pm.purchase_history_id
-	   	where ph.user_id = #{userId}
-	    sand ph.purchase_history_id = #{purchaseHistoryId}
-	   	order by pm.purchase_music_id asc
-</select>
+        select
+            pm.purchase_music_id as "purchaseMusicId",
+            pm.music_id          as "musicId",
+            pm.at_that_coin      as "usedCoin",
+            ph.purchased_at      as "purchasedAt"
+          from purchase_music pm
+          join purchase_history ph
+            on ph.purchase_history_id = pm.purchase_history_id
+         where ph.user_id = #{userId}
+           and ph.purchase_history_id = #{purchaseHistoryId}
+         order by pm.purchase_music_id asc
+    </select>
 
 </mapper>

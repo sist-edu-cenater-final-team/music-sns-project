@@ -151,43 +151,7 @@ public class EumpyoHistoryService_imple implements EumpyoHistoryService {
     }
 
     
-    // purchase_history_id 기준으로 그룹 메서드
-    @SuppressWarnings("unchecked")
-    private List<Map<String, Object>> groupByPurchase(List<Map<String, Object>> rows) {
-    	
-        Map<Object, Map<String, Object>> grouped = new LinkedHashMap<>();
-        
-        for (Map<String, Object> row : rows) {
-        	
-            Object pid = row.get("purchaseHistoryId");
-            
-            Map<String, Object> bucket = grouped.computeIfAbsent(pid, k -> {
-            	
-                Map<String, Object> map = new LinkedHashMap<>();
-                
-                map.put("purchaseHistoryId", pid);
-                map.put("purchasedAt", row.get("purchasedAt"));
-                map.put("usedCoin", row.get("usedCoin"));
-                map.put("coinBalance", row.get("coinBalance"));
-                map.put("tracks", new ArrayList<Map<String, Object>>());
-                
-                return map;
-            });
-            
-            Map<String, Object> track = new LinkedHashMap<>();
-            
-            track.put("musicId", row.get("musicId"));
-            track.put("musicName", row.get("musicName"));
-            track.put("albumName", row.get("albumName"));
-            track.put("albumImageUrl", row.get("albumImageUrl"));
-            track.put("artistName", row.get("artistName"));
-            ((List<Map<String, Object>>) bucket.get("tracks")).add(track);
-        }
-        return new ArrayList<>(grouped.values());
-    }
-
-    
-    // 특정 구매내역의 1건의 구매음악 상세목록
+    // 특정 구매건의 구매음악 상세
     @Override
     public Map<String, Object> getPurchaseMusic(long userId, long purchaseHistoryId) {
 
