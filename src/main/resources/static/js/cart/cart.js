@@ -8,7 +8,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
 });
 
-const token = "Bearer eyJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE3NTU2NzQ1OTQsImV4cCI6NDkwOTI3NDU5NCwic3ViIjoiMjMiLCJyb2xlcyI6IlJPTEVfVVNFUiJ9.J2-HxxZZuEVrfQIjmPeujwehl6ExKDm8gdtae291uu4";
+const authHeader = AuthFunc.getAuthHeader();//즉시호출
+const apiRequest = AuthFunc.apiRequest;//함수참조
+
+//const token = "Bearer eyJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE3NTU2NzQ1OTQsImV4cCI6NDkwOTI3NDU5NCwic3ViIjoiMjMiLCJyb2xlcyI6IlJPTEVfVVNFUiJ9.J2-HxxZZuEVrfQIjmPeujwehl6ExKDm8gdtae291uu4";
 
 const cart = {
     tbody : document.querySelector('#cartBody'),
@@ -62,18 +65,30 @@ const cart = {
         cart.initCheckEvents();
     },
     createList : () => {
-        fetch(`/api/cart/list`, {
-            headers: { 'Authorization': token },
-        })
+        if(!localStorage.getItem("accessToken")){
+            alert("로그인이 필요합니다.");
+            location.href = `${ctxPath}/auth/login`;
+            return;
+        }
+        return apiRequest(() =>
+            fetch(`/api/cart/list`, {
+                headers: authHeader
+            })
+        )
         .then(response => response.json())
         .then(data => {
             console.log('cart list:', data);
             cart.renderCart(data);
         })
         .catch(error => {
-
+            if(!localStorage.getItem("accessToken")){
+                alert("로그인이 필요합니다.");
+                location.href = `${ctxPath}/auth/login`;
+                return;
+            }
             console.error('Error:', error);
             alert('장바구니 목록 조회 중 오류가 발생했습니다.');
+
         });
     },
     initCheckEvents: () => {
