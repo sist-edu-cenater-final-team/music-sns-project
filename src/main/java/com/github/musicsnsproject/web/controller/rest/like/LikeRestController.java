@@ -25,14 +25,14 @@ public class LikeRestController {
                                       @AuthenticationPrincipal Long userId){
 
 
-        Long testUserId = 41L;
 
-        boolean isExist = likeService.isLiked(postId, testUserId);
+        boolean isExist = likeService.isLiked(postId, userId);
 
-        Long n = likeService.countLikeBy(postId);
+        Long postLikeCnt = likeService.countLikeCnt(postId);
+
 
         Map<String, Object> paraMap = new HashMap<>();
-        paraMap.put("n", n);
+        paraMap.put("postLikeCnt", postLikeCnt);
         paraMap.put("isExist", isExist);
 
         return paraMap;

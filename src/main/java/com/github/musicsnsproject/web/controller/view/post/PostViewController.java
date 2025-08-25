@@ -30,25 +30,8 @@ public class PostViewController {
     }
 
     @GetMapping("/postView")
-    public String postView(@AuthenticationPrincipal Long userId,
-                           HttpServletRequest request) {
-
-        Long testUserId = 41L;
-        List<FollowPostVO> followPostVOList = postService.followPostSelect(testUserId);
-
-        List<Long> postIdForLikeCnt = followPostVOList.stream().map(FollowPostVO::getPostId).collect(Collectors.toList());
-        Long n = postService.findbyCntByPostId(postIdForLikeCnt);
-
-        // followPostVOList.forEach(vo -> vo.liked(testUserId));
-
-        for(FollowPostVO followPostVO : followPostVOList){
-            followPostVO.liked(testUserId);
-        }
-
-        request.setAttribute("n", n);
-        request.setAttribute("testUserId", testUserId);
-        request.setAttribute("followPostVOList", followPostVOList);
-
+    public String postView() {
+        // Render the page shell; the feed content will be loaded via REST API on the client side.
         return "post/postView";
     }
 

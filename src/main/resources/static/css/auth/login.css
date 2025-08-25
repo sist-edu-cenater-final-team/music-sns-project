@@ -8,21 +8,19 @@ body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
 }
 
 .login-container {
     width: 100%;
     max-width: 900px;
-    margin: 20px;
+    margin: 40px auto;
     display: flex;
     background: white;
     border-radius: 20px;
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
     overflow: hidden;
     min-height: 600px;
+
 }
 
 .login-wrapper {

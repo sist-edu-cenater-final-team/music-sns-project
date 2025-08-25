@@ -67,11 +67,12 @@ function handleLogin(identifier, password) {
 
                 if (errorData.request) {
                     const requestInfo = errorData.request;
-                    console.log(requestInfo.status === "잠긴 계정")
+                    // console.log(requestInfo.status === "잠긴 계정")
                     // 계정 잠김 상태 확인
                     if (requestInfo.status === "잠긴 계정") {
                         console.log(requestInfo.status)
                         handleAccountLockout(requestInfo.failureDate);
+                        loginBtn.innerHTML = '<i class="bi bi-hourglass-split"></i> 잠김';
                     }
                     // 실패 횟수가 있는 경우 (5번 미만 실패)
                     else if (requestInfo.failureCount !== undefined) {

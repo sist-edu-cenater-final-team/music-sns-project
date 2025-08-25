@@ -1,16 +1,14 @@
 package com.github.musicsnsproject.web.controller.rest.account.auth;
 import com.github.musicsnsproject.web.dto.account.auth.request.LoginRequest;
 import com.github.musicsnsproject.web.dto.account.auth.request.SignUpRequest;
-import com.github.musicsnsproject.web.dto.account.auth.response.TokenDto;
+import com.github.musicsnsproject.web.dto.account.auth.response.TokenResponse;
 import com.github.musicsnsproject.web.dto.response.CustomSuccessResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.RequestBody;
 
 @Tag(name = "Auth", description = "회원 인증 관련 API")
@@ -184,7 +182,7 @@ public interface AuthControllerDocs {
                                       }
                                     }"""))
     )
-    ResponseEntity<CustomSuccessResponse<TokenDto>> login(@RequestBody LoginRequest loginRequest);
+    ResponseEntity<CustomSuccessResponse<TokenResponse>> login(@RequestBody LoginRequest loginRequest);
 
 
     @Operation(summary = "토큰 재발급", description = "리프레시 토큰을 이용해 새로운 액세스 토큰을 발급")
@@ -209,6 +207,6 @@ public interface AuthControllerDocs {
                                     }""")
             )
     )
-    ResponseEntity<CustomSuccessResponse<TokenDto>> regenerateToken(String authHeader, String refreshToken);
+    ResponseEntity<CustomSuccessResponse<TokenResponse>> regenerateToken(String authHeader, String refreshToken);
 
 }

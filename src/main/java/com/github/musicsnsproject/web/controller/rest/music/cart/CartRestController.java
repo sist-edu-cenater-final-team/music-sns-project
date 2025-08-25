@@ -31,7 +31,7 @@ public class CartRestController {
     @GetMapping("list")
     public ResponseEntity<List<CartResponse>> getCartList(@AuthenticationPrincipal Long userId){
 
-        List<CartResponse> cartList = cartService.getCartList(uid(userId));
+        List<CartResponse> cartList = cartService.getCartList(userId);
         return ResponseEntity.ok(cartList);
     }
 
@@ -40,7 +40,7 @@ public class CartRestController {
     public ResponseEntity<List<CartResponse>> addCart(@AuthenticationPrincipal Long userId,
                                                       @RequestParam("trackId") String trackId){
 
-        List<CartResponse> responseList = cartService.addCart(uid(userId), trackId);
+        List<CartResponse> responseList = cartService.addCart(userId, trackId);
         return ResponseEntity.ok(responseList);
     }
 

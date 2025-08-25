@@ -55,9 +55,9 @@ public class PostService {
     }
 
     //
-    public List<FollowPostVO> followPostSelect(Long testUserId) {
+    public List<FollowPostVO> followPostSelect(Long userId) {
 
-        List<FollowPostVO> followPostVOList = postRepository.findFollowPostByUserId(testUserId);
+        List<FollowPostVO> followPostVOList = postRepository.findFollowPostByUserId(userId);
 
         return followPostVOList;
     }

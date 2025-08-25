@@ -20,6 +20,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <link rel="stylesheet" href="<%=ctxPath%>/css/auth/login.css">
+    <link rel="stylesheet" href="<%=ctxPath%>/css/auth/signup.css">
 </head>
 <body>
 <div class="login-container">
@@ -120,6 +121,9 @@
     </div>
 </div>
 
-<script src="/js/auth/login.js"></script>
+<script src="<%=ctxPath%>/js/auth/login.js"></script>
+<script src="<%=ctxPath%>/js/auth/signup.js"></script>
+<jsp:include page="./signUpModal.jsp"/>
+
 </body>
 </html>

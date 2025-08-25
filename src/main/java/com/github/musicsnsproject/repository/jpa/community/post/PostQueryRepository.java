@@ -7,7 +7,7 @@ import java.util.List;
 
 public interface PostQueryRepository  {
 
-    List<FollowPostVO> findFollowPostByUserId(Long testUserId);
+    List<FollowPostVO> findFollowPostByUserId(Long userId);
 
     Long findbyCntByPostId(List<Long> postIdForLikeCnt);
 }

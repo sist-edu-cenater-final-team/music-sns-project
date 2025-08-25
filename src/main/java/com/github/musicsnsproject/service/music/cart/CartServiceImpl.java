@@ -28,8 +28,6 @@ import static com.github.musicsnsproject.repository.jpa.music.cart.QMusicCart.mu
 public class CartServiceImpl implements CartService {
 
     private final MusicCartRepository musicCartRepository;
-    private final PurchaseHistoryRepository purchaseHistoryRepository;
-    private final MyMusicRepository myMusicRepository;
     private final SpotifyMusicService spotifyMusicService;
     private final JPAQueryFactory jpaQueryFactory;
 
@@ -38,6 +36,13 @@ public class CartServiceImpl implements CartService {
     @Override
     @Transactional(readOnly = true)
     public List<CartResponse> getCartList(Long userId) {
+
+        if( userId == null) {
+            throw CustomNotAcceptException.of()
+                    .customMessage("사용자가 없습니다.")
+                    .request(userId)
+                    .build();
+        }
 
         List<MusicCart> carts = jpaQueryFactory
                 .selectFrom(musicCart)
@@ -80,7 +85,14 @@ public class CartServiceImpl implements CartService {
     public List<CartResponse> addCart(Long userId, String trackId) {
 
         // 사용자 조회
-        MyUser user = findMyUserFetchJoin(userId);
+        MyUser user = findMyUser(userId);
+
+        if (user == null) {
+            throw CustomNotAcceptException.of()
+                    .customMessage("사용자를 찾을 수 없습니다.")
+                    .request(userId)
+                    .build();
+        }
 
         // 장바구니에 담긴 음악 개수 구하기
         Long count = jpaQueryFactory
@@ -132,7 +144,8 @@ public class CartServiceImpl implements CartService {
     public void deleteCart(Long userId, List<Long> cartIdList) {
 
         // 사용자 조회
-        MyUser user = findMyUserFetchJoin(userId);
+        MyUser user = findMyUser(userId);
+
         if (user == null) {
             throw CustomNotAcceptException.of()
                     .customMessage("사용자를 찾을 수 없습니다.")
@@ -146,9 +159,11 @@ public class CartServiceImpl implements CartService {
     }
 
     // 사용자 조회 공통
-    public MyUser findMyUserFetchJoin(Long userId) {
-        return jpaQueryFactory.selectFrom(myUser)
+    public MyUser findMyUser(Long userId) {
+        MyUser user = jpaQueryFactory.selectFrom(myUser)
                 .where(myUser.userId.eq(userId))
                 .fetchOne();
+
+        return user;
     }
 }

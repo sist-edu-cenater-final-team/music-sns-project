@@ -29,7 +29,7 @@
 			#{userId},
 			#{coin},
 			#{atThatPrice},
-			sysdate,
+			systimestamp, 
 			<choose>
 				<when test="afterBalance != null">
 					#{afterBalance}

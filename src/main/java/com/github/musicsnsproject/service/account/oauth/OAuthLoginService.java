@@ -16,7 +16,7 @@
     import com.github.musicsnsproject.repository.jpa.account.socialid.SocialIdRepository;
     import com.github.musicsnsproject.repository.jpa.account.user.MyUser;
     import com.github.musicsnsproject.repository.jpa.account.user.MyUserRepository;
-    import com.github.musicsnsproject.web.dto.account.auth.response.TokenDto;
+    import com.github.musicsnsproject.web.dto.account.auth.response.TokenResponse;
     import com.github.musicsnsproject.web.dto.account.oauth.request.OAuthLoginParams;
     import com.github.musicsnsproject.web.dto.account.oauth.response.AuthResult;
     import com.github.musicsnsproject.web.dto.account.oauth.response.OAuthSignUpDto;
@@ -107,7 +107,7 @@
         }
 
 
-        private TokenDto createTokenAndSave(MyUser myUser) {
+        private TokenResponse createTokenAndSave(MyUser myUser) {
             String roles = myUser.getRoles().stream().map(role -> role.getName().name())
                     .collect(Collectors.joining(","));
             //토큰 생성
@@ -115,7 +115,7 @@
             String refreshToken = jwtProvider.createNewRefreshToken();
             try {
                 //myUser.loginValueSetting(false);
-                return jwtProvider.saveRefreshTokenAndCreateTokenDto(accessToken, refreshToken, Duration.ofMinutes(3));
+                return jwtProvider.saveRefreshTokenAndCreateTokenDto(accessToken, refreshToken, JwtProvider.REFRESH_TOKEN_EXPIRATION);
             } catch (RedisConnectionFailureException e) {
                 throw CustomServerException.of()
                         .systemMessage(e.getMessage())

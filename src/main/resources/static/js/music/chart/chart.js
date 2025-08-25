@@ -1,5 +1,4 @@
 // token.js에서 함수들 가져오기
-const authHeader = AuthFunc.getAuthHeader();//즉시호출
 const apiRequest = AuthFunc.apiRequest;//함수참조
 
 
@@ -57,7 +56,7 @@ const apiRequest = AuthFunc.apiRequest;//함수참조
         return apiRequest(() =>
             axios.get(endpoint, {
                 timeout: 10000,
-                headers: authHeader
+                headers: AuthFunc.getAuthHeader()
             }).then(r => r.data)
         );
     }

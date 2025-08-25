@@ -16,16 +16,16 @@ public class LikeService {
     private final LikeRepository likeRepository;
     
     @Transactional
-    public void insertLikeByPostIdUserId(Long postId, Long testUserId) {
+    public void insertLikeByPostIdUserId(Long postId, Long userId) {
 
-        LikePk likePk = LikePk.onlyId(testUserId, postId);
+        LikePk likePk = LikePk.onlyId(userId, postId);
         Like like = Like.onlyId(likePk);
         likeRepository.save(like);
     }
     
     @Transactional
-    public boolean isLiked(Long postId, Long testUserId) {
-        LikePk likePk = LikePk.onlyId(testUserId, postId);
+    public boolean isLiked(Long postId, Long userId) {
+        LikePk likePk = LikePk.onlyId(userId, postId);
         
         if(likeRepository.existsById(likePk)) { // 좋아요 취소하기
             likeRepository.deleteById(likePk);
@@ -39,13 +39,10 @@ public class LikeService {
         
     }
 
-    public Long countLikeBy(Long postId) {
+    public Long countLikeCnt(Long postId) {
 
-        Long n = 0L;
+        Long countLikeCnt = likeRepository.countLikeCnt(postId);
 
-        n = likeRepository.countLikeBy(postId);
-
-        return n;
-
+        return countLikeCnt;
     }
 }
