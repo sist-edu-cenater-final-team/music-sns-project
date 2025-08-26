@@ -19,9 +19,11 @@ public class EumpyoHistoryController {
     private final EumpyoHistoryService historyService;
 
     private Long extractUserId(Object principal) {
+    	
         if (principal == null) return null;
         if (principal instanceof Long) return (Long) principal;
         if (principal instanceof CustomUserDetails) return ((CustomUserDetails) principal).getUserId();
+        
         return null;
     }
 
@@ -32,15 +34,20 @@ public class EumpyoHistoryController {
                                                              @RequestParam(defaultValue = "10") int size) {
 
         Long userId = extractUserId(principal);
+        
         if (userId == null) {
+        	
             Map<String, Object> body = new HashMap<>();
+            
             body.put("result", "fail");
             body.put("message", "로그인이 필요합니다.");
+            
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(body);
         }
 
         int safePage = Math.max(1, page);
         int safeSize = Math.max(1, size);
+        
         return ResponseEntity.ok(historyService.getChargeHistory(userId, safePage, safeSize));
     }
 
@@ -51,15 +58,20 @@ public class EumpyoHistoryController {
                                                                @RequestParam(defaultValue = "10") int size) {
 
         Long userId = extractUserId(principal);
+        
         if (userId == null) {
+        	
             Map<String, Object> body = new HashMap<>();
+            
             body.put("result", "fail");
             body.put("message", "로그인이 필요합니다.");
+            
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(body);
         }
 
         int safePage = Math.max(1, page);
         int safeSize = Math.max(1, size);
+        
         return ResponseEntity.ok(historyService.getPurchaseHistory(userId, safePage, safeSize));
     }
 
@@ -69,10 +81,14 @@ public class EumpyoHistoryController {
                                                               @PathVariable("purchaseHistoryId") long purchaseHistoryId) {
 
         Long userId = extractUserId(principal);
+        
         if (userId == null) {
+        	
             Map<String, Object> body = new HashMap<>();
+            
             body.put("result", "fail");
             body.put("message", "로그인이 필요합니다.");
+            
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(body);
         }
 

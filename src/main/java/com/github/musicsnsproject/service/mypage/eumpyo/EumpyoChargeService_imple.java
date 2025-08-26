@@ -22,9 +22,12 @@ public class EumpyoChargeService_imple implements EumpyoChargeService {
 
     // 임시 주문 객체 (userId, 예상 결제금액(원))
     private static final class OrderTemp {
+    	
         final long userId;
         final int expectedAmount;
+        
         OrderTemp(long userId, int expectedAmount) {
+        	
             this.userId = userId;
             this.expectedAmount = expectedAmount;
         }
@@ -34,6 +37,7 @@ public class EumpyoChargeService_imple implements EumpyoChargeService {
     private int convertAmountToCoin(int amount) {
         if (amount <= 0) return 0;
         if (amount % 100 != 0) return 0;
+        
         return amount / 100;
     }
 
@@ -46,6 +50,7 @@ public class EumpyoChargeService_imple implements EumpyoChargeService {
         if (amount <= 0 || amount % 100 != 0) {
             map.put("result", "fail");
             map.put("message", "선택한 금액이 올바르지 않습니다.");
+            
             return map;
         }
 
@@ -59,6 +64,7 @@ public class EumpyoChargeService_imple implements EumpyoChargeService {
         map.put("merchantUid", merchantUid);
         map.put("amountKRW", amount);
         map.put("chargedCoin", chargedCoin);
+        
         return map;
     }
 
@@ -69,18 +75,20 @@ public class EumpyoChargeService_imple implements EumpyoChargeService {
     	
         Map<String, Object> map = new HashMap<>();
 
-        // 1) 임시 주문 건 조회(동시에 제거해 중복처리 방지)
+        // 임시 주문 건 조회(동시에 제거해 중복처리 방지)
         OrderTemp orderTemp = orderTempByMerchantUid.remove(merchantUid);
         
         if (orderTemp == null) {
             map.put("result", "fail");
             map.put("message", "이미 처리되었거나 유효하지 않은 요청입니다.");
+            
             return map;
         }
         
         if (orderTemp.userId != userId) {
             map.put("result", "fail");
             map.put("message", "회원 정보가 일치하지 않습니다.");
+            
             return map;
         }
 
@@ -90,11 +98,11 @@ public class EumpyoChargeService_imple implements EumpyoChargeService {
             if (coin <= 0) {
                 map.put("result", "fail");
                 map.put("message", "결제 금액을 확인할 수 없습니다.");
+                
                 return map;
             }
 
-            // 2) (간편 모드) 결제 검증 통과 처리
-            //    - 포트원 서버 검증 붙이려면 아래 verifyPayment(...)를 실제 구현으로 교체
+            // 결제 검증 통과 처리
             boolean ok = verifyPayment(impUid, merchantUid, atThatPrice);
             
             if (!ok) {
@@ -125,12 +133,14 @@ public class EumpyoChargeService_imple implements EumpyoChargeService {
             map.put("chargedCoin", coin);
             map.put("coinBalance", afterBalance);
             map.put("message", "충전이 완료되었습니다.");
+            
             return map;
 
         } catch (Exception e) {
             TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
             map.put("result", "fail");
             map.put("message", "처리 중 오류가 발생했습니다.");
+            
             return map;
         }
     }
@@ -140,6 +150,7 @@ public class EumpyoChargeService_imple implements EumpyoChargeService {
     @Transactional(readOnly = true)
     public Long getUserCoin(long userId) {
         Long coin = eumpyoChargeDAO.selectUserCoin(userId);
+        
         return (coin == null ? 0L : coin);
     }
     

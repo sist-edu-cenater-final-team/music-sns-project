@@ -24,7 +24,7 @@ public class EumpyoHistoryService_imple implements EumpyoHistoryService {
     private final SpotifyMusicService spotifyMusicService;
 
     
-    // 구매번호 생성 
+    // 주문번호 생성 
     private static final char[] B62 = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz".toCharArray();
     
     private static String toBase62(long n) {
