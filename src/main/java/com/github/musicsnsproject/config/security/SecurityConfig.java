@@ -58,6 +58,7 @@ public class SecurityConfig {
                         .requestMatchers("/","/index.html","/resources/**","/api/auth/*", "/api/email/*",
                                 "/error","/swagger-ui/**", "/v3/api-docs/**", "/amp-docs.html").permitAll()
                         .requestMatchers("/api/oauth/**").anonymous()
+                        .requestMatchers("/api/mypage/eumpyo/**").authenticated()
                         .anyRequest().permitAll()
                 )
                 .addFilterBefore(new JwtFilter(jwtProvider), UsernamePasswordAuthenticationFilter.class)//인증이전 실행

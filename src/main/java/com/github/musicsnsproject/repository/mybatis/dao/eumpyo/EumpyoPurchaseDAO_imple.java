@@ -25,7 +25,7 @@ public class EumpyoPurchaseDAO_imple implements EumpyoPurchaseDAO {
         return sql.insert("eumpyoPurchase.insertPurchaseMusic", params);
     }
     
-    // 현재 사용자 코인 조회 
+    // 현재 사용자 코인 조회 (단순 조회)
     @Override
     public Long selectUserCoin(long userId) {
         return sql.selectOne("eumpyoPurchase.selectUserCoin", userId);
@@ -37,5 +37,11 @@ public class EumpyoPurchaseDAO_imple implements EumpyoPurchaseDAO {
         Map<String, Object> map = new HashMap<>();
         map.put("userId", userId);
         return sql.update("eumpyoPurchase.recalcUserCoinFromHistory", map);
+    }
+    
+    // 현재 사용자 코인 조회 (잠금/동시수정불가)
+    @Override
+    public Long selectUserCoinForUpdate(long userId) {
+        return sql.selectOne("eumpyoPurchase.selectUserCoinForUpdate", userId);
     }
 }
