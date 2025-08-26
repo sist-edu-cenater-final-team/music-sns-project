@@ -1,7 +1,8 @@
+
+let isFormSubmitted = false; // 회원가입 완료 여부 확인용
 // 회원가입 모달 관련 함수들
 document.addEventListener('DOMContentLoaded', function() {
     const signupModal = document.getElementById('signupModal');
-    const closeBtn = signupModal.querySelector('.btn-close');
 
     // 회원가입 링크 클릭 시 모달 열기
     const signupLinks = document.querySelectorAll('a[href="/signup"]');
@@ -47,7 +48,67 @@ document.addEventListener('DOMContentLoaded', function() {
     if (passwordConfirm) {
         passwordConfirm.addEventListener('input', validatePasswordMatch);
     }
+
+    // 모달 닫기 전 확인
+    signupModal.addEventListener('hide.bs.modal', function(e) {
+        // 회원가입이 완료된 경우나 폼이 비어있는 경우는 확인하지 않음
+        if (isFormSubmitted || isFormEmpty()) {
+            return;
+        }
+
+        // 모달 닫기 중단
+        e.preventDefault();
+
+        // SweetAlert2로 확인
+        Swal.fire({
+            title: '가입을 취소하시겠습니까?',
+            text: "입력하신 정보가 모두 사라집니다.",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#6633ff',
+            cancelButtonColor: '#d33',
+            confirmButtonText: '확인',
+            cancelButtonText: '취소',
+            customClass: {
+                popup: 'swal-signup-confirm'
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // 확인 버튼을 눌렀을 때 모달 닫기
+                isFormSubmitted = true; // 다시 확인하지 않도록
+                const modal = bootstrap.Modal.getInstance(signupModal);
+                modal.hide();
+
+                // 폼 초기화
+                setTimeout(() => {
+                    resetSignupForm();
+                    isFormSubmitted = false;
+                }, 300);
+            }
+        });
+    });
+    // ESC 키 처리
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && signupModal.classList.contains('show')) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            if (!isFormSubmitted && !isFormEmpty()) {
+                signupModal.dispatchEvent(new Event('hide.bs.modal'));
+            }
+        }
+    });
 });
+// 폼이 비어있는지 확인하는 함수
+function isFormEmpty() {
+    const inputs = document.querySelectorAll('#signupForm input[type="text"], #signupForm input[type="tel"], #signupForm input[type="password"]');
+    for (let input of inputs) {
+        if (input.value.trim() !== '') {
+            return false;
+        }
+    }
+    return true;
+}
 function openSignupModal() {
 
     // Bootstrap 5 방식으로 모달 초기화
@@ -158,6 +219,7 @@ function handleSignup() {
     // API 호출
     axios.post('/api/auth/sign-up', formData)
         .then(response => {
+            isFormSubmitted = true; // 성공 시 설정
             console.log(response)
             showSignupMessage('회원가입이 완료되었습니다!', 'success');
 
@@ -178,6 +240,7 @@ function handleSignup() {
                 if (typeof showMessage === 'function') {
                     showMessage('회원가입이 완료되었습니다. 로그인해주세요.', 'success');
                 }
+                isFormSubmitted = false; // 초기화
             }, 2000);
         })
         .catch(error => {

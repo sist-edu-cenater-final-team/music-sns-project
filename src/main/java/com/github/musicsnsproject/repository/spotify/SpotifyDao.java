@@ -16,10 +16,13 @@ import se.michaelthelin.spotify.requests.data.artists.GetArtistRequest;
 import se.michaelthelin.spotify.requests.data.artists.GetArtistsAlbumsRequest;
 import se.michaelthelin.spotify.requests.data.playlists.GetPlaylistRequest;
 import se.michaelthelin.spotify.requests.data.search.simplified.SearchTracksRequest;
+import se.michaelthelin.spotify.requests.data.tracks.GetSeveralTracksRequest;
 import se.michaelthelin.spotify.requests.data.tracks.GetTrackRequest;
 import se.michaelthelin.spotify.exceptions.detailed.NotFoundException;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 import java.util.function.Function;
 
 
@@ -96,6 +99,12 @@ public class SpotifyDao {
                 .build();
         return requestExecute(request);
 
+    }
+    public Track[] findAllTrackByIds(List<String> trackIds){
+        GetSeveralTracksRequest request = spotifyApi.getSeveralTracks(trackIds.toArray(new String[0]))
+                .setHeader("Accept-Language", "ko-KR,ko;q=0.9")
+                .build();
+        return requestExecute(request);
     }
 
     public Playlist findMelonTop100() {

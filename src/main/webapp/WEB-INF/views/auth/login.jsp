@@ -83,33 +83,26 @@
             <div class="social-login">
                 <h3>소셜 로그인</h3>
                 <div class="social-buttons">
-                    <button class="social-btn kakao" onclick="socialLogin('kakao')">
-                        <i class="bi bi-chat-fill"></i>
-                        카카오
+                    <button class="social-btn" onclick="socialLogin('kakao')" title="카카오 로그인">
+                        <img src="<%=ctxPath%>/images/oauth/kakao.png" alt="카카오">
                     </button>
-                    <button class="social-btn naver" onclick="socialLogin('naver')">
-                        <span class="naver-n">N</span>
-                        네이버
+                    <button class="social-btn" onclick="socialLogin('naver')" title="네이버 로그인">
+                        <img src="<%=ctxPath%>/images/oauth/naver.png" alt="네이버">
                     </button>
-                    <button class="social-btn github" onclick="socialLogin('github')">
-                        <i class="bi bi-github"></i>
-                        GitHub
+                    <button class="social-btn" onclick="socialLogin('github')" title="GitHub 로그인">
+                        <img src="<%=ctxPath%>/images/oauth/github.png" alt="GitHub">
                     </button>
-                    <button class="social-btn microsoft" onclick="socialLogin('microsoft')">
-                        <i class="bi bi-microsoft"></i>
-                        Microsoft
+                    <button class="social-btn" onclick="socialLogin('microsoft')" title="Microsoft 로그인">
+                        <img src="<%=ctxPath%>/images/oauth/microsoft.png" alt="Microsoft">
                     </button>
-                    <button class="social-btn google" onclick="socialLogin('google')">
-                        <i class="bi bi-google"></i>
-                        Google
+                    <button class="social-btn" onclick="socialLogin('google')" title="Google 로그인">
+                        <img src="<%=ctxPath%>/images/oauth/google.png" alt="Google">
                     </button>
-                    <button class="social-btn twitter" onclick="socialLogin('twitter')">
-                        <i class="bi bi-twitter"></i>
-                        Twitter
+                    <button class="social-btn" onclick="socialLogin('twitter')" title="Twitter 로그인">
+                        <img src="<%=ctxPath%>/images/oauth/twitter.png" alt="Twitter">
                     </button>
-                    <button class="social-btn facebook" onclick="socialLogin('facebook')">
-                        <i class="bi bi-facebook"></i>
-                        Facebook
+                    <button class="social-btn" onclick="socialLogin('facebook')" title="Facebook 로그인">
+                        <img src="<%=ctxPath%>/images/oauth/facebook.png" alt="Facebook">
                     </button>
                 </div>
             </div>
@@ -125,6 +118,5 @@
 <script src="<%=ctxPath%>/js/auth/login.js"></script>
 <script src="<%=ctxPath%>/js/auth/signup.js"></script>
 <jsp:include page="./signUpModal.jsp"/>
-
 </body>
 </html>

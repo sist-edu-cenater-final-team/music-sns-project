@@ -1,4 +1,5 @@
 package com.github.musicsnsproject.web.controller.rest.account.auth;
+import com.github.musicsnsproject.common.MyUtils;
 import com.github.musicsnsproject.common.myenum.OAuthProvider;
 import com.github.musicsnsproject.service.account.oauth.OAuthLoginService;
 import com.github.musicsnsproject.service.account.oauth.OAuthProviderService;
@@ -86,10 +87,10 @@ public class OAuthController implements OAuthControllerDocs {
         AuthResult result = oAuthLoginService.loginOrCreateTempAccount(params);
         CustomSuccessResponse<OAuthDtoInterface> response = CustomSuccessResponse
                 .of(result.getHttpStatus(), result.getMessage(), result.getResponse());
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("X-Is-Connection", String.valueOf(result.isConnection()));
 
-        return ResponseEntity
-                .status(response.getHttpStatus())
-                .body(response);
+        return MyUtils.createResponseEntity(response, headers);
     }
 
 

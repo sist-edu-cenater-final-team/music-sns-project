@@ -567,3 +567,17 @@
     font-size: 0.9rem;
 }
 
+/* SweetAlert2 커스터마이징 */
+.swal-signup-confirm {
+    border-radius: 15px !important;
+    font-family: inherit !important;
+}
+
+.swal-signup-confirm .swal2-title {
+    color: #333 !important;
+    font-size: 1.3rem !important;
+}
+
+.swal-signup-confirm .swal2-content {
+    color: #666 !important;
+}

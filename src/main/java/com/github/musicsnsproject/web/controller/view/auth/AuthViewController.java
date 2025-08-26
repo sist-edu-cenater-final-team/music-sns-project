@@ -13,18 +13,4 @@ public class AuthViewController {
         return "auth/login";
     }
 
-    @RequestMapping("/signup")
-    public String signup() {
-        return "auth/signup";
-    }
-
-    @RequestMapping("/find-password")
-    public String findPassword() {
-        return "auth/find-password";
-    }
-
-    @RequestMapping("/reset-password")
-    public String resetPassword() {
-        return "auth/reset-password";
-    }
 }

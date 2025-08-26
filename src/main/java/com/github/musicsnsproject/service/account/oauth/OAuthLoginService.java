@@ -62,24 +62,25 @@
             MyUser requestUser = myUsersRepository.findBySocialIdPkOrUserEmail(socialIdPk, oAuthUserInfo.getEmail())
                     .orElseGet(() -> processTempSignUp(oAuthUserInfo));//없으면 임시 회원가입 진행
             //필요에 따라 유저 정보에 소셜 ID, 프로필이미지 설정
-            requestUserSetSocialId(requestUser, socialIdPk);
+            boolean isConnection = requestUserSetSocialId(requestUser, socialIdPk);
             requestUser.updateProfileImgFromOAuthInfo(oAuthUserInfo.getProfileImg());
 
             //로그인 또는 회원가입 응답 생성
-            return requestUser.isEnabled() ? createOAuthLoginResponse(requestUser) : createOAuthSignUpResponse(oAuthUserInfo);
+            return requestUser.isEnabled() ? createOAuthLoginResponse(requestUser,isConnection) : createOAuthSignUpResponse(oAuthUserInfo);
         }
 
 
 
-        private void requestUserSetSocialId(MyUser requestUser, SocialIdPk socialIdPk) {
+        private boolean requestUserSetSocialId(MyUser requestUser, SocialIdPk socialIdPk) {
             boolean hasSocialIdPk = requestUser.getSocialIds() != null &&
                     requestUser.getSocialIds().stream()
                             .map(SocialId::getSocialIdPk)
                             .anyMatch(pk -> pk.equals(socialIdPk));
-            if (hasSocialIdPk) return;
+            if (hasSocialIdPk) return false;
 
             SocialId newSocialId = SocialId.ofSocialIdPkAndMyUser(socialIdPk, requestUser);
             requestUser.addSocialId(newSocialId);
+            return true;//소셜 아이디 추가됨
         }
 
         private AuthResult createOAuthSignUpResponse(OAuthUserInfo oAuthUserInfo) {
@@ -93,14 +94,15 @@
         private void securityOAuthSuccessVerify(MyUser myUser){
             LocalDateTime latestLoggedAt = loginHistoryRepository.findLatestLoggedAtByUserId(myUser.getUserId());
             CustomUserDetails userDetails = UserMapper.INSTANCE.myUserToCustomUserDetails(myUser, latestLoggedAt);
-            System.out.println("aa");
+//            System.out.println("aa");
             customAuthenticationProvider.oauthAuthenticate(userDetails);
         }
 
-        private AuthResult createOAuthLoginResponse(MyUser myUser) {
+        private AuthResult createOAuthLoginResponse(MyUser myUser, boolean isConnection) {
             securityOAuthSuccessVerify(myUser);
             return AuthResult.builder()
                     .response(createTokenAndSave(myUser))
+                    .isConnection(isConnection)
                     .message("로그인 성공")
                     .httpStatus(HttpStatus.OK)
                     .build();

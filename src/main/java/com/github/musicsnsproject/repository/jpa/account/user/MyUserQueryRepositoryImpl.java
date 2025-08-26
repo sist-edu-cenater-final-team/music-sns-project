@@ -32,12 +32,13 @@ public class MyUserQueryRepositoryImpl implements MyUserQueryRepository {
 
     @Override
     public Optional<MyUser> findBySocialIdPkOrUserEmail(SocialIdPk socialIdPk, String email) {
+        BooleanExpression emailPredicate = email != null ? qMyUser.email.eq(email) : null;
         QSocialId qSocialId = QSocialId.socialId;
         List<MyUser> myUserList = queryFactory.select(qMyUser)
                 .from(qMyUser)
                 .leftJoin(qMyUser.socialIds, qSocialId).fetchJoin()
                 .leftJoin(qMyUser.roles, QRole.role).fetchJoin()
-                .where(qSocialId.socialIdPk.eq(socialIdPk).or(qMyUser.email.eq(email)))
+                .where(qSocialId.socialIdPk.eq(socialIdPk).or(emailPredicate))
                 .fetch();
         MyUser response = singleOutAUser(myUserList, socialIdPk);
         return Optional.ofNullable(response);

@@ -295,23 +295,53 @@ function removeLockoutMessage() {
 // 페이지 언로드시 타이머 정리
 window.addEventListener('beforeunload', clearLockoutTimer);
 
-
-function socialLogin(provider) {
-    // 소셜 로그인 처리
-    const providers = {
-        kakao: '/oauth2/authorization/kakao',
-        naver: '/oauth2/authorization/naver',
-        github: '/oauth2/authorization/github',
-        microsoft: '/oauth2/authorization/microsoft',
-        google: '/oauth2/authorization/google',
-        twitter: '/oauth2/authorization/twitter',
-        facebook: '/oauth2/authorization/facebook'
-    };
-
-    const authUrl = providers[provider];
-    if (authUrl) {
-        window.location.href = authUrl;
-    } else {
-        alert('지원하지 않는 로그인 방식입니다.');
+async function requestAuthUrl(provider) {
+    const redirectUri = `${window.location.origin}${ctxPath}/oauth/${provider}/callback`;
+    const apiUrl = `${ctxPath}/api/oauth/${provider}`;
+    const response = await axios.get(apiUrl, {
+        params: {redirectUri: redirectUri}
+    });
+    if (response.status !== 200) {
+        console.error('소셜 로그인 URL 요청 실패:', response);
+        return;
     }
+    return response.data.success.responseData;
+}
+
+async function socialLogin(provider) {
+
+    const authUrl = await requestAuthUrl(provider);
+    requestOAuthLogin(authUrl);
+}
+
+function requestOAuthLogin(authUrl) {
+    // 새 창으로 인증 URL 열기
+    const width = 600;
+    const height = 700;
+    const left = (window.innerWidth - width) / 2;
+    const top = (window.innerHeight - height) / 2;
+
+    window.open(authUrl, 'OAuth Login', `width=${width},height=${height},left=${left},top=${top}`);
+}
+function handleLoginSuccess(isConnection, responseData, providerValue ){
+    localStorage.setItem('accessToken', responseData.accessToken);
+    localStorage.setItem('tokenType', responseData.tokenType);
+    if(isConnection){
+        // 성공시 타이머 정리
+        clearLockoutTimer();
+        showMessage("계정에 "+providerValue + ' 소셜 로그인이 연결 되었습니다.', 'success');
+        setTimeout(() => {
+            window.location.href = '/';
+        }, 1000);
+
+    } else {
+        // 성공시 타이머 정리
+        clearLockoutTimer();
+        showMessage(providerValue + ' 로그인에 성공했습니다.', 'success');
+        setTimeout(() => {
+            window.location.href = '/';
+        }, 1000);
+    }
+
+
 }
