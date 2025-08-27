@@ -7,6 +7,7 @@ import com.github.musicsnsproject.domain.user.MyUserVO;
 import com.github.musicsnsproject.repository.jpa.account.socialid.SocialIdPk;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 public interface MyUserQueryRepository {
@@ -19,6 +20,8 @@ public interface MyUserQueryRepository {
 
 	List<PostVO> getUserPost(Long userId);
 	// 유저 인포
-	MyUserVO getUserInfo(Long fakeUserId);
+	MyUserVO getUserInfo(Long userId);
+	// 유저 인포 업데이트
+	long updateUserInfo(Map<String, Object> paraMap);
 //    Optional<CustomUserDetails> findBySocialIdPkOrUserEmailForAuth(SocialIdPk socialIdPk, String email);
 }

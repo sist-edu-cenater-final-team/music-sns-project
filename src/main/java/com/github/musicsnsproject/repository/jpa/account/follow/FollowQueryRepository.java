@@ -8,29 +8,29 @@ import com.github.musicsnsproject.domain.follow.FollowVO;
 public interface FollowQueryRepository {
 	
 	// 나를 팔로우 하는 사람
-	List<FollowVO> findByFollowerAndUserInfo(String userId);
+	List<FollowVO> findByFollowerAndUserInfo(Long userId);
 	
 	// 내가 팔로우 하는 사람
-	List<FollowVO> findByFolloweeAndUserInfo(String userId);
+	List<FollowVO> findByFolloweeAndUserInfo(Long userId);
 	
 	// 즐겨찾기 유저
-	List<FollowVO> getfavoriteList(String userId);
+	List<FollowVO> getfavoriteList(Long userId);
 	
 	// 함께 아는 친구
-	List<FollowVO> findCommonFriend(String userId);
+	List<FollowVO> findCommonFriend(Long userId);
 	// 팔로우 추가
-	int addFollow(Map<String, String> map);
+	int addFollow(Map<String, Long> map);
 	// 팔로우 취소
-	long unFollow(Map<String, String> map);
+	long unFollow(Map<String, Long> map);
 		
 	// 즐겨찾기 추가
-	long addFavorite(Map<String, String> map);
+	long addFavorite(Map<String, Long> map);
 	// 즐겨찾기 취소
-	long unFavorite(Map<String, String> map);
-
-		
+	long unFavorite(Map<String, Long> map);
+	// 차단
+	long addBlock(Map<String, Long> map);	
 	// 검색된 유저
-	List<FollowVO> searchUser(String searchWord, String userId);
+	List<FollowVO> searchUser(String searchWord, Long userId);
 	
 	
 

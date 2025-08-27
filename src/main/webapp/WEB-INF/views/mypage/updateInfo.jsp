@@ -101,6 +101,43 @@
 
 $(function(){
 
+	const authHeader = AuthFunc.getAuthHeader;
+    const apiRequest = AuthFunc.apiRequest;
+
+    apiRequest(() =>
+        $.ajax({
+            url: '<%= ctxPath%>/api/userInfo/getInfo',
+            headers: authHeader(),
+            dataType: 'json',
+            success: function(json) {
+                // 프로필 이미지
+                if(json.profile_image) {
+                    $('#profile_img').attr('src', json.profile_image);
+                }
+
+                // 닉네임
+                $('input[name="nickname"]').val(json.nickname);
+
+                // 이메일 (읽기 전용)
+                $('input[type="email"]').val(json.email).prop('readonly', true);
+
+                // 상태 메시지
+                $('input[name="profileMessage"]').val(json.profileMessage || '');
+
+                // 성별 선택
+                if(json.gender) {
+                    $('.custom-dropdown .selected').text(json.gender);
+                    $('input[name="gender"]').val(json.gender);
+                }
+            },
+            error: function() {
+                console.error("프로필 정보 불러오기 실패");
+            }
+        })
+    );
+	
+	
+	
 	$("#profile_image").on("change", function(e){
 		  let reader = new FileReader();
 		  reader.onload = function(e){
@@ -111,8 +148,7 @@ $(function(){
 		  }
 
 		});
-	
-	
+		
 
 	$(".custom-dropdown .selected").click(function(){
 	  $(this).siblings(".options").toggle();
@@ -132,30 +168,77 @@ $(function(){
 	  }
 	});
 
-	
-	$('button[id="submit"]').on("click",function(){
-		
-		const frm = document.updateInfoFrm;
-		const formData = new FormData(frm);
-		
-		$.ajax({
-			url:"<%= ctxPath%>/api/userInfo/update",
-			type:"post",
-			data:formData,
-			processData: false,     
-		    contentType: false,     
-			dataType:"json",
-			success:function(json){
-				console.log(json);
-			},
-			error: function(request, status, error) {
-	            alert("code: " + request.status + "\nmessage: " + request.responseText + "\nerror: " + error);
-	        }
-		}); // end of ajax ---
-		
+	$('button[id="submit"]').on("click", function() {
+
+	    const frm = document.updateInfoFrm;
+	    const formData = new FormData(frm);
+	    const profile_image = document.getElementById("profile_image");
+	    const directory = "user_profile_image";
+
+	    const authHeader = AuthFunc.getAuthHeader;
+	    const apiRequest = AuthFunc.apiRequest;
+
+	    // 프로필 이미지가 있으면 먼저 업로드
+	    if (profile_image.files.length > 0) {
+	        const imgFormData = new FormData();
+	        imgFormData.append("files", profile_image.files[0]);
+	        imgFormData.append("directory", directory);
+
+	        
+	        apiRequest(() => $.ajax({
+	            url: "<%= ctxPath%>/api/storage",
+	            type: "post",
+	            data: imgFormData,
+	            processData: false,
+	            contentType: false,
+	            headers: authHeader(),
+	            dataType: "json",
+	            success: function(json) {
+	               
+	                const profile_image_url = json.success.responseData[0].fileUrl;
+	                formData.append("profile_image", profile_image_url);
+
+	                // 유저 정보 업데이트
+	                updateUserInfo(formData);
+	            },
+	            error: function(request, status, error) {
+	                alert("이미지 업로드 실패\ncode:" + request.status + "\nmessage:" + request.responseText + "\nerror:" + error);
+	            }
+	        }));
+	    } else {
+	       
+	        updateUserInfo(formData);
+	    }
 	});
+
+	// 유저 정보 업데이트 함수
+	function updateUserInfo(formData) {
+
+	    const authHeader = AuthFunc.getAuthHeader;
+	    const apiRequest = AuthFunc.apiRequest;
+	    
+	    apiRequest(() => 
+	    	$.ajax({
+		        url: "<%= ctxPath%>/api/userInfo/update",
+		        type: "post",
+		        data: formData,
+		        processData: false,
+		        contentType: false,
+		        headers: authHeader(),
+		        dataType: "json",
+		        success: function(json) {
+		            console.log("프로필 업데이트 성공:", json);
+		            alert("업데이트 성공");
+		            location.href="<%= ctxPath%>/mypage/myinfo";
+		        },
+		        error: function(request, status, error) {
+		            alert("프로필 업데이트 실패\ncode:" + request.status + "\nmessage:" + request.responseText + "\nerror:" + error);
+		        }
+		    }));
+	}
+
 	
-	
+
 }); // end of furnction(){}
 
 </script>
@@ -174,24 +257,20 @@ $(function(){
 					<div>
 						<div class="text-center">
 
-						
-						
-							
-							<form  method="post" name="updateInfoFrm" enctype="multipart/form-data">
-								
-								<img id="profile_img" src="<%= ctxPath %>/images/common/userprofile/test.jpg" 
+								<img id="profile_img" src="" 
 						    		class="rounded-circle mb-3" style="width:120px; height:120px; object-fit:cover;" id="profilePreview">
 								<div>
 									<input type="file" id="profile_image" name="profile_image" style="display: none;">
 									<a href="#" onclick="$('#profile_image').click()">프로필 사진 변경</a>	
 								</div>
+						
 							
-							
-								<input type="hidden" name="userid" value="${fakeUserId}">
+							<form  method="post" name="updateInfoFrm" enctype="multipart/form-data">
+						
 								
 								<div class="input-box">
 								  <span class="fixed-label">닉네임</span>
-								  <input type="text" name="nickname" value="${nickname }"/>
+								  <input type="text" name="nickname"/>
 								</div>
 								
 								<div class="input-box">
