@@ -13,7 +13,10 @@
         <!-- 메인 컨텐츠 -->
         <div class="main-contents">
             <div class="inner">
-                <h2 class="cart-title">주문 확인</h2>
+				<%-- 보유 음표 영역 --%>
+				<jsp:include page="../include/mypage/mypagePointInfo.jsp" />
+				<%-- 보유 음표 영역 --%>
+				<h2 class="cart-title">주문 확인</h2>
                 <table class="music-cart-table table">
                     <thead>
                     <tr>
