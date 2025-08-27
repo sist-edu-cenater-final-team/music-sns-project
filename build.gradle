@@ -102,6 +102,11 @@ dependencies {
     implementation 'org.jsoup:jsoup:1.21.1'
     //sms 발송
     implementation 'net.nurigo:sdk:4.2.7'
+    //mongo
+    implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
+    //websocket
+    implementation 'org.springframework.boot:spring-boot-starter-websocket'
+
 }
 
 tasks.named('test') {
