@@ -31,6 +31,7 @@ public class PostQueryRepositoryImpl implements PostQueryRepository {
         return queryFactory
                 .from(post)
                 .join(post.userEmotion, ue)
+                .join(ue.emotion, QEmotion.emotion)
                 .join(ue.myUser, author)
                 .leftJoin(post.images, postImage)
                 .leftJoin(QLike.like).on(QLike.like.likePk.post.eq(post))
@@ -60,6 +61,7 @@ public class PostQueryRepositoryImpl implements PostQueryRepository {
                                                 post.viewCount.as("viewCount"),
                                                 post.postId.as("postId"),
                                                 author.userId.as("userId"),
+                                                QEmotion.emotion.emotionValue.as("emotionValue"),
                                                 GroupBy.list(QLike.like.likePk.myUser.userId).as("likedUserPks")
                                         )
                                 )
