@@ -145,12 +145,10 @@ button#clearBtn {
 
 <script type="text/javascript">
 	$(function() {
-	    const userId = '41';
 	
 	    // 초기 데이터 로드
-	    getfollower(userId);
-	    getCounts(userId);
-	    getfollowing(userId);
+	    getCounts();
+	    getfollowing();
 	
 	    // ===============================
 	    // UI 이벤트 바인딩
@@ -170,22 +168,22 @@ button#clearBtn {
 	        $('span#following').css('color', '#e0e0e0');
 	        $('span#followers').css('color', 'black');
 	        $('span#favorite').css('color', '#e0e0e0');
-	        getfollower(userId);
+	        getfollower();
 	    });
 	
 	    $('span#following').on('click', function() {
 	        $('span#following').css('color', 'black');
 	        $('span#followers').css('color', '#e0e0e0');
 	        $('span#favorite').css('color', '#e0e0e0');
-	        getfollowing(userId);
-	        friendFollow(userId);
+	        getfollowing();
+	        //friendFollow();
 	    });
 	
 	    $('span#favorite').on('click', function() {
 	        $('span#following').css('color', '#e0e0e0');
 	        $('span#followers').css('color', '#e0e0e0');
 	        $('span#favorite').css('color', 'black');
-	        favoriteList(userId);
+	        favoriteList();
 	    });
 	
 	    // 검색 입력창 이벤트
@@ -213,7 +211,7 @@ button#clearBtn {
 	        }
 	
 	        if (e.keyCode == 13) {
-	            searchUser(userId, searchWord);
+	            searchUser(searchWord);
 	        }
 	    });
 	
@@ -238,88 +236,122 @@ button#clearBtn {
 	
 		
 	// 인원 count
-	function getCounts(userId) {
-	    $.getJSON('<%= ctxPath%>/api/follow/follower/' + userId, function(json) {
-	        $('#following').text('팔로워 ' + json.length + '명');
-	    });
-	
-	    $.getJSON('<%= ctxPath%>/api/follow/followee/' + userId, function(json) {
-	        $('#followers').text('팔로잉 ' + json.length + '명');
-	    });
-	
-	    $.getJSON('<%= ctxPath%>/api/follow/favorite/' + userId, function(json) {
-	        $('#favorite').text('즐겨찾기 ' + json.length + '명');
-	    });
-	}
+function getCounts() {
+    const apiRequest = AuthFunc.apiRequest;
+    const authHeader = AuthFunc.getAuthHeader;
+
+    // 팔로워
+    apiRequest(() =>
+        $.ajax({
+            url: '<%= ctxPath%>/api/follow/follower',
+            headers: authHeader(),
+            dataType: 'json',
+            success: function(json) {
+                $('#following').text('팔로워 ' + json.length + '명');
+            }
+        })
+    );
+
+    // 팔로잉
+    apiRequest(() =>
+        $.ajax({
+            url: '<%= ctxPath%>/api/follow/followee',
+            headers: authHeader(),
+            dataType: 'json',
+            success: function(json) {
+                $('#followers').text('팔로잉 ' + json.length + '명');
+            }
+        })
+    );
+
+    // 즐겨찾기
+    apiRequest(() =>
+        $.ajax({
+            url: '<%= ctxPath%>/api/follow/favorite',
+            headers: authHeader(),
+            dataType: 'json',
+            success: function(json) {
+                $('#favorite').text('즐겨찾기 ' + json.length + '명');
+            }
+        })
+    );
+}
 
 		
 	// 팔로우 리스트	
-	function getfollowing(userId) { // 내가 팔로워
-
-	    $.ajax({
-	        url: '<%= ctxPath%>/api/follow/follower/' + userId,
-	        type: 'get',
-	        dataType: 'json',
-	        success: function(json) {
-	            
-	        	const list = $('div.follow-container');
-	    		list.empty();
-	    		
-	    		
-	    		json.forEach(item => {
-	    	        const user = item.user;
-
-	    	        let v_html = `
-	    	        	<div class="followInfo row">
-	    	        	    <div style="display:flex; align-items:center;">
-	    	        	        <span>
-	    	        	            <img style="width: 100px; height: 100px; object-fit: cover; border: 2px solid #ddd;" 
-	    	        	                 class="rounded-circle mr-4 profile-img" src="<%= ctxPath%>/images/common/userprofile/test.jpg"/>
-	    	        	        </span>
-	    	        	        <span>
-	    	        	            <div>\${user.email}</div>
-	    	        	            <div>\${user.nickname}</div>`;
-
-	    	        	if(user.profileMessage == null || user.profileMessage.trim() === "") {
-	    	        	    v_html += `<div>gggggggggggggg</div>`;
-	    	        	} else {
-	    	        	    v_html += `<div>${user.profileMessage}</div>`;
-	    	        	}
-
-	    	        	 v_html += `
-	    	                 </span>
-	    	             </div>
-
-	    	             <div style="display:flex; align-items:center; gap: 10px; margin-top: 10px;">
-	    	                 <button type="button" style="background-color: #6633FF; border-radius: 8px; height:40px; color:white; width:200px;" id="msg_${user.userId}">메세지 보내기</button>
-	    	                 
-	    	                 <!-- 메뉴 아이콘 버튼 -->
-	    	                 <div class="dropdown" style="position: relative;">
-	    	                     <%-- <img src="<%= ctxPath%>/images/common/icon/menu.png" 
-	    	                          class="menu-btn" 
-	    	                          data-id="${user.userId}"
-	    	                          style="width: 30px; height: 30px; cursor: pointer;" /> --%>
-	    	                     <button class ="btn menu-btn">...</button>
-	    	                     <div class="dropdown-menu" id="menu_${user.userId}" style="display:none; position:absolute;">
-	    	                         <div class="dropdown-item" style="padding:8px; cursor:pointer;" onclick="addFavorite('\${user.userId}')">즐겨찾기 추가</div>
-	    	                         <div class="dropdown-item" style="padding:8px; cursor:pointer;" onclick="unfollow('\${user.userId}')">팔로우 취소</div>
-	    	                     </div>
-	    	                 </div>
-	    	             </div>
-	    	         </div>
-	    	         `;
-	    	        
-	    	        list.append(v_html);
-	    		});
-	    		
-	        },
-	        error: function(request, status, error) {
-	            alert("code: " + request.status + "\nmessage: " + request.responseText + "\nerror: " + error);
-	        }
-	    });
-	}
+		function getfollowing() {
+		    const apiRequest = AuthFunc.apiRequest;
+		    const authHeader = AuthFunc.getAuthHeader;
+		
+		    apiRequest(() =>
+		        $.ajax({
+		            url: '<%= ctxPath%>/api/follow/follower',
+		            headers: authHeader(),
+		            dataType: 'json',
+			        success: function(json) {
+			            
+			        	const list = $('div.follow-container');
+			    		list.empty();
+			    		
+			    		
+			    		json.forEach(item => {
+			    	        const user = item.user;
+		
+			    	        let v_html = `
+			    	        	<div class="followInfo row">
+			    	        	    <div>
+			    	        	    	<a style="display:flex; align-items:center;" href="<%= ctxPath%>/mypage/myinfo?targetUserId=\${user.userId}">
+				    	        	        <span>
+				    	        	            <img style="width: 100px; height: 100px; object-fit: cover; border: 2px solid #ddd;" 
+				    	        	                 class="rounded-circle mr-4 profile-img" src="<%= ctxPath%>/images/common/userprofile/test.jpg"/>
+				    	        	        </span>
+				    	        	        
+				    	        	        <span>
+				    	        	            <div>\${user.email}</div>
+				    	        	            <div>\${user.nickname}</div>`;
+			
+				    	        	if(user.profileMessage == null || user.profileMessage.trim() === "") {
+				    	        	    v_html += ``;
+				    	        	} else {
+				    	        	    v_html += `<div>${user.profileMessage}</div>`;
+				    	        	}
+			
+				    	        	 v_html += `
+				    	                 </span>
+				    	        	 </a>
+			    	             </div>
+		
+			    	             <div style="display:flex; align-items:center; gap: 10px; margin-top: 10px;">
+			    	                 <button type="button" style="background-color: #6633FF; border-radius: 8px; height:40px; color:white; width:200px;" id="msg_${user.userId}">메세지 보내기</button>
+			    	                 
+			    	                 <!-- 메뉴 아이콘 버튼 -->
+			    	                 <div class="dropdown" style="position: relative;">
+			    	                     <%-- <img src="<%= ctxPath%>/images/common/icon/menu.png" 
+			    	                          class="menu-btn" 
+			    	                          data-id="${user.userId}"
+			    	                          style="width: 30px; height: 30px; cursor: pointer;" /> --%>
+			    	                     <button class ="btn menu-btn">...</button>
+			    	                     <div class="dropdown-menu" id="menu_${user.userId}" style="display:none; position:absolute;">
+			    	                         <div class="dropdown-item" style="padding:8px; cursor:pointer;" onclick="addFavorite('\${user.userId}')">즐겨찾기 추가</div>
+			    	                         <div class="dropdown-item" style="padding:8px; cursor:pointer;" onclick="unfollow('\${user.userId}')">팔로우 취소</div>
+			    	                     </div>
+			    	                 </div>
+			    	             </div>
+			    	         </div>
+			    	         `;
+			    	        
+			    	        list.append(v_html);
+			    		});
+			    		
+			        },
+			        error: function(request, status, error) {
+			            alert("code: " + request.status + "\nmessage: " + request.responseText + "\nerror: " + error);
+			        }
+			    }));
+	   
+	};
 	
-	// 함께 아는 친구
+<%-- 	// 함께 아는 친구
 	function friendFollow(userId) { 
 	    $.ajax({
 	        url: '<%= ctxPath%>/api/follow/findCommonFriend/' + userId,
@@ -332,168 +364,174 @@ button#clearBtn {
 	        }
 	    });
 	}
-	
+	 --%>
 	// 팔로워 리스트
-	function getfollower(userId) { // 나를 팔로잉
-
+		function getfollower() {
+		    const apiRequest = AuthFunc.apiRequest;
+		    const authHeader = AuthFunc.getAuthHeader;
 		
-	    $.ajax({
-	        url: '<%= ctxPath%>/api/follow/followee/' + userId,
-	        type: 'get',
-	        dataType: 'json',
-	        success: function(json) {
-	        	friendFollow(userId);
-	        	
-	        	const list = $('div.follow-container');
-	    		list.empty();
-	    		
-	    		
-	    		json.forEach(item => {
-	    			
-	    			
-	    	        const user = item.user;
-	    			
-	    	        
-	    	        let a_html = ``;
-	    	        
-	    	        if (!item.teist) {
-	    	        	a_html = `
-	    	        		   <div style="display:flex; align-items:center; gap: 10px; margin-top: 10px;">
-	    	        		       <button type="button" style="background-color: #9966FF; border-radius: 8px; height:40px; margin: auto 0; color:white; width:200px;" 
-	    	        		               id="${user.userId}" onclick="gofollow('\${user.userId}')">맞팔로우 하기 </button>
-
-	    	        		       <div class="dropdown" style="position: relative;">
-	    	        		           <button class="btn menu-btn">...</button>
-	    	        		           <div class="dropdown-menu" id="menu_${user.userId}">
-	    	        		               <div class="dropdown-item" style="padding:8px; cursor:pointer;" onclick="">뭐가</div>
-	    	        		               <div class="dropdown-item" style="padding:8px; cursor:pointer;" onclick="">좋을까</div>
-	    	        		           </div>
-	    	        		       </div>
-	    	        		   </div>
-	    	        		`;
-	                                    
-	                } else {
-	                    a_html = `<div style="display:flex; align-items:center; gap: 10px; margin-top: 10px;">
-	                    			<button type="button" style="background-color: #6633FF; border-radius: 8px; height:40px; margin: auto 0; color:white; width:200px;" 
-	                                    id="${user.userId}" onclick="">메세지 보내기</button>
-	                                    
-	                                   
-	       	    	                 <div class="dropdown" style="position: relative;">
-	       	    	                     <%-- <img src="<%= ctxPath%>/images/common/icon/menu.png" 
-	       	    	                          class="menu-btn" 
-	       	    	                          data-id="${user.userId}"
-	       	    	                          style="width: 30px; height: 30px; cursor: pointer;" /> --%>
-	       	    	                     <button class ="btn menu-btn">...</button>
-	       	    	                     <div class="dropdown-menu" id="menu_${user.userId}">
-	       	    	                         <div class="dropdown-item" style="padding:8px; cursor:pointer;" onclick="addFavorite('\${user.userId}')">즐겨찾기 추가</div>
-	       	    	                         <div class="dropdown-item" style="padding:8px; cursor:pointer;" onclick="unfollow('\${user.userId}')">팔로우 취소</div>
-	       	    	                     </div>
-	       	    	                 </div>
-	       	    	              </div>
-	       	    	               `;
-	                }
-
-	    	        let v_html = `
-	    	        	<div class="followInfo row">
-	    	        	    <div style="display:flex; align-items:center;">
-	    	        	        <span>
-	    	        	            <img style="width: 100px; height: 100px; object-fit: cover; border: 2px solid #ddd;" 
-	    	        	                 class="rounded-circle mr-4 profile-img" src="<%= ctxPath%>/images/common/userprofile/test.jpg"/>
-	    	        	        </span>
-	    	        	        <span>
-	    	        	            <div>\${user.email}</div>
-	    	        	            <div>\${user.nickname}</div>`;
-
-	    	        	if(user.profileMessage == null || user.profileMessage.trim() === "") {
-	    	        	    v_html += `<div>gggggggggggggg</div>`;
-	    	        	} else {
-	    	        	    v_html += `<div>${user.profileMessage}</div>`;
-	    	        	}
-
-	    	        	 v_html += `
-	    		            </span>
-	    	            </div>
-	    				
-	    	            \${a_html}
-	    	            
-	    	        </div>`;
-	    	        
-	    	        list.append(v_html);
-	    		});
-	        },
-	        error: function(request, status, error) {
-	            alert("code: " + request.status + "\nmessage: " + request.responseText + "\nerror: " + error);
-	        }
-	    });
+		    apiRequest(() =>
+		        $.ajax({
+		            url: '<%= ctxPath%>/api/follow/followee',
+		            headers: authHeader(),
+		            dataType: 'json',
+			        success: function(json) {
+			        	
+			        	const list = $('div.follow-container');
+			    		list.empty();
+			    		
+			    		
+			    		json.forEach(item => {
+			    			
+			    			
+			    	        const user = item.user;
+			    			
+			    	        
+			    	        let a_html = ``;
+			    	        
+			    	        if (!item.teist) {
+			    	        	a_html = `
+			    	        		   <div style="display:flex; align-items:center; gap: 10px; margin-top: 10px;">
+			    	        		       <button type="button" style="background-color: #9966FF; border-radius: 8px; height:40px; margin: auto 0; color:white; width:200px;" 
+			    	        		               id="${user.userId}" onclick="gofollow('\${user.userId}')">맞팔로우 하기 </button>
+		
+			    	        		       <div class="dropdown" style="position: relative;">
+			    	        		           <button class="btn menu-btn">...</button>
+			    	        		           <div class="dropdown-menu" id="menu_${user.userId}">
+			    	        		               <div class="dropdown-item" style="padding:8px; cursor:pointer; color:red;" onclick="block('\${user.userId}')">응 너차단</div>
+			    	        		               <div class="dropdown-item" style="padding:8px; cursor:pointer;" onclick="">응 너신고</div>
+			    	        		           </div>
+			    	        		       </div>
+			    	        		   </div>
+			    	        		`;
+			                                    
+			                } else {
+			                    a_html = `<div style="display:flex; align-items:center; gap: 10px; margin-top: 10px;">
+			                    			<button type="button" style="background-color: #6633FF; border-radius: 8px; height:40px; margin: auto 0; color:white; width:200px;" 
+			                                    id="${user.userId}" onclick="">메세지 보내기</button>
+			                                    
+			                                   
+			       	    	                 <div class="dropdown" style="position: relative;">
+			       	    	                     <%-- <img src="<%= ctxPath%>/images/common/icon/menu.png" 
+			       	    	                          class="menu-btn" 
+			       	    	                          data-id="${user.userId}"
+			       	    	                          style="width: 30px; height: 30px; cursor: pointer;" /> --%>
+			       	    	                     <button class ="btn menu-btn">...</button>
+			       	    	                     <div class="dropdown-menu" id="menu_${user.userId}">
+			       	    	                         <div class="dropdown-item" style="padding:8px; cursor:pointer;" onclick="addFavorite('\${user.userId}')">즐겨찾기 추가</div>
+			       	    	                         <div class="dropdown-item" style="padding:8px; cursor:pointer;" onclick="unfollow('\${user.userId}')">팔로우 취소</div>
+			       	    	                     </div>
+			       	    	                 </div>
+			       	    	              </div>
+			       	    	               `;
+			                }
+		
+			    	        let v_html = `
+			    	        	<div class="followInfo row">
+			    	        	    <div>
+				    	        	    	<a style="display:flex; align-items:center;" href="<%= ctxPath%>/mypage/myinfo?targetUserId=\${user.userId}">
+				    	        	        <span>
+				    	        	            <img style="width: 100px; height: 100px; object-fit: cover; border: 2px solid #ddd;" 
+				    	        	                 class="rounded-circle mr-4 profile-img" src="<%= ctxPath%>/images/common/userprofile/test.jpg"/>
+				    	        	        </span>
+				    	        	        <span>
+				    	        	            <div>\${user.email}</div>
+				    	        	            <div>\${user.nickname}</div>`;
+			
+				    	        	if(user.profileMessage == null || user.profileMessage.trim() === "") {
+				    	        	    v_html += ``;
+				    	        	} else {
+				    	        	    v_html += `<div>${user.profileMessage}</div>`;
+				    	        	}
+			
+				    	        	 v_html += `
+				    		            </span>
+				    	        	 </a>
+			    	            </div>
+			    				
+			    	            \${a_html}
+			    	            
+			    	        </div>`;
+			    	        
+			    	        list.append(v_html);
+			    		});
+			        },
+			        error: function(request, status, error) {
+			            alert("code: " + request.status + "\nmessage: " + request.responseText + "\nerror: " + error);
+			        }
+			    }));
 	}
 	
 	// 즐겨찾기 리스트
-	function favoriteList(userId) {
+		function favoriteList() {
+		    const apiRequest = AuthFunc.apiRequest;
+		    const authHeader = AuthFunc.getAuthHeader;
 		
-		$.ajax({
-			url:'<%= ctxPath%>/api/follow/favorite/' + userId,
-			type:'get',
-			dataType:'json',
-			success:function(json) {
-				
-				const list = $('div.follow-container');
-				list.empty();
-				
-				
-				json.forEach(item => {
-			        const user = item.user;
-
-			        let v_html = `
-			        	<div class="followInfo row">
-			        	    <div style="display:flex; align-items:center;">
-			        	        <span>
-			        	            <img style="width: 100px; height: 100px; object-fit: cover; border: 2px solid #ddd;" 
-			        	                 class="rounded-circle mr-4 profile-img" src="<%= ctxPath%>/images/common/userprofile/test.jpg"/>
-			        	        </span>
-			        	        <span>
-			        	            <div>\${user.email}</div>
-			        	            <div>\${user.nickname}</div>`;
-
-			        	if(user.profileMessage == null || user.profileMessage.trim() === "") {
-			        	    v_html += `<div>gggggggggggggg</div>`;
-			        	} else {
-			        	    v_html += `<div>${user.profileMessage}</div>`;
-			        	}
-
-			        	 v_html += `
-			                 </span>
-			             </div>
-
-			             <div style="display:flex; align-items:center; gap: 10px; margin-top: 10px;">
-			                 <button type="button" style="background-color: #6633FF; border-radius: 8px; height:40px; color:white; width:200px;" id="msg_${user.userId}">메세지 보내기</button>
-			                 
-			                 <!-- 메뉴 아이콘 버튼 -->
-			                 <div class="dropdown" style="position: relative;">
-			                     <%-- <img src="<%= ctxPath%>/images/common/icon/menu.png" 
-			                          class="menu-btn" 
-			                          data-id="${user.userId}"
-			                          style="width: 30px; height: 30px; cursor: pointer;" /> --%>
-			                     <button class ="btn menu-btn">...</button>
-			                     <div class="dropdown-menu" id="menu_${user.userId}" 
-			                          style="display:none; position:absolute; top:100%; right:0; background:white; border:1px solid #ccc; border-radius:6px; min-width:150px; box-shadow: 0 2px 6px rgba(0,0,0,0.2); z-index:100;">
-			                         <div class="dropdown-item" style="padding:8px; cursor:pointer;" onclick="unFavorite('\${user.userId}')">즐겨찾기 삭제</div>
-			                         <div class="dropdown-item" style="padding:8px; cursor:pointer;" onclick="unfollow('\${user.userId}')">팔로우 취소</div>
-			                     </div>
-			                 </div>
-			             </div>
-			         </div>
-			         `;
-			        
-			        list.append(v_html);
-				});
-			
-			},
-			error: function(request, status, error){
-				   alert("code: "+request.status+"\n"+"message: "+request.responseText+"\n"+"error: "+error);
-			} 
-			
-			
-		});
+		    apiRequest(() =>
+		        $.ajax({
+		            url: '<%= ctxPath%>/api/follow/favorite',
+		            headers: authHeader(),
+		            dataType: 'json',
+					success:function(json) {
+						
+						const list = $('div.follow-container');
+						list.empty();
+						
+						
+						json.forEach(item => {
+					        const user = item.user;
+		
+					        let v_html = `
+					        	<div class="followInfo row">
+					        	    <div style="display:flex; align-items:center;">
+					        	        <span>
+					        	            <img style="width: 100px; height: 100px; object-fit: cover; border: 2px solid #ddd;" 
+					        	                 class="rounded-circle mr-4 profile-img" src="<%= ctxPath%>/images/common/userprofile/test.jpg"/>
+					        	        </span>
+					        	        <span>
+					        	            <div>\${user.email}</div>
+					        	            <div>\${user.nickname}</div>`;
+		
+					        	if(user.profileMessage == null || user.profileMessage.trim() === "") {
+					        	    v_html += ``;
+					        	} else {
+					        	    v_html += `<div>${user.profileMessage}</div>`;
+					        	}
+		
+					        	 v_html += `
+					                 </span>
+					             </div>
+		
+					             <div style="display:flex; align-items:center; gap: 10px; margin-top: 10px;">
+					                 <button type="button" style="background-color: #6633FF; border-radius: 8px; height:40px; color:white; width:200px;" id="msg_${user.userId}">메세지 보내기</button>
+					                 
+					                 <!-- 메뉴 아이콘 버튼 -->
+					                 <div class="dropdown" style="position: relative;">
+					                     <%-- <img src="<%= ctxPath%>/images/common/icon/menu.png" 
+					                          class="menu-btn" 
+					                          data-id="${user.userId}"
+					                          style="width: 30px; height: 30px; cursor: pointer;" /> --%>
+					                     <button class ="btn menu-btn">...</button>
+					                     <div class="dropdown-menu" id="menu_${user.userId}" 
+					                          style="display:none; position:absolute; top:100%; right:0; background:white; border:1px solid #ccc; border-radius:6px; min-width:150px; box-shadow: 0 2px 6px rgba(0,0,0,0.2); z-index:100;">
+					                         <div class="dropdown-item" style="padding:8px; cursor:pointer;" onclick="unFavorite('\${user.userId}')">즐겨찾기 삭제</div>
+					                         <div class="dropdown-item" style="padding:8px; cursor:pointer;" onclick="unfollow('\${user.userId}')">팔로우 취소</div>
+					                     </div>
+					                 </div>
+					             </div>
+					         </div>
+					         `;
+					        
+					        list.append(v_html);
+						});
+					
+					},
+					error: function(request, status, error){
+						   alert("code: "+request.status+"\n"+"message: "+request.responseText+"\n"+"error: "+error);
+					} 
+					
+					
+				}));
 		
 	}
 	
@@ -502,41 +540,53 @@ button#clearBtn {
 	
 	// 팔로우 하기
 	function gofollow(userId) {
-
-		$.ajax({
-			url:'<%= ctxPath%>/api/follow/addFollow',
-			data:{'follower':${myId},
-				  'followee':userId},
-			dataType:"json",
-			success:function(json) {
-				alert("팔로우 완료");
-			},
-			error: function(request, status, error){
-				   alert("code: "+request.status+"\n"+"message: "+request.responseText+"\n"+"error: "+error);
-			} 
-		
-		});
-		
-		followerList(json);
+	    const authHeader = AuthFunc.getAuthHeader;
+	    const apiRequest = AuthFunc.apiRequest;
+	    
+	    return  apiRequest(() => 
+				$.ajax({
+					url:'<%= ctxPath%>/api/follow/addFollow',
+					headers: authHeader(),
+					data:{
+						  'followee':userId},
+					dataType:"json",
+					success:function(json) {
+						alert("팔로우 완료");
+						getfollower();
+						getCounts();
+					},
+					error: function(request, status, error){
+						   alert("code: "+request.status+"\n"+"message: "+request.responseText+"\n"+"error: "+error);
+					} 
+				
+				}));
+				
+				followerList(json);
 	}
 	
 	// 언팔로우 하기
 	function unfollow(userId) {
 		
-		$.ajax({
-			url:'<%= ctxPath%>/api/follow/unFollow',
-			data:{'follower':${myId},
-				  'followee':userId},
-			dataType:"json",
-			success:function(json) {
-				alert("언팔 완료");
-				getfollowing(${myId});
-			},
-			error: function(request, status, error){
-				   alert("code: "+request.status+"\n"+"message: "+request.responseText+"\n"+"error: "+error);
-			} 
-		
-		});
+	    const authHeader = AuthFunc.getAuthHeader;
+	    const apiRequest = AuthFunc.apiRequest;
+	    
+	    return  apiRequest(() => 
+				$.ajax({
+					url:'<%= ctxPath%>/api/follow/unFollow',
+					headers: authHeader(),
+					data:{
+						  'followee':userId},
+					dataType:"json",
+					success:function(json) {
+						alert("언팔 완료");
+						getfollower();
+						getCounts();
+					},
+					error: function(request, status, error){
+						   alert("code: "+request.status+"\n"+"message: "+request.responseText+"\n"+"error: "+error);
+					} 
+				
+				}));
 
 		
 	} // end of function unfollow(userId) {} ------------
@@ -545,21 +595,27 @@ button#clearBtn {
 	// 즐겨찾기 추가
 	function addFavorite(userId) {
 		
-		$.ajax({
-			url:'<%= ctxPath%>/api/follow/addFavorite',
-			data:{'follower':${myId},
-				  'followee':userId},
-			dataType:"json",
-			success:function(json) {
-				alert("즐겨찾기 완료");
-				getfollowing(${myId});
-			},
-			error: function(request, status, error){
-				   alert("code: "+request.status+"\n"+"message: "+request.responseText+"\n"+"error: "+error);
-			} 
-			
-			
-		});
+	    const authHeader = AuthFunc.getAuthHeader;
+	    const apiRequest = AuthFunc.apiRequest;
+	    
+	    return  apiRequest(() => 
+				$.ajax({
+					url:'<%= ctxPath%>/api/follow/addFavorite',
+					headers: authHeader(),
+					data:{
+						  'followee':userId},
+					dataType:"json",
+					success:function(json) {
+						alert("즐겨찾기 완료");
+						getfollowing();
+						getCounts();
+					},
+					error: function(request, status, error){
+						   alert("code: "+request.status+"\n"+"message: "+request.responseText+"\n"+"error: "+error);
+					} 
+					
+					
+				}));
 		
 		
 	} // end of function addFavorite(userId) {} -----
@@ -567,75 +623,107 @@ button#clearBtn {
 	
 	// 즐겨찾기 삭제 하기
 	function unFavorite(userId) {
-	
-		$.ajax({
-			url:'<%= ctxPath%>/api/follow/unFavorite',
-			data:{'follower':${myId},
-				  'followee':userId},
-			dataType:"json",
-			success:function(json) {
-				alert("즐겨찾기 취소 완료");
-				getfollowing(${myId});
-			},
-			error: function(request, status, error){
-				   alert("code: "+request.status+"\n"+"message: "+request.responseText+"\n"+"error: "+error);
-			} 
-		
-		});
+	    const authHeader = AuthFunc.getAuthHeader;
+	    const apiRequest = AuthFunc.apiRequest;
+	    
+	    return  apiRequest(() => 
+				$.ajax({
+					url:'<%= ctxPath%>/api/follow/unFavorite',
+					headers: authHeader(),
+					data:{
+						  'followee':userId},
+					dataType:"json",
+					success:function(json) {
+						alert("즐겨찾기 취소 완료");
+						favoriteList();
+						getCounts();
+					},
+					error: function(request, status, error){
+						   alert("code: "+request.status+"\n"+"message: "+request.responseText+"\n"+"error: "+error);
+					} 
+				
+				}));
 	
 	
 	} // end of function unFavorite(userId)  -----------
 	
+	// 차단
+	function block(userId) {
+	    const authHeader = AuthFunc.getAuthHeader;
+	    const apiRequest = AuthFunc.apiRequest;
+	    
+	    return  apiRequest(() => 
+				$.ajax({
+					url:'<%= ctxPath%>/api/follow/block',
+					headers: authHeader(),
+					data:{
+						  'blockUser':userId},
+					dataType:"json",
+					success:function(json) {
+						alert("응 너 차단완료^^");
+					},
+					error: function(request, status, error){
+						   alert("code: "+request.status+"\n"+"message: "+request.responseText+"\n"+"error: "+error);
+					}
+		
+				})); // end of ajax ---
+	}
+	
 	
 	// 유저 검색
-	function searchUser(userId, searchWord) {
-	    $.ajax({
-	        url: "<%= ctxPath%>/api/follow/searchUser",
-	        data: {
-	            "searchWord": searchWord,
-	            "userId": userId
-	        },
-	        dataType: "json",
-	        success: function(json) {
-	           console.log(json);
-
-	            let result = $("#searchResult");
-	            result.empty();
-
-	            if (json.length === 0) {
-	                result.append("<div class='search-result-item'>검색 결과 없음</div>");
-	            } else {
-	                $.each(json, function(i, follow) {
-	                    let item = `
-	                        <div class="search-result-item">
-	                            <img style="height:30px; weight:30px;" src="\${follow.user.profile_image}"/>
-	                            <div class="user-info ml-3">
-	                                <div><strong>\${follow.user.nickname}</strong></div>
-	                                <div style="font-size:14px;color:gray;">\${follow.user.email}</div>
-	                            </div>
-	                            <div class="user-actions">
-	                            `
-	                            
-	                            	if(follow.teist) {
-	                            		item +=	`<button class="btn" style="background-color: #6633FF; color: white;">메세지</button>`
-	                            	}
-	                            	else{
-	                            		item += `<button class="btn" style="background-color: #9966FF; color: white;" onclick="gofollow(\${follow.user.userId})">팔로우</button>`
-	                            	}
-	                        item += `
-	                            </div>
-	                        </div>`;
-	                    result.append(item);
-	                });
-	            }
-	            result.show();
-	        },
-	        error: function(request, status, error) {
-	            alert("code: " + request.status + "\n" +
-	                  "message: " + request.responseText + "\n" +
-	                  "error: " + error);
-	        }
-	    }); // end of ajax
+	function searchUser(searchWord) {
+	    const authHeader = AuthFunc.getAuthHeader;
+	    const apiRequest = AuthFunc.apiRequest;
+	    
+	    return  apiRequest(() => 
+			    $.ajax({
+			        url: "<%= ctxPath%>/api/follow/searchUser",
+			        headers: authHeader(),
+			        data: {
+			            "searchWord": searchWord
+			        },
+			        
+			        dataType: "json",
+			        success: function(json) {
+			           console.log(json);
+		
+			            let result = $("#searchResult");
+			            result.empty();
+		
+			            if (json.length === 0) {
+			                result.append("<div class='search-result-item'>검색 결과 없음</div>");
+			            } else {
+			                $.each(json, function(i, follow) {
+			                    let item = `
+			                        <div class="search-result-item">
+			                            <img style="height:30px; weight:30px;" src="\${follow.user.profile_image}"/>
+			                            <div class="user-info ml-3">
+			                                <div><strong>\${follow.user.nickname}</strong></div>
+			                                <div style="font-size:14px;color:gray;">\${follow.user.email}</div>
+			                            </div>
+			                            <div class="user-actions">
+			                            `
+			                            
+			                            	if(follow.teist) {
+			                            		item +=	`<button class="btn" style="background-color: #6633FF; color: white;">메세지</button>`
+			                            	}
+			                            	else{
+			                            		item += `<button class="btn" style="background-color: #9966FF; color: white;" onclick="gofollow(\${follow.user.userId})">팔로우</button>`
+			                            	}
+			                        item += `
+			                            </div>
+			                        </div>`;
+			                    result.append(item);
+			                });
+			            }
+			            result.show();
+			        },
+			        error: function(request, status, error) {
+			            alert("code: " + request.status + "\n" +
+			                  "message: " + request.responseText + "\n" +
+			                  "error: " + error);
+			        }
+			    })); // end of ajax
 	}
 
 

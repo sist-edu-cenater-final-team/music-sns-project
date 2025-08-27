@@ -7,6 +7,7 @@ import com.github.musicsnsproject.domain.follow.FollowVO;
 import com.github.musicsnsproject.domain.user.MyUserVO;
 import com.github.musicsnsproject.repository.jpa.account.user.MyUser;
 import com.github.musicsnsproject.repository.jpa.account.user.QMyUser;
+import com.github.musicsnsproject.repository.jpa.community.block.QBlockUser;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.CaseBuilder;
@@ -22,15 +23,15 @@ public class FollowQueryRepositoryImpl implements FollowQueryRepository {
     private final JPAQueryFactory queryFactory;
 
 	@Override
-	public List<FollowVO> findByFollowerAndUserInfo(String userId) {
+	public List<FollowVO> findByFollowerAndUserInfo(Long userId) {
 	    QFollow follow = QFollow.follow;
 	    QMyUser user = QMyUser.myUser;  
 	    QFollow follow2 = new QFollow("follow2");
-
+	    QBlockUser blockUser = QBlockUser.blockUser;
 
 	    return queryFactory.select(Projections.constructor(FollowVO.class,
-	            follow.followPk.followee.userId,   // 친구 ID
-	            follow.followPk.follower.userId,   // 내 ID
+	            follow.followPk.followee.userId,
+	            follow.followPk.follower.userId,
 	            Projections.constructor(MyUserVO.class,
 	                    user.userId,
 	                    user.nickname,
@@ -39,27 +40,33 @@ public class FollowQueryRepositoryImpl implements FollowQueryRepository {
 	                    user.profileMessage
 	            ),
 	            new CaseBuilder()
-                .when(follow2.isNotNull())
-                .then(true)
-                .otherwise(false)
-                .as("teist")
-	        ))
-	        .from(follow)
-	        .join(user).on(follow.followPk.followee.userId.eq(user.userId))
-	        .leftJoin(follow2)
-	        .on(follow2.followPk.follower.userId.eq(Long.parseLong(userId))
-	        	.and(follow2.followPk.followee.userId.eq(follow.followPk.follower.userId)))
-	        .where(follow.followPk.follower.userId.eq(Long.parseLong(userId)))
-	        .fetch();
+	                .when(follow2.isNotNull())
+	                .then(true)
+	                .otherwise(false)
+	                .as("teist")
+			    ))
+			    .from(follow)
+			    .join(user).on(follow.followPk.followee.userId.eq(user.userId))
+			    .leftJoin(follow2)
+			        .on(follow2.followPk.follower.userId.eq(userId)
+			            .and(follow2.followPk.followee.userId.eq(follow.followPk.follower.userId)))
+			    .leftJoin(blockUser)
+			        .on(blockUser.blockUserPk.myUser.userId.eq(userId)
+			            .and(blockUser.blockUserPk.blockUser.userId.eq(user.userId)))
+			    .where(
+			        follow.followPk.follower.userId.eq(userId)
+			        .and(blockUser.blockUserPk.myUser.isNull()) 
+			    )
+			    .fetch();
 	}
 
 	@Override
-	public List<FollowVO> findByFolloweeAndUserInfo(String userId) {
+	public List<FollowVO> findByFolloweeAndUserInfo(Long userId) {
 		
 		QFollow follow = QFollow.follow;
 		QFollow follow2 = new QFollow("follow2");
 		QMyUser user = QMyUser.myUser;
-		
+		QBlockUser blockUser = QBlockUser.blockUser;
 	    return queryFactory.select(Projections.constructor(FollowVO.class,
 	            follow.followPk.followee.userId,   // 친구 ID
 	            follow.followPk.follower.userId,   // 내 ID
@@ -81,14 +88,18 @@ public class FollowQueryRepositoryImpl implements FollowQueryRepository {
 	        .join(user)
 	        .on(follow.followPk.follower.userId.eq(user.userId))
 	        .leftJoin(follow2)
-	        .on(follow2.followPk.follower.userId.eq(Long.parseLong(userId))
+	        .on(follow2.followPk.follower.userId.eq(userId)
 	        	.and(follow2.followPk.followee.userId.eq(follow.followPk.follower.userId)))
-	        .where(follow.followPk.followee.userId.eq(Long.parseLong(userId)))
+		    .leftJoin(blockUser)
+	        .on(blockUser.blockUserPk.myUser.userId.eq(userId)
+	            .and(blockUser.blockUserPk.blockUser.userId.eq(user.userId)))
+	        .where(follow.followPk.followee.userId.eq(userId)
+	        		.and(blockUser.blockUserPk.myUser.isNull()))
 	        .fetch();
 	}
 
 	@Override
-	public List<FollowVO> findCommonFriend(String userId) {
+	public List<FollowVO> findCommonFriend(Long userId) {
 
 		QFollow follow1 = new QFollow("follow1"); // 나를 팔로우하는 사람
 		QFollow follow2 = new QFollow("follow2"); // 그 사람이 팔로우하는 사람
@@ -112,13 +123,13 @@ public class FollowQueryRepositoryImpl implements FollowQueryRepository {
 		    .join(user)
 		    .on(follow2.followPk.followee.eq(user))
 		    .where(
-		        follow1.followPk.followee.userId.eq(Long.parseLong(userId)), // 나를 팔로우하는 사람
-		        follow2.followPk.followee.userId.ne(Long.parseLong(userId)), // 자기 자신 제외
+		        follow1.followPk.followee.userId.eq(userId), // 나를 팔로우하는 사람
+		        follow2.followPk.followee.userId.ne(userId), // 자기 자신 제외
 		        follow2.followPk.followee.userId.notIn(
 		            JPAExpressions // 쿼리dsl 에서 서브쿼리
 		                .select(QFollow.follow.followPk.followee.userId)
 		                .from(QFollow.follow)
-		                .where(QFollow.follow.followPk.follower.userId.eq(Long.parseLong(userId)))
+		                .where(QFollow.follow.followPk.follower.userId.eq(userId))
 		                // 내가 이미 팔로우한 사람 제외
 		        )
 		    )
@@ -134,7 +145,7 @@ public class FollowQueryRepositoryImpl implements FollowQueryRepository {
 
 	@Override
 	@Transactional
-	public int addFollow(Map<String, String> map) {
+	public int addFollow(Map<String, Long> map) {
 		QFollow follow = QFollow.follow;
 
 		queryFactory.insert(follow)
@@ -147,7 +158,7 @@ public class FollowQueryRepositoryImpl implements FollowQueryRepository {
 	}
 
 	@Override
-	public List<FollowVO> searchUser(String searchWord, String userId) {
+	public List<FollowVO> searchUser(String searchWord, Long userId) {
 
 		QMyUser user = QMyUser.myUser;
 		QFollow follow = QFollow.follow;
@@ -165,7 +176,7 @@ public class FollowQueryRepositoryImpl implements FollowQueryRepository {
 
 	                user.userId,
 
-	                Expressions.constant(Long.parseLong(userId)),     
+	                Expressions.constant(userId),     
 	                Projections.constructor(MyUserVO.class,
 	                    user.userId,
 	                    user.nickname,
@@ -181,7 +192,7 @@ public class FollowQueryRepositoryImpl implements FollowQueryRepository {
 	            ))
 	            .from(user)
 	            .leftJoin(follow)
-	                .on(follow.followPk.follower.userId.eq(Long.parseLong(userId))
+	                .on(follow.followPk.follower.userId.eq(userId)
 	                    .and(follow.followPk.followee.userId.eq(user.userId)))
 	            .where(builder)
 	            .fetch();
@@ -189,19 +200,19 @@ public class FollowQueryRepositoryImpl implements FollowQueryRepository {
 
 	@Override
 	@Transactional
-	public long unFollow(Map<String, String> map) {
+	public long unFollow(Map<String, Long> map) {
 		QFollow follow = QFollow.follow;
 		return queryFactory
 		        .delete(follow)
 		        .where(
-		            follow.followPk.follower.userId.eq(Long.parseLong(map.get("follower")))
-		            .and(follow.followPk.followee.userId.eq(Long.parseLong(map.get("followee"))))
+		            follow.followPk.follower.userId.eq(map.get("follower"))
+		            .and(follow.followPk.followee.userId.eq(map.get("followee")))
 		        )
 		        .execute();
 	}
 
 	@Override
-	public List<FollowVO> getfavoriteList(String userId) {
+	public List<FollowVO> getfavoriteList(Long userId) {
 		QFollow follow = QFollow.follow;
 		QMyUser user = QMyUser.myUser;
 		QFollow follow2 = new QFollow("follow2");
@@ -226,36 +237,47 @@ public class FollowQueryRepositoryImpl implements FollowQueryRepository {
 	        .from(follow)
 	        .join(user).on(follow.followPk.followee.userId.eq(user.userId))
 	        .leftJoin(follow2)
-	        .on(follow2.followPk.follower.userId.eq(Long.parseLong(userId))
+	        .on(follow2.followPk.follower.userId.eq(userId)
 	        	.and(follow2.followPk.followee.userId.eq(follow.followPk.follower.userId)))
-	        .where(follow.followPk.follower.userId.eq(Long.parseLong(userId))
+	        .where(follow.followPk.follower.userId.eq(userId)
 	        		.and(follow.favorite.isTrue()))
 	        .fetch();
 	}
 
 	@Override
 	@Transactional
-	public long unFavorite(Map<String, String> map) {
+	public long unFavorite(Map<String, Long> map) {
 	    QFollow follow = QFollow.follow;
 
 	    return queryFactory
 	            .update(follow)
 	            .set(follow.favorite, false)
-	            .where(follow.followPk.follower.userId.eq(Long.parseLong(map.get("follower")))
-	                   .and(follow.followPk.followee.userId.eq(Long.parseLong(map.get("followee")))))
+	            .where(follow.followPk.follower.userId.eq(map.get("follower"))
+	                   .and(follow.followPk.followee.userId.eq(map.get("followee"))))
 	            .execute();  
 	}
 
 	@Override
 	@Transactional
-	public long addFavorite(Map<String, String> map) {
+	public long addFavorite(Map<String, Long> map) {
 		QFollow follow = QFollow.follow;
 		
 		
 		return queryFactory.update(follow)
 						.set(follow.favorite, true)
-							.where(follow.followPk.follower.userId.eq(Long.parseLong(map.get("follower")))
-									.and(follow.followPk.followee.userId.eq(Long.parseLong(map.get("followee")))))
+							.where(follow.followPk.follower.userId.eq(map.get("follower"))
+									.and(follow.followPk.followee.userId.eq(map.get("followee"))))
+							.execute();
+	}
+
+	@Override
+	@Transactional
+	public long addBlock(Map<String, Long> map) {
+		QBlockUser user = QBlockUser.blockUser;
+		
+		return queryFactory.insert(user)
+							.columns(user.blockUserPk.myUser, user.blockUserPk.blockUser)
+							.values(map.get("userId"),map.get("blockUser"))
 							.execute();
 	}
 

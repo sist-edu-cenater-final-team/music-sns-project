@@ -4,10 +4,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import com.github.musicsnsproject.domain.user.MyUserVO;
-import com.github.musicsnsproject.service.mypage.MypageService;
-
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 
 @Controller
@@ -15,30 +11,21 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class FollowInfoController {
 
-	private final MypageService service;
 	
 	@GetMapping("updateInfo")
-	public String updateInfo(HttpServletRequest request) {
-		Long fakeUserId = 41L;
+	public String updateInfo() {
 		
-		request.setAttribute("fakeUserId", fakeUserId);
 		return "mypage/updateInfo";
 	}
 	
 	@GetMapping("myinfo")
-	public String myInfoPage(HttpServletRequest request) {
-		Long fakeUserId = 41L;
-		
-		MyUserVO mvo = service.getUserInfo(fakeUserId);
-		
-		request.setAttribute("mvo", mvo);
-		System.out.println(mvo.getUserId());
+	public String myInfoPage() {
+
 		return "follow/mypage/myinfo";
 	}
 	
 	@GetMapping("myFollowers")
-	public String myFollower(HttpServletRequest request) {
-		request.setAttribute("myId", "41");
+	public String myFollower() {
 		
 		return "follow/follwers";
 	}

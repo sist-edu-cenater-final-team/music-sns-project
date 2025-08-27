@@ -20,9 +20,12 @@ import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.NumberExpression;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @RequiredArgsConstructor
@@ -162,7 +165,8 @@ public class MyUserQueryRepositoryImpl implements MyUserQueryRepository {
 				);
 	}
 	@Override
-	public MyUserVO getUserInfo(Long fakeUserId) {
+	public MyUserVO getUserInfo(Long userId) {
+		
 		QMyUser user = QMyUser.myUser;
 		QFollow follow = QFollow.follow;
 		QFollow follow2 = new QFollow("follow2");
@@ -172,7 +176,8 @@ public class MyUserQueryRepositoryImpl implements MyUserQueryRepository {
 			            user.userId,
 			            user.nickname,
 			            user.username,
-			            user.profileImage,
+			            user.email,
+			            user.profileImage.as("profile_image"),
 			            user.profileMessage,
 			            ExpressionUtils.as(
 			                JPAExpressions
@@ -196,8 +201,32 @@ public class MyUserQueryRepositoryImpl implements MyUserQueryRepository {
 			            			, "postCount")
 			        ))
 			        .from(user)
-			        .where(user.userId.eq(fakeUserId))
+			        .where(user.userId.eq(userId))
 			        .fetchOne();
 
+	}
+
+	@Override
+	@Transactional
+	public long updateUserInfo(Map<String, Object> paraMap) {
+		QMyUser user = QMyUser.myUser;
+		
+		return queryFactory.update(user)
+								.set(user.profileImage, String.valueOf(paraMap.get("profile_image")))
+								.set(user.profileMessage, String.valueOf(paraMap.get("profileMessage")))
+								.set(user.nickname, String.valueOf(paraMap.get("nickname")))
+								.where(user.userId.eq((Long) paraMap.get("userId")))
+								.execute();
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
 	}
 }

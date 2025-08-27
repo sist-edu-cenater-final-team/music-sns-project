@@ -1,5 +1,5 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
-	pageEncoding="UTF-8"%>
+    pageEncoding="UTF-8"%>
 <% String ctxPath = request.getContextPath(); %>
 
 <html>
@@ -232,125 +232,156 @@ body {
 
 <script type="text/javascript">
 $(function(){
-    const userId = '41';
-    getUserPost(userId);
+    const authHeader = AuthFunc.getAuthHeader;
+    const apiRequest = AuthFunc.apiRequest;
+    const params = new URLSearchParams(window.location.search);
+    const targetUserId = params.get("targetUserId");
+    
+    
+    // 프로필 정보 가져오기
+  return  apiRequest(() => 
+	        $.ajax({
+	            url: '<%= ctxPath%>/api/userInfo/getInfo',
+	        	headers: authHeader(),
+	        	data:{"targetUserId":targetUserId},
+	            dataType: 'json',
+	            success: function(json){
+	                const profile = $('div.profile-top');
+	                userId = json.userId;
+	                console.log(json);
+	                
+	                v_html = `<!-- 상단 프로필 --> 
+	                    <div class="profile-img-wrap"> 
+	                        <img src="\${json.myuser.profile_image}" class="profile-img" alt=""> 
+	                    </div> 	
+	                    
+	                    <div id="user_info"> 
+	                        <h2 class="mb-3">\${json.myuser.nickname}</h2> 
+	                        <div class="profile-stats mb-3">
+	                            <div class="text-center mr-1"> 
+	                                <span style="font-weight: 600; font-size: 14pt">게시물</span>
+	                                <strong class="mr-2">\${json.myuser.postCount}</strong>
+	                            </div> 
+	                            <div class="mr-3 text-center"> 
+	                                <span style="font-weight: 600; font-size: 14pt">팔로워</span>
+	                                <a href="<%= ctxPath%>/mypage/myFollowers" class="text-dark text-center">
+	                                    <strong class="mr-2">\${json.myuser.followeeCount}</strong>
+	                                </a> 
+	                            </div> 
+	                            <div class="text-center"> 
+	                                <span style="font-weight: 600; font-size: 14pt">팔로우</span>
+	                                <a href="<%= ctxPath%>/mypage/myFollowers" class="text-dark text-center"> 
+	                                    <strong class="mr-2">\${json.myuser.followerCount}</strong>
+	                                </a> 
+	                            </div> 
+	                        </div> 
+	                        <div class="my-3">\${json.myuser.username}</div>`;
+
+	                if(json.profileMessage != null) {
+	                    v_html += `<p class="mb-0 text-muted">\${json.myuser.profileMessage}</p>`;
+	                } else {
+	                    v_html += `<p class="mb-0 text-muted">상태메세지 없음</p>`;
+	                }
+
+	                v_html += `</div>`;
+	                profile.html(v_html);
+	                
+	                getUserPost();
+	            },
+	            error: function(request, status, error) {
+	                console.error("프로필 정보 불러오기 실패:");
+	            }
+	        })
+	    );
+
 });
 
-function getUserPost(userId) {
-    $.ajax({
-        url:"<%= ctxPath%>/api/userInfo/post",
-        data:{"userId":userId},
-        dataType:"json",
-        success:function(json){
-            let post = $('.post-list');
-            post.empty();
-
-            if(json.length === 0) {
-                post.html(
-                    '<div class="empty-posts">' +
-                        '<p class="mb-1">작성하신 게시물이 없습니다.</p>' +
-                        '<a class="btn post" data-toggle="modal" data-target="#postModal">첫 게시물을 만들어보세요.</a>' +
-                    '</div>'
-                );
-            } else {
-                let html = '<div class="post-grid">';
-                json.forEach(item => {
-                    // postImageUrl이 배열이면 그대로, 문자열이면 배열로 변환
-                    let images = Array.isArray(item.postImageUrl) ? item.postImageUrl : (item.postImageUrl ? [item.postImageUrl] : []);
-                    if(images.length === 0) {
-                        html += `<div class="post-item no-image">\${item.title || ''}</div>`;
-                    } else {
-                        html += `<div class="post-item"><img src="\${images[0]}" alt="post image"></div>`;
-                    }
-                });
-                html += '</div>';
-                post.html(html);
-            }
-        },
-        error: function(request, status, error) {
-            alert("code: " + request.status + "\nmessage: " + request.responseText + "\nerror: " + error);
-        }
-    });
-}
+function getUserPost() {
+    const authHeader = AuthFunc.getAuthHeader;
+    const apiRequest = AuthFunc.apiRequest;
+    const params = new URLSearchParams(window.location.search);
+    const targetUserId = params.get("targetUserId");
+    
+    
+	  return  apiRequest(() => 
+		    $.ajax({
+		        url:"<%= ctxPath%>/api/userInfo/post",
+		        headers: authHeader(),
+		        data:{"targetUserId":targetUserId},
+		        dataType:"json",
+		        success:function(json){
+		            let post = $('.post-list');
+		            post.empty();
+		
+		            if(!json || json.length === 0) {
+		                post.html(
+		                    '<div class="empty-posts">' +
+		                        '<p class="mb-1">작성하신 게시물이 없습니다.</p>' +
+		                        '<a class="btn post" data-toggle="modal" data-target="#postModal">첫 게시물을 만들어보세요.</a>' +
+		                    '</div>'
+		                );
+		            } else {
+		                let html = '<div class="post-grid">';
+		                json.forEach(item => {
+		                    let images = Array.isArray(item.postImageUrl) ? item.postImageUrl : (item.postImageUrl ? [item.postImageUrl] : []);
+		                    if(images.length === 0){
+		                        html += `<div class="post-item no-image">\${item.title || ''}</div>`;
+		                    } else {
+		                        html += `<div class="post-item"><img src="\${images[0]}" alt="post image"></div>`;
+		                    }
+		                });
+		                html += '</div>';
+		                post.html(html);
+		            }
+		        },
+		        error: function(request, status, error) {
+		            console.error("게시물 불러오기 실패:", request.responseText);
+		        }
+		    }));
+		}
 </script>
 
 <div id="wrap">
-	<main>
-		<jsp:include page="../../include/common/asideNavigation.jsp" />
+    <main>
+        <jsp:include page="../../include/common/asideNavigation.jsp" />
 
-		<div class="main-contents">
-			<div class="inner">
-				<div class="col-10 p-4 profile-container">
+        <div class="main-contents">
+            <div class="inner">
+                <div class="col-10 p-4 profile-container">
 
-					<!-- 상단 프로필 -->
-					<div class="profile-top mb-4">
-						<div class="profile-img-wrap">
-							<img src="<%= ctxPath%>/images/common/userprofile/test.jpg"
-								class="profile-img" alt="">
-						</div>
+					<div class="profile-top mb-4"></div>
+                    <!-- 버튼 그룹 -->
+                    <div class="profile-btns">
+                        <button class="btn custom-btn" onclick="location.href='<%= ctxPath%>/mypage/updateInfo'">프로필 편집</button>
+                        <button class="btn custom-btn">위시리스트</button>
+                        <button class="btn custom-btn" onclick="location.href='<%= ctxPath%>/cart/list'">장바구니</button>
 
-						<div id="user_info">
-							<h2 class="mb-3">${mvo.nickname}</h2>
-							<div class="profile-stats mb-3">
-								<div class="text-center mr-1">
-									<span style="font-weight: 600; font-size: 14pt">게시물</span>
-									<strong class="mr-2">${mvo.postCount}</strong>
-								</div>
+                        <div class="dropdown">
+                            <button class="btn custom-btn dropdown-toggle" type="button"
+                                id="dropdownMenuButton" data-toggle="dropdown"
+                                aria-haspopup="true" aria-expanded="false">
+                                ...
+                            </button>
+                            <div class="dropdown-menu dropdown-menu-right shadow-sm"
+                                aria-labelledby="dropdownMenuButton"
+                                style="min-width: 150px; border-radius: 10px;">
+                                <a class="dropdown-item" href="#">여기에</a> 
+                                <a class="dropdown-item" href="#">뭐넣어?</a>
+                                <div class="dropdown-divider"></div>
+                                <a class="dropdown-item text-danger font-weight-bold" href="#">로그아웃</a>
+                            </div>
+                        </div>
+                    </div>
 
-								<div class="mr-3 text-center">
-									<span style="font-weight: 600; font-size: 14pt">팔로워</span>
-									<a href="<%= ctxPath%>/mypage/myFollowers" class="text-dark text-center">
-										<strong class="mr-2">${mvo.followeeCount}</strong>
-									</a>
-								</div>
+                    <!-- 게시물 영역 -->
+                    <div class="post-list"></div>
+                    
+                </div>
+            </div>
+        </div>
 
-								<div class="text-center">
-									<span style="font-weight: 600; font-size: 14pt">팔로우</span>
-									<a href="<%= ctxPath%>/mypage/myFollowers" class="text-dark text-center">
-										<strong class="mr-2">${mvo.followerCount}</strong>
-									</a>
-								</div>
-							</div>
-
-							<div class="my-3">${mvo.username}</div>
-							<p class="mb-0 text-muted">${mvo.profileMessage}</p>
-						</div>
-					</div>
-
-					<!-- 버튼 그룹 -->
-					<div class="profile-btns">
-						<button class="btn custom-btn" onclick="location.href='<%= ctxPath%>/mypage/updateInfo'">프로필 편집</button>
-						<button class="btn custom-btn">위시리스트</button>
-						<button class="btn custom-btn" onclick="location.href='<%= ctxPath%>/cart/list'">장바구니</button>
-
-						<div class="dropdown">
-							<button class="btn custom-btn dropdown-toggle" type="button"
-								id="dropdownMenuButton" data-toggle="dropdown"
-								aria-haspopup="true" aria-expanded="false">
-								...
-							</button>
-							<div class="dropdown-menu dropdown-menu-right shadow-sm"
-								aria-labelledby="dropdownMenuButton"
-								style="min-width: 150px; border-radius: 10px;">
-								<a class="dropdown-item" href="#">여기에</a> 
-								<a class="dropdown-item" href="#">뭐넣어?</a>
-								<div class="dropdown-divider"></div>
-								<a class="dropdown-item text-danger font-weight-bold" href="#">로그아웃</a>
-							</div>
-						</div>
-					</div>
-
-					<!-- 게시물 영역 -->
-					<div class="post-list"></div>
-					
-				</div>
-			</div>
-		</div>
-
-		
-
-		<jsp:include page="../../include/common/asidePlayList.jsp" />
-	</main>
+        <jsp:include page="../../include/common/asidePlayList.jsp" />
+    </main>
 </div>
 </body>
 </html>

@@ -19,34 +19,34 @@ public class FollowService_imple implements FollowService {
 	
 	
 	@Override
-	public List<FollowVO> getFollowerList(String userId) {
+	public List<FollowVO> getFollowerList(Long userId) {
 		
 		return followRepository.findByFollowerAndUserInfo(userId);
 	}
 
 	
 	@Override
-	public List<FollowVO> getFolloweeList(String userId) {
+	public List<FollowVO> getFolloweeList(Long userId) {
 		return followRepository.findByFolloweeAndUserInfo(userId);
 	}
 
 
 	@Override
-	public List<FollowVO> findCommonFriend(String userId) {
+	public List<FollowVO> findCommonFriend(Long userId) {
 		return followRepository.findCommonFriend(userId);
 	}
 
 
 	@Override
 	@Transactional
-	public int addFollow(Map<String, String> map) {
+	public int addFollow(Map<String, Long> map) {
 
 		return followRepository.addFollow(map);
 	}
 
 
 	@Override
-	public List<FollowVO> searchUser(String searchWord, String userId) {
+	public List<FollowVO> searchUser(String searchWord, Long userId) {
 		
 		return followRepository.searchUser(searchWord, userId);
 	}
@@ -54,28 +54,36 @@ public class FollowService_imple implements FollowService {
 
 	@Override
 	@Transactional
-	public long unFollow(Map<String, String> map) {
+	public long unFollow(Map<String, Long> map) {
 		return followRepository.unFollow(map);
 	}
 
 
 	@Override
-	public List<FollowVO> getfavoriteList(String userId) {
+	public List<FollowVO> getfavoriteList(Long userId) {
 		return followRepository.getfavoriteList(userId);
 	}
 
 
 	@Override
 	@Transactional
-	public long unFavorite(Map<String, String> map) {		
+	public long unFavorite(Map<String, Long> map) {		
 		return followRepository.unFavorite(map);
 	}
 
 
 	@Override
 	@Transactional
-	public long addFavorite(Map<String, String> map) {
+	public long addFavorite(Map<String, Long> map) {
 		return followRepository.addFavorite(map);
+	}
+
+
+	@Override
+	@Transactional
+	public long addBlock(Map<String, Long> map) {
+		
+		return followRepository.addBlock(map);
 	}
 	
 	
