@@ -7,10 +7,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @Controller
 @RequestMapping("/admin")
 public class AdminStatsViewController {
-
+	
     // 관리자 통계 메인 화면
     @GetMapping("/stats")
     public String stats() {
-        return "/admin/adminStats";
+        return "admin/stats";
     }
-}
+    
+ }

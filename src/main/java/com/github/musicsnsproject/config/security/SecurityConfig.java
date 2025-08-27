@@ -51,6 +51,7 @@ public class SecurityConfig {
                     e.accessDeniedHandler(new CustomAccessDeniedHandler());
                 })
                 .authorizeHttpRequests(a->a
+                		.requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .requestMatchers("/api/test/2").authenticated()
                         .requestMatchers("/api/test/3").hasAnyRole("ADMIN","SUPER_USER")
                         .requestMatchers("/api/auth/authorize-test").hasRole("ADMIN")

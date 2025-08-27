@@ -1,0 +1,281 @@
+(function(){
+	const contextPath =
+		window.ctxPath ||
+		document.querySelector('meta[name="ctxPath"]')?.content ||
+		'';
+
+	// 미로그인 시 로그인 페이지 이동
+	try {
+		if (!localStorage.getItem('accessToken')) {
+			alert('로그인이 필요합니다.');
+			location.href = `${contextPath}/auth/login`;
+			return;
+		}
+	} catch(e) {}
+
+	// 공통 인증 헤더
+	function getAuthHeader(){
+		const fromApp = window.AuthFunc?.getAuthHeader?.();
+		if(fromApp && Object.keys(fromApp).length) return fromApp;
+
+		const accessToken = localStorage.getItem('accessToken');
+		const tokenType   = localStorage.getItem('tokenType') || 'Bearer';
+		return accessToken ? { Authorization: `${tokenType} ${accessToken}` } : {};
+	}
+
+	// 401 발생 시 토큰 리프레시 후 재시도
+	async function withAuthRetry(run){
+		try {
+			return await run();
+		} catch (error) {
+			if(error?.response?.status === 401){
+				try{
+					await window.refreshAuthToken?.();
+					return await run();
+				} catch {
+					localStorage.removeItem('accessToken');
+					localStorage.removeItem('tokenType');
+					alert('세션이 만료되었습니다. 다시 로그인해주세요.');
+					location.href = `${contextPath}/auth/login`;
+					return;
+				}
+			}
+			throw error;
+		}
+	}
+
+	function unwrapResponse(resp){
+		const data = resp?.data ?? resp;
+		const ok   = data?.result === 'success' || !!data?.success;
+		const body = data?.success?.responseData ?? data?.responseData ?? data;
+		return { ok, body };
+	}
+
+	// 공통 유틸
+	function nf(v){
+		try { return Number(v ?? 0).toLocaleString(); }
+		catch { return (v ?? 0) + ''; }
+	}
+
+	function fmtDate(d){
+		const y = d.getFullYear();
+		const m = String(d.getMonth()+1).padStart(2,'0');
+		const day = String(d.getDate()).padStart(2,'0');
+		return `${y}-${m}-${day}`;
+	}
+
+	function setRangeToday(){
+		const t = new Date();
+		$('#startDate').val(fmtDate(t));
+		$('#endDate').val(fmtDate(t));
+	}
+
+	function setRangeThisWeek(){
+		const now = new Date();
+		const dow = now.getDay();
+		const mondayOffset = (dow === 0 ? -6 : 1 - dow);
+		const monday = new Date(now);
+		monday.setDate(now.getDate() + mondayOffset);
+		const sunday = new Date(monday);
+		sunday.setDate(monday.getDate() + 6);
+
+		$('#startDate').val(fmtDate(monday));
+		$('#endDate').val(fmtDate(sunday));
+	}
+
+	function setRangeThisMonth(){
+		const now = new Date();
+		const first = new Date(now.getFullYear(), now.getMonth(), 1);
+		const last  = new Date(now.getFullYear(), now.getMonth()+1, 0);
+		$('#startDate').val(fmtDate(first));
+		$('#endDate').val(fmtDate(last));
+	}
+
+	function setRangeLastNDays(n){
+		const end = new Date();
+		const start = new Date();
+		start.setDate(end.getDate() - (n-1));
+		$('#startDate').val(fmtDate(start));
+		$('#endDate').val(fmtDate(end));
+	}
+
+	function getParams(){
+		const p = {};
+		const s = $('#startDate').val();
+		const e = $('#endDate').val();
+		if(s) p.startDate = s;
+		if(e) p.endDate   = e;
+		return p;
+	}
+
+	// 차트
+	function drawLineChart(el, title, rows){
+		const categories = $.map(rows || [], r => r.bucket);
+		const data       = $.map(rows || [], r => Number(r.value) || 0);
+
+		Highcharts.chart(el, {
+			title: { text: title },
+			xAxis: { categories: categories },
+			yAxis: { title: { text: null } },
+			legend: { enabled: false },
+			credits: { enabled: false },
+			series: [{ type: 'line', data: data }]
+		});
+	}
+
+	// API 호출
+	function fetchSummary(){
+		return withAuthRetry(() =>
+			axios.get(`${contextPath}/api/admin/stats/summary`, {
+				params: getParams(),
+				headers: getAuthHeader()
+			})
+		).then(res => {
+			const { ok, body } = unwrapResponse(res);
+			if(!ok) throw new Error('요약 조회 실패');
+			$('#sumChargedCoin').text(nf(body.sumChargedCoin));
+			$('#sumRevenue').text(nf(body.sumRevenue));
+			$('#sumUsedCoin').text(nf(body.sumUsedCoin));
+		}).catch(err => {
+			alert('요약 조회 실패');
+		});
+	}
+
+	function fetchSeriesCharged(){
+		return withAuthRetry(() =>
+			axios.get(`${contextPath}/api/admin/stats/series/charged`, {
+				params: getParams(),
+				headers: getAuthHeader()
+			})
+		).then(res => {
+			const { ok, body } = unwrapResponse(res);
+			if(!ok) throw new Error();
+			drawLineChart('chart-charged', '충전 음표 추이(일)', body || []);
+		}).catch(() => {
+			alert('충전 추이 조회 실패');
+		});
+	}
+
+	function fetchSeriesUsed(){
+		return withAuthRetry(() =>
+			axios.get(`${contextPath}/api/admin/stats/series/used`, {
+				params: getParams(),
+				headers: getAuthHeader()
+			})
+		).then(res => {
+			const { ok, body } = unwrapResponse(res);
+			if(!ok) throw new Error();
+			drawLineChart('chart-used', '사용 음표 추이(일)', body || []);
+		}).catch(() => {
+			alert('사용 추이 조회 실패');
+		});
+	}
+
+	function fetchTopChargers(){
+		return withAuthRetry(() =>
+			axios.get(`${contextPath}/api/admin/stats/top/chargers`, {
+				params: getParams(),
+				headers: getAuthHeader()
+			})
+		).then(res => {
+			const { ok, body } = unwrapResponse(res);
+			if(!ok) throw new Error();
+			const $tbody = $('#tbl-top-chargers').empty();
+			$.each(body || [], function(i, row){
+				const v_html =
+					`<tr>
+						<td>${i+1}</td>
+						<td class="nickname">${row.nickname || ''}</td>
+						<td class="text-end">${nf(row.totalcoin)}</td>
+					</tr>`;
+				$tbody.append(v_html);
+			});
+		}).catch(() => {
+			alert('Top 충전 유저 조회 실패');
+		});
+	}
+
+	function fetchTopSpenders(){
+		return withAuthRetry(() =>
+			axios.get(`${contextPath}/api/admin/stats/top/spenders`, {
+				params: getParams(),
+				headers: getAuthHeader()
+			})
+		).then(res => {
+			const { ok, body } = unwrapResponse(res);
+			if(!ok) throw new Error();
+			const $tbody = $('#tbl-top-spenders').empty();
+			$.each(body || [], function(i, row){
+				const v_html =
+					`<tr>
+						<td>${i+1}</td>
+						<td class="nickname">${row.nickname || ''}</td>
+						<td class="text-end">${nf(row.usedcoin)}</td>
+					</tr>`;
+				$tbody.append(v_html);
+			});
+		}).catch(() => {
+			alert('Top 사용 유저 조회 실패');
+		});
+	}
+
+	function fetchTopMusic(){
+		return withAuthRetry(() =>
+			axios.get(`${contextPath}/api/admin/stats/top/music`, {
+				params: getParams(),
+				headers: getAuthHeader()
+			})
+		).then(res => {
+			const { ok, body } = unwrapResponse(res);
+			if(!ok) throw new Error();
+			const $tbody = $('#tbl-top-music').empty();
+			$.each(body || [], function(i, row){
+				const v_html =
+					`<tr>
+						<td>${i+1}</td>
+						<td class="musicid">${row.musicid}</td>
+						<td class="text-end">${nf(row.soldcount)}</td>
+						<td class="text-end">${nf(row.coinsum)}</td>
+					</tr>`;
+				$tbody.append(v_html);
+			});
+		}).catch(() => {
+			alert('Top 음악 조회 실패');
+		});
+	}
+
+	// 일괄 로드
+	function loadAll(){
+		// 날짜 유효성
+		const s = $('#startDate').val();
+		const e = $('#endDate').val();
+		if(s && e && s > e){
+			alert('시작일이 종료일보다 큽니다.');
+			return;
+		}
+
+		fetchSummary();
+		fetchSeriesCharged();
+		fetchSeriesUsed();
+		fetchTopChargers();
+		fetchTopSpenders();
+		fetchTopMusic();
+	}
+
+	$(function(){
+		$('button#btnToday').click(function(){ setRangeToday();      loadAll(); });
+		$('button#btnWeek').click(function(){  setRangeThisWeek();   loadAll(); });
+		$('button#btnMonth').click(function(){ setRangeThisMonth();  loadAll(); });
+		$('button#btn7').click(function(){     setRangeLastNDays(7); loadAll(); });
+		$('button#btn30').click(function(){    setRangeLastNDays(30);loadAll(); });
+		$('button#btnSearch').click(loadAll);
+		$('button#btnReset').click(function(){
+			$('#startDate').val('');
+			$('#endDate').val('');
+			loadAll();
+		});
+
+		setRangeToday();
+		loadAll();
+	});
+})();
