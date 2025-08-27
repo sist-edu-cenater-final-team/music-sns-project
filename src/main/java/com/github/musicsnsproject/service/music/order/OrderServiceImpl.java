@@ -9,17 +9,22 @@ import com.github.musicsnsproject.repository.jpa.music.cart.MusicCart;
 import com.github.musicsnsproject.repository.jpa.music.cart.MusicCartRepository;
 import com.github.musicsnsproject.repository.jpa.music.purchase.PurchaseHistory;
 import com.github.musicsnsproject.repository.jpa.music.purchase.PurchaseHistoryRepository;
-import com.github.musicsnsproject.service.music.SpotifyMusicService;
+import com.github.musicsnsproject.repository.jpa.music.purchase.PurchaseMusic;
+import com.github.musicsnsproject.repository.jpa.music.purchase.PurchaseMusicRepository;
+import com.github.musicsnsproject.repository.spotify.SpotifyDao;
 import com.github.musicsnsproject.web.dto.music.cart.CartResponse;
-import com.github.musicsnsproject.web.dto.music.spotify.artist.SimplifiedArtist;
-import com.github.musicsnsproject.web.dto.music.spotify.track.TrackResponseV1;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import se.michaelthelin.spotify.model_objects.specification.ArtistSimplified;
+import se.michaelthelin.spotify.model_objects.specification.Track;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import static com.github.musicsnsproject.repository.jpa.account.user.QMyUser.myUser;
 import static com.github.musicsnsproject.repository.jpa.music.cart.QMusicCart.musicCart;
@@ -31,19 +36,16 @@ public class OrderServiceImpl implements OrderService{
     private final MusicCartRepository musicCartRepository;
     private final PurchaseHistoryRepository purchaseHistoryRepository;
     private final MyMusicRepository myMusicRepository;
-    private final SpotifyMusicService spotifyMusicService;
+    private final PurchaseMusicRepository purchaseMusicRepository;
     private final JPAQueryFactory jpaQueryFactory;
+    private final SpotifyDao spotifyDao;
 
     // 주문 미리보기
     @Override
     public List<CartResponse> getOrderPreviewList(Long userId, List<Long> cartIdList) {
 
-        List<MusicCart> carts = jpaQueryFactory
-                .selectFrom(musicCart)
-                .join(musicCart.myUser, myUser).fetchJoin()
-                .where(musicCart.myUser.userId.eq(userId))
-                .orderBy(musicCart.createdAt.desc())
-                .fetch();
+        // userId로 본인 musicCart 정보 조회하기
+        List<MusicCart> carts = musicCartRepository.findByCartUserId(userId);
 
         // 구매할 음악이 없을 경우
         if (cartIdList.isEmpty()) {
@@ -53,28 +55,43 @@ public class OrderServiceImpl implements OrderService{
                     .build();
         }
 
+        // 장바구니에 담겨있는 musicId 가져오기
+        List<String> musicIds = carts.stream()
+                .map(MusicCart::getMusicId)
+                .toList();
+
+        // 장바구니에 담겨있는 musicId들로 spotify Track 배열 조회하기
+        Track[] tracks = spotifyDao.findAllTrackByIds(musicIds);
+
+        // 조회한 Track 배열 Map으로 변환하기
+        Map<String, Track> trackMap = Arrays.stream(tracks)
+                .collect(Collectors.toMap(Track::getId, track -> track));
+
+
+
         List<CartResponse> cartResponseList = carts.stream()
                 .filter(cart -> cartIdList.contains(cart.getMusicCartId()))
                 .map(cart -> {
-                    TrackResponseV1 tr = spotifyMusicService.getTrackResponseById(cart.getMusicId());
 
-                    String albumName = (tr != null && tr.getAlbum() != null) ? tr.getAlbum().getAlbumName() : null;
-                    String albumImageUrl = (tr != null && tr.getAlbum() != null) ? tr.getAlbum().getAlbumImageUrl() : null;
-                    String artistName = (tr != null && tr.getArtist() != null)
-                            ? tr.getArtist().stream()
-                            .map(SimplifiedArtist::artistName)
+                    Track track = trackMap.get(cart.getMusicId());
+
+                    String trackName = track.getName();
+                    String albumName = track.getAlbum().getName();
+                    String albumImageUrl = track.getAlbum().getImages()[0].getUrl();
+
+                    String artistName = Arrays.stream(track.getArtists())
+                            .map(ArtistSimplified::getName)
                             .distinct()
-                            .collect(java.util.stream.Collectors.joining(", "))
-                            : null;
+                            .collect(Collectors.joining(", "));
+
 
                     return CartResponse.builder()
                             .cartId(cart.getMusicCartId())
                             .userId(cart.getMyUser().getUserId())
-                            .musicId(cart.getMusicId())
-                            .musicName(tr != null ? tr.getTrackName() : null)
+                            .musicName(trackName)
+                            .artistName(artistName)
                             .albumName(albumName)
                             .albumImageUrl(albumImageUrl)
-                            .artistName(artistName)
                             .build();
 
 
@@ -90,21 +107,13 @@ public class OrderServiceImpl implements OrderService{
     @Override
     @Transactional
     public void orderConfirm(Long userId, List<Long> cartIdList) {
+
         // 사용자 조회
-        MyUser user = findMyUserFetchJoin(userId);
+        MyUser user = musicCartRepository.findMyUser(userId);
 
         long userCoin = user.getCoin();
-        long orderTotalPrice = cartIdList.size() * 1; // 장바구니에 담겨있는 음악의 개수만큼 1코인씩 차감
-
+        long orderTotalPrice = cartIdList.size() * 1;
         long totalPrice = userCoin - orderTotalPrice;
-
-        if(userCoin < orderTotalPrice){
-            throw CustomNotAcceptException.of()
-                    .customMessage("보유 코인이 부족합니다. 현재 보유 코인: " + userCoin +
-                            ", 필요한 코인: " + orderTotalPrice)
-                    .request(cartIdList)
-                    .build();
-        }
 
         // 구매내역 추가하기
         PurchaseHistory history = PurchaseHistory.builder()
@@ -123,34 +132,56 @@ public class OrderServiceImpl implements OrderService{
         purchaseHistoryRepository.save(history);
 
 
+        List<String> musicIds = jpaQueryFactory
+                .select(musicCart.musicId)
+                .from(musicCart)
+                .where(musicCart.musicCartId.in(cartIdList),
+                       musicCart.myUser.userId.eq(userId))
+                .fetch();
+
+        // 구매한 음악에 추가하기
+        List<PurchaseMusic> purchaseMusics = musicIds.stream()
+                .map(musicIdList -> PurchaseMusic.builder()
+                        .musicId(musicIdList)
+                        .purchaseHistory(history)
+                        .atThatCoin(userCoin)
+                        .build()
+                )
+                .toList();
+
+        purchaseMusicRepository.saveAll(purchaseMusics);
+
         // 내 음악에 추가하기
         MyMusic myMusic = MyMusic.builder()
                 .purchaseHistory(history)
                 .sourceType(MyMusicType.PURCHASE)
                 .build();
-
-        // 내 음악 저장
         myMusicRepository.save(myMusic);
 
-        // 장바구니에서 삭제
+
+        // 주문이 끝난 음악들은 장바구니에서 삭제
         for (Long cardId : cartIdList) {
             musicCartRepository.deleteById(cardId);
         }
     }
 
+    // 사용자의 보유 코인 알아오기
+    @Override
+    public void checkCoin(Long userId, List<Long> cartIdList) {
 
-    // 사용자 조회 공통
-    public MyUser findMyUserFetchJoin(Long userId) {
+        // 사용자 조회
+        MyUser user = musicCartRepository.findMyUser(userId);
 
-        if (userId == null) {
+        long userCoin = user.getCoin();
+        long orderTotalPrice = cartIdList.size() * 1; // 주문에 필요한 음표
+
+        if(userCoin < orderTotalPrice){
             throw CustomNotAcceptException.of()
-                    .customMessage("사용자를 찾을 수 없습니다.")
-                    .request(userId)
+                    .customMessage("보유 코인이 부족합니다. " +
+                            "\n현재 보유 코인: " + userCoin +
+                            "\n필요한 코인: " + orderTotalPrice)
+                    .request(cartIdList)
                     .build();
         }
-        // 사용자가 있으면
-        return jpaQueryFactory.selectFrom(myUser)
-                .where(myUser.userId.eq(userId))
-                .fetchOne();
     }
 }

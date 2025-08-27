@@ -2,7 +2,6 @@ package com.github.musicsnsproject.web.controller.rest.music.cart;
 
 
 import com.github.musicsnsproject.service.music.cart.CartService;
-import com.github.musicsnsproject.web.dto.music.cart.CartDeleteRequest;
 import com.github.musicsnsproject.web.dto.music.cart.CartResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -47,10 +46,9 @@ public class CartRestController {
     // 장바구니 삭제
     @DeleteMapping("/delete")
     public ResponseEntity<List<CartResponse>> deleteCart(@AuthenticationPrincipal Long userId,
-                                                         @RequestBody CartDeleteRequest cartDeleteRequest){
+                                                         @RequestParam("cartIdList") List<Long> cartIdList){
 
         // 상품 삭제하기
-        List<Long> cartIdList = cartDeleteRequest.getCartIdList();
         cartService.deleteCart(uid(userId), cartIdList);
 
         // 삭제된 상품 포함하여 최신 리스트 가져오기

@@ -324,31 +324,42 @@ if (window.__musicSearchPurpleInitialized) {
         // });
     });
 
+
+    const apiRequest = AuthFunc.apiRequest;//함수참조
+
     // 장바구니 담기
     function addCart(btn) {
 
         const trackId = btn.closest('.track-item').dataset.trackId;
 
         // 장바구니 추가 로직 구현
-        fetch('/api/cart/add', {
-            method: 'POST',
-            headers: { 'Authorization': "Bearer eyJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE3NTU1ODczNTQsImV4cCI6MTc1NTU5MDk1NCwic3ViIjoiMjMiLCJyb2xlcyI6IlJPTEVfVVNFUiJ9.7SRttBXoDfWerjPyvmO90_a9U62Z7D5Hh80DFbx1EWY" },
-            body: new URLSearchParams({
-                trackId: trackId,
+        return apiRequest(() =>
+            axios.post(`/api/cart/add?trackId=${trackId}`,{}, {
+                headers: AuthFunc.getAuthHeader(),
             })
-
+        )
+        .then((response) => {
+            console.log("response : ", response);
+            if(!confirm("장바구니에 추가되었습니다. 장바구니로 이동하시겠습니까?")) return;
+            location.href = `${ctxPath}/cart/list`;
         })
-        .then(res => res.json())
-        .then(data => {
-            // customMessage 값 사용
-            if(data.error){
-                alert(data.error.customMessage);
-                return;
+        .catch((error) => {
+            console.error('오류:', error);
+            if (error.response) {
+                const errorData = error.response.data.error;
+                if (errorData) {
+                    if (error.response.status === 401) {
+                        // 인증 오류 처리 (예: 로그인 페이지로 리다이렉트)
+                        alert('로그인이 필요합니다. 로그인 페이지로 이동합니다.');
+                        location.href = `${ctxPath}/auth/login`;
+                        return;
+                    } else {
+                        alert(errorData.customMessage);
+                    }
+                } else {
+                    alert("장바구니 담기 실패: 알 수 없는 오류가 발생했습니다.");
+                }
             }
-            alert("장바구니에 추가하였습니다.");
-        })
-        .catch(() => {
-            alert("서버와 통신 중 오류가 발생했습니다.");
         });
     }
 }

@@ -2,11 +2,10 @@ document.addEventListener("DOMContentLoaded", function () {
     order.createList();
 });
 
-const token = "Bearer eyJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE3NTU2NzQ1OTQsImV4cCI6NDkwOTI3NDU5NCwic3ViIjoiMjMiLCJyb2xlcyI6IlJPTEVfVVNFUiJ9.J2-HxxZZuEVrfQIjmPeujwehl6ExKDm8gdtae291uu4";
 const order = {
     tbody : document.querySelector('#orderCartBody'),
     checkAll : document.querySelector('#cartAllCheck'),
-    // 장바구니에서 세션에 저장한 cartIdLIst 꺼내기
+    // 장바구니에서 세션에 저장한 cartIdLIst 배열로 변환해서 꺼내기
     cartIdList : JSON.parse(sessionStorage.getItem("cartIdList")),
     renderOrderList : (cartData) => {
         //console.log('cartData:', cartData);
@@ -49,49 +48,49 @@ const order = {
         }
 
         // 스프링 시큐리티 인증 토큰을 헤더에 추가하여 주문 목록 요청
-        fetch('/api/order?cartIdList='+order.cartIdList.join(","), {
-            headers: { 'Authorization': token }
-        })
-            .then(res => res.json())
-            .then(data => {
-                // customMessage 값 사용
-                if(data.error){
-                    alert(data.error.customMessage);
-                    return;
+        return AuthFunc.apiRequest(() =>
+                    axios.get('/api/order/list?cartIdList='+order.cartIdList.join(","), {
+                        headers: AuthFunc.getAuthHeader()
+                    })
+                )
+                .then(response => {
+                    console.log('주문할 상품 목록:', response.data);
+                    order.renderOrderList(response.data);
+                })
+            .catch(error => {
+                console.error('오류:', error);
+                if (error.response) {
+                    const errorData = error.response.data.error;
+                    if (errorData){
+                        alert(errorData.customMessage);
+                    }
                 }
-                console.log("주문 목록:", data);
-                order.renderOrderList(data);
-            })
-            .catch(err => console.error(err));
+            });
     },
     // 구매 확정
     confirm : () => {
         if(!confirm("정말 구매하시겠습니까?")) return;
 
         // 스프링 시큐리티 인증 토큰을 헤더에 추가하여 주문 요청
-        fetch('/api/order/confirm', {
-            method: 'POST',
-            headers: { 'Authorization': token },
-            body: new URLSearchParams({
-                cartIdList : order.cartIdList
-            })
-        })
-        .then(res => res.text())
-        .then(data => {
-            // customMessage 값 사용
-            console.log("주문 결과:", data);
-            if(data.error){
-                alert(data.error.customMessage);
-                return;
-            }
-            // 주문완료 후에 주문완료페이지로 이동
-            alert(data);
-            sessionStorage.removeItem("cartIdList"); // 주문 후 장바구니 비우기
-            location.href = `${ctxPath}/order/complete`;
-        })
-        .catch(() => {
-            alert("서버와 통신 중 오류가 발생했습니다.");
-        });
+        return AuthFunc.apiRequest(() =>
+                    axios.post('/api/order/confirm?cartIdList='+order.cartIdList.join(","), {}, {
+                        headers: AuthFunc.getAuthHeader(),
+                    })
+                )
+                .then(response => {
+                    console.log("주문 완료:", response);
+                    alert("구매가 완료되었습니다.");
+
+                    // 주문 후 장바구니 페이지로 이동
+                    sessionStorage.removeItem("cartIdList");
+                    location.href = `${ctxPath}/order/complete`;
+                })
+                .catch((error) => {
+                    if(error.response?.data?.error?.customMessage){
+                        alert(error.response.data.error.customMessage);
+                    }
+                    console.error('오류:', error);
+                });
     }
 }
 
