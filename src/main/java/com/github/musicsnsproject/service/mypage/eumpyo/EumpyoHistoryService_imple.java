@@ -1,21 +1,20 @@
 package com.github.musicsnsproject.service.mypage.eumpyo;
 
-import com.github.musicsnsproject.repository.mybatis.dao.eumpyo.EumpyoHistoryDAO;
-import com.github.musicsnsproject.service.music.SpotifyMusicService;
-import com.github.musicsnsproject.web.dto.music.spotify.artist.SimplifiedArtist;
-import com.github.musicsnsproject.web.dto.music.spotify.track.TrackResponseV1;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.regex.Matcher;   
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;   
+import java.util.stream.Collectors;
+
+import org.springframework.stereotype.Service;
+
+import com.github.musicsnsproject.repository.mybatis.dao.eumpyo.EumpyoHistoryDAO;
+import com.github.musicsnsproject.service.music.SpotifyMusicService;
+import com.github.musicsnsproject.web.dto.music.spotify.track.TrackResponseV1;
+
+import lombok.RequiredArgsConstructor;   
 
 @Service
 @RequiredArgsConstructor
@@ -25,7 +24,7 @@ public class EumpyoHistoryService_imple implements EumpyoHistoryService {
     private final SpotifyMusicService spotifyMusicService;
 
     
-    // 구매번호 생성 =====
+    // 주문번호 생성 
     private static final char[] B62 = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz".toCharArray();
     
     private static String toBase62(long n) {

@@ -11,7 +11,7 @@ const params = { authorizationCode: code };
     const responseData = response.data.success.responseData;
 
     if (response.status === 200) {
-        const isConnection = response.headers['x-is-connection'] === 'true';
+        const isConnection = responseData.isConnection;
         // console.log('Login or Register successful:', data);
         //로그인 성공후 부모창의 함수호출
         if (window.opener && !window.opener.closed)

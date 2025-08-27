@@ -1,6 +1,7 @@
 package com.github.musicsnsproject.repository.jpa.account.user;
 
 import com.github.musicsnsproject.common.exceptions.CustomBadRequestException;
+import com.github.musicsnsproject.common.myenum.Gender;
 import com.github.musicsnsproject.common.security.userdetails.CustomUserDetails;
 import com.github.musicsnsproject.domain.PostVO;
 import com.github.musicsnsproject.domain.user.MyUserVO;
@@ -13,6 +14,7 @@ import com.github.musicsnsproject.repository.jpa.account.socialid.SocialIdPk;
 import com.github.musicsnsproject.repository.jpa.community.post.QPost;
 import com.github.musicsnsproject.repository.jpa.community.post.QPostImage;
 import com.github.musicsnsproject.repository.jpa.emotion.QUserEmotion;
+import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.group.GroupBy;
 import com.querydsl.core.types.ExpressionUtils;
 import com.querydsl.core.types.Projections;
@@ -177,6 +179,7 @@ public class MyUserQueryRepositoryImpl implements MyUserQueryRepository {
 			            user.userId,
 			            user.nickname,
 			            user.username,
+			            user.gender,
 			            user.email,
 			            user.profileImage.as("profile_image"),
 			            user.profileMessage,
@@ -212,21 +215,27 @@ public class MyUserQueryRepositoryImpl implements MyUserQueryRepository {
 	public long updateUserInfo(Map<String, Object> paraMap) {
 		QMyUser user = QMyUser.myUser;
 		
-		return queryFactory.update(user)
-								.set(user.profileImage, String.valueOf(paraMap.get("profile_image")))
-								.set(user.profileMessage, String.valueOf(paraMap.get("profileMessage")))
-								.set(user.nickname, String.valueOf(paraMap.get("nickname")))
-								.where(user.userId.eq((Long) paraMap.get("userId")))
-								.execute();
-		
-		
-		
-		
-		
-		
-		
-		
-		
+
+	    if (paraMap.get("profile_image") != null) {
+
+			return queryFactory.update(user)
+					.set(user.profileImage, String.valueOf(paraMap.get("profile_image")))
+					.set(user.profileMessage, String.valueOf(paraMap.get("profileMessage")))
+					.set(user.nickname, String.valueOf(paraMap.get("nickname")))
+					.set(user.gender, (Gender)paraMap.get("gender"))
+					.where(user.userId.eq((Long) paraMap.get("userId")))
+					.execute();
+	    }
+	    else {
+
+			return queryFactory.update(user)
+					.set(user.profileMessage, String.valueOf(paraMap.get("profileMessage")))
+					.set(user.nickname, String.valueOf(paraMap.get("nickname")))
+					.set(user.gender, (Gender)paraMap.get("gender"))
+					.where(user.userId.eq((Long) paraMap.get("userId")))
+					.execute();
+	    }
+
 		
 		
 	}

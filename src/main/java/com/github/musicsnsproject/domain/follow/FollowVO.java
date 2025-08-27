@@ -4,9 +4,13 @@ import java.time.LocalDateTime;
 
 import com.github.musicsnsproject.domain.user.MyUserVO;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Getter
+@NoArgsConstructor
+@AllArgsConstructor
 public class FollowVO {
 
 	private long follower;

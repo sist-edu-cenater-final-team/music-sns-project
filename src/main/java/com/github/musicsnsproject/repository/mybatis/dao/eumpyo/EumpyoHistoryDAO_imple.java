@@ -9,7 +9,6 @@ import org.springframework.stereotype.Repository;
 
 import lombok.RequiredArgsConstructor;
 
-// MyBatis SqlSessionTemplate으로 XML 쿼리 호출
 @Repository
 @RequiredArgsConstructor
 public class EumpyoHistoryDAO_imple implements EumpyoHistoryDAO {
@@ -36,7 +35,7 @@ public class EumpyoHistoryDAO_imple implements EumpyoHistoryDAO {
     	
         Map<String, Object> map = new HashMap<>();
         
-        map.put("userId", userId);   // 사용자 ID
+        map.put("userId", userId);   
         map.put("offset", offset);   // 페이징 시작 위치
         map.put("size", size);       // 페이지 크기
         

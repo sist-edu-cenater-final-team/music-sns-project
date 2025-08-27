@@ -112,6 +112,18 @@ public class FollowController {
     	return followService.addBlock(map);
     }
     
+    @GetMapping("count")
+    public Map<String, Long> getCount(@AuthenticationPrincipal Long userId) {
+    	
+    	Map<String, Long> map = new HashMap<>();
+    	map.put("followeeCount", followService.followeeCount(userId));
+    	map.put("followerCount", followService.followerCount(userId));
+    	map.put("favoriteCount", followService.favoriteCount(userId));
+    	
+    	
+    	return map;
+    }
+    
     
     
 	

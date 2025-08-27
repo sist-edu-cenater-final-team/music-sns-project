@@ -1,5 +1,6 @@
 package com.github.musicsnsproject.web.controller.rest.post;
 
+import com.github.musicsnsproject.common.myenum.EmotionEnum;
 import com.github.musicsnsproject.service.community.post.PostService;
 import com.github.musicsnsproject.web.dto.post.FollowPostVO;
 import com.github.musicsnsproject.web.dto.post.WriteRequest;
@@ -31,15 +32,14 @@ public class PostRestController {
         List<FollowPostVO> followPostVOList = postService.followPostSelect(userId);
 
         List<Long> postIdForLikeCnt = followPostVOList.stream().map(FollowPostVO::getPostId).collect(Collectors.toList());
-        Long n = postService.findbyCntByPostId(postIdForLikeCnt);
 
         // followPostVOList.forEach(vo -> vo.liked(testUserId));
 
+
         for(FollowPostVO followPostVO : followPostVOList){
             followPostVO.liked(userId);
+
         }
-//
-//        request.setAttribute("n", n);
 
         return followPostVOList;
     }

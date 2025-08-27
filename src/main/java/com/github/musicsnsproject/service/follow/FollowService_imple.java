@@ -85,6 +85,25 @@ public class FollowService_imple implements FollowService {
 		
 		return followRepository.addBlock(map);
 	}
+
+
+	
+	@Override
+	public Long followeeCount(Long userId) {
+		return followRepository.followeeCount(userId);
+	}
+
+
+	@Override
+	public Long followerCount(Long userId) {
+		return followRepository.followerCount(userId);
+	}
+
+
+	@Override
+	public Long favoriteCount(Long userId) {
+		return followRepository.favoriteCount(userId);
+	}
 	
 	
 }

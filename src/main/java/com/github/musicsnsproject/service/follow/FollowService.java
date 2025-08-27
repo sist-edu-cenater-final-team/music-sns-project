@@ -33,6 +33,11 @@ public interface FollowService {
 	// 차단
 	long addBlock(Map<String, Long> map);
 	
+	// 카운트 가져오기
+	Long followeeCount(Long userId);
+	Long followerCount(Long userId);
+	Long favoriteCount(Long userId);
+	
 	
 	
 

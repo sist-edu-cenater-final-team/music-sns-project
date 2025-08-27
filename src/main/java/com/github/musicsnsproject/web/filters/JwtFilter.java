@@ -42,6 +42,9 @@ public class JwtFilter extends OncePerRequestFilter {
     protected boolean shouldNotFilter(HttpServletRequest request) {
         return request.getRequestURI().contains("/swagger")
                 ||request.getRequestURI().contains("/api-docs")
-                ||request.getRequestURI().startsWith("/api/auth");
+                ||request.getRequestURI().startsWith("/api/auth")
+                || !request.getRequestURI().startsWith("/api");
     }
+
+
 }

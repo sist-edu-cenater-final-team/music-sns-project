@@ -22,7 +22,6 @@ public class TokenResponse implements OAuthDtoInterface {
     private ResponseCookie refreshTokenCookie;
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    @Setter
     private Boolean isConnection;
 
 }

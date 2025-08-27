@@ -2,7 +2,7 @@ package com.github.musicsnsproject.repository.mybatis.dao.eumpyo;
 
 public interface EumpyoChargeDAO {
 	
-	// 사용자 음표 조회(잠금/동시수정불가)
+	// 현재 사용자 코인 조회 (잠금/동시수정불가)
     Long selectUserCoinForUpdate(long userId);
 
     // 최종 잔액 그대로 저장
@@ -11,6 +11,6 @@ public interface EumpyoChargeDAO {
     // 충전 이력 저장(충전 후 잔액 포함)
     int insertChargeHistory(long userId, int coin, int atThatPrice, long afterBalance);
 
-    // 사용자 음표 조회(단순 조회)
+    // 현재 사용자 코인 조회 (단순 조회)
     Long selectUserCoin(long userId);
 }

@@ -5,6 +5,18 @@
 <link rel="stylesheet" href="<%=ctxPath%>/css/music/search/search.css" />
 <script type="text/javascript" src="<%=ctxPath%>/js/music/search/search.js"></script>
 
+<style type="text/css">
+
+button{
+	outline: none;
+}
+
+button:focus {
+    outline: none;
+}
+
+</style>
+
 <script type="text/javascript">
 	$(function(){
 
@@ -42,7 +54,7 @@
 							    <div class="flex stats">
 							      
 							      <div>
-							        <div class="font-bold number-color">300</div>
+							        <div class="font-bold number-color">\${json.myuser.postCount}</div>
 							        <div class="label-text">게시물</div>
 							      </div>
 							      
@@ -138,6 +150,9 @@
             <li>
                 <button type="button" class="btn post" data-toggle="modal" data-target="#postModal">게시물작성</button>
             </li>
+			<li>
+				<button type="button" onclick="location.href='<%=ctxPath%>/mypage/purchase/list'">구매리스트</button>
+			</li>
         </ul>
     </div>
 </div>

@@ -105,34 +105,44 @@ $(function(){
     const apiRequest = AuthFunc.apiRequest;
 
     apiRequest(() =>
-        $.ajax({
-            url: '<%= ctxPath%>/api/userInfo/getInfo',
-            headers: authHeader(),
-            dataType: 'json',
-            success: function(json) {
-                // 프로필 이미지
-                if(json.profile_image) {
-                    $('#profile_img').attr('src', json.profile_image);
-                }
-
-                // 닉네임
-                $('input[name="nickname"]').val(json.nickname);
-
-                // 이메일 (읽기 전용)
-                $('input[type="email"]').val(json.email).prop('readonly', true);
-
-                // 상태 메시지
-                $('input[name="profileMessage"]').val(json.profileMessage || '');
-
-                // 성별 선택
-                if(json.gender) {
-                    $('.custom-dropdown .selected').text(json.gender);
-                    $('input[name="gender"]').val(json.gender);
-                }
-            },
-            error: function() {
-                console.error("프로필 정보 불러오기 실패");
-            }
+    	new Promise((resolve, reject) => {
+	        $.ajax({
+	            url: '<%= ctxPath%>/api/userInfo/getInfo',
+	            headers: authHeader(),
+	            dataType: 'json',
+	            success: function(json) {
+	                // 프로필 이미지
+	                if(json.myuser.profile_image) {
+	                    $('#profile_img').attr('src', json.myuser.profile_image);
+	                }
+	
+	                // 닉네임
+	                $('input[name="nickname"]').val(json.myuser.nickname);
+	
+	                // 이메일 (읽기 전용)
+	                $('input[type="email"]').val(json.myuser.email).prop('readonly', true);
+	
+	                // 상태 메시지
+	                $('input[name="profileMessage"]').val(json.myuser.profileMessage || '');
+	
+	                // 성별 선택
+	                if(json.myuser.gender) {
+	                    $('.custom-dropdown .selected').text(json.myuser.gender);
+	                    $('input[name="gender"]').val(json.myuser.gender);
+	                }
+	            },
+	            error: function(xhr, textStatus, errorThrown) {
+	                // axios 스타일의 에러 객체로 변환
+	                const error = new Error(errorThrown || textStatus);
+	                error.response = {
+	                    status: xhr.status,
+	                    statusText: xhr.statusText,
+	                    data: xhr.responseJSON || xhr.responseText
+	                };
+	                error.request = xhr;
+	                reject(error);
+	        }
+	        })
         })
     );
 	
@@ -185,26 +195,38 @@ $(function(){
 	        imgFormData.append("directory", directory);
 
 	        
-	        apiRequest(() => $.ajax({
-	            url: "<%= ctxPath%>/api/storage",
-	            type: "post",
-	            data: imgFormData,
-	            processData: false,
-	            contentType: false,
-	            headers: authHeader(),
-	            dataType: "json",
-	            success: function(json) {
-	               
-	                const profile_image_url = json.success.responseData[0].fileUrl;
-	                formData.append("profile_image", profile_image_url);
-
-	                // 유저 정보 업데이트
-	                updateUserInfo(formData);
-	            },
-	            error: function(request, status, error) {
-	                alert("이미지 업로드 실패\ncode:" + request.status + "\nmessage:" + request.responseText + "\nerror:" + error);
-	            }
-	        }));
+	        apiRequest(() => 
+	        	new Promise((resolve, reject) => {
+			        $.ajax({
+			            url: "<%= ctxPath%>/api/storage",
+			            type: "post",
+			            data: imgFormData,
+			            processData: false,
+			            contentType: false,
+			            headers: authHeader(),
+			            dataType: "json",
+			            success: function(json) {
+			               
+			                const profile_image_url = json.success.responseData[0].fileUrl;
+			                formData.append("profile_image", profile_image_url);
+		
+			                // 유저 정보 업데이트
+			                updateUserInfo(formData);
+			            },
+			            error: function(xhr, textStatus, errorThrown) {
+			                // axios 스타일의 에러 객체로 변환
+			                const error = new Error(errorThrown || textStatus);
+			                error.response = {
+			                    status: xhr.status,
+			                    statusText: xhr.statusText,
+			                    data: xhr.responseJSON || xhr.responseText
+			                };
+			                error.request = xhr;
+			                reject(error);
+			        	}
+			        })
+	        	})
+	        );
 	    } else {
 	       
 	        updateUserInfo(formData);
@@ -217,24 +239,35 @@ $(function(){
 	    const authHeader = AuthFunc.getAuthHeader;
 	    const apiRequest = AuthFunc.apiRequest;
 	    
-	    apiRequest(() => 
-	    	$.ajax({
-		        url: "<%= ctxPath%>/api/userInfo/update",
-		        type: "post",
-		        data: formData,
-		        processData: false,
-		        contentType: false,
-		        headers: authHeader(),
-		        dataType: "json",
-		        success: function(json) {
-		            console.log("프로필 업데이트 성공:", json);
-		            alert("업데이트 성공");
-		            location.href="<%= ctxPath%>/mypage/myinfo";
-		        },
-		        error: function(request, status, error) {
-		            alert("프로필 업데이트 실패\ncode:" + request.status + "\nmessage:" + request.responseText + "\nerror:" + error);
-		        }
-		    }));
+	    apiRequest(() =>
+	    	new Promise((resolve, reject) => {
+		    	$.ajax({
+			        url: "<%= ctxPath%>/api/userInfo/update",
+			        type: "post",
+			        data: formData,
+			        processData: false,
+			        contentType: false,
+			        headers: authHeader(),
+			        dataType: "json",
+			        success: function(json) {
+			            console.log("프로필 업데이트 성공:", json);
+			            alert("업데이트 성공");
+			            location.href="<%= ctxPath%>/mypage/myinfo";
+			        },
+			        error: function(xhr, textStatus, errorThrown) {
+		                // axios 스타일의 에러 객체로 변환
+		                const error = new Error(errorThrown || textStatus);
+		                error.response = {
+		                    status: xhr.status,
+		                    statusText: xhr.statusText,
+		                    data: xhr.responseJSON || xhr.responseText
+		                };
+		                error.request = xhr;
+		                reject(error);
+		        	}
+			    })
+	    	})
+	    );
 	}
 
 	
@@ -287,9 +320,9 @@ $(function(){
 								  <div class="custom-dropdown">
 								    <div class="selected">성별 선택</div>
 								    <ul class="options">
-								      <li data-value="남성">남성</li>
-								      <li data-value="여성">여성</li>
-								      <li data-value="미정">미정</li>
+								      <li value="MALE" data-value="남성">남성</li>
+								      <li value="FEMALE" data-value="여성">여성</li>
+								      <li value="UNKNOWN" data-value="미정">미정</li>
 								    </ul>
 								    <input type="hidden" name="gender" />
 								  </div>

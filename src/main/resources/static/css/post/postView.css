@@ -180,5 +180,73 @@
     font-size: 14px;
 }
 
+/* 댓글 모달 */
+/* 하단에서 올라오는 모달 */
+.modal-dialog-bottom {
+    position: absolute;
+    bottom: 0;
+    margin: 0;
+    width: 100%;
+    max-width: 500px; /* 모바일 느낌 */
+}
+
+/* 댓글 리스트 스크롤 */
+.comment-list {
+    max-height: 400px;
+    overflow-y: auto;
+    padding: 10px;
+}
+
+/* 댓글 항목 */
+.comment-item {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 10px;
+}
+.comment-item img {
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    margin-right: 8px;
+}
+.comment-text {
+    flex: 1;
+}
+.comment-like {
+    margin-left: 8px;
+    cursor: pointer;
+}
+
+/* 댓글 입력창 */
+.comment-input-wrapper {
+    border-top: 1px solid #ddd;
+    padding: 8px 10px;
+    display: flex;
+    align-items: center;
+}
+.comment-input-wrapper input {
+    flex: 1;
+    border: none;
+    outline: none;
+}
+.comment-input-wrapper button {
+    margin-left: 8px;
+}
+.modal.show .modal-dialog.modal-dialog-bottom {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    margin: 0;
+}
+.modal-dialog{
+    max-width: 1024px;
+}
+/* 댓글 textarea 쪽 css */
+.pcCommentInput:focus {
+    outline: none;
+    box-shadow: none;
+    border-bottom: 1px solid #ccc; /* 얇은 밑줄 포커스 */
+}
 
 
