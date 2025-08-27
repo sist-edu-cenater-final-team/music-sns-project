@@ -416,3 +416,168 @@
         opacity: 1;
     }
 }
+
+/* 전화번호 인증 관련 스타일 */
+.phone-verification-wrapper {
+    width: 100%;
+}
+
+.phone-check-btn {
+    position: absolute;
+    right: 10px;
+    background: #6633ff;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 8px 12px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    z-index: 3;
+    white-space: nowrap;
+}
+
+.phone-check-btn:hover {
+    background: #531fea;
+    transform: translateY(-1px);
+}
+
+.phone-check-btn:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.phone-check-btn.verified {
+    background: #48bb78;
+    cursor: default;
+}
+
+.phone-check-btn.verified:hover {
+    background: #48bb78;
+    transform: none;
+}
+
+/* 전화번호 타이머 위치 조정 */
+#phoneVerificationTimer {
+    position: absolute;
+    right: 85px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    background: rgba(102, 51, 255, 0.1);
+    color: #6633ff;
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    border: 1px solid rgba(102, 51, 255, 0.2);
+    z-index: 2;
+}
+
+#phoneVerificationTimer.warning {
+    background: rgba(237, 137, 54, 0.1);
+    color: #ed8936;
+    border-color: rgba(237, 137, 54, 0.3);
+}
+
+#phoneVerificationTimer.danger {
+    background: rgba(245, 101, 101, 0.1);
+    color: #f56565;
+    border-color: rgba(245, 101, 101, 0.3);
+}
+
+#phoneVerificationTimer i {
+    font-size: 0.7rem;
+    position: static;
+    color: inherit;
+}
+
+/* 반응형 - 모바일에서 전화번호 타이머 위치 조정 */
+@media (max-width: 768px) {
+    #phoneVerificationTimer {
+        position: static;
+        transform: none;
+        margin-top: 8px;
+        justify-content: center;
+        width: fit-content;
+        margin-left: auto;
+        margin-right: auto;
+    }
+}
+/*닉네임 중복체크*/
+.nickname-check-btn {
+    position: absolute;
+    right: 10px;
+    background: #6633ff;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 8px 12px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    z-index: 3;
+    white-space: nowrap;
+}
+
+.nickname-check-btn:hover {
+    background: #531fea;
+    transform: translateY(-1px);
+}
+
+.nickname-check-btn:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.nickname-check-btn.verified {
+    background: #48bb78;
+    cursor: default;
+}
+
+.nickname-check-btn.verified:hover {
+    background: #48bb78;
+    transform: none;
+}
+
+/*비밀번호 검증*/
+.password-message {
+    margin-top: 8px;
+    padding: 8px 12px;
+    border-radius: 8px !important;
+    font-size: 0.84rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.password-message.error {
+    background: rgba(245, 101, 101, 0.1);
+    color: #f56565;
+    border: 1px solid rgba(245, 101, 101, 0.3);
+}
+
+.password-message i {
+    font-size: 0.9rem;
+}
+
+/* SweetAlert2 커스터마이징 */
+.swal-signup-confirm {
+    border-radius: 15px !important;
+    font-family: inherit !important;
+}
+
+.swal-signup-confirm .swal2-title {
+    color: #333 !important;
+    font-size: 1.3rem !important;
+}
+
+.swal-signup-confirm .swal2-content {
+    color: #666 !important;
+}

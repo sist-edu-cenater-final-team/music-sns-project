@@ -34,7 +34,7 @@ public class AuthController implements AuthControllerDocs {
     public ResponseEntity<CustomSuccessResponse<Void>> signUp(@RequestBody @Valid SignUpRequest signUpRequest){
         signUpLoginService.signUp(signUpRequest);
         CustomSuccessResponse<Void> signUpResponse = CustomSuccessResponse
-                .emptyData(HttpStatus.CREATED, "회원가입 완료");
+                .emptyData(HttpStatus.CREATED, "회원가입이 완료되었습니다!");
         return createResponseEntity(signUpResponse);
     }
 

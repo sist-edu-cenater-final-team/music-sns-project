@@ -7,24 +7,107 @@
 
 <script type="text/javascript">
 	$(function(){
-		const userId = '41';
-		getInfo(userId);
+
+		$('button.profile').on("click",function(){
+		    getInfo();    
+		})
+		
 		
 		
 		
 	}); // end of $(function(){}) -----
 
-	function getInfo(userId) {
-		$.ajax({
-			url:"<%= ctxPath%>/api/userInfo/getInfo/"+userId,
-			dataType:"json",
-			success:function(json){
-				console.log(json);
-			},
-			error: function(request, status, error) {
-	            alert("code: " + request.status + "\nmessage: " + request.responseText + "\nerror: " + error);
-	        }
-		});
+	function getInfo() {
+		const apiRequest = AuthFunc.apiRequest;//함수참조
+		return apiRequest( () =>
+			new Promise((resolve, reject) => {
+					$.ajax({
+						url: '<%= ctxPath%>/api/userInfo/getInfo',
+						headers:AuthFunc.getAuthHeader(),
+						dataType:"json",
+						success:function(json){
+							const profile = $('div#profileLayer');
+							
+							let v_html = ` <div class="inner" style="background-color: #F2F0FF;">
+								  
+							    <div class="text-center" style="font-weight:bold; font-size: 16pt;">\${json.myuser.username}</div>
+							    <div class="text-center" style="font-size: 12pt; margin-top: 10px;">\${json.myuser.nickname}</div>
+							    <div>
+							      <img src="<%= ctxPath%>/images/common/userprofile/test.jpg"
+							           class="rounded-circle mr-4 profile-img" style="width: 128px; height: 128px; margin: 10px 85px; cursor:pointer;"
+							            onclick="location.href='<%= ctxPath%>/mypage/myinfo'" />
+							           
+							    </div>
+		
+							    <div class="flex stats">
+							      
+							      <div>
+							        <div class="font-bold number-color">300</div>
+							        <div class="label-text">게시물</div>
+							      </div>
+							      
+							      <div>
+							        <div class="font-bold number-color" style="cursor:pointer;" onclick="location.href = '<%= ctxPath%>/mypage/myFollowers'">\${json.myuser.followeeCount}</div>
+							        <div class="label-text">팔로워</div>
+							      </div>
+							      
+							      <div>
+							        <div class="font-bold number-color" style="cursor:pointer;" onclick="location.href = '<%= ctxPath%>/mypage/myFollowers'">\${json.myuser.followerCount}</div>
+							        <div class="label-text">팔로우</div>
+							      </div>
+							    </div>
+								
+							  </div>
+		
+							  	<div class="inner">
+							  		<div class="font-bold" style="display:flex; justify-content: space-between;">
+							  		<span>leess님의 프로필 음악</span> 
+							  		<button style="margin-right: 3px;">⋮</button>
+							  		</div>
+							  		<div class="playlist-section">
+		
+									  <ul class="playlist-list mt-3">
+									    <%-- <c:forEach var="song" items="${songs}" varStatus="status" begin="0" end="9"> --%>
+									      <li class="playlist-item">
+									      	<img src="<%= ctxPath%>/images/common/userprofile/test.jpg" style="width: 40px; height: 40px; margin-right: 10px;"/>
+											
+											<!-- 여기 foreach문 돌릴거임  -->
+									        <div class="song-title">
+										        <strong>Golden</strong>
+										        <div class="song-artist">
+										        	<div class="scrolling-wrapper scrolling">
+												        <span>HUNTR/X,EJAE,AUDREY NUNA</span>
+												        <span>HUNTR/X, EJAE, AUDREY NUNA</span>
+												     </div>
+										        </div>
+									        </div>
+									        
+									        <div class="song-button">
+									          <button>x</button>
+									        </div>
+									      </li>
+									   
+									  </ul>
+									</div>
+							  	</div>`;
+							  	
+							  	profile.html(v_html);
+					},
+					 error: function(xhr, textStatus, errorThrown) {
+			                // axios 스타일의 에러 객체로 변환
+			                const error = new Error(errorThrown || textStatus);
+			                error.response = {
+			                    status: xhr.status,
+			                    statusText: xhr.statusText,
+			                    data: xhr.responseJSON || xhr.responseText
+			                };
+			                error.request = xhr;
+			                reject(error);
+			        }
+			        
+				})
+			})
+		);
 	}
 
 </script>
@@ -102,68 +185,6 @@
 
 
 <div id="profileLayer" class="aside-navigation-layer sidebar">
-  <div class="inner" style="background-color: #F2F0FF;">
-  
-    <div class="text-center" style="font-weight:bold; font-size: 16pt;">leess</div>
-    <div class="text-center" style="font-size: 12pt; margin-top: 10px;">거북선 사랑</div>
-    <div>
-      <img src="<%= ctxPath%>/images/common/userprofile/test.jpg"
-           class="rounded-circle mr-4 profile-img" style="width: 128px; height: 128px; margin: 10px 85px; cursor:pointer;"
-            onclick="location.href='<%= ctxPath%>/mypage/myinfo'" />
-           
-    </div>
-
-    <div class="flex stats">
-      
-      <div>
-        <div class="font-bold number-color">300</div>
-        <div class="label-text">게시물</div>
-      </div>
-      
-      <div>
-        <div class="font-bold number-color" style="cursor:pointer;" onclick="location.href = '<%= ctxPath%>/mypage/myFollowers'">33.3만</div>
-        <div class="label-text">팔로워</div>
-      </div>
-      
-      <div>
-        <div class="font-bold number-color" style="cursor:pointer;" onclick="location.href = '<%= ctxPath%>/mypage/myFollowers'">333</div>
-        <div class="label-text">팔로우</div>
-      </div>
-    </div>
-	
-  </div>
-
-  	<div class="inner">
-  		<div class="font-bold" style="display:flex; justify-content: space-between;">
-  		<span>leess님의 프로필 음악</span> 
-  		<button style="margin-right: 3px;">⋮</button>
-  		</div>
-  		<div class="playlist-section">
-
-		  <ul class="playlist-list mt-3">
-		    <%-- <c:forEach var="song" items="${songs}" varStatus="status" begin="0" end="9"> --%>
-		      <li class="playlist-item">
-		      	<img src="<%= ctxPath%>/images/common/userprofile/test.jpg" style="width: 40px; height: 40px; margin-right: 10px;"/>
-				
-				<!-- 여기 foreach문 돌릴거임  -->
-		        <div class="song-title">
-			        <strong>Golden</strong>
-			        <div class="song-artist">
-			        	<div class="scrolling-wrapper scrolling">
-					        <span>HUNTR/X,EJAE,AUDREY NUNA</span>
-					        <span>HUNTR/X, EJAE, AUDREY NUNA</span>
-					     </div>
-			        </div>
-		        </div>
-		        
-		        <div class="song-button">
-		          <button>x</button>
-		        </div>
-		      </li>
-		   
-		  </ul>
-		</div>
-  	</div>
 	
 </div>
 <!-- //클릭했을 때 나오는 스으윽 팝업 -->

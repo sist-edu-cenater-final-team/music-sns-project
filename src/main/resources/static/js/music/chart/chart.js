@@ -1,7 +1,6 @@
 // token.js에서 함수들 가져오기
 const apiRequest = AuthFunc.apiRequest;//함수참조
-
-
+const authHeader = AuthFunc.getAuthHeader;//함수참조
 (function () {
     const signature = {
         melon: {name: 'MELON', colorClass: 'border-melon', pillClass: 'source-melon'},
@@ -56,7 +55,7 @@ const apiRequest = AuthFunc.apiRequest;//함수참조
         return apiRequest(() =>
             axios.get(endpoint, {
                 timeout: 10000,
-                headers: AuthFunc.getAuthHeader()
+                headers: authHeader()
             }).then(r => r.data)
         );
     }

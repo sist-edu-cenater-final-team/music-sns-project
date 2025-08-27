@@ -21,6 +21,9 @@ public class MyUtils {
     public static <T> ResponseEntity<CustomSuccessResponse<T>> createResponseEntity(CustomSuccessResponse<T> body) {
         return ResponseEntity.status(body.getHttpStatus()).body(body);
     }
+    public static <T> ResponseEntity<CustomSuccessResponse<T>> createResponseEntity(CustomSuccessResponse<T> body, HttpHeaders headers) {
+        return ResponseEntity.status(body.getHttpStatus()).headers(headers).body(body);
+    }
 
     //랜덤 숫자 6자리 생성
     public static int generateRandomNumber() {
