@@ -1,22 +1,22 @@
-
 let isFormSubmitted = false; // 회원가입 완료 여부 확인용
 // 회원가입 모달 관련 함수들
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     const signupModal = document.getElementById('signupModal');
 
     // 회원가입 링크 클릭 시 모달 열기
-    const signupLinks = document.querySelectorAll('a[href="/signup"]');
-    signupLinks.forEach(link => {
-        link.addEventListener('click', function(e) {
-            e.preventDefault();
-            openSignupModal();
-        });
+    const signupLinks = document.querySelector('#signUpBtn');
+
+    signupLinks.addEventListener('click', function (e) {
+        document.getElementById("passwordDiv").style.display = "flex";
+        document.getElementById("signupModalLabel").innerText = "회원가입";
+
+        openSignupModal();
     });
 
     // 회원가입 폼 제출 이벤트
     const signupForm = document.getElementById('signupForm');
     if (signupForm) {
-        signupForm.addEventListener('submit', function(e) {
+        signupForm.addEventListener('submit', function (e) {
             e.preventDefault();
             handleSignup();
         });
@@ -26,12 +26,12 @@ document.addEventListener('DOMContentLoaded', function() {
     // 전화번호 자동 포맷팅
     const phoneInput = document.getElementById('signupPhone');
     if (phoneInput) {
-        phoneInput.addEventListener('input', function(e) {
+        phoneInput.addEventListener('input', function (e) {
             formatPhoneNumber(e.target);
         });
 
         // 붙여넣기 시에도 포맷팅 적용
-        phoneInput.addEventListener('paste', function(e) {
+        phoneInput.addEventListener('paste', function (e) {
             setTimeout(() => {
                 formatPhoneNumber(e.target);
             }, 10);
@@ -50,7 +50,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // 모달 닫기 전 확인
-    signupModal.addEventListener('hide.bs.modal', function(e) {
+    signupModal.addEventListener('hide.bs.modal', function (e) {
         // 회원가입이 완료된 경우나 폼이 비어있는 경우는 확인하지 않음
         if (isFormSubmitted || isFormEmpty()) {
             return;
@@ -88,7 +88,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     // ESC 키 처리
-    document.addEventListener('keydown', function(e) {
+    document.addEventListener('keydown', function (e) {
         if (e.key === 'Escape' && signupModal.classList.contains('show')) {
             e.preventDefault();
             e.stopPropagation();
@@ -99,6 +99,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 });
+
 // 폼이 비어있는지 확인하는 함수
 function isFormEmpty() {
     const inputs = document.querySelectorAll('#signupForm input[type="text"], #signupForm input[type="tel"], #signupForm input[type="password"]');
@@ -109,6 +110,7 @@ function isFormEmpty() {
     }
     return true;
 }
+
 function openSignupModal() {
 
     // Bootstrap 5 방식으로 모달 초기화
@@ -123,26 +125,27 @@ function openSignupModal() {
         const modal = bootstrap.Modal.getOrCreateInstance(signupModal);
 
         // 모달이 완전히 열린 후 포커스 관리
-        signupModal.addEventListener('shown.bs.modal', function() {
+        signupModal.addEventListener('shown.bs.modal', function () {
             // 첫 번째 입력 필드에 포커스
             const firstInput = signupModal.querySelector('input');
             if (firstInput) {
                 firstInput.focus();
             }
-        }, { once: true });
+        }, {once: true});
 
         // 모달이 숨겨지기 전 포커스 해제
-        signupModal.addEventListener('hide.bs.modal', function() {
+        signupModal.addEventListener('hide.bs.modal', function () {
             // 현재 포커스된 요소가 모달 내부에 있으면 포커스 해제
             const activeElement = document.activeElement;
             if (signupModal.contains(activeElement)) {
                 activeElement.blur();
             }
-        }, { once: true });
+        }, {once: true});
 
         modal.show();
     }
 }
+
 function toggleSignupPassword(inputId) {
     const passwordInput = document.getElementById(inputId);
     const toggleBtn = passwordInput.nextElementSibling.querySelector('i');
@@ -184,12 +187,15 @@ function validatePasswordMatch() {
     }
 }
 
-function handleSignup() {
-    // 기존 메시지 제거
-    removeSignupMessage();
-
-    // 폼 데이터 수집
-    const formData = {
+function createSignUpFormData() {
+    return window.socialSignUpData ? {
+        email: document.getElementById('signupEmail').value,
+        nickname: document.getElementById('signupNickname').value,
+        username: document.getElementById('signupName').value,
+        phoneNumber: getPhoneNumberOnly(document.getElementById('signupPhone').value), // 하이픈 제거
+        socialId: window.socialSignUpData.socialId,
+        provider: window.socialSignUpData.provider
+    } : {
         email: document.getElementById('signupEmail').value,
         nickname: document.getElementById('signupNickname').value,
         username: document.getElementById('signupName').value,
@@ -197,12 +203,21 @@ function handleSignup() {
         // dateOfBirth: document.getElementById('dateOfBirth').value,
         password: document.getElementById('signupPassword').value,
         passwordConfirm: document.getElementById('passwordConfirm').value
-    };
+    }
+}
+
+function handleSignup() {
+    // 기존 메시지 제거
+    removeSignupMessage();
+
+    // 폼 데이터 수집
+    const formData = createSignUpFormData();
+    const endPoint = ctxPath +
+        window.socialSignUpData ? '/api/oauth/sign-up' : '/api/auth/sign-up';
 
     // 유효성 검사
-    if (!validateSignupForm(formData)) {
-        return;
-    }
+    if (!validateSignupForm(formData)) return;
+
 
     // 약관 동의 확인
     if (!document.getElementById('agreeTerms').checked) {
@@ -217,11 +232,11 @@ function handleSignup() {
     signupBtn.disabled = true;
 
     // API 호출
-    axios.post('/api/auth/sign-up', formData)
+    axios.post(endPoint, formData)
         .then(response => {
             isFormSubmitted = true; // 성공 시 설정
             console.log(response)
-            showSignupMessage('회원가입이 완료되었습니다!', 'success');
+            showSignupMessage(response.data.success.message, 'success');
 
             // 3초 후 모달 닫기 및 로그인 폼으로 이동
             setTimeout(() => {
@@ -290,6 +305,7 @@ function resetSignupForm() {
 
     // 메시지 제거
     removeSignupMessage();
+    window.socialSignUpData = null;
 }
 
 function validateSignupForm(formData) {
@@ -308,8 +324,9 @@ function validateSignupForm(formData) {
         showSignupMessage('전화번호 인증을 완료해주세요.', 'error');
         return false;
     }
-    // 필수 필드 검사 (이메일 제외 - 이미 인증됨)
-    const requiredFields = ['username', 'password', 'passwordConfirm'];
+    // 필수 필드 검사 (이메일 전화번호 제외 - 이미 인증됨) 소셜가입시 비밀번호제외
+    const requiredFields = formData.socialId ?
+        ['username'] : ['username', 'password', 'passwordConfirm'];
     for (const field of requiredFields) {
         if (!formData[field] || formData[field].trim() === '') {
             showSignupMessage('모든 필수 항목을 입력해주세요.', 'error');
@@ -325,14 +342,14 @@ function validateSignupForm(formData) {
     }
 
     // 비밀번호 일치 검사
-    if (formData.password !== formData.passwordConfirm) {
+    if (formData.socialId && formData.password !== formData.passwordConfirm) {
         showSignupMessage('비밀번호가 일치하지 않습니다.', 'error');
         return false;
     }
 
     // 비밀번호 강도 검사
     const passwordRegex = /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,}$/;
-    if (!passwordRegex.test(formData.password)) {
+    if (!formData.socialId && !passwordRegex.test(formData.password)) {
         showSignupMessage('비밀번호는 8자 이상, 영문, 숫자, 특수문자를 포함해야 합니다.', 'error');
         return false;
     }
@@ -352,7 +369,7 @@ function showSignupMessage(message, type) {
     messageDiv.className = `signup-message ${type}`;
 
     let icon = '';
-    switch(type) {
+    switch (type) {
         case 'success':
             icon = 'bi-check-circle-fill';
             break;
@@ -424,6 +441,7 @@ function startVerificationTimer() {
         }
     }, 1000);
 }
+
 function updateTimerDisplay() {
     const minutes = Math.floor(timeRemaining / 60);
     const seconds = timeRemaining % 60;
@@ -503,6 +521,12 @@ function checkEmailDuplicate() {
     // 로딩 상태
     checkBtn.innerHTML = '확인중...';
     checkBtn.disabled = true;
+
+    if(window.socialSignUpData && window.socialSignUpData.email === email){
+        sendVerificationEmail(email);
+        return;
+    }
+
 
     // 중복 확인 API 호출
     axios.get(`/api/email/duplicate?email=${encodeURIComponent(email)}`)
@@ -678,7 +702,7 @@ function resetEmailVerification() {
 }
 
 // 페이지 언로드시 타이머 정리
-window.addEventListener('beforeunload', function() {
+window.addEventListener('beforeunload', function () {
     clearVerificationTimer();
 });
 // 전화번호 인증 상태 변수
@@ -772,7 +796,7 @@ function sendVerificationSMS(phone) {
         .catch(error => {
             console.error('문자 발송 오류:', error);
             const message = error.response.data.error.customMessage;
-            showPhoneStatus(message ||'문자 발송 중 오류가 발생했습니다.', 'error');
+            showPhoneStatus(message || '문자 발송 중 오류가 발생했습니다.', 'error');
             checkBtn.innerHTML = '중복확인';
             checkBtn.disabled = false;
         });
@@ -998,6 +1022,7 @@ function showNicknameStatus(message, type) {
     statusDiv.textContent = message;
     statusDiv.style.display = 'block';
 }
+
 function checkNicknameDuplicate() {
     const nickname = document.getElementById('signupNickname').value;
     const checkBtn = document.getElementById('nicknameCheckBtn');
@@ -1054,6 +1079,7 @@ function checkNicknameDuplicate() {
             checkBtn.disabled = false;
         });
 }
+
 function resetNicknameVerification() {
     // 상태 초기화
     nicknameVerified = false;

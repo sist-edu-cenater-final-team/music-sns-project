@@ -3,6 +3,7 @@ import com.github.musicsnsproject.common.MyUtils;
 import com.github.musicsnsproject.common.myenum.OAuthProvider;
 import com.github.musicsnsproject.service.account.oauth.OAuthLoginService;
 import com.github.musicsnsproject.service.account.oauth.OAuthProviderService;
+import com.github.musicsnsproject.web.dto.account.auth.response.TokenResponse;
 import com.github.musicsnsproject.web.dto.account.oauth.request.*;
 import com.github.musicsnsproject.web.dto.account.oauth.response.AuthResult;
 import com.github.musicsnsproject.web.dto.account.oauth.response.OAuthDtoInterface;
@@ -85,12 +86,17 @@ public class OAuthController implements OAuthControllerDocs {
 
     private ResponseEntity<CustomSuccessResponse<OAuthDtoInterface>> loginOAuth(OAuthLoginParams params) {
         AuthResult result = oAuthLoginService.loginOrCreateTempAccount(params);
+
+        return createOAuthResponse(result);
+    }
+    private ResponseEntity<CustomSuccessResponse<OAuthDtoInterface>> createOAuthResponse(AuthResult result){
         CustomSuccessResponse<OAuthDtoInterface> response = CustomSuccessResponse
                 .of(result.getHttpStatus(), result.getMessage(), result.getResponse());
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("X-Is-Connection", String.valueOf(result.isConnection()));
 
-        return MyUtils.createResponseEntity(response, headers);
+        if (result.getResponse() instanceof TokenResponse tokenResponse) {
+            return MyUtils.createResponseEntity(response, tokenResponse.getRefreshTokenCookie());
+        }
+        return MyUtils.createResponseEntity(response);
     }
 
 
@@ -98,7 +104,8 @@ public class OAuthController implements OAuthControllerDocs {
     public ResponseEntity<CustomSuccessResponse<Void>> oAuthSignUp(@RequestBody @Valid OAuthSignUpDto oAuthSignUpDto) {
         oAuthLoginService.signUp(oAuthSignUpDto);
         CustomSuccessResponse<Void> signUpResponse = CustomSuccessResponse
-                .emptyData(HttpStatus.CREATED, "회원가입 완료");
+                .emptyData(HttpStatus.CREATED,
+                        oAuthSignUpDto.getProvider().getValue()+" 회원가입이 완료되었습니다!");
         return ResponseEntity
                 .status(signUpResponse.getHttpStatus())
                 .body(signUpResponse);

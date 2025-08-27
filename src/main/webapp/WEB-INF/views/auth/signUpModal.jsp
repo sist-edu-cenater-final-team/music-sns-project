@@ -108,8 +108,8 @@
                         </div>
                     </div>
 
-                    <div class="row">
-                        <div class="col-md-6">
+                    <div class="row" id="passwordDiv">
+                        <div class="col-md-6 password-field" >
                             <div class="input-group">
                                 <label for="signupPassword">비밀번호 <span class="required">*</span></label>
                                 <div class="input-wrapper">
@@ -121,7 +121,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-md-6 password-field" >
                             <div class="input-group">
                                 <label for="passwordConfirm">비밀번호 확인 <span class="required">*</span></label>
                                 <div class="input-wrapper">

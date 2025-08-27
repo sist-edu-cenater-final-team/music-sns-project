@@ -388,13 +388,14 @@ body {
 }
 
 .signup-link a {
-    color: #6633ff;
-    text-decoration: none;
+    cursor: pointer;
+    color: #6633ff !important;
+    text-decoration: none !important;
     font-weight: 600;
 }
 
 .signup-link a:hover {
-    text-decoration: underline;
+    text-decoration: underline !important;
 }
 #passwordEye {
     left: 8px;

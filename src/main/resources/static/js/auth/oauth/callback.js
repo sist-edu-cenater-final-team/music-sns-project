@@ -18,10 +18,10 @@ const params = { authorizationCode: code };
             window.opener.handleLoginSuccess(isConnection, responseData, providerValue);
         self.close();
     } else if (response.status === 201) {
-        // console.log('User registered successfully:', data);
+        console.log('User registered successfully:', responseData);
         if (window.opener && !window.opener.closed)
             window.opener.handleSignUpRequest(responseData);
-        // self.close();
+        self.close();
     } else {
         console.error('Login or Register failed:', response.statusText);
         // Handle error

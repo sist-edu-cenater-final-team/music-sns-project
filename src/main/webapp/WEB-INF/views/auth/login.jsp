@@ -109,7 +109,7 @@
 
             <!-- 회원가입 링크 -->
             <div class="signup-link">
-                <p>아직 계정이 없으신가요? <a href="/signup">회원가입</a></p>
+                <p>아직 계정이 없으신가요? <a id="signUpBtn">회원가입</a></p>
             </div>
         </div>
     </div>
@@ -117,6 +117,7 @@
 
 <script src="<%=ctxPath%>/js/auth/login.js"></script>
 <script src="<%=ctxPath%>/js/auth/signup.js"></script>
+<script src="<%=ctxPath%>/js/auth/oauth/loginSignUp.js"></script>
 <jsp:include page="./signUpModal.jsp"/>
 </body>
 </html>
