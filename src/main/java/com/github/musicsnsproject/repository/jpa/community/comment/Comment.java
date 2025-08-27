@@ -4,6 +4,7 @@ import com.github.musicsnsproject.repository.jpa.account.user.MyUser;
 import com.github.musicsnsproject.repository.jpa.community.post.Post;
 import jakarta.persistence.*;
 import lombok.Getter;
+import org.hibernate.annotations.DynamicInsert;
 
 import java.time.LocalDateTime;
 
@@ -31,5 +32,22 @@ public class Comment {
 
     @Column(name="created_at")
     private LocalDateTime createdAt;
+
+    public static Comment onlyId(long commentId) {
+        Comment comment = new Comment();
+        comment.commentId = commentId;
+        return comment;
+    }
+
+
+    public static Comment of(Post post, MyUser myUser, String comment, Comment parent) {
+        Comment commentEntity = new Comment();
+        commentEntity.post = post;
+        commentEntity.myUser = myUser;
+        commentEntity.contents = comment;
+        commentEntity.parentComment = parent;
+        commentEntity.createdAt = LocalDateTime.now();
+        return commentEntity;
+    }
 }
 

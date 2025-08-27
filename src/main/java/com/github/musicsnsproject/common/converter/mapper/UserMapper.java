@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 
 
 @Mapper
-public interface UserMapper {
+public  interface UserMapper {
     UserMapper INSTANCE = Mappers.getMapper(UserMapper.class);
 
     @Mapping(target = "roles", qualifiedByName = "getMyRoles")

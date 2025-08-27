@@ -220,29 +220,41 @@ $(document).ready(function () {
 
         // console.log(userEmotion);
         return apiRequest(() =>
-            $.ajax({
-                url: `/api/post/postTextAndTitle`,
-                type: "post",
-                contentType: 'application/json; charset=UTF-8',
-                processData: false, // 문자열을 그대로 보냄
-                dataType: "json",
-                headers: authHeader,
-                data: JSON.stringify({
-                    title: title,
-                    contents: contents,
-                    userEmotion: userEmotion
-                }),
-                success: function (json) {
-                    console.log(JSON.stringify(json));
-
-                    alert('업로드 성공했습니다.');
-                    location.reload();
+            new Promise((resolve, reject)=>{
 
 
-                },
-                error: function (request, status, error) {
-                    console.error('code: ' + request.status + '\nmessage: ' + (request.responseText || '') + '\nerror: ' + error);
-                }
+                $.ajax({
+                    url: `/api/post/postTextAndTitle`,
+                    type: "post",
+                    contentType: 'application/json; charset=UTF-8',
+                    processData: false, // 문자열을 그대로 보냄
+                    dataType: "json",
+                    headers: AuthFunc.getAuthHeader(),
+                    data: JSON.stringify({
+                        title: title,
+                        contents: contents,
+                        userEmotion: userEmotion
+                    }),
+                    success: function (json) {
+                        console.log(JSON.stringify(json));
+
+                        alert('업로드 성공했습니다.');
+                        location.reload();
+
+
+                    },
+                    error: function(xhr, textStatus, errorThrown) {
+                        // axios 스타일의 에러 객체로 변환
+                        const error = new Error(errorThrown || textStatus);
+                        error.response = {
+                            status: xhr.status,
+                            statusText: xhr.statusText,
+                            data: xhr.responseJSON || xhr.responseText
+                        };
+                        error.request = xhr;
+                        reject(error);
+                    }
+                })
             })
         );
     })
@@ -264,74 +276,84 @@ $(document).ready(function () {
         const $btn = $(this).prop('disabled', true).text('업로드 중...');
 
         return apiRequest(() =>
-            $.ajax({
-                url: url,
-                type: 'POST',
-                data: formData,
-                processData: false,
-                contentType: false,
-                dataType: 'json',
-                xhr: function () {
-                    const xhr = $.ajaxSettings.xhr();
-                    if (xhr.upload) {
-                        xhr.upload.addEventListener('progress', function (e) {
-                            if (e.lengthComputable) {
-                                const percent = Math.round((e.loaded / e.total) * 100);
-                                // 진행률 UI 업데이트 가능
-                            }
-                        });
-                    }
-                    return xhr;
-                },
-                success: function (json) {
-                    // 1) 업로드 응답에서 파일 목록 추출
-                    const uploads = json?.success?.responseData ?? [];
+            new Promise((resolve, reject)=>{
 
-
-                    // 2) URL과 이름 분리 하면 안되고 객체로 만들어줘야됨
-                    const imageUrls = uploads.map(f => f.fileUrl).filter(Boolean);
-                    const imageNames = uploads.map(f => f.fileName).filter(Boolean);
-                    // 2) 파일명/URL을 가진 객체 배열 만들기 (유효한 것만)
-                    const images = uploads
-                        .map(f => ({ fileName: f.fileName, fileUrl: f.fileUrl }))
-                        .filter(f => f.fileName && f.fileUrl);
-
-
-                    // 3) 게시글 저장 요청
-                    const postLoad = {
-                        title: $("#title").val(),
-                        contents: $("#contents").val(),
-                        userEmotion: userEmotion, // 서버가 기대하는 값 형태 확인(예: enum명/코드)
-                        images
-                    };
-
-                    $.ajax({
-                        url: `/api/post/postTextAndTitle`,
-                        type: 'POST',
-                        contentType: 'application/json',
-                        headers: authHeader,
-                        data: JSON.stringify(postLoad),
-                        success: function (json) {
-                            // 게시글 저장 성공 시에만 UI 정리
-                            imageArray = [];
-                            $('#postModal').modal('hide');
-                            // 필요 시 성공 알림/리다이렉트 등
-                            location.href = '/index';
-                        },
-                        error: function (request, status, error) {
-                            console.error('게시글 저장 실패:', status, error, request.responseText);
-                            alert('게시글 저장 중 오류가 발생했습니다.');
+                $.ajax({
+                    url: url,
+                    type: 'POST',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    dataType: 'json',
+                    xhr: function () {
+                        const xhr = $.ajaxSettings.xhr();
+                        if (xhr.upload) {
+                            xhr.upload.addEventListener('progress', function (e) {
+                                if (e.lengthComputable) {
+                                    const percent = Math.round((e.loaded / e.total) * 100);
+                                    // 진행률 UI 업데이트 가능
+                                }
+                            });
                         }
-                        // complete는 바깥 complete에서 버튼 제어
-                    });
-                },
-                error: function (request, status, error) {
-                    console.error('업로드 실패:', status, error, request.responseText);
-                    alert('code: ' + request.status + '\nmessage: ' + (request.responseText || '') + '\nerror: ' + error);
-                },
-                complete: function () {
-                    $btn.prop('disabled', false).text('업로드');
-                }
+                        return xhr;
+                    },
+                    success: function (json) {
+                        // 1) 업로드 응답에서 파일 목록 추출
+                        const uploads = json?.success?.responseData ?? [];
+
+
+                        // 2) URL과 이름 분리 하면 안되고 객체로 만들어줘야됨
+                        const imageUrls = uploads.map(f => f.fileUrl).filter(Boolean);
+                        const imageNames = uploads.map(f => f.fileName).filter(Boolean);
+                        // 2) 파일명/URL을 가진 객체 배열 만들기 (유효한 것만)
+                        const images = uploads
+                            .map(f => ({ fileName: f.fileName, fileUrl: f.fileUrl }))
+                            .filter(f => f.fileName && f.fileUrl);
+
+
+                        // 3) 게시글 저장 요청
+                        const postLoad = {
+                            title: $("#title").val(),
+                            contents: $("#contents").val(),
+                            userEmotion: userEmotion, // 서버가 기대하는 값 형태 확인(예: enum명/코드)
+                            images
+                        };
+
+                        $.ajax({
+                            url: `/api/post/postTextAndTitle`,
+                            type: 'POST',
+                            contentType: 'application/json',
+                            headers: AuthFunc.getAuthHeader(),
+                            data: JSON.stringify(postLoad),
+                            success: function (json) {
+                                // 게시글 저장 성공 시에만 UI 정리
+                                imageArray = [];
+                                $('#postModal').modal('hide');
+                                // 필요 시 성공 알림/리다이렉트 등
+                                location.href = '/index';
+                            },
+                            error: function (request, status, error) {
+                                console.error('게시글 저장 실패:', status, error, request.responseText);
+                                alert('게시글 저장 중 오류가 발생했습니다.');
+                            }
+                            // complete는 바깥 complete에서 버튼 제어
+                        });
+                    },
+                    error: function(xhr, textStatus, errorThrown) {
+                        // axios 스타일의 에러 객체로 변환
+                        const error = new Error(errorThrown || textStatus);
+                        error.response = {
+                            status: xhr.status,
+                            statusText: xhr.statusText,
+                            data: xhr.responseJSON || xhr.responseText
+                        };
+                        error.request = xhr;
+                        reject(error);
+                    },
+                    complete: function () {
+                        $btn.prop('disabled', false).text('업로드');
+                    }
+                })
             })
         );
     }); // end of $('#btnUploadStep3').on('click', function () {})
