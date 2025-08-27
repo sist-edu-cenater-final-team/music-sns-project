@@ -37,7 +37,7 @@ public class JwtProvider {
     }
 
 
-    public static final Duration REFRESH_TOKEN_EXPIRATION = Duration.ofDays(7);//7일
+    private static final Duration REFRESH_TOKEN_EXPIRATION = Duration.ofDays(7);//7일
     private static final Duration ACCESS_TOKEN_EXPIRATION = Duration.ofMinutes(1);//1분
 
     public static final String TOKEN_TYPE = "Bearer";
@@ -76,19 +76,40 @@ public class JwtProvider {
                 .signWith(key, Jwts.SIG.HS256)
                 .compact();
     }
-
-    //리프레시 토큰의 유효시간만큼 저장기간을 설정하고 레디스에 저장 이후 Dto 생성
-    public TokenResponse saveRefreshTokenAndCreateTokenDto(String accessToken, String refreshToken, Duration exp){
-
-        redisRepository.save(accessToken, refreshToken, exp);
+    private TokenResponse tokenBuilder(String accessToken, String refreshToken){
         ResponseCookie refreshTokenCookie = createRefreshTokenCookie(refreshToken);
-
         return TokenResponse.builder()
                 .tokenType(TOKEN_TYPE)
                 .accessToken(accessToken)
                 .refreshTokenCookie(refreshTokenCookie)
                 .build();
     }
+    private TokenResponse tokenBuilder(String accessToken, String refreshToken, boolean isConnection){
+        ResponseCookie refreshTokenCookie = createRefreshTokenCookie(refreshToken);
+        return TokenResponse.builder()
+                .tokenType(TOKEN_TYPE)
+                .accessToken(accessToken)
+                .refreshTokenCookie(refreshTokenCookie)
+                .isConnection(isConnection)
+                .build();
+    }
+
+
+    //리프레시 토큰의 유효시간만큼 저장기간을 설정하고 레디스에 저장 이후 Dto 생성
+    private TokenResponse saveRefreshTokenAndCreateTokenDto(String accessToken, String refreshToken, Duration exp){
+        redisRepository.save(accessToken, refreshToken, exp);
+        return tokenBuilder(accessToken, refreshToken);
+    }
+
+    public TokenResponse saveRefreshTokenAndCreateTokenDto(String accessToken, String refreshToken){
+        redisRepository.save(accessToken, refreshToken, REFRESH_TOKEN_EXPIRATION);
+        return tokenBuilder(accessToken, refreshToken);
+    }
+    public TokenResponse saveRefreshTokenAndCreateTokenDto(String accessToken, String refreshToken, boolean isConnection){
+        redisRepository.save(accessToken, refreshToken, REFRESH_TOKEN_EXPIRATION);
+        return tokenBuilder(accessToken, refreshToken, isConnection);
+    }
+
 
     private ResponseCookie.ResponseCookieBuilder getBaseCookieBuilder(String value) {
         return ResponseCookie.from(REFRESH_COOKIE_NAME, value)

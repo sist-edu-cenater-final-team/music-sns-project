@@ -101,7 +101,7 @@
         private AuthResult createOAuthLoginResponse(MyUser myUser, boolean isConnection) {
             securityOAuthSuccessVerify(myUser);
             return AuthResult.builder()
-                    .response(createTokenAndSave(myUser))
+                    .response(createTokenAndSave(myUser, isConnection))
                     .isConnection(isConnection)
                     .message("로그인 성공")
                     .httpStatus(HttpStatus.OK)
@@ -109,15 +109,14 @@
         }
 
 
-        private TokenResponse createTokenAndSave(MyUser myUser) {
+        private TokenResponse createTokenAndSave(MyUser myUser, boolean isConnection) {
             String roles = myUser.getRoles().stream().map(role -> role.getName().name())
                     .collect(Collectors.joining(","));
             //토큰 생성
             String accessToken = jwtProvider.createNewAccessToken(myUser.getUserId().toString(), roles);
             String refreshToken = jwtProvider.createNewRefreshToken();
             try {
-                //myUser.loginValueSetting(false);
-                return jwtProvider.saveRefreshTokenAndCreateTokenDto(accessToken, refreshToken, JwtProvider.REFRESH_TOKEN_EXPIRATION);
+                return jwtProvider.saveRefreshTokenAndCreateTokenDto(accessToken, refreshToken, isConnection);
             } catch (RedisConnectionFailureException e) {
                 throw CustomServerException.of()
                         .systemMessage(e.getMessage())
