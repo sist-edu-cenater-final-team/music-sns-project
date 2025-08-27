@@ -9,13 +9,17 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-// 구매내역 응답용
-public class PurchaseResponse {
+// 구매한 음악 응답용
+public class PurchaseMusicResponse {
+
+    private String musicId;
     private String musicName;
     private String albumName;
     private String albumImageUrl;
     private String artistName;
-    private long atThatCoin;
 
+    private long purchaseHistoryId;
+
+    private long atThatCoin;
     private String sourceType;
 }

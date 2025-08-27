@@ -13,7 +13,7 @@ const cart = {
     tbody : document.querySelector('#cartBody'),
     checkAll : document.querySelector('#cartAllCheck'),
     renderCart : (cartData) => {
-        //console.log('cartData:', cartData);
+        console.log('cartData:', cartData);
 
         let cartHTML = ``;
         // 장바구니가 비어있을 경우
@@ -73,6 +73,10 @@ const cart = {
                 )
                 .then(response => {
                     console.log("cartList:", response);
+                    if(response.data.length === 0 || response.data === null || response.data.length < 0){
+                        alert("없닼1₩");
+                        return;
+                    }
                     cart.renderCart(response.data);
                 })
                 .catch((error) => {

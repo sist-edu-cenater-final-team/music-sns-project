@@ -9,6 +9,8 @@ import com.github.musicsnsproject.repository.jpa.music.cart.MusicCart;
 import com.github.musicsnsproject.repository.jpa.music.cart.MusicCartRepository;
 import com.github.musicsnsproject.repository.jpa.music.purchase.PurchaseHistory;
 import com.github.musicsnsproject.repository.jpa.music.purchase.PurchaseHistoryRepository;
+import com.github.musicsnsproject.repository.jpa.music.purchase.PurchaseMusic;
+import com.github.musicsnsproject.repository.jpa.music.purchase.PurchaseMusicRepository;
 import com.github.musicsnsproject.repository.spotify.SpotifyDao;
 import com.github.musicsnsproject.web.dto.music.cart.CartResponse;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -25,6 +27,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import static com.github.musicsnsproject.repository.jpa.account.user.QMyUser.myUser;
+import static com.github.musicsnsproject.repository.jpa.music.cart.QMusicCart.musicCart;
 
 @Service
 @RequiredArgsConstructor
@@ -33,6 +36,7 @@ public class OrderServiceImpl implements OrderService{
     private final MusicCartRepository musicCartRepository;
     private final PurchaseHistoryRepository purchaseHistoryRepository;
     private final MyMusicRepository myMusicRepository;
+    private final PurchaseMusicRepository purchaseMusicRepository;
     private final JPAQueryFactory jpaQueryFactory;
     private final SpotifyDao spotifyDao;
 
@@ -128,16 +132,34 @@ public class OrderServiceImpl implements OrderService{
         purchaseHistoryRepository.save(history);
 
 
+        List<String> musicIds = jpaQueryFactory
+                .select(musicCart.musicId)
+                .from(musicCart)
+                .where(musicCart.musicCartId.in(cartIdList),
+                       musicCart.myUser.userId.eq(userId))
+                .fetch();
+
+        // 구매한 음악에 추가하기
+        List<PurchaseMusic> purchaseMusics = musicIds.stream()
+                .map(musicIdList -> PurchaseMusic.builder()
+                        .musicId(musicIdList)
+                        .purchaseHistory(history)
+                        .atThatCoin(userCoin)
+                        .build()
+                )
+                .toList();
+
+        purchaseMusicRepository.saveAll(purchaseMusics);
+
         // 내 음악에 추가하기
         MyMusic myMusic = MyMusic.builder()
                 .purchaseHistory(history)
                 .sourceType(MyMusicType.PURCHASE)
                 .build();
-
-        // 내 음악 저장
         myMusicRepository.save(myMusic);
 
-        // 장바구니에서 삭제
+
+        // 주문이 끝난 음악들은 장바구니에서 삭제
         for (Long cardId : cartIdList) {
             musicCartRepository.deleteById(cardId);
         }

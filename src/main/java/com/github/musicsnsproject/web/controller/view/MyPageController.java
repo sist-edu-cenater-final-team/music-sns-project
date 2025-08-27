@@ -25,4 +25,11 @@ public class MyPageController {
     public String purchaseHistoryPage() {
         return "mypage/eumpyo/purchaseHistory";
     }
+
+
+    // 내가 구매한 음악리스트
+    @GetMapping("purchase/list")
+    public String purchaseList(){
+        return "mypage/purchase/purchaseList";
+    }
 }
