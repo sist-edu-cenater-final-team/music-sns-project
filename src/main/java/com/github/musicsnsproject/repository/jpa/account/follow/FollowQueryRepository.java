@@ -32,6 +32,10 @@ public interface FollowQueryRepository {
 	// 검색된 유저
 	List<FollowVO> searchUser(String searchWord, Long userId);
 	
+	// 카운트 가져오기
+	Long followeeCount(Long userId);
+	Long followerCount(Long userId);
+	Long favoriteCount(Long userId);
 	
 
 	

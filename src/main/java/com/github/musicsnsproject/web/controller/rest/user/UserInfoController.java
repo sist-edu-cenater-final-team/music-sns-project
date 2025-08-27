@@ -11,10 +11,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.github.musicsnsproject.common.myenum.Gender;
 import com.github.musicsnsproject.domain.PostVO;
 import com.github.musicsnsproject.domain.user.MyUserInfo;
 import com.github.musicsnsproject.domain.user.MyUserVO;
 import com.github.musicsnsproject.service.mypage.MypageService;
+import com.querydsl.core.BooleanBuilder;
 
 import lombok.RequiredArgsConstructor;
 
@@ -50,16 +52,21 @@ public class UserInfoController {
 	}
 	
 	@PostMapping("/update")
-	public long udateInfo(@RequestParam("profile_image") String profile_image, 
+	public long udateInfo(@RequestParam(value="profile_image",required = false) String profile_image, 
 						 @AuthenticationPrincipal Long userId,
 						 @RequestParam String nickname,
-						 @RequestParam String profileMessage) {
+						 @RequestParam String profileMessage,
+						 @RequestParam Gender gender) {
+		
+		
+		
 		Map<String, Object> paraMap = new HashMap<>();
 		paraMap.put("profile_image", profile_image);
 		paraMap.put("userId", userId);
 		paraMap.put("nickname", nickname);
 		paraMap.put("profileMessage", profileMessage);
-
+		paraMap.put("gender", gender);
+		
 		return service.updateUserInfo(paraMap);
 	}
 	

@@ -5,6 +5,18 @@
 <link rel="stylesheet" href="<%=ctxPath%>/css/music/search/search.css" />
 <script type="text/javascript" src="<%=ctxPath%>/js/music/search/search.js"></script>
 
+<style type="text/css">
+
+button{
+	outline: none;
+}
+
+button:focus {
+    outline: none;
+}
+
+</style>
+
 <script type="text/javascript">
 	$(function(){
 
@@ -42,7 +54,7 @@
 							    <div class="flex stats">
 							      
 							      <div>
-							        <div class="font-bold number-color">300</div>
+							        <div class="font-bold number-color">\${json.myuser.postCount}</div>
 							        <div class="label-text">게시물</div>
 							      </div>
 							      
