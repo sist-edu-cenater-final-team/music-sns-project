@@ -234,8 +234,7 @@ body {
 $(function(){
     const authHeader = AuthFunc.getAuthHeader;
     const apiRequest = AuthFunc.apiRequest;
-    const params = new URLSearchParams(window.location.search);
-    const targetUserId = params.get("targetUserId");
+
     
     
     // 프로필 정보 가져오기
@@ -243,12 +242,12 @@ $(function(){
 	        $.ajax({
 	            url: '<%= ctxPath%>/api/userInfo/getInfo',
 	        	headers: authHeader(),
-	        	data:{"targetUserId":targetUserId},
+	        	data:{"targetUserId": "${targetUserId}"},
 	            dataType: 'json',
 	            success: function(json){
 	                const profile = $('div.profile-top');
 	                userId = json.userId;
-	                console.log(json);
+	                console.log("\${targetUserId}");
 	                
 	                v_html = `<!-- 상단 프로필 --> 
 	                    <div class="profile-img-wrap"> 
