@@ -1,26 +1,22 @@
 package com.github.musicsnsproject.service.music.cart;
 import com.github.musicsnsproject.common.exceptions.CustomNotAcceptException;
-import com.github.musicsnsproject.common.myenum.MyMusicType;
 import com.github.musicsnsproject.repository.jpa.account.user.MyUser;
-import com.github.musicsnsproject.repository.jpa.music.MyMusic;
-import com.github.musicsnsproject.repository.jpa.music.MyMusicRepository;
 import com.github.musicsnsproject.repository.jpa.music.cart.MusicCart;
 import com.github.musicsnsproject.repository.jpa.music.cart.MusicCartRepository;
-import com.github.musicsnsproject.repository.jpa.music.purchase.PurchaseHistory;
-import com.github.musicsnsproject.repository.jpa.music.purchase.PurchaseHistoryRepository;
-import com.github.musicsnsproject.service.music.SpotifyMusicService;
+import com.github.musicsnsproject.repository.spotify.SpotifyDao;
 import com.github.musicsnsproject.web.dto.music.cart.CartResponse;
-import com.github.musicsnsproject.web.dto.music.spotify.artist.SimplifiedArtist;
-import com.github.musicsnsproject.web.dto.music.spotify.track.TrackResponseV1;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import se.michaelthelin.spotify.model_objects.specification.ArtistSimplified;
+import se.michaelthelin.spotify.model_objects.specification.Track;
 
-import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
-import static com.github.musicsnsproject.repository.jpa.account.user.QMyUser.myUser;
 import static com.github.musicsnsproject.repository.jpa.music.cart.QMusicCart.musicCart;
 
 @Service
@@ -28,8 +24,8 @@ import static com.github.musicsnsproject.repository.jpa.music.cart.QMusicCart.mu
 public class CartServiceImpl implements CartService {
 
     private final MusicCartRepository musicCartRepository;
-    private final SpotifyMusicService spotifyMusicService;
     private final JPAQueryFactory jpaQueryFactory;
+    private final SpotifyDao spotifyDao;
 
 
     // 장바구니 리스트
@@ -37,42 +33,46 @@ public class CartServiceImpl implements CartService {
     @Transactional(readOnly = true)
     public List<CartResponse> getCartList(Long userId) {
 
-        if( userId == null) {
-            throw CustomNotAcceptException.of()
-                    .customMessage("사용자가 없습니다.")
-                    .request(userId)
-                    .build();
-        }
+        // userId로 본인 musicCart 정보 조회하기
+        List<MusicCart> carts = musicCartRepository.findByCartUserId(userId);
 
-        List<MusicCart> carts = jpaQueryFactory
-                .selectFrom(musicCart)
-                .join(musicCart.myUser, myUser).fetchJoin()
-                .where(musicCart.myUser.userId.eq(userId))
-                .orderBy(musicCart.createdAt.desc())
-                .fetch();
+        // 장바구니에 담겨있는 musicId 가져오기
+        List<String> musicIds = carts.stream()
+                .map(MusicCart::getMusicId)
+                .toList();
+
+        // 장바구니에 담겨있는 musicId들로 spotify Track 배열 조회하기
+        Track[] tracks = spotifyDao.findAllTrackByIds(musicIds);
+
+        // 조회한 Track 배열 Map으로 변환하기
+        Map<String, Track> trackMap = Arrays.stream(tracks)
+                .collect(Collectors.toMap(Track::getId, track -> track));
+
 
         List<CartResponse> cartResponseList = carts.stream()
                 .map(cart -> {
-                    TrackResponseV1 tr = spotifyMusicService.getTrackResponseById(cart.getMusicId());
 
-                    String albumName = (tr != null && tr.getAlbum() != null) ? tr.getAlbum().getAlbumName() : null;
-                    String albumImageUrl = (tr != null && tr.getAlbum() != null) ? tr.getAlbum().getAlbumImageUrl() : null;
-                    String artistName = (tr != null && tr.getArtist() != null)
-                            ? tr.getArtist().stream()
-                            .map(SimplifiedArtist::artistName)
+                    Track track = trackMap.get(cart.getMusicId());
+
+                    String trackName = track.getName();
+                    String albumName = track.getAlbum().getName();
+                    String albumImageUrl = track.getAlbum().getImages()[0].getUrl();
+
+                    String artistName = Arrays.stream(track.getArtists())
+                            .map(ArtistSimplified::getName)
                             .distinct()
-                            .collect(java.util.stream.Collectors.joining(", "))
-                            : null;
+                            .collect(Collectors.joining(", "));
+
 
                     return CartResponse.builder()
                             .cartId(cart.getMusicCartId())
                             .userId(cart.getMyUser().getUserId())
-                            .musicId(cart.getMusicId())
-                            .musicName(tr != null ? tr.getTrackName() : null)
+                            .musicName(trackName)
+                            .artistName(artistName)
                             .albumName(albumName)
                             .albumImageUrl(albumImageUrl)
-                            .artistName(artistName)
                             .build();
+
                 })
                 .toList();
 
@@ -85,14 +85,7 @@ public class CartServiceImpl implements CartService {
     public List<CartResponse> addCart(Long userId, String trackId) {
 
         // 사용자 조회
-        MyUser user = findMyUser(userId);
-
-        if (user == null) {
-            throw CustomNotAcceptException.of()
-                    .customMessage("사용자를 찾을 수 없습니다.")
-                    .request(userId)
-                    .build();
-        }
+        MyUser user = musicCartRepository.findMyUser(userId);
 
         // 장바구니에 담긴 음악 개수 구하기
         Long count = jpaQueryFactory
@@ -144,26 +137,12 @@ public class CartServiceImpl implements CartService {
     public void deleteCart(Long userId, List<Long> cartIdList) {
 
         // 사용자 조회
-        MyUser user = findMyUser(userId);
+        MyUser user = musicCartRepository.findMyUser(userId);
 
-        if (user == null) {
-            throw CustomNotAcceptException.of()
-                    .customMessage("사용자를 찾을 수 없습니다.")
-                    .request(userId)
-                    .build();
+        if(user != null) {
+            for (Long cartId : cartIdList) {
+                musicCartRepository.deleteById(cartId);
+            }
         }
-
-        for (Long cartId : cartIdList) {
-            musicCartRepository.deleteById(cartId);
-        }
-    }
-
-    // 사용자 조회 공통
-    public MyUser findMyUser(Long userId) {
-        MyUser user = jpaQueryFactory.selectFrom(myUser)
-                .where(myUser.userId.eq(userId))
-                .fetchOne();
-
-        return user;
     }
 }

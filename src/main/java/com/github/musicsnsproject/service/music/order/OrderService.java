@@ -10,4 +10,7 @@ public interface OrderService {
 
     // 주문 확정하기
     void orderConfirm(Long userId, List<Long> cartIdList);
+
+    // 사용자의 보유코인 알아오기
+    void checkCoin(Long userId, List<Long> cartIdList);
 }

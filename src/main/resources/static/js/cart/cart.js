@@ -1,17 +1,13 @@
+const apiRequest = AuthFunc.apiRequest;//함수참조
+
 document.addEventListener("DOMContentLoaded", function () {
 
     cart.createList();
-    // 선택 삭제
-    document.querySelector('.btn-delete')?.addEventListener('click', cart.selectDelete);
-    // 주문하러가기
-    document.querySelector('.btn-order')?.addEventListener('click', cart.order);
 
 });
 
-const authHeader = AuthFunc.getAuthHeader();//즉시호출
-const apiRequest = AuthFunc.apiRequest;//함수참조
-
 //const token = "Bearer eyJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE3NTU2NzQ1OTQsImV4cCI6NDkwOTI3NDU5NCwic3ViIjoiMjMiLCJyb2xlcyI6IlJPTEVfVVNFUiJ9.J2-HxxZZuEVrfQIjmPeujwehl6ExKDm8gdtae291uu4";
+
 
 const cart = {
     tbody : document.querySelector('#cartBody'),
@@ -21,7 +17,7 @@ const cart = {
 
         let cartHTML = ``;
         // 장바구니가 비어있을 경우
-        if(cartData.length === 0) {
+        if(!cartData || cartData.length === 0) {
             cart.tbody.innerHTML = `<tr><td colspan="7">장바구니가 비어있습니다.</td></tr>`;
             return;
         }
@@ -71,25 +67,17 @@ const cart = {
             return;
         }
         return apiRequest(() =>
-            fetch(`/api/cart/list`, {
-                headers: authHeader
-            })
-        )
-        .then(response => response.json())
-        .then(data => {
-            console.log('cart list:', data);
-            cart.renderCart(data);
-        })
-        .catch(error => {
-            if(!localStorage.getItem("accessToken")){
-                alert("로그인이 필요합니다.");
-                location.href = `${ctxPath}/auth/login`;
-                return;
-            }
-            console.error('Error:', error);
-            alert('장바구니 목록 조회 중 오류가 발생했습니다.');
-
-        });
+                    axios.get('/api/cart/list', {
+                        headers: AuthFunc.getAuthHeader()
+                    })
+                )
+                .then(response => {
+                    console.log("cartList:", response);
+                    cart.renderCart(response.data);
+                })
+                .catch((error) => {
+                    console.error('오류:', error);
+                });
     },
     initCheckEvents: () => {
         const rowChecks = cart.tbody.querySelectorAll('input[name="cartCheck"]');
@@ -154,62 +142,46 @@ const cart = {
         }
         if (!confirm('정말 상품을 삭제하시겠습니까?')) return;
 
-        fetch('/api/cart/delete', {
-            method: 'DELETE',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': token
-            },
-            body: JSON.stringify({
-                cartIdList : cartIdList
+        return apiRequest(() =>
+            axios.delete('/api/cart/delete?cartIdList='+cartIdList, {
+                headers: AuthFunc.getAuthHeader()
             })
+        )
+        .then(async (response) => {
+            console.log("response : ", response);
+            alert("상품을 삭제하였습니다.");
+
+            cart.createList();
         })
-            .then(async (response) => {
-                console.log("response : ", response);
-                console.log("response.status : ", response.status);
-                const msg = await response.text();
-
-                if (response.status !== 200) {
-                    alert("상품 삭제에 실패하였습니다."+ msg);
-                    return;
-                }
-                alert("상품을 삭제하였습니다.");
-
-                cart.createList();
-            })
-            .catch(error => {
-                console.error('삭제 중 오류 발생:', error.message);
-                alert('서버 또는 네트워크 오류입니다.');
-            });
+        .catch(error => {
+            console.log("삭제 error " + error);
+            console.error('삭제 중 오류 발생:', error.message);
+            alert('서버 또는 네트워크 오류입니다.');
+        });
     },
     order : () => {
         // 받아온 cartId 배열 만들기
         const cartIdList = Array.from(cart.tbody.querySelectorAll('input[name="cartCheck"]:checked'))
             .map(cb => Number(cb.dataset.cartId));
 
+        // URLSearchParams 객체 만들기
+        const params = new URLSearchParams();
+        cartIdList.forEach(id => params.append("cartIdList", id));
+
         if (cart.tbody.querySelectorAll('input[name="cartCheck"]:checked').length < 1) {
             alert("주문할 상품을 선택해주세요!");
             return;
         }
-        console.log("선택된 cartIdList : " + cartIdList);
-        fetch('/api/order/create', {
-            method: 'POST',
-            headers: { 'Authorization': token },
-            body: new URLSearchParams({
-                cartIdList : cartIdList
-            })
-        })
-            .then(async (response) => {
-                console.log("response : ", response);
-                console.log("response.status : ", response.status);
-                const msg = await response.text();
 
-                if (response.status !== 200) {
-                    alert("상품 주문 미리보기에 실패하였습니다."+ msg);
-                    return;
-                }
+        return apiRequest(() =>
+                axios.post('/api/order/create?'+params.toString(), {}, {
+                    headers: AuthFunc.getAuthHeader(),
+                })
+            )
+            .then( (response) => {
+                console.log("order response : ", response);
 
-                // 선택한 cartIdList를 sessionStorage에 저장
+                // 선택한 cartIdList를 sessionStorage에 저장하기
                 sessionStorage.setItem("cartIdList", JSON.stringify(cartIdList));
 
                 // 주문 미리보기페이지 이동
@@ -217,9 +189,30 @@ const cart = {
 
             })
             .catch(error => {
-                console.error('주문 중 오류 발생:', error.message);
-                alert('서버 또는 네트워크 오류입니다.');
+                console.error('오류:', error);
+                if (error.response) {
+                    const errorData = error.response.data.error;
+                    if (errorData) {
+                        if (error.response.status === 401) {
+                            // 인증 오류 처리 (예: 로그인 페이지로 리다이렉트)
+                            alert('로그인이 필요합니다. 로그인 페이지로 이동합니다.');
+                            location.href = `${ctxPath}/auth/login`;
+                            return;
+                        } else {
+                            alert(errorData.customMessage);
+                        }
+                    } else {
+                        alert('서버 또는 네트워크 오류입니다.');
+                    }
+                }
             });
+
     }
 }
 
+
+
+// 선택 삭제
+document.querySelector('.btn-delete')?.addEventListener('click', cart.selectDelete);
+// 주문하러가기
+document.querySelector('.btn-order')?.addEventListener('click', cart.order);
