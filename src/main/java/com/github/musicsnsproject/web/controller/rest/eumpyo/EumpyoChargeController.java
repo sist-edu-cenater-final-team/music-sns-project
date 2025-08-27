@@ -1,15 +1,15 @@
 package com.github.musicsnsproject.web.controller.rest.eumpyo;
 
+import com.github.musicsnsproject.common.security.userdetails.CustomUserDetails;
 import com.github.musicsnsproject.service.mypage.eumpyo.EumpyoChargeService;
 import lombok.RequiredArgsConstructor;
-
-import java.util.HashMap;
-import java.util.Map;
-
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-import com.github.musicsnsproject.common.security.userdetails.CustomUserDetails;
+import java.util.HashMap;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/mypage/eumpyo/charge")
@@ -18,28 +18,35 @@ public class EumpyoChargeController {
 
     private final EumpyoChargeService eumpyoChargeService;
 
-    // 결제 준비
-    @PostMapping("/ready")
-    public Map<String, Object> ready(@AuthenticationPrincipal CustomUserDetails loginUser,
-                                     @RequestBody(required = false) Map<String, Object> request) {
+    private Long extractUserId(Object principal) {
     	
-        Map<String, Object> responseBody = new HashMap<>();
+        if (principal == null) return null;
+        if (principal instanceof Long) return (Long) principal;
+        if (principal instanceof CustomUserDetails) return ((CustomUserDetails) principal).getUserId();
+        
+        return null;
+    }
 
-        // 로그인 사용자 확인
-        Long userId = (loginUser != null ? loginUser.getUserId() : null);
+    @PostMapping("/ready")
+    public ResponseEntity<Map<String, Object>> ready(@AuthenticationPrincipal Object principal,
+                                                     @RequestBody(required = false) Map<String, Object> request) {
 
+        Long userId = extractUserId(principal);
+        
         if (userId == null) {
         	
-            responseBody.put("result", "fail");
-            responseBody.put("message", "음표 충전을 위해서는 먼저 로그인을 하세요.");
+            Map<String, Object> body = new HashMap<>();
             
-            return responseBody;
+            body.put("result", "fail");
+            body.put("message", "로그인이 필요합니다.");
+            
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(body);
         }
 
-        // 바디에서 결제금액 추출
         Object amountRaw = (request == null ? null : request.get("amount"));
         
         int amount = -1;
+        
         if (amountRaw instanceof Number) {
             amount = ((Number) amountRaw).intValue();
         } else if (amountRaw instanceof String) {
@@ -47,72 +54,105 @@ public class EumpyoChargeController {
             catch (NumberFormatException ignore) {}
         }
 
-        // 금액 검증 (양수 + 100원 단위)
         if (amount <= 0 || amount % 100 != 0) {
-            responseBody.put("result", "fail");
-            responseBody.put("message", "결제 금액이 올바르지 않습니다.");
+        	
+            Map<String, Object> body = new HashMap<>();
             
-            return responseBody;
+            body.put("result", "fail");
+            body.put("message", "결제 금액이 올바르지 않습니다.");
+            
+            return ResponseEntity.badRequest().body(body);
         }
 
-        // 주문번호 생성 및 임시 저장 (서비스로 위임)
-        return eumpyoChargeService.requestCharge(userId, amount);
+        return ResponseEntity.ok(eumpyoChargeService.requestCharge(userId, amount));
     }
 
-    
-    // 결제 완료(검증 및 적립)
     @PostMapping("/complete")
-    public Map<String, Object> complete(@AuthenticationPrincipal CustomUserDetails loginUser,
-                                        @RequestBody(required = false) Map<String, String> request){
-    	
-        Map<String, Object> map = new HashMap<>();
+    public ResponseEntity<Map<String, Object>> complete(@AuthenticationPrincipal Object principal,
+                                                        @RequestBody(required = false) Map<String, String> request) {
 
-        // 로그인 사용자 확인
-        Long userId = (loginUser != null ? loginUser.getUserId() : null);
-
+        Long userId = extractUserId(principal);
+        
         if (userId == null) {
-            map.put("result", "fail");
-            map.put("message", "음표 충전을 위해서는 먼저 로그인을 하세요!!");
+        	
+            Map<String, Object> body = new HashMap<>();
             
-            return map;
+            body.put("result", "fail");
+            body.put("message", "로그인이 필요합니다.");
+            
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(body);
         }
 
         String impUid = (request == null ? null : request.get("impUid"));
         String merchantUid = (request == null ? null : request.get("merchantUid"));
 
-        // 파라미터 검증 (누락 및 공백 불가)
         if (impUid == null || impUid.isBlank() || merchantUid == null || merchantUid.isBlank()) {
-            map.put("result", "fail");
-            map.put("message", "요청 값이 올바르지 않습니다. 결제를 다시 진행해 주세요.");
+        	
+            Map<String, Object> body = new HashMap<>();
             
-            return map;
+            body.put("result", "fail");
+            body.put("message", "요청 값이 올바르지 않습니다. 결제를 다시 진행해 주세요.");
+            
+            return ResponseEntity.badRequest().body(body);
         }
 
-        // 주문-사용자 일치 검증, 코인 적립, 잔액 조회
-        return eumpyoChargeService.completeCharge(userId, impUid, merchantUid);
+        return ResponseEntity.ok(eumpyoChargeService.completeCharge(userId, impUid, merchantUid));
     }
 
-    
-    // 사용자 현재 코인 조회 (users.coin)
+    /** 현재 코인 잔액 */
     @GetMapping("/balance")
-    public Map<String, Object> balance(@AuthenticationPrincipal CustomUserDetails loginUser){
+    public ResponseEntity<Map<String, Object>> balance(@AuthenticationPrincipal Object principal) {
     	
-        Map<String, Object> map = new HashMap<>();
-
-        // 로그인 사용자 확인
-        Long userId = (loginUser != null ? loginUser.getUserId() : null);
-
+        Long userId = extractUserId(principal);
+        
         if (userId == null) {
-        	map.put("result", "fail");
-        	map.put("message", "로그인이 필요합니다.");
+        	
+            Map<String, Object> body = new HashMap<>();
             
-            return map;
+            body.put("result", "fail");
+            body.put("message", "로그인이 필요합니다.");
+            
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(body);
         }
 
         long bal = eumpyoChargeService.getUserCoin(userId);
-        map.put("result", "success");
-        map.put("coinBalance", bal);
         
-        return map;
+        Map<String, Object> body = new HashMap<>();
+        
+        body.put("result", "success");
+        body.put("coinBalance", bal);
+        
+        return ResponseEntity.ok(body);
+    }
+
+    // 구매자 정보
+    @GetMapping("/buyer")
+    public ResponseEntity<Map<String, Object>> buyer(@AuthenticationPrincipal Object principal) {
+    	
+        if (!(principal instanceof CustomUserDetails)) {
+        	
+            Map<String, Object> body = new HashMap<>();
+            
+            body.put("result", "fail");
+            body.put("message", "로그인이 필요합니다.");
+            
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(body);
+        }
+
+        CustomUserDetails user = (CustomUserDetails) principal;
+
+        String name  = user.getNickname() != null ? user.getNickname() : "";
+        String email = user.getEmail()    != null ? user.getEmail()    : "";
+
+        String phoneNumber = "";
+
+        Map<String, Object> body = new HashMap<>();
+        
+        body.put("result", "success");
+        body.put("name", name);
+        body.put("email", email);
+        body.put("phoneNumber", phoneNumber);
+        
+        return ResponseEntity.ok(body);
     }
 }

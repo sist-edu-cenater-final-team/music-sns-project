@@ -51,6 +51,7 @@ public class SecurityConfig {
                     e.accessDeniedHandler(new CustomAccessDeniedHandler());
                 })
                 .authorizeHttpRequests(a->a
+                		.requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .requestMatchers("/api/test/2").authenticated()
                         .requestMatchers("/api/test/3").hasAnyRole("ADMIN","SUPER_USER")
                         .requestMatchers("/api/auth/authorize-test").hasRole("ADMIN")
@@ -58,6 +59,7 @@ public class SecurityConfig {
                         .requestMatchers("/","/index.html","/resources/**","/api/auth/*", "/api/email/*",
                                 "/error","/swagger-ui/**", "/v3/api-docs/**", "/amp-docs.html").permitAll()
                         .requestMatchers("/api/oauth/**").anonymous()
+                        .requestMatchers("/api/mypage/eumpyo/**").authenticated()
                         .requestMatchers("/api/chat/**").authenticated()
                         .anyRequest().permitAll()
                 )

@@ -25,6 +25,7 @@ public class CustomUserDetails implements UserDetails {
     private long userId;
     private String email;
     private String nickname;
+    private String username;
     private String password;
     private int failureCount;
     private UserStatus status;
@@ -48,7 +49,9 @@ public class CustomUserDetails implements UserDetails {
 
     @Override
     public String getUsername() {
-        return Long.toString(this.userId);
+    	return (this.username != null && !this.username.isBlank())
+                ? this.username
+                : Long.toString(this.userId);
     }
 
     @Override
