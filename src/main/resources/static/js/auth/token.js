@@ -19,6 +19,7 @@
             return await requestFn();
         } catch (error) {
             console.log("에러받음")
+			console.log(error)
             // 401 에러이고 토큰 만료인 경우
             if (error?.response?.status === 401 &&
                 error?.response?.data?.error?.customMessage === "만료된 토큰" &&

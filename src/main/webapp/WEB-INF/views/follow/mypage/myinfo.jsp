@@ -234,20 +234,24 @@ body {
 $(function(){
     const authHeader = AuthFunc.getAuthHeader;
     const apiRequest = AuthFunc.apiRequest;
-
     
-    
+    const params = new URLSearchParams(window.location.search);
+    const targetUserId = params.get("targetUserId");
+	console.log(targetUserId);
     // 프로필 정보 가져오기
   return  apiRequest(() => 
 	        $.ajax({
 	            url: '<%= ctxPath%>/api/userInfo/getInfo',
 	        	headers: authHeader(),
-	        	data:{"targetUserId": "${targetUserId}"},
+	        	data:{"targetUserId": targetUserId },
 	            dataType: 'json',
 	            success: function(json){
 	                const profile = $('div.profile-top');
 	                userId = json.userId;
-	                console.log("\${targetUserId}");
+	                
+	                const button = $(".profile-btns");
+	                let b_html = "";
+	                
 	                
 	                v_html = `<!-- 상단 프로필 --> 
 	                    <div class="profile-img-wrap"> 
@@ -285,6 +289,40 @@ $(function(){
 	                v_html += `</div>`;
 	                profile.html(v_html);
 	                
+	                
+	                if (targetUserId == null || targetUserId == '' ) {
+	                    // 내 프로필일 때
+	                    b_html += `
+	                        <button class="btn custom-btn" onclick="location.href='<%= ctxPath%>/mypage/updateInfo'">프로필 편집</button>
+	                        <button class="btn custom-btn">위시리스트</button>
+	                        <button class="btn custom-btn" onclick="location.href='<%= ctxPath%>/cart/list'">장바구니</button>
+
+	                        <div class="dropdown">
+	                            <button class="btn custom-btn dropdown-toggle" type="button"
+	                                id="dropdownMenuButton" data-toggle="dropdown"
+	                                aria-haspopup="true" aria-expanded="false">
+	                                ...
+	                            </button>
+	                            <div class="dropdown-menu dropdown-menu-right shadow-sm"
+	                                aria-labelledby="dropdownMenuButton"
+	                                style="min-width: 150px; border-radius: 10px;">
+	                                <a class="dropdown-item" href="#">설정</a>
+	                                <a class="dropdown-item text-danger font-weight-bold" href="/logout">로그아웃</a>
+	                            </div>
+	                        </div>
+	                    `;
+	                } else {
+	                    // 다른 사람 프로필일 때
+	                    b_html += `
+	                        <button class="btn custom-btn" onclick="gofollow(\${targetUserId})">팔로우</button>
+	                        <button class="btn custom-btn" onclick="unfollow(\${targetUserId})">메시지</button>
+	                        <button class="btn custom-btn" onclick="block(${targetUserId})">차단</button>
+	                    `;
+	                }
+
+	                button.html(b_html);
+	                
+	                
 	                getUserPost();
 	            },
 	            error: function(request, status, error) {
@@ -313,12 +351,22 @@ function getUserPost() {
 		            post.empty();
 		
 		            if(!json || json.length === 0) {
-		                post.html(
-		                    '<div class="empty-posts">' +
-		                        '<p class="mb-1">작성하신 게시물이 없습니다.</p>' +
-		                        '<a class="btn post" data-toggle="modal" data-target="#postModal">첫 게시물을 만들어보세요.</a>' +
-		                    '</div>'
-		                );
+		            	
+		            	if (targetUserId == null || targetUserId == '' ) {
+				                post.html(
+				                    '<div class="empty-posts">' +
+				                        '<p class="mb-1">작성하신 게시물이 없습니다.</p>' +
+				                        '<a class="btn post" data-toggle="modal" data-target="#postModal">첫 게시물을 만들어보세요.</a>' +
+				                    '</div>'
+		                		);
+		            	}
+		            	else {
+			                post.html(
+				                    '<div class="empty-posts">' +
+				                        '<p class="mb-1">게시물이 없습니다.</p>' +
+				                    '</div>'
+		                		);
+		            	}
 		            } else {
 		                let html = '<div class="post-grid">';
 		                json.forEach(item => {
@@ -338,40 +386,141 @@ function getUserPost() {
 		        }
 		    }));
 		}
+		
+		
+		
+		
+		
+	// 팔로우 하기
+	function gofollow(userId) {
+	    const authHeader = AuthFunc.getAuthHeader;
+	    const apiRequest = AuthFunc.apiRequest;
+	
+	    return apiRequest(() =>
+	   	 new Promise((resolve, reject) => {
+	            $.ajax({
+	                url: '<%= ctxPath%>/api/follow/addFollow',
+	                headers: authHeader(),
+	                data: {
+	                    'followee': userId
+	                },
+	                dataType: "json",
+	                success: function (json) {
+	                    alert("팔로우 완료");
+
+	                },
+	                error: function (xhr, textStatus, errorThrown) {
+	
+	                    alert("code: " + request.status + "\nmessage: " + request.responseText + "\nerror: " + error);
+	                    // axios 스타일의 에러 객체로 변환
+	                    const error = new Error(errorThrown || textStatus);
+	                    error.response = {
+	                        status: xhr.status,
+	                        statusText: xhr.statusText,
+	                        data: xhr.responseJSON || xhr.responseText
+	                    };
+	                    error.request = xhr;
+	                    reject(error);
+	                }
+	            })
+	
+	        }));
+	
+	    followerList(json);
+	}
+	
+	// 언팔로우 하기
+	function unfollow(userId) {
+	
+	    const authHeader = AuthFunc.getAuthHeader;
+	    const apiRequest = AuthFunc.apiRequest;
+	
+	    return apiRequest(() =>
+	    	new Promise((resolve, reject) => {
+	            $.ajax({
+	                url: '<%= ctxPath%>/api/follow/unFollow',
+	                headers: authHeader(),
+	                data: {
+	                    'followee': userId
+	                },
+	                dataType: "json",
+	                success: function (json) {
+	                    alert("언팔 완료");
+
+	                },
+	                error: function (xhr, textStatus, errorThrown) {
+	
+	                    alert("code: " + request.status + "\nmessage: " + request.responseText + "\nerror: " + error);
+	                    // axios 스타일의 에러 객체로 변환
+	                    const error = new Error(errorThrown || textStatus);
+	                    error.response = {
+	                        status: xhr.status,
+	                        statusText: xhr.statusText,
+	                        data: xhr.responseJSON || xhr.responseText
+	                    };
+	                    error.request = xhr;
+	                    reject(error);
+	                }
+	            })
+	
+	        }));
+	
+	
+	} // end of function unfollow(userId) {} ------------
+	
+    // 차단
+    function block(userId) {
+        const authHeader = AuthFunc.getAuthHeader;
+        const apiRequest = AuthFunc.apiRequest;
+
+        return apiRequest(() =>
+       		new Promise((resolve, reject) => {
+	            $.ajax({
+	                url: '<%= ctxPath%>/api/follow/block',
+	                headers: authHeader(),
+	                data: {
+	                    'blockUser': userId
+	                },
+	                dataType: "json",
+	                success: function (json) {
+	                    alert("응 너 차단완료^^");
+	                },
+                    error: function (xhr, textStatus, errorThrown) {
+
+                        alert("code: " + request.status + "\nmessage: " + request.responseText + "\nerror: " + error);
+                        // axios 스타일의 에러 객체로 변환
+                        const error = new Error(errorThrown || textStatus);
+                        error.response = {
+                            status: xhr.status,
+                            statusText: xhr.statusText,
+                            data: xhr.responseJSON || xhr.responseText
+                        };
+                        error.request = xhr;
+                        reject(error);
+                    }
+	            })
+
+            })); // end of ajax ---
+    }
+	
+	
+	
 </script>
 
 <div id="wrap">
     <main>
         <jsp:include page="../../include/common/asideNavigation.jsp" />
-
+		
+	
+		
         <div class="main-contents">
             <div class="inner">
                 <div class="col-10 p-4 profile-container">
 
 					<div class="profile-top mb-4"></div>
                     <!-- 버튼 그룹 -->
-                    <div class="profile-btns">
-                        <button class="btn custom-btn" onclick="location.href='<%= ctxPath%>/mypage/updateInfo'">프로필 편집</button>
-                        <button class="btn custom-btn">위시리스트</button>
-                        <button class="btn custom-btn" onclick="location.href='<%= ctxPath%>/cart/list'">장바구니</button>
-
-                        <div class="dropdown">
-                            <button class="btn custom-btn dropdown-toggle" type="button"
-                                id="dropdownMenuButton" data-toggle="dropdown"
-                                aria-haspopup="true" aria-expanded="false">
-                                ...
-                            </button>
-                            <div class="dropdown-menu dropdown-menu-right shadow-sm"
-                                aria-labelledby="dropdownMenuButton"
-                                style="min-width: 150px; border-radius: 10px;">
-                                <a class="dropdown-item" href="#">여기에</a> 
-                                <a class="dropdown-item" href="#">뭐넣어?</a>
-                                <div class="dropdown-divider"></div>
-                                <a class="dropdown-item text-danger font-weight-bold" href="#">로그아웃</a>
-                            </div>
-                        </div>
-                    </div>
-
+                    <div class="profile-btns"></div>
+					
                     <!-- 게시물 영역 -->
                     <div class="post-list"></div>
                     

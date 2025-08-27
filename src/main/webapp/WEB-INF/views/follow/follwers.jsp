@@ -242,38 +242,83 @@
 
         // 팔로워
         apiRequest(() =>
-            $.ajax({
-                url: '<%= ctxPath%>/api/follow/follower',
-                headers: authHeader(),
-                dataType: 'json',
-                success: function (json) {
-                    $('#following').text('팔로워 ' + json.length + '명');
-                }
-            })
+        	new Promise((resolve, reject) => {
+	            $.ajax({
+	                url: '<%= ctxPath%>/api/follow/follower',
+	                headers: authHeader(),
+	                dataType: 'json',
+	                success: function (json) {
+	                    $('#following').text('팔로워 ' + json.length + '명');
+	                },
+                    error: function (xhr, textStatus, errorThrown) {
+
+                        alert("code: " + request.status + "\nmessage: " + request.responseText + "\nerror: " + error);
+                        // axios 스타일의 에러 객체로 변환
+                        const error = new Error(errorThrown || textStatus);
+                        error.response = {
+                            status: xhr.status,
+                            statusText: xhr.statusText,
+                            data: xhr.responseJSON || xhr.responseText
+                        };
+                        error.request = xhr;
+                        reject(error);
+                    }
+	            })
+        	})
         );
 
         // 팔로잉
         apiRequest(() =>
-            $.ajax({
-                url: '<%= ctxPath%>/api/follow/followee',
-                headers: authHeader(),
-                dataType: 'json',
-                success: function (json) {
-                    $('#followers').text('팔로잉 ' + json.length + '명');
-                }
-            })
+        	new Promise((resolve, reject) => {
+	            $.ajax({
+	                url: '<%= ctxPath%>/api/follow/followee',
+	                headers: authHeader(),
+	                dataType: 'json',
+	                success: function (json) {
+	                    $('#followers').text('팔로잉 ' + json.length + '명');
+	                },
+                    error: function (xhr, textStatus, errorThrown) {
+
+                        alert("code: " + request.status + "\nmessage: " + request.responseText + "\nerror: " + error);
+                        // axios 스타일의 에러 객체로 변환
+                        const error = new Error(errorThrown || textStatus);
+                        error.response = {
+                            status: xhr.status,
+                            statusText: xhr.statusText,
+                            data: xhr.responseJSON || xhr.responseText
+                        };
+                        error.request = xhr;
+                        reject(error);
+                    }
+	            })
+        	})
         );
 
         // 즐겨찾기
         apiRequest(() =>
-            $.ajax({
-                url: '<%= ctxPath%>/api/follow/favorite',
-                headers: authHeader(),
-                dataType: 'json',
-                success: function (json) {
-                    $('#favorite').text('즐겨찾기 ' + json.length + '명');
-                }
-            })
+        	new Promise((resolve, reject) => {
+	            $.ajax({
+	                url: '<%= ctxPath%>/api/follow/favorite',
+	                headers: authHeader(),
+	                dataType: 'json',
+	                success: function (json) {
+	                    $('#favorite').text('즐겨찾기 ' + json.length + '명');
+	                },
+                    error: function (xhr, textStatus, errorThrown) {
+
+                        alert("code: " + request.status + "\nmessage: " + request.responseText + "\nerror: " + error);
+                        // axios 스타일의 에러 객체로 변환
+                        const error = new Error(errorThrown || textStatus);
+                        error.response = {
+                            status: xhr.status,
+                            statusText: xhr.statusText,
+                            data: xhr.responseJSON || xhr.responseText
+                        };
+                        error.request = xhr;
+                        reject(error);
+                    }
+	            })
+        	})
         );
     }
 
@@ -284,69 +329,91 @@
         const authHeader = AuthFunc.getAuthHeader;
 
         apiRequest(() =>
-            $.ajax({
-                url: '<%= ctxPath%>/api/follow/follower',
-                headers: authHeader(),
-                dataType: 'json',
-                success: function (json) {
+        
+        	new Promise((resolve, reject) => {
+        		
+        	
+	            $.ajax({
+	                url: '<%= ctxPath%>/api/follow/follower',
+	                headers: authHeader(),
+	                dataType: 'json',
+	                success: function (json) {
+	                    const list = $('div.follow-container');
+	                    list.empty();
+	
+	
+	                    json.forEach(item => {
+	                        const user = item.user;
+	
+	                        let v_html = `
+				    	        	<div class="followInfo row">
+				    	        	    <div>
+				    	        	    	<a style="display:flex; align-items:center; color:black; text-decoration: none;  " href="<%= ctxPath%>/mypage/myinfo?targetUserId=\${user.userId}">
+					    	        	        <span>
+					    	        	            <img style="width: 100px; height: 100px; object-fit: cover; border: 2px solid #ddd;" 
+					    	        	                 class="rounded-circle mr-4 profile-img" src="\${user.profile_image}"/>
+					    	        	        </span>
+					    	        	        
+					    	        	        <span>
+					    	        	            <div>\${user.email}</div>
+					    	        	            <div>\${user.nickname}</div>`;
+	
+	                        if (user.profileMessage == null || user.profileMessage.trim() === "") {
+	                            v_html += ``;
+	                        } else {
+	                            v_html += `<div>${user.profileMessage}</div>`;
+	                        }
 
-                    const list = $('div.follow-container');
-                    list.empty();
+	                        v_html += `
+					    	                 </span>
+					    	        	 </a>
+				    	             </div>
+			
+				    	             <div style="display:flex; align-items:center; gap: 10px; margin-top: 10px;">
+				    	                 <button type="button" style="background-color: #6633FF; border-radius: 8px; height:40px; color:white; width:200px;" id="msg_${user.userId}">메세지 보내기</button>
+				    	                 
+				    	                 <!-- 메뉴 아이콘 버튼 -->
+				    	                 <div class="dropdown" style="position: relative;">
+				    	                     <%-- <img src="<%= ctxPath%>/images/common/icon/menu.png" 
+				    	                          class="menu-btn" 
+				    	                          data-id="${user.userId}"
+				    	                          style="width: 30px; height: 30px; cursor: pointer;" /> --%>
+				    	                     <button class ="btn menu-btn">...</button>
+				    	                     <div class="dropdown-menu" id="menu_${user.userId}" style="display:none; position:absolute;">`;
+				    	                     
+				    	                     	if(item.favorite == false) {
+				    	                         	v_html += `<div class="dropdown-item" style="padding:8px; cursor:pointer;" onclick="addFavorite('\${user.userId}')">즐겨찾기 추가</div>`;
+				    	                     	}
+				    	                     	else{
+				    	                     		v_html += `<div class="dropdown-item" style="padding:8px; cursor:pointer;" onclick="unFavorite('\${user.userId}')">즐겨찾기 삭제</div>`;
+				    	                     	}
+				    	                     
+				    	                       v_html += `
+				    	                         <div class="dropdown-item" style="padding:8px; cursor:pointer;" onclick="unfollow('\${user.userId}')">팔로우 취소</div>
+				    	                     </div>
+				    	                 </div>
+				    	             </div>
+				    	         </div>
+				    	         `;
+	
+	                        list.append(v_html);
+	                    });
+	
+	                },
+                    error: function (xhr, textStatus, errorThrown) {
 
-
-                    json.forEach(item => {
-                        const user = item.user;
-
-                        let v_html = `
-			    	        	<div class="followInfo row">
-			    	        	    <div>
-			    	        	    	<a style="display:flex; align-items:center;" onclick="gofriend(\${user.userId})">
-				    	        	        <span>
-				    	        	            <img style="width: 100px; height: 100px; object-fit: cover; border: 2px solid #ddd;" 
-				    	        	                 class="rounded-circle mr-4 profile-img" src="<%= ctxPath%>/images/common/userprofile/test.jpg"/>
-				    	        	        </span>
-				    	        	        
-				    	        	        <span>
-				    	        	            <div>\${user.email}</div>
-				    	        	            <div>\${user.nickname}</div>`;
-
-                        if (user.profileMessage == null || user.profileMessage.trim() === "") {
-                            v_html += ``;
-                        } else {
-                            v_html += `<div>${user.profileMessage}</div>`;
-                        }
-
-                        v_html += `
-				    	                 </span>
-				    	        	 </a>
-			    	             </div>
-		
-			    	             <div style="display:flex; align-items:center; gap: 10px; margin-top: 10px;">
-			    	                 <button type="button" style="background-color: #6633FF; border-radius: 8px; height:40px; color:white; width:200px;" id="msg_${user.userId}">메세지 보내기</button>
-			    	                 
-			    	                 <!-- 메뉴 아이콘 버튼 -->
-			    	                 <div class="dropdown" style="position: relative;">
-			    	                     <%-- <img src="<%= ctxPath%>/images/common/icon/menu.png" 
-			    	                          class="menu-btn" 
-			    	                          data-id="${user.userId}"
-			    	                          style="width: 30px; height: 30px; cursor: pointer;" /> --%>
-			    	                     <button class ="btn menu-btn">...</button>
-			    	                     <div class="dropdown-menu" id="menu_${user.userId}" style="display:none; position:absolute;">
-			    	                         <div class="dropdown-item" style="padding:8px; cursor:pointer;" onclick="addFavorite('\${user.userId}')">즐겨찾기 추가</div>
-			    	                         <div class="dropdown-item" style="padding:8px; cursor:pointer;" onclick="unfollow('\${user.userId}')">팔로우 취소</div>
-			    	                     </div>
-			    	                 </div>
-			    	             </div>
-			    	         </div>
-			    	         `;
-
-                        list.append(v_html);
-                    });
-
-                },
-                error: function (request, status, error) {
-                    alert("code: " + request.status + "\nmessage: " + request.responseText + "\nerror: " + error);
-                }
+                        alert("code: " + request.status + "\nmessage: " + request.responseText + "\nerror: " + error);
+                        // axios 스타일의 에러 객체로 변환
+                        const error = new Error(errorThrown || textStatus);
+                        error.response = {
+                            status: xhr.status,
+                            statusText: xhr.statusText,
+                            data: xhr.responseJSON || xhr.responseText
+                        };
+                        error.request = xhr;
+                        reject(error);
+                    }
+	            })
             }));
 
     };
@@ -419,8 +486,15 @@
 			       	    	                          data-id="${user.userId}"
 			       	    	                          style="width: 30px; height: 30px; cursor: pointer;" /> --%>
 			       	    	                     <button class ="btn menu-btn">...</button>
-			       	    	                     <div class="dropdown-menu" id="menu_${user.userId}">
-			       	    	                         <div class="dropdown-item" style="padding:8px; cursor:pointer;" onclick="addFavorite('\${user.userId}')">즐겨찾기 추가</div>
+			       	    	                     <div class="dropdown-menu" id="menu_${user.userId}">`;
+					       	    	                  	if(item.favorite == false) {
+						    	                         	a_html += `<div class="dropdown-item" style="padding:8px; cursor:pointer;" onclick="addFavorite('\${user.userId}')">즐겨찾기 추가</div>`;
+						    	                     	}
+						    	                     	else{
+						    	                     		a_html += `<div class="dropdown-item" style="padding:8px; cursor:pointer;" onclick="unFavorite('\${user.userId}')">즐겨찾기 삭제</div>`;
+						    	                     	}
+					       	    	                  
+					       	    	             a_html += `
 			       	    	                         <div class="dropdown-item" style="padding:8px; cursor:pointer;" onclick="unfollow('\${user.userId}')">팔로우 취소</div>
 			       	    	                     </div>
 			       	    	                 </div>
@@ -431,10 +505,10 @@
                             let v_html = `
 			    	        	<div class="followInfo row">
 			    	        	    <div>
-				    	        	    	<a style="display:flex; align-items:center;" href="<%= ctxPath%>/mypage/myinfo?targetUserId=\${user.userId}">
+				    	        	    	<a style="display:flex; align-items:center; color:black; text-decoration: none;" href="<%= ctxPath%>/mypage/myinfo?targetUserId=\${user.userId}">
 				    	        	        <span>
 				    	        	            <img style="width: 100px; height: 100px; object-fit: cover; border: 2px solid #ddd;" 
-				    	        	                 class="rounded-circle mr-4 profile-img" src="<%= ctxPath%>/images/common/userprofile/test.jpg"/>
+				    	        	                 class="rounded-circle mr-4 profile-img" src="\${user.profile_image}"/>
 				    	        	        </span>
 				    	        	        <span>
 				    	        	            <div>\${user.email}</div>
@@ -482,67 +556,79 @@
         const authHeader = AuthFunc.getAuthHeader;
 
         apiRequest(() =>
-            $.ajax({
-                url: '<%= ctxPath%>/api/follow/favorite',
-                headers: authHeader(),
-                dataType: 'json',
-                success: function (json) {
+        	new Promise((resolve, reject) => {
+	            $.ajax({
+	                url: '<%= ctxPath%>/api/follow/favorite',
+	                headers: authHeader(),
+	                dataType: 'json',
+	                success: function (json) {
+	
+	                    const list = $('div.follow-container');
+	                    list.empty();
+	
+	
+	                    json.forEach(item => {
+	                        const user = item.user;
+	
+	                        let v_html = `
+						        	<div class="followInfo row">
+						        	    <div style="display:flex; align-items:center;">
+						        	        <span>
+						        	            <img style="width: 100px; height: 100px; object-fit: cover; border: 2px solid #ddd;" 
+						        	                 class="rounded-circle mr-4 profile-img" src="\${user.profile_image}"/>
+						        	        </span>
+						        	        <span>
+						        	            <div>\${user.email}</div>
+						        	            <div>\${user.nickname}</div>`;
+	
+	                        if (user.profileMessage == null || user.profileMessage.trim() === "") {
+	                            v_html += ``;
+	                        } else {
+	                            v_html += `<div>${user.profileMessage}</div>`;
+	                        }
+	
+	                        v_html += `
+						                 </span>
+						             </div>
+			
+						             <div style="display:flex; align-items:center; gap: 10px; margin-top: 10px;">
+						                 <button type="button" style="background-color: #6633FF; border-radius: 8px; height:40px; color:white; width:200px;" id="msg_${user.userId}">메세지 보내기</button>
+						                 
+						                 <!-- 메뉴 아이콘 버튼 -->
+						                 <div class="dropdown" style="position: relative;">
+						                     <%-- <img src="<%= ctxPath%>/images/common/icon/menu.png" 
+						                          class="menu-btn" 
+						                          data-id="${user.userId}"
+						                          style="width: 30px; height: 30px; cursor: pointer;" /> --%>
+						                     <button class ="btn menu-btn">...</button>
+						                     <div class="dropdown-menu" id="menu_${user.userId}" 
+						                          style="display:none; position:absolute; top:100%; right:0; background:white; border:1px solid #ccc; border-radius:6px; min-width:150px; box-shadow: 0 2px 6px rgba(0,0,0,0.2); z-index:100;">
+						                         <div class="dropdown-item" style="padding:8px; cursor:pointer;" onclick="unFavorite('\${user.userId}')">즐겨찾기 삭제</div>
+						                         <div class="dropdown-item" style="padding:8px; cursor:pointer;" onclick="unfollow('\${user.userId}')">팔로우 취소</div>
+						                     </div>
+						                 </div>
+						             </div>
+						         </div>
+						         `;
+	
+	                        list.append(v_html);
+	                    });
+	
+	                },
+                    error: function (xhr, textStatus, errorThrown) {
 
-                    const list = $('div.follow-container');
-                    list.empty();
-
-
-                    json.forEach(item => {
-                        const user = item.user;
-
-                        let v_html = `
-					        	<div class="followInfo row">
-					        	    <div style="display:flex; align-items:center;">
-					        	        <span>
-					        	            <img style="width: 100px; height: 100px; object-fit: cover; border: 2px solid #ddd;" 
-					        	                 class="rounded-circle mr-4 profile-img" src="<%= ctxPath%>/images/common/userprofile/test.jpg"/>
-					        	        </span>
-					        	        <span>
-					        	            <div>\${user.email}</div>
-					        	            <div>\${user.nickname}</div>`;
-
-                        if (user.profileMessage == null || user.profileMessage.trim() === "") {
-                            v_html += ``;
-                        } else {
-                            v_html += `<div>${user.profileMessage}</div>`;
-                        }
-
-                        v_html += `
-					                 </span>
-					             </div>
-		
-					             <div style="display:flex; align-items:center; gap: 10px; margin-top: 10px;">
-					                 <button type="button" style="background-color: #6633FF; border-radius: 8px; height:40px; color:white; width:200px;" id="msg_${user.userId}">메세지 보내기</button>
-					                 
-					                 <!-- 메뉴 아이콘 버튼 -->
-					                 <div class="dropdown" style="position: relative;">
-					                     <%-- <img src="<%= ctxPath%>/images/common/icon/menu.png" 
-					                          class="menu-btn" 
-					                          data-id="${user.userId}"
-					                          style="width: 30px; height: 30px; cursor: pointer;" /> --%>
-					                     <button class ="btn menu-btn">...</button>
-					                     <div class="dropdown-menu" id="menu_${user.userId}" 
-					                          style="display:none; position:absolute; top:100%; right:0; background:white; border:1px solid #ccc; border-radius:6px; min-width:150px; box-shadow: 0 2px 6px rgba(0,0,0,0.2); z-index:100;">
-					                         <div class="dropdown-item" style="padding:8px; cursor:pointer;" onclick="unFavorite('\${user.userId}')">즐겨찾기 삭제</div>
-					                         <div class="dropdown-item" style="padding:8px; cursor:pointer;" onclick="unfollow('\${user.userId}')">팔로우 취소</div>
-					                     </div>
-					                 </div>
-					             </div>
-					         </div>
-					         `;
-
-                        list.append(v_html);
-                    });
-
-                },
-                error: function (request, status, error) {
-                    alert("code: " + request.status + "\n" + "message: " + request.responseText + "\n" + "error: " + error);
-                }
+                        alert("code: " + request.status + "\nmessage: " + request.responseText + "\nerror: " + error);
+                        // axios 스타일의 에러 객체로 변환
+                        const error = new Error(errorThrown || textStatus);
+                        error.response = {
+                            status: xhr.status,
+                            statusText: xhr.statusText,
+                            data: xhr.responseJSON || xhr.responseText
+                        };
+                        error.request = xhr;
+                        reject(error);
+                    }
+	            })
 
 
             }));
@@ -556,21 +642,33 @@
         const apiRequest = AuthFunc.apiRequest;
 
         return apiRequest(() =>
-            $.ajax({
-                url: '<%= ctxPath%>/api/follow/addFollow',
-                headers: authHeader(),
-                data: {
-                    'followee': userId
-                },
-                dataType: "json",
-                success: function (json) {
-                    alert("팔로우 완료");
-                    getfollower();
-                    getCounts();
-                },
-                error: function (request, status, error) {
-                    alert("code: " + request.status + "\n" + "message: " + request.responseText + "\n" + "error: " + error);
-                }
+       	 new Promise((resolve, reject) => {
+	            $.ajax({
+	                url: '<%= ctxPath%>/api/follow/addFollow',
+	                headers: authHeader(),
+	                data: {
+	                    'followee': userId
+	                },
+	                dataType: "json",
+	                success: function (json) {
+	                    alert("팔로우 완료");
+	                    getfollower();
+	                    getCounts();
+	                },
+                    error: function (xhr, textStatus, errorThrown) {
+
+                        alert("code: " + request.status + "\nmessage: " + request.responseText + "\nerror: " + error);
+                        // axios 스타일의 에러 객체로 변환
+                        const error = new Error(errorThrown || textStatus);
+                        error.response = {
+                            status: xhr.status,
+                            statusText: xhr.statusText,
+                            data: xhr.responseJSON || xhr.responseText
+                        };
+                        error.request = xhr;
+                        reject(error);
+                    }
+	            })
 
             }));
 
@@ -584,21 +682,33 @@
         const apiRequest = AuthFunc.apiRequest;
 
         return apiRequest(() =>
-            $.ajax({
-                url: '<%= ctxPath%>/api/follow/unFollow',
-                headers: authHeader(),
-                data: {
-                    'followee': userId
-                },
-                dataType: "json",
-                success: function (json) {
-                    alert("언팔 완료");
-                    getfollower();
-                    getCounts();
-                },
-                error: function (request, status, error) {
-                    alert("code: " + request.status + "\n" + "message: " + request.responseText + "\n" + "error: " + error);
-                }
+        	new Promise((resolve, reject) => {
+	            $.ajax({
+	                url: '<%= ctxPath%>/api/follow/unFollow',
+	                headers: authHeader(),
+	                data: {
+	                    'followee': userId
+	                },
+	                dataType: "json",
+	                success: function (json) {
+	                    alert("언팔 완료");
+	                    getfollower();
+	                    getCounts();
+	                },
+                    error: function (xhr, textStatus, errorThrown) {
+
+                        alert("code: " + request.status + "\nmessage: " + request.responseText + "\nerror: " + error);
+                        // axios 스타일의 에러 객체로 변환
+                        const error = new Error(errorThrown || textStatus);
+                        error.response = {
+                            status: xhr.status,
+                            statusText: xhr.statusText,
+                            data: xhr.responseJSON || xhr.responseText
+                        };
+                        error.request = xhr;
+                        reject(error);
+                    }
+	            })
 
             }));
 
@@ -613,21 +723,33 @@
         const apiRequest = AuthFunc.apiRequest;
 
         return apiRequest(() =>
-            $.ajax({
-                url: '<%= ctxPath%>/api/follow/addFavorite',
-                headers: authHeader(),
-                data: {
-                    'followee': userId
-                },
-                dataType: "json",
-                success: function (json) {
-                    alert("즐겨찾기 완료");
-                    getfollowing();
-                    getCounts();
-                },
-                error: function (request, status, error) {
-                    alert("code: " + request.status + "\n" + "message: " + request.responseText + "\n" + "error: " + error);
-                }
+        	new Promise((resolve, reject) => {
+	            $.ajax({
+	                url: '<%= ctxPath%>/api/follow/addFavorite',
+	                headers: authHeader(),
+	                data: {
+	                    'followee': userId
+	                },
+	                dataType: "json",
+	                success: function (json) {
+	                    alert("즐겨찾기 완료");
+	                    getfollowing();
+	                    getCounts();
+	                },
+                    error: function (xhr, textStatus, errorThrown) {
+
+                        alert("code: " + request.status + "\nmessage: " + request.responseText + "\nerror: " + error);
+                        // axios 스타일의 에러 객체로 변환
+                        const error = new Error(errorThrown || textStatus);
+                        error.response = {
+                            status: xhr.status,
+                            statusText: xhr.statusText,
+                            data: xhr.responseJSON || xhr.responseText
+                        };
+                        error.request = xhr;
+                        reject(error);
+                    }
+	            })
 
 
             }));
@@ -642,21 +764,33 @@
         const apiRequest = AuthFunc.apiRequest;
 
         return apiRequest(() =>
-            $.ajax({
-                url: '<%= ctxPath%>/api/follow/unFavorite',
-                headers: authHeader(),
-                data: {
-                    'followee': userId
-                },
-                dataType: "json",
-                success: function (json) {
-                    alert("즐겨찾기 취소 완료");
-                    favoriteList();
-                    getCounts();
-                },
-                error: function (request, status, error) {
-                    alert("code: " + request.status + "\n" + "message: " + request.responseText + "\n" + "error: " + error);
-                }
+        	new Promise((resolve, reject) => {
+	            $.ajax({
+	                url: '<%= ctxPath%>/api/follow/unFavorite',
+	                headers: authHeader(),
+	                data: {
+	                    'followee': userId
+	                },
+	                dataType: "json",
+	                success: function (json) {
+	                    alert("즐겨찾기 취소 완료");
+	                    favoriteList();
+	                    getCounts();
+	                },
+                    error: function (xhr, textStatus, errorThrown) {
+
+                        alert("code: " + request.status + "\nmessage: " + request.responseText + "\nerror: " + error);
+                        // axios 스타일의 에러 객체로 변환
+                        const error = new Error(errorThrown || textStatus);
+                        error.response = {
+                            status: xhr.status,
+                            statusText: xhr.statusText,
+                            data: xhr.responseJSON || xhr.responseText
+                        };
+                        error.request = xhr;
+                        reject(error);
+                    }
+	            })
 
             }));
 
@@ -669,19 +803,31 @@
         const apiRequest = AuthFunc.apiRequest;
 
         return apiRequest(() =>
-            $.ajax({
-                url: '<%= ctxPath%>/api/follow/block',
-                headers: authHeader(),
-                data: {
-                    'blockUser': userId
-                },
-                dataType: "json",
-                success: function (json) {
-                    alert("응 너 차단완료^^");
-                },
-                error: function (request, status, error) {
-                    alert("code: " + request.status + "\n" + "message: " + request.responseText + "\n" + "error: " + error);
-                }
+       		new Promise((resolve, reject) => {
+	            $.ajax({
+	                url: '<%= ctxPath%>/api/follow/block',
+	                headers: authHeader(),
+	                data: {
+	                    'blockUser': userId
+	                },
+	                dataType: "json",
+	                success: function (json) {
+	                    alert("응 너 차단완료^^");
+	                },
+                    error: function (xhr, textStatus, errorThrown) {
+
+                        alert("code: " + request.status + "\nmessage: " + request.responseText + "\nerror: " + error);
+                        // axios 스타일의 에러 객체로 변환
+                        const error = new Error(errorThrown || textStatus);
+                        error.response = {
+                            status: xhr.status,
+                            statusText: xhr.statusText,
+                            data: xhr.responseJSON || xhr.responseText
+                        };
+                        error.request = xhr;
+                        reject(error);
+                    }
+	            })
 
             })); // end of ajax ---
     }
@@ -693,84 +839,84 @@
         const apiRequest = AuthFunc.apiRequest;
 
         return apiRequest(() =>
-            $.ajax({
-                url: "<%= ctxPath%>/api/follow/searchUser",
-                headers: authHeader(),
-                data: {
-                    "searchWord": searchWord
-                },
+        	new Promise((resolve, reject) => {
+	            $.ajax({
+	                url: "<%= ctxPath%>/api/follow/searchUser",
+	                headers: authHeader(),
+	                data: {
+	                    "searchWord": searchWord
+	                },
+	
+	                dataType: "json",
+	                success: function (json) {
+	
+	                    let result = $("#searchResult");
+	                    result.empty();
+	
+	                    if (json.length === 0) {
+	                        result.append("<div class='search-result-item'>검색 결과 없음</div>");
+	                    } else {
+	                        $.each(json, function (i, follow) {
+	                            let item = `
+				                        <div class="search-result-item">
+	                            			<a style="display:flex; align-items:center; color:black; text-decoration: none;" href="<%= ctxPath%>/mypage/myinfo?targetUserId=\${follow.user.userId}">
+				                            <img style="height:30px; weight:30px;" src="\${follow.user.profile_image}"/>
+				                            <div class="user-info ml-3">
+				                                <div><strong>\${follow.user.nickname}</strong></div>
+				                                <div style="font-size:14px;color:gray;">\${follow.user.email}</div>
+				                            </div>
+				                            <div class="user-actions">
+				                            </a>
+				                            `
+	
+	                            if (follow.teist) {
+	                                item += `<button class="btn" style="background-color: #6633FF; color: white;">메세지</button>`
+	                            } else {
+	                                item += `<button class="btn" style="background-color: #9966FF; color: white;" onclick="gofollow(\${follow.user.userId})">팔로우</button>`
+	                            }
+	                            item += `
+				                            </div>
+				                        </div>`;
+	                            result.append(item);
+	                        });
+	                    }
+	                    result.show();
+	                },
+                    error: function (xhr, textStatus, errorThrown) {
 
-                dataType: "json",
-                success: function (json) {
-                    console.log(json);
-
-                    let result = $("#searchResult");
-                    result.empty();
-
-                    if (json.length === 0) {
-                        result.append("<div class='search-result-item'>검색 결과 없음</div>");
-                    } else {
-                        $.each(json, function (i, follow) {
-                            let item = `
-			                        <div class="search-result-item">
-			                            <img style="height:30px; weight:30px;" src="\${follow.user.profile_image}"/>
-			                            <div class="user-info ml-3">
-			                                <div><strong>\${follow.user.nickname}</strong></div>
-			                                <div style="font-size:14px;color:gray;">\${follow.user.email}</div>
-			                            </div>
-			                            <div class="user-actions">
-			                            `
-
-                            if (follow.teist) {
-                                item += `<button class="btn" style="background-color: #6633FF; color: white;">메세지</button>`
-                            } else {
-                                item += `<button class="btn" style="background-color: #9966FF; color: white;" onclick="gofollow(\${follow.user.userId})">팔로우</button>`
-                            }
-                            item += `
-			                            </div>
-			                        </div>`;
-                            result.append(item);
-                        });
+                        alert("code: " + request.status + "\nmessage: " + request.responseText + "\nerror: " + error);
+                        // axios 스타일의 에러 객체로 변환
+                        const error = new Error(errorThrown || textStatus);
+                        error.response = {
+                            status: xhr.status,
+                            statusText: xhr.statusText,
+                            data: xhr.responseJSON || xhr.responseText
+                        };
+                        error.request = xhr;
+                        reject(error);
                     }
-                    result.show();
-                },
-                error: function (request, status, error) {
-                    alert("code: " + request.status + "\n" +
-                        "message: " + request.responseText + "\n" +
-                        "error: " + error);
-                }
+	            })
             })); // end of ajax
     }
 
 	// 친구 만나러 가기
-	function gofriend(userId) {
-	    const authHeader = AuthFunc.getAuthHeader;
-	    const apiRequest = AuthFunc.apiRequest;
-	
-	    return apiRequest(() =>
+<%-- 	function gofriend(userId) {
+
+	    
 	        $.ajax({
 	            url: "<%= ctxPath%>/mypage/myinfo",
-	            type: "POST",
-	            headers: authHeader(),          
+	            type: "POST",         
 	            data: { "targetUserId": userId },
-	            success: function() {
+	            success: function(json) {
 	                // POST 성공하면 이동
-	                window.location.href = "<%= ctxPath%>/mypage/myinfo";
+	                console.log(json);
+	              	
 	            },
-				 error: function(xhr, textStatus, errorThrown) {
-		                // axios 스타일의 에러 객체로 변환
-		                const error = new Error(errorThrown || textStatus);
-		                error.response = {
-		                    status: xhr.status,
-		                    statusText: xhr.statusText,
-		                    data: xhr.responseJSON || xhr.responseText
-		                };
-		                error.request = xhr;
-		                reject(error);
-		        }
+				 error: function(){
+					 alert("a");
+				 }
 	        })
-	    );
-	}
+	} --%>
 	
 
 </script>

@@ -1,10 +1,14 @@
 package com.github.musicsnsproject.domain.user;
 
+import com.github.musicsnsproject.common.myenum.Gender;
+
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor
+@AllArgsConstructor
 public class MyUserVO {
     private long userId;
     private String nickname;
@@ -12,6 +16,8 @@ public class MyUserVO {
     private String email;
     private String profileMessage;
     private String profile_image;
+    private Gender gender;
+    private boolean favorite;
     private long postCount;
     private long followeeCount;
     private long followerCount;
