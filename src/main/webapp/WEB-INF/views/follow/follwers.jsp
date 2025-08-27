@@ -300,7 +300,7 @@
                         let v_html = `
 			    	        	<div class="followInfo row">
 			    	        	    <div>
-			    	        	    	<a style="display:flex; align-items:center;" href="<%= ctxPath%>/mypage/myinfo?targetUserId=\${user.userId}">
+			    	        	    	<a style="display:flex; align-items:center;" onclick="gofriend(\${user.userId})">
 				    	        	        <span>
 				    	        	            <img style="width: 100px; height: 100px; object-fit: cover; border: 2px solid #ddd;" 
 				    	        	                 class="rounded-circle mr-4 profile-img" src="<%= ctxPath%>/images/common/userprofile/test.jpg"/>
@@ -742,6 +742,36 @@
             })); // end of ajax
     }
 
+	// 친구 만나러 가기
+	function gofriend(userId) {
+	    const authHeader = AuthFunc.getAuthHeader;
+	    const apiRequest = AuthFunc.apiRequest;
+	
+	    return apiRequest(() =>
+	        $.ajax({
+	            url: "<%= ctxPath%>/mypage/myinfo",
+	            type: "POST",
+	            headers: authHeader(),          
+	            data: { "targetUserId": userId },
+	            success: function() {
+	                // POST 성공하면 이동
+	                window.location.href = "<%= ctxPath%>/mypage/myinfo";
+	            },
+				 error: function(xhr, textStatus, errorThrown) {
+		                // axios 스타일의 에러 객체로 변환
+		                const error = new Error(errorThrown || textStatus);
+		                error.response = {
+		                    status: xhr.status,
+		                    statusText: xhr.statusText,
+		                    data: xhr.responseJSON || xhr.responseText
+		                };
+		                error.request = xhr;
+		                reject(error);
+		        }
+	        })
+	    );
+	}
+	
 
 </script>
 
