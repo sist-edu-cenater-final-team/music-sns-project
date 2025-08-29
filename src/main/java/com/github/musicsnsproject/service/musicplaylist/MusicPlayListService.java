@@ -1,10 +1,11 @@
-package com.github.musicsnsproject.repository.jpa.music.profile;
+package com.github.musicsnsproject.service.musicplaylist;
 
 import java.util.List;
 
 import com.github.musicsnsproject.domain.ProfileMusicVO;
 
-public interface ProfileMusicQueryRepository {
+public interface MusicPlayListService {
 
 	List<ProfileMusicVO> emotionPlayList(Long emotionId);
+
 }

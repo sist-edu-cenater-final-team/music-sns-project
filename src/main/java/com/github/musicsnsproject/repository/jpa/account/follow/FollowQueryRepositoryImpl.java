@@ -3,13 +3,15 @@ package com.github.musicsnsproject.repository.jpa.account.follow;
 import java.util.List;
 import java.util.Map;
 
-import org.eclipse.tags.shaded.org.apache.bcel.generic.Select;
-
+import com.github.musicsnsproject.domain.ProfileMusicVO;
 import com.github.musicsnsproject.domain.follow.FollowVO;
 import com.github.musicsnsproject.domain.user.MyUserVO;
-import com.github.musicsnsproject.repository.jpa.account.user.MyUser;
 import com.github.musicsnsproject.repository.jpa.account.user.QMyUser;
 import com.github.musicsnsproject.repository.jpa.community.block.QBlockUser;
+import com.github.musicsnsproject.repository.jpa.music.QMyMusic;
+import com.github.musicsnsproject.repository.jpa.music.profile.QProfileMusic;
+import com.github.musicsnsproject.repository.jpa.music.purchase.QPurchaseHistory;
+import com.github.musicsnsproject.repository.jpa.music.purchase.QPurchaseMusic;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.ExpressionUtils;
 import com.querydsl.core.types.Projections;
@@ -193,11 +195,12 @@ public class FollowQueryRepositoryImpl implements FollowQueryRepository {
 		QFollow follow = QFollow.follow;
 
 	    BooleanBuilder builder = new BooleanBuilder();
-
+	    
 	    if (searchWord != null && !searchWord.isEmpty()) {
 	        builder.and(
 	            user.nickname.containsIgnoreCase(searchWord)
 	                .or(user.email.containsIgnoreCase(searchWord))
+	                	.or(user.phoneNumber.containsIgnoreCase(searchWord))
 	        );
 	    }
 	    return queryFactory
@@ -223,7 +226,7 @@ public class FollowQueryRepositoryImpl implements FollowQueryRepository {
 	            .leftJoin(follow)
 	                .on(follow.followPk.follower.userId.eq(userId)
 	                    .and(follow.followPk.followee.userId.eq(user.userId)))
-	            .where(builder.and(follow.followPk.follower.userId.eq(userId)))
+	            .where(builder.and(user.userId.ne(userId))) // .and(follow.followPk.follower.userId.eq(userId))
 	            .fetch();
 	}
 
@@ -311,59 +314,32 @@ public class FollowQueryRepositoryImpl implements FollowQueryRepository {
 	}
 
 	@Override
-	public Long followeeCount(Long userId) {
-		QFollow follow = QFollow.follow;
-		QBlockUser blockUser = QBlockUser.blockUser;
-		QMyUser user = QMyUser.myUser;
-
-		return queryFactory
-			    .select(follow.count())
-			    .from(follow)
-			    .join(user).on(follow.followPk.follower.userId.eq(user.userId))
-			    .leftJoin(blockUser)
-			        .on(blockUser.blockUserPk.myUser.userId.eq(userId)
-			            .and(blockUser.blockUserPk.blockUser.userId.eq(user.userId)))
-			    .where(
-			        follow.followPk.followee.userId.eq(userId), // 나를 팔로우하는 사람
-			        blockUser.blockUserPk.myUser.isNull()       // 차단 안 된 유저만
-			    )
-			    .fetchOne();
-	}
-
-	@Override
-	public Long followerCount(Long userId) {
-		QFollow follow = QFollow.follow;
-		QBlockUser blockUser = QBlockUser.blockUser;
-		QMyUser user = QMyUser.myUser;
+	@Transactional
+	public long unBlock(Map<String, Long> map) {
+		QBlockUser user = QBlockUser.blockUser;
 		
-		return queryFactory
-		        .select(follow.count())
-		        .from(follow)
-		        .join(user).on(follow.followPk.follower.userId.eq(user.userId)) 
-		        .leftJoin(blockUser)
-		            .on(blockUser.blockUserPk.myUser.userId.eq(userId)
-		                .and(blockUser.blockUserPk.blockUser.userId.eq(user.userId))) 
-		        .where(
-		            follow.followPk.followee.userId.eq(userId), 
-		            blockUser.blockUserPk.myUser.isNull()       
-		        )
-		        .fetchOne();
+		return queryFactory.delete(user)
+					.where(user.blockUserPk.myUser.userId.eq(map.get("userId"))
+							.and(user.blockUserPk.blockUser.userId.eq(map.get("blockUser"))))
+					.execute();
+						
 	}
 
 	@Override
-	public Long favoriteCount(Long userId) {
-		QFollow follow = QFollow.follow;
+	public List<MyUserVO> blockedList(Long userId) {
 		QBlockUser blockUser = QBlockUser.blockUser;
-		QMyUser user = QMyUser.myUser;
-		return queryFactory
-				.select(follow.count())
-				.from(follow)
-				.join(user).on(follow.followPk.followee.userId.eq(user.userId))
-				.leftJoin(blockUser).on(blockUser.blockUserPk.myUser.userId.eq(userId).and(blockUser.blockUserPk.blockUser.userId.eq(user.userId)))
-				.where(follow.followPk.follower.userId.eq(userId).and(follow.favorite.isTrue().and( blockUser.blockUserPk.myUser.isNull())))
-				.fetchOne();
+		return queryFactory.select(Projections.fields(MyUserVO.class, 
+						blockUser.blockUserPk.blockUser.userId,	
+						blockUser.blockUserPk.blockUser.nickname,
+						blockUser.blockUserPk.blockUser.email,
+						blockUser.blockUserPk.blockUser.profileImage.as("profile_image")
+						)
+				)
+				.from(blockUser)
+				.where(blockUser.blockUserPk.myUser.userId.eq(userId))
+				.fetch();
+	
 	}
-
 
 
 

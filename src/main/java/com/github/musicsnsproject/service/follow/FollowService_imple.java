@@ -5,7 +5,9 @@ import java.util.Map;
 
 import org.springframework.stereotype.Service;
 
+import com.github.musicsnsproject.domain.ProfileMusicVO;
 import com.github.musicsnsproject.domain.follow.FollowVO;
+import com.github.musicsnsproject.domain.user.MyUserVO;
 import com.github.musicsnsproject.repository.jpa.account.follow.FollowRepository;
 
 import jakarta.transaction.Transactional;
@@ -87,23 +89,19 @@ public class FollowService_imple implements FollowService {
 	}
 
 
-	
+
 	@Override
-	public Long followeeCount(Long userId) {
-		return followRepository.followeeCount(userId);
+	@Transactional
+	public long unBlock(Map<String, Long> map) {
+		return followRepository.unBlock(map);
 	}
 
 
 	@Override
-	public Long followerCount(Long userId) {
-		return followRepository.followerCount(userId);
+	public List<MyUserVO> blockedList(Long userId) {
+		return followRepository.blockedList(userId);
 	}
 
 
-	@Override
-	public Long favoriteCount(Long userId) {
-		return followRepository.favoriteCount(userId);
-	}
-	
 	
 }

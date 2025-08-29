@@ -3,7 +3,9 @@ package com.github.musicsnsproject.service.follow;
 import java.util.List;
 import java.util.Map;
 
+import com.github.musicsnsproject.domain.ProfileMusicVO;
 import com.github.musicsnsproject.domain.follow.FollowVO;
+import com.github.musicsnsproject.domain.user.MyUserVO;
 
 public interface FollowService {
 
@@ -26,18 +28,20 @@ public interface FollowService {
 	long addFavorite(Map<String, Long> map);
 	// 즐겨찾기 삭제
 	long unFavorite(Map<String, Long> map);
-
 	
 	// 검색
 	List<FollowVO> searchUser(String searchWord, Long userId);
+
+	// 차단한 유저 리스트
+	List<MyUserVO> blockedList(Long userId);
+	
 	// 차단
 	long addBlock(Map<String, Long> map);
 	
-	// 카운트 가져오기
-	Long followeeCount(Long userId);
-	Long followerCount(Long userId);
-	Long favoriteCount(Long userId);
+	// 차단 풀기
+	long unBlock(Map<String, Long> map);
 	
+
 	
 	
 

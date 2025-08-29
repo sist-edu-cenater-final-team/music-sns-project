@@ -1,5 +1,9 @@
 package com.github.musicsnsproject.repository.jpa.account.user;
 
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import com.github.musicsnsproject.common.exceptions.CustomBadRequestException;
 import com.github.musicsnsproject.common.myenum.Gender;
 import com.github.musicsnsproject.common.security.userdetails.CustomUserDetails;
@@ -24,10 +28,6 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
 
 @RequiredArgsConstructor
 public class MyUserQueryRepositoryImpl implements MyUserQueryRepository {
@@ -182,6 +182,7 @@ public class MyUserQueryRepositoryImpl implements MyUserQueryRepository {
 			            user.email,
 			            user.profileImage.as("profile_image"),
 			            user.profileMessage,
+			            user.coin,
 			            ExpressionUtils.as(
 			                JPAExpressions
 			                    .select(follow.followPk.follower.userId.countDistinct())
@@ -238,6 +239,20 @@ public class MyUserQueryRepositoryImpl implements MyUserQueryRepository {
 		
 		
 	}
+
+	@Override
+	public boolean isFollow(Map<String, Long> map) {
+		QFollow follow = QFollow.follow;
+
+		return queryFactory.selectOne()
+		        .from(follow)
+		        .where(
+		            follow.followPk.follower.userId.eq(map.get("userId"))
+		            .and(follow.followPk.followee.userId.eq(map.get("targetId")))
+		            )
+		        .fetchFirst() != null;
+	}
+
 
     @Override
     public List<ChatUserInfo> findAllByIdForChatRoom(Set<Long> allOtherIds) {

@@ -1,8 +1,11 @@
 package com.github.musicsnsproject.repository.jpa.account.follow;
 
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+
+import com.github.musicsnsproject.domain.user.MyUserVO;
 
 public interface FollowRepository extends JpaRepository<Follow, FollowPk>, FollowQueryRepository {
 
@@ -16,6 +19,7 @@ public interface FollowRepository extends JpaRepository<Follow, FollowPk>, Follo
     long countByFollowPk_Followee_UserId(long followeeId);
     // 팔로워 수 조회
     long countByFollowPk_Follower_UserId(long followerId);
+
     
 	
 
