@@ -14,8 +14,10 @@ public class CartResponse {
     private Long userId;
     private String musicId;
     private String musicName;
+    private String albumId;
     private String albumName;
     private String albumImageUrl;
+    private String artistId;
     private String artistName;
 
     //private MyUser myUser;

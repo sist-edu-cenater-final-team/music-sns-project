@@ -16,14 +16,29 @@
 				<%-- 보유 음표 영역 --%>
 				<jsp:include page="../../include/mypage/mypagePointInfo.jsp" />
 				<%-- 보유 음표 영역 --%>
-				<h2 class="cart-title">내가 구매한 음악리스트</h2>
-				<div id="myPurchaseMusic"></div>
+				<div class="purchase-tab">
+					<button type="button" class="btn active">전체</button>
+					<button type="button" class="btn">구매한 음악</button>
+					<button type="button" class="btn">선물받은 음악</button>
+				</div>
+				<table class="music-cart-table table">
+					<thead>
+						<tr>
+							<th scope="col">노래제목</th>
+							<th scope="col">아티스트</th>
+							<th scope="col">앨범</th>
+							<th scope="col">프로필 음악</th>
+						</tr>
+					</thead>
+					<tbody id="myPurchaseMusicBody"></tbody>
+				</table>
+				<div id="pageBar"></div>
 			</div>
 		</div>
 		<!-- //메인 컨텐츠 -->
 
 		<%-- 오늘의 감정 플레이리스트 --%>
-		<jsp:include page="../../include/common/asidePlayList.jsp" />
+<%--		<jsp:include page="../../include/common/asidePlayList.jsp" />--%>
 		<%-- //오늘의 감정 플레이리스트 --%>
 	</main>
 </div>

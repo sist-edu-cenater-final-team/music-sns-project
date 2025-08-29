@@ -42,9 +42,7 @@ public class MusicCartQueryRepositoryImpl implements MusicCartQueryRepository {
 
         return queryFactory
                 .selectFrom(musicCart)
-                .join(musicCart.myUser, myUser).fetchJoin()
                 .where(musicCart.myUser.userId.eq(userId))
-                .orderBy(musicCart.createdAt.desc())
                 .fetch();
     }
 }

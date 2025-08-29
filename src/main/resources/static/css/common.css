@@ -3,6 +3,45 @@
 #wrap {
     min-width: 1024px;
 }
+
+
+
+
+.check {
+    width: 18px;
+    height: 18px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    position: relative;
+    transition: all 0.2s ease;
+}
+
+.check-form {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.check-form input {
+    display: none;
+}
+
+.check-form input:checked + .check {
+    background: #6633ff;
+    border-color: #6633ff;
+}
+
+.check-form input:checked + .check::after {
+    content: '✓';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    font-size: 12px;
+}
+
 .point {
     color: #6633FF !important;
 }
@@ -88,6 +127,12 @@
 }
 .aside-navigation .post {
     background-image: url("../images/common/icon/post.png");
+}
+.aside-navigation .music {
+    background-image: url("../images/common/icon/music.png");
+}
+.aside-navigation .cart {
+    background-image: url("../images/common/icon/cart.png");
 }
 
 /* 왼쪽 사이드바 메뉴 팝업 */

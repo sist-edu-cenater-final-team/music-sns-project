@@ -25,10 +25,13 @@ const cart = {
             cartHTML += `
                 <tr>
                     <td>
-                        <input type="checkbox" id="cartCheck${index + 1}" name="cartCheck" data-cart-id="${item.cartId}">
+                        <label class="check-form">
+                            <input type="checkbox" id="cartCheck${index + 1}" name="cartCheck" data-cart-id="${item.cartId}">
+                            <span class="check"></span>
+                        </label>
                     </td>
                     <td scope="row">${index + 1}</td>
-                    <td>
+                    <td class="link_td" onclick="window.open('https://open.spotify.com/track/${item.musicId}')">
                         <div class="music-info">
                             <div class="music-img">
                                 <img src="${item.albumImageUrl}" alt="노래 이미지" />
@@ -36,14 +39,17 @@ const cart = {
                             <p class="music-text">${item.musicName}</p>
                         </div>
                     </td>
-                    <td>
+                    <td class="link_td" onclick="window.open('https://open.spotify.com/artist/${item.artistId}')">
                         <p class="music-artist">${item.artistName}</p>
                     </td>
-                    <td>
+                    <td class="link_td" onclick="window.open('https://open.spotify.com/album/${item.albumId}')">
                         <p class="music-artist">${item.albumName}</p>
                     </td>
                     <td>
-                        <p class="music-text"><span class="music-price">1</span>음표</p>
+                        <p class="music-text">
+                            <i class="ico-eumpyo"></i>
+                            <span class="music-price">1</span>음표
+                        </p>
                     </td>
                     <td>
                         <button type="button" class="btn-cart-delete" data-cart-id="${item.cartId}" onclick="cart.directDelete(this)"></button>
@@ -61,26 +67,32 @@ const cart = {
         cart.initCheckEvents();
     },
     createList : () => {
-        if(!localStorage.getItem("accessToken")){
-            alert("로그인이 필요합니다.");
-            location.href = `${ctxPath}/auth/login`;
-            return;
-        }
-        return apiRequest(() =>
-                    axios.get('/api/cart/list', {
+        // if(!localStorage.getItem("accessToken")){
+        //     alert("로그인이 필요합니다.");
+        //     location.href = `${ctxPath}/auth/login`;
+        //     return;
+        // }
+        return AuthFunc.apiRequest(() =>
+                    axios.get(`${ctxPath}/api/cart/list`, {
                         headers: AuthFunc.getAuthHeader()
-                    })
-                )
+                    }))
                 .then(response => {
-                    console.log("cartList:", response);
-                    if(response.data.length === 0 || response.data === null || response.data.length < 0){
-                        alert("없닼1₩");
-                        return;
-                    }
+                    // console.log("cartList:", response);
+                    // console.log("cartList:", response.data);
                     cart.renderCart(response.data);
                 })
                 .catch((error) => {
                     console.error('오류:', error);
+                    if (error.response) {
+                        const errorData = error.response.data.error;
+                        if (errorData){
+                            alert(errorData.customMessage);
+
+                            // if(errorData.httpStatus === "NOT_ACCEPTABLE"){
+                            //     location.href = `${ctxPath}/auth/login`;
+                            // }
+                        }
+                    }
                 });
     },
     initCheckEvents: () => {

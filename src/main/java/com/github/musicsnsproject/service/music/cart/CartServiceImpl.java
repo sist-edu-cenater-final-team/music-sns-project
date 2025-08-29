@@ -67,8 +67,11 @@ public class CartServiceImpl implements CartService {
                     return CartResponse.builder()
                             .cartId(cart.getMusicCartId())
                             .userId(cart.getMyUser().getUserId())
+                            .musicId(cart.getMusicId())
                             .musicName(trackName)
+                            .artistId(track.getArtists()[0].getId())
                             .artistName(artistName)
+                            .albumId(track.getAlbum().getId())
                             .albumName(albumName)
                             .albumImageUrl(albumImageUrl)
                             .build();

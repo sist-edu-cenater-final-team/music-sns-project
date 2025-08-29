@@ -38,19 +38,13 @@
                     </div>
                 </div>
                 <table class="music-cart-table table">
-					<colgroup>
-						<col style="width: 5%;" />   <!-- 체크박스 -->
-						<col style="width: 2.5%;" />   <!-- 번호 -->
-						<col style="width: 30%;" />  <!-- 노래제목 -->
-						<col style="width: 30%;" />  <!-- 아티스트 -->
-						<col style="width: 20%;" />  <!-- 앨범 -->
-						<col style="width: 10%;" />  <!-- 가격 -->
-						<col style="width: 10%;" />  <!-- 삭제 -->
-					</colgroup>
                     <thead>
                         <tr>
                             <th scope="col">
-                                <input type="checkbox" id="cartAllCheck" />
+								<label class="check-form">
+									<input type="checkbox" id="cartAllCheck" />
+									<span class="check"></span>
+								</label>
                             </th>
                             <th scope="col">번호</th>
                             <th scope="col">노래제목</th>
