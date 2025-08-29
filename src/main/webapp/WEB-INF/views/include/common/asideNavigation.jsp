@@ -151,7 +151,10 @@ button:focus {
                 <button type="button" class="btn post" data-toggle="modal" data-target="#postModal">게시물작성</button>
             </li>
 			<li>
-				<button type="button" onclick="location.href='<%=ctxPath%>/mypage/purchase/list'">구매리스트</button>
+				<button type="button" class="btn music" onclick="location.href='<%=ctxPath%>/mypage/purchase/list'">구매리스트</button>
+			</li>
+			<li>
+				<button type="button" class="btn cart" onclick="location.href='<%=ctxPath%>/cart/list'">장바구니</button>
 			</li>
         </ul>
     </div>

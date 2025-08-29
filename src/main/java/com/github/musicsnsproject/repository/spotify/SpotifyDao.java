@@ -101,6 +101,9 @@ public class SpotifyDao {
 
     }
     public Track[] findAllTrackByIds(List<String> trackIds){
+        if(trackIds.isEmpty())
+            return new Track[0];
+
         GetSeveralTracksRequest request = spotifyApi.getSeveralTracks(trackIds.toArray(new String[0]))
                 .setHeader("Accept-Language", "ko-KR,ko;q=0.9")
                 .build();

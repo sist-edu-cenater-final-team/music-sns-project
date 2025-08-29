@@ -1,0 +1,122 @@
+@charset "UTF-8";
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+}
+
+#wrap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+}
+
+.order-container {
+    width: 100%;
+    max-width: 900px;
+    margin: 40px auto;
+    display: flex;
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    min-height: 600px;
+
+}
+
+.order-wrapper {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    width: 100%;
+}
+
+/* 로고 섹션 */
+.logo-section {
+    background: linear-gradient(135deg, #6633ff, #8b5cf6);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 40px;
+    color: white;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+
+@keyframes float {
+    0% { transform: translate(-50%, -50%) rotate(0deg); }
+    100% { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    font-size: 2.5rem;
+    font-weight: bold;
+    margin-bottom: 20px;
+    z-index: 1;
+    position: relative;
+}
+
+.logo i {
+    font-size: 3rem;
+    color: #fff;
+}
+
+.welcome-text {
+    font-size: 1.1rem;
+    opacity: 0.9;
+    z-index: 1;
+    position: relative;
+}
+
+/* 로그인 폼 섹션 */
+.order-form-container {
+    padding: 40px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.form-title {
+    font-size: 2rem;
+    color: #333;
+    margin-bottom: 30px;
+    text-align: center;
+    font-weight: 600;
+}
+.form-text {
+    font-size: 1.4rem;
+    color: #333;
+    text-align: center;
+    font-weight: 500;
+}
+
+.order-form-container .btn-form {
+    margin-top: 40px;
+}
+
+.order-form-container .btn-form .btn {
+    display: block;
+    width: 100%;
+    padding: 16px 24px;
+    font-size: 16px;
+    margin:0;
+    background: linear-gradient(135deg, #6633ff, #8b5cf6);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    color: #fff;
+}
+.order-form-container .btn-form .btn:not(:last-child) {
+    margin-bottom: 14px;
+}
+.order-form-container .btn-form .btn:hover {
+    background: linear-gradient(135deg, #531fea, #7c3aed);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(102, 51, 255, 0.3);
+}
