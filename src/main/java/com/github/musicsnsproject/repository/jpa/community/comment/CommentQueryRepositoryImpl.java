@@ -4,6 +4,9 @@ import com.github.musicsnsproject.repository.jpa.account.user.QMyUser;
 import com.github.musicsnsproject.repository.jpa.community.post.QPost;
 import com.github.musicsnsproject.web.dto.comment.ResponseCommentDTO;
 import com.querydsl.core.Tuple;
+import com.querydsl.core.types.Projections;
+import com.querydsl.core.types.dsl.Wildcard;
+import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 
@@ -17,34 +20,30 @@ public class CommentQueryRepositoryImpl implements CommentQueryRepository {
     @Override
     public List<ResponseCommentDTO> findByCommentIdAndMyUser(Long postId) {
 
-        List<Tuple> tuple = queryFactory.select(
-                    QMyUser.myUser.username.as("writer"),
-                    QMyUser.myUser.profileImage.as("writerProfileImageUrl"),
-                    QComment.comment.commentId.as("commentId"),
-                    QComment.comment.contents.as("contents"),
-                    QComment.comment.createdAt.as("createdAt"),
-                    QPost.post.postId.as("postId"),
-                    QComment.comment.parentComment.commentId.as("parentCommentId")
-            )
+        QComment child = new QComment("child");
+
+        List<ResponseCommentDTO> commentList = queryFactory
+                .select(Projections.constructor(
+                        ResponseCommentDTO.class,
+                        QComment.comment.commentId,
+                        QPost.post.postId,
+                        QComment.comment.contents,
+                        QMyUser.myUser.username,
+                        QMyUser.myUser.profileImage,
+                        QComment.comment.createdAt,
+                        QComment.comment.parentComment.commentId,
+                        JPAExpressions
+                                .select(Wildcard.count)
+                                .from(child)
+                                .where(child.rootComment.eq(QComment.comment))
+                ))
                 .from(QComment.comment)
                 .join(QComment.comment.post, QPost.post)
                 .join(QComment.comment.myUser, QMyUser.myUser)
                 .where(QComment.comment.post.postId.eq(postId))
-                .orderBy(QComment.comment.createdAt.desc())
+                .orderBy(QComment.comment.createdAt.asc(),
+                        QComment.comment.parentComment.commentId.asc())
                 .fetch();
-
-
-        List<ResponseCommentDTO> commentList = tuple.stream()
-                .map(t-> ResponseCommentDTO.builder()
-                        .writer(t.get(QMyUser.myUser.username))
-                        .writerProfileImageUrl(t.get(QMyUser.myUser.profileImage))
-                        .commentId(t.get(QComment.comment.commentId))
-                        .contents(t.get(QComment.comment.contents))
-                        .parentCommentId(t.get(QComment.comment.parentComment.commentId))
-                        .createdAt(t.get(QComment.comment.createdAt))
-                        .postId(t.get(QPost.post.postId))
-                        .build()
-                ).toList();
 
 
         return commentList;

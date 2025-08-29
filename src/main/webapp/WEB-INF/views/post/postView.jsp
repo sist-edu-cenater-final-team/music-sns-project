@@ -54,7 +54,7 @@
                             <p class="pcPostContent"></p>
 
                             <%-- 댓글부분 들어갈 곳 --%>
-                            <div class="pcCommentsArea"></div>
+                            <div class="pcCommentsArea mt-2"></div>
                         </div>
 
                         <!-- 맨 아래: 댓글 입력 -->

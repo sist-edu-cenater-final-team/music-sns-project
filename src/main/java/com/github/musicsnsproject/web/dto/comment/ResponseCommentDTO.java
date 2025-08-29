@@ -1,5 +1,6 @@
 package com.github.musicsnsproject.web.dto.comment;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -7,6 +8,7 @@ import java.time.LocalDateTime;
 
 @Getter
 @Builder
+@AllArgsConstructor
 public class ResponseCommentDTO {
 
     private Long commentId;
@@ -18,5 +20,8 @@ public class ResponseCommentDTO {
 
 
     private Long parentCommentId;
+
+    private Long replyCount;
+
 
 }
