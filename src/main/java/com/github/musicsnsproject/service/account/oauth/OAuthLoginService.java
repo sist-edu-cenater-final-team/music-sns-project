@@ -45,9 +45,6 @@
         private final CustomAuthenticationProvider customAuthenticationProvider;
 
 
-
-        private final ObjectFactory<HttpServletRequest> httpServletRequestFactory;
-
         public String getAuthorizationUrl(OAuthProvider oAuthProvider, String redirectUri) {
             return oAuthCodeManager.getAuthorizationUrl(oAuthProvider, redirectUri);
         }

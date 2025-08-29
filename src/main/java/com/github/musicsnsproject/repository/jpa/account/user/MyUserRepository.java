@@ -1,11 +1,13 @@
 package com.github.musicsnsproject.repository.jpa.account.user;
 
+import com.github.musicsnsproject.common.myenum.UserStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import com.github.musicsnsproject.domain.user.MyUserVO;
 
+import java.util.List;
 import java.util.Optional;
 
 
@@ -14,6 +16,7 @@ public interface MyUserRepository extends JpaRepository<MyUser, Long>, MyUserQue
     Optional<MyUser> findByEmail(String email);
     Optional<MyUser> findByPhoneNumber(String phoneNumber);
 
+    boolean existsByUserId_AndStatusIn(Long userId, List<UserStatus> status);
 
     @Query(
             "SELECT u " +

@@ -203,103 +203,135 @@ button:focus {
 	
 </div>
 <!-- //클릭했을 때 나오는 스으윽 팝업 -->
-
+<link href="<%=ctxPath%>/css/chat/chat.css" rel="stylesheet" />
 <div class="fixed-talk">
     <button type="button" id="btnTalk" class="btn-talk">메시지</button>
 </div>
-<div id="talkLayer" class="layer">
-    <div class="layer-header">
-        <h3 class="layer-title">메시지</h3>
-        <button type="button" id="btnTalkClose" class="layer-close">X</button>
+
+
+<!-- 채팅 모달 -->
+<div class="modal fade" id="chatModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-slide modal-sm">
+        <div class="modal-content chat-modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Muodle Talk</h5>
+                <button type="button" class="modal-close-btn" data-bs-dismiss="modal" aria-label="닫기">
+                    <i class="bi bi-x"></i>
+                </button>
+            </div>
+            <div class="modal-body p-0">
+                <ul class="list-group list-group-flush chat-room-list" id="chatRoomList">
+                    <!-- JS로 채팅방 리스트가 렌더링됨 -->
+                </ul>
+            </div>
+        </div>
     </div>
-    <div class="layer-body">
-        <ul class="talk-list">
-            <li>
-                <div class="talk-img">
-                    <img src="<%= ctxPath%>/images/emotion/angry.png" alt="사용자 프로필 이미지" />
-                </div>
-                <div class="talk-info">
-                    <p class="talk-title">HanBinId</p>
-                    <p class="talk-text">7강의실 아이돌 한빈</p>
-                </div>
-            </li>
-            <li>
-                <div class="talk-img">
-                    <img src="<%= ctxPath%>/images/emotion/angry.png" alt="사용자 프로필 이미지" />
-                </div>
-                <div class="talk-info">
-                    <p class="talk-title">HanBinId</p>
-                    <p class="talk-text">7강의실 아이돌 한빈</p>
-                </div>
-            </li>
-            <li>
-                <div class="talk-img">
-                </div>
-                <div class="talk-info">
-                    <p class="talk-title">HanBinId</p>
-                    <p class="talk-text">7강의실 아이돌 한빈</p>
-                </div>
-            </li>
-            <li>
-                <div class="talk-img">
-                </div>
-                <div class="talk-info">
-                    <p class="talk-title">HanBinId</p>
-                    <p class="talk-text">7강의실 아이돌 한빈</p>
-                </div>
-            </li>
-            <li>
-                <div class="talk-img">
-                </div>
-                <div class="talk-info">
-                    <p class="talk-title">HanBinId</p>
-                    <p class="talk-text">7강의실 아이돌 한빈</p>
-                </div>
-            </li>
-            <li>
-                <div class="talk-img">
-                </div>
-                <div class="talk-info">
-                    <p class="talk-title">HanBinId</p>
-                    <p class="talk-text">7강의실 아이돌 한빈</p>
-                </div>
-            </li>
-            <li>
-                <div class="talk-img">
-                </div>
-                <div class="talk-info">
-                    <p class="talk-title">HanBinId</p>
-                    <p class="talk-text">7강의실 아이돌 한빈</p>
-                </div>
-            </li>
-            <li>
-                <div class="talk-img">
-                </div>
-                <div class="talk-info">
-                    <p class="talk-title">HanBinId</p>
-                    <p class="talk-text">7강의실 아이돌 한빈</p>
-                </div>
-            </li>
-            <li>
-                <div class="talk-img">
-                </div>
-                <div class="talk-info">
-                    <p class="talk-title">HanBinId</p>
-                    <p class="talk-text">7강의실 아이돌 한빈</p>
-                </div>
-            </li>
-            <li>
-                <div class="talk-img">
-                </div>
-                <div class="talk-info">
-                    <p class="talk-title">HanBinId</p>
-                    <p class="talk-text">7강의실 아이돌 한빈</p>
-                </div>
-            </li>
-        </ul>
-    </div>
-    <button type="button" class="btn-talk-write">작성버튼</button>
 </div>
+
+<!-- 프로필 확대 모달 -->
+<div class="modal fade" id="profileImageModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content bg-transparent border-0 shadow-none">
+            <button type="button" class="btn-close ms-auto me-2 mt-2" data-bs-dismiss="modal"></button>
+            <img id="profileImageModalImg" src="" alt="프로필 이미지" class="img-fluid rounded shadow">
+        </div>
+    </div>
+</div>
+
+
+<script src="<%=ctxPath%>/js/chat/chat.js" defer></script>
+<%--<div id="talkLayer" class="layer">--%>
+<%--    <div class="layer-header">--%>
+<%--        <h3 class="layer-title">메시지</h3>--%>
+<%--        <button type="button" id="btnTalkClose" class="layer-close">X</button>--%>
+<%--    </div>--%>
+<%--    <div class="layer-body">--%>
+<%--        <ul class="talk-list">--%>
+<%--            <li>--%>
+<%--                <div class="talk-img">--%>
+<%--                    <img src="<%= ctxPath%>/images/emotion/angry.png" alt="사용자 프로필 이미지" />--%>
+<%--                </div>--%>
+<%--                <div class="talk-info">--%>
+<%--                    <p class="talk-title">HanBinId</p>--%>
+<%--                    <p class="talk-text">7강의실 아이돌 한빈</p>--%>
+<%--                </div>--%>
+<%--            </li>--%>
+<%--            <li>--%>
+<%--                <div class="talk-img">--%>
+<%--                    <img src="<%= ctxPath%>/images/emotion/angry.png" alt="사용자 프로필 이미지" />--%>
+<%--                </div>--%>
+<%--                <div class="talk-info">--%>
+<%--                    <p class="talk-title">HanBinId</p>--%>
+<%--                    <p class="talk-text">7강의실 아이돌 한빈</p>--%>
+<%--                </div>--%>
+<%--            </li>--%>
+<%--            <li>--%>
+<%--                <div class="talk-img">--%>
+<%--                </div>--%>
+<%--                <div class="talk-info">--%>
+<%--                    <p class="talk-title">HanBinId</p>--%>
+<%--                    <p class="talk-text">7강의실 아이돌 한빈</p>--%>
+<%--                </div>--%>
+<%--            </li>--%>
+<%--            <li>--%>
+<%--                <div class="talk-img">--%>
+<%--                </div>--%>
+<%--                <div class="talk-info">--%>
+<%--                    <p class="talk-title">HanBinId</p>--%>
+<%--                    <p class="talk-text">7강의실 아이돌 한빈</p>--%>
+<%--                </div>--%>
+<%--            </li>--%>
+<%--            <li>--%>
+<%--                <div class="talk-img">--%>
+<%--                </div>--%>
+<%--                <div class="talk-info">--%>
+<%--                    <p class="talk-title">HanBinId</p>--%>
+<%--                    <p class="talk-text">7강의실 아이돌 한빈</p>--%>
+<%--                </div>--%>
+<%--            </li>--%>
+<%--            <li>--%>
+<%--                <div class="talk-img">--%>
+<%--                </div>--%>
+<%--                <div class="talk-info">--%>
+<%--                    <p class="talk-title">HanBinId</p>--%>
+<%--                    <p class="talk-text">7강의실 아이돌 한빈</p>--%>
+<%--                </div>--%>
+<%--            </li>--%>
+<%--            <li>--%>
+<%--                <div class="talk-img">--%>
+<%--                </div>--%>
+<%--                <div class="talk-info">--%>
+<%--                    <p class="talk-title">HanBinId</p>--%>
+<%--                    <p class="talk-text">7강의실 아이돌 한빈</p>--%>
+<%--                </div>--%>
+<%--            </li>--%>
+<%--            <li>--%>
+<%--                <div class="talk-img">--%>
+<%--                </div>--%>
+<%--                <div class="talk-info">--%>
+<%--                    <p class="talk-title">HanBinId</p>--%>
+<%--                    <p class="talk-text">7강의실 아이돌 한빈</p>--%>
+<%--                </div>--%>
+<%--            </li>--%>
+<%--            <li>--%>
+<%--                <div class="talk-img">--%>
+<%--                </div>--%>
+<%--                <div class="talk-info">--%>
+<%--                    <p class="talk-title">HanBinId</p>--%>
+<%--                    <p class="talk-text">7강의실 아이돌 한빈</p>--%>
+<%--                </div>--%>
+<%--            </li>--%>
+<%--            <li>--%>
+<%--                <div class="talk-img">--%>
+<%--                </div>--%>
+<%--                <div class="talk-info">--%>
+<%--                    <p class="talk-title">HanBinId</p>--%>
+<%--                    <p class="talk-text">7강의실 아이돌 한빈</p>--%>
+<%--                </div>--%>
+<%--            </li>--%>
+<%--        </ul>--%>
+<%--    </div>--%>
+<%--</div>--%>
 
 
 

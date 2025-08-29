@@ -50,6 +50,8 @@ spring:
       max-file-size: 10MB #??? 1MB
       max-request-size: 20MB #??? 10MB
   data:
+    mongodb:
+      database: musicSNS
     redis:
       host: ENC(0p2kKHWaQnA1J667rTSG9QX5weT1LIJ6)
       port: 6379
@@ -141,3 +143,7 @@ oauth:
       auth: https://github.com
       api: https://api.github.com
 
+logging:
+  level:
+    org.springframework.data.mongodb.core.MongoTemplate: DEBUG
+    org.mongodb.driver: DEBUG

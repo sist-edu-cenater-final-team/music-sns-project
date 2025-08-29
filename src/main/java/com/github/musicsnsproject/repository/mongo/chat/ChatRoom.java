@@ -8,6 +8,8 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /*
 *
@@ -22,10 +24,12 @@ unique = true: 동일한 participants 조합의 채팅방 중복 방지
 })
 public class ChatRoom {
     @Id
-    private String id; // MongoDB ObjectId
+    private String chatRoomId; // MongoDB ObjectId
 
     // JPA User의 PK 저장 (예: Long userId)
     private List<Long> participants; // [userA_id, userB_id]
+    private Set<Long> hiddenUserIds;
+    private Map<Long, LocalDateTime> hiddenUserMap; // 유저별 나간 시점
 
     private LocalDateTime createdAt;
 
@@ -34,5 +38,10 @@ public class ChatRoom {
         chatRoom.participants = participants;
         chatRoom.createdAt = LocalDateTime.now();
         return chatRoom;
+    }
+    public void exitRoom(long userId){
+        hiddenUserIds.add(userId);
+        hiddenUserMap.put(userId, LocalDateTime.now());
+
     }
 }
