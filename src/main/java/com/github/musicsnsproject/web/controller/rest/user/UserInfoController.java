@@ -32,13 +32,22 @@ public class UserInfoController {
 						        @AuthenticationPrincipal Long userId,
 						        @RequestParam(value = "targetUserId", required = false) Long targetUserId) {
 
+	    
+		boolean isFollow = true;
+	    
+	    if(targetUserId != null) {
+	    Map<String, Long> map = new HashMap<>();
+	    map.put("userId", userId);
+	    map.put("targetId",targetUserId);
+	    isFollow = service.isFollow(map);
+	    }
 	    // targetUserId가 null이면 내 프로필 조회
 	    Long targetId = (targetUserId != null) ? targetUserId : userId;
-
 	    MyUserVO user = service.getUserInfo(targetId);
 	    boolean isOwner = userId.equals(targetId);
 	    
-	    return new MyUserInfo(user, isOwner);
+	    
+	    return new MyUserInfo(user, isOwner, isFollow);
 	}
 	
 	

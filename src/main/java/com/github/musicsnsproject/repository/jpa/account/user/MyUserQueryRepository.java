@@ -23,5 +23,9 @@ public interface MyUserQueryRepository {
 	MyUserVO getUserInfo(Long userId);
 	// 유저 인포 업데이트
 	long updateUserInfo(Map<String, Object> paraMap);
+	// 팔로우 관계
+	boolean isFollow(Map<String, Long> map);
+
+
 //    Optional<CustomUserDetails> findBySocialIdPkOrUserEmailForAuth(SocialIdPk socialIdPk, String email);
 }

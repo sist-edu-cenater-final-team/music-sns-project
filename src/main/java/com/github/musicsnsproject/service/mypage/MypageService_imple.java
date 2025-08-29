@@ -39,4 +39,10 @@ public class MypageService_imple implements MypageService {
 		return repository.updateUserInfo(paraMap);
 	}
 
+
+	@Override
+	public boolean isFollow(Map<String, Long> map) {
+		return repository.isFollow(map);
+	}
+
 }

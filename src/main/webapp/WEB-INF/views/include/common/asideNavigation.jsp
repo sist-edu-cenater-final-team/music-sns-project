@@ -22,8 +22,11 @@ button:focus {
 
 		$('button.profile').on("click",function(){
 		    getInfo();    
-		})
+		});
 		
+		$(document).on('click', 'button#myPlayList', function() {
+			location.href="<%= ctxPath%>/mypage/playList";
+		});
 		
 		
 		
@@ -45,7 +48,7 @@ button:focus {
 							    <div class="text-center" style="font-weight:bold; font-size: 16pt;">\${json.myuser.username}</div>
 							    <div class="text-center" style="font-size: 12pt; margin-top: 10px;">\${json.myuser.nickname}</div>
 							    <div>
-							      <img src="<%= ctxPath%>/images/common/userprofile/test.jpg"
+							      <img src="\${json.myuser.profile_image}"
 							           class="rounded-circle mr-4 profile-img" style="width: 128px; height: 128px; margin: 10px 85px; cursor:pointer;"
 							            onclick="location.href='<%= ctxPath%>/mypage/myinfo'" />
 							           
@@ -74,7 +77,7 @@ button:focus {
 							  	<div class="inner">
 							  		<div class="font-bold" style="display:flex; justify-content: space-between;">
 							  		<span>leess님의 프로필 음악</span> 
-							  		<button style="margin-right: 3px;">⋮</button>
+							  		<button style="margin-right: 3px;" id="myPlayList">+</button>
 							  		</div>
 							  		<div class="playlist-section">
 		
@@ -88,8 +91,8 @@ button:focus {
 										        <strong>Golden</strong>
 										        <div class="song-artist">
 										        	<div class="scrolling-wrapper scrolling">
-												        <span>HUNTR/X,EJAE,AUDREY NUNA</span>
-												        <span>HUNTR/X, EJAE, AUDREY NUNA</span>
+												        <span>HUNTR/X, EJAE, AUDREY NUNA, REI AMI, KPop Demon Hunters Cast</span>
+												        <span>HUNTR/X, EJAE, AUDREY NUNA, REI AMI, KPop Demon Hunters Cast</span>
 												     </div>
 										        </div>
 									        </div>

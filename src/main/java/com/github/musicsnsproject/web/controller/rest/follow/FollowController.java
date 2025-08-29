@@ -10,7 +10,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.github.musicsnsproject.domain.ProfileMusicVO;
 import com.github.musicsnsproject.domain.follow.FollowVO;
+import com.github.musicsnsproject.domain.user.MyUserVO;
 import com.github.musicsnsproject.service.follow.FollowService;
 
 import lombok.RequiredArgsConstructor;
@@ -112,16 +114,18 @@ public class FollowController {
     	return followService.addBlock(map);
     }
     
-    @GetMapping("count")
-    public Map<String, Long> getCount(@AuthenticationPrincipal Long userId) {
-    	
+    @GetMapping("unBlock")
+    public long unBlock(@AuthenticationPrincipal Long userId, @RequestParam("blockUser") Long blockUser) {
     	Map<String, Long> map = new HashMap<>();
-    	map.put("followeeCount", followService.followeeCount(userId));
-    	map.put("followerCount", followService.followerCount(userId));
-    	map.put("favoriteCount", followService.favoriteCount(userId));
-    	
-    	
-    	return map;
+    	map.put("userId", userId);
+    	map.put("blockUser", blockUser);
+    	return followService.unBlock(map);
+    }
+    
+    @GetMapping("blockedList")
+    public List<MyUserVO> blockedList(@AuthenticationPrincipal Long userId) {
+    	System.out.println("유저아이디" + userId);
+    	return followService.blockedList(userId);
     }
     
     

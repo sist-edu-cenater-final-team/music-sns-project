@@ -21,6 +21,7 @@ public class MyUserVO {
     private long postCount;
     private long followeeCount;
     private long followerCount;
+    private long coin;
 
 
     public MyUserVO(long userId, String nickname, String email, String profile_image, String profileMessage) {

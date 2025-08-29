@@ -14,6 +14,8 @@ public interface MypageService {
 	MyUserVO getUserInfo(Long fakeUserId);
 	// 유저 업데이트
 	long updateUserInfo(Map<String, Object> paraMap);
+	// 팔로우 관계
+	boolean isFollow(Map<String, Long> map);
 
 
 }
