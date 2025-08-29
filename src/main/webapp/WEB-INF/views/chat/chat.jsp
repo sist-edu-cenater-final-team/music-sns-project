@@ -22,9 +22,9 @@
 <h2>채팅 테스트</h2>
 
 <div>
-    <label>채팅방 ID: </label>
-    <input type="text" id="roomIdInput" placeholder="roomId 입력"/>
-    <button onclick="connectRoom()">방 연결</button>
+    <label>유저 ID: </label>
+    <input type="text" id="roomIdInput" placeholder="userId 입력"/>
+    <button onclick="createRoom()">채팅신청</button>
 </div>
 
 <div id="chatBox"></div>

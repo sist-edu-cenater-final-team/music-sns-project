@@ -5,10 +5,12 @@ import com.github.musicsnsproject.common.security.userdetails.CustomUserDetails;
 import com.github.musicsnsproject.domain.PostVO;
 import com.github.musicsnsproject.domain.user.MyUserVO;
 import com.github.musicsnsproject.repository.jpa.account.socialid.SocialIdPk;
+import com.github.musicsnsproject.web.dto.chat.ChatUserInfo;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 public interface MyUserQueryRepository {
 
@@ -23,5 +25,11 @@ public interface MyUserQueryRepository {
 	MyUserVO getUserInfo(Long userId);
 	// 유저 인포 업데이트
 	long updateUserInfo(Map<String, Object> paraMap);
+
+    List<ChatUserInfo> findAllByIdForChatRoom(Set<Long> allOtherIds);
+	// 팔로우 관계
+	boolean isFollow(Map<String, Long> map);
+
+
 //    Optional<CustomUserDetails> findBySocialIdPkOrUserEmailForAuth(SocialIdPk socialIdPk, String email);
 }

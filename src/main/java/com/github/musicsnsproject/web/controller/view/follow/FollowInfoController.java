@@ -31,4 +31,8 @@ public class FollowInfoController {
 		return "follow/follwers";
 	}
 	
+	@GetMapping("playList")
+	public String myPlayList() {
+		return "mypage/myPlayList";
+	}
 }

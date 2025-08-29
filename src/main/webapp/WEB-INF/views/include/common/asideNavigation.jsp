@@ -22,8 +22,11 @@ button:focus {
 
 		$('button.profile').on("click",function(){
 		    getInfo();    
-		})
+		});
 		
+		$(document).on('click', 'button#myPlayList', function() {
+			location.href="<%= ctxPath%>/mypage/playList";
+		});
 		
 		
 		
@@ -45,7 +48,7 @@ button:focus {
 							    <div class="text-center" style="font-weight:bold; font-size: 16pt;">\${json.myuser.username}</div>
 							    <div class="text-center" style="font-size: 12pt; margin-top: 10px;">\${json.myuser.nickname}</div>
 							    <div>
-							      <img src="<%= ctxPath%>/images/common/userprofile/test.jpg"
+							      <img src="\${json.myuser.profile_image}"
 							           class="rounded-circle mr-4 profile-img" style="width: 128px; height: 128px; margin: 10px 85px; cursor:pointer;"
 							            onclick="location.href='<%= ctxPath%>/mypage/myinfo'" />
 							           
@@ -74,7 +77,7 @@ button:focus {
 							  	<div class="inner">
 							  		<div class="font-bold" style="display:flex; justify-content: space-between;">
 							  		<span>leess님의 프로필 음악</span> 
-							  		<button style="margin-right: 3px;">⋮</button>
+							  		<button style="margin-right: 3px;" id="myPlayList">+</button>
 							  		</div>
 							  		<div class="playlist-section">
 		
@@ -88,8 +91,8 @@ button:focus {
 										        <strong>Golden</strong>
 										        <div class="song-artist">
 										        	<div class="scrolling-wrapper scrolling">
-												        <span>HUNTR/X,EJAE,AUDREY NUNA</span>
-												        <span>HUNTR/X, EJAE, AUDREY NUNA</span>
+												        <span>HUNTR/X, EJAE, AUDREY NUNA, REI AMI, KPop Demon Hunters Cast</span>
+												        <span>HUNTR/X, EJAE, AUDREY NUNA, REI AMI, KPop Demon Hunters Cast</span>
 												     </div>
 										        </div>
 									        </div>
@@ -151,7 +154,10 @@ button:focus {
                 <button type="button" class="btn post" data-toggle="modal" data-target="#postModal">게시물작성</button>
             </li>
 			<li>
-				<button type="button" onclick="location.href='<%=ctxPath%>/mypage/purchase/list'">구매리스트</button>
+				<button type="button" class="btn music" onclick="location.href='<%=ctxPath%>/mypage/purchase/list'">구매리스트</button>
+			</li>
+			<li>
+				<button type="button" class="btn cart" onclick="location.href='<%=ctxPath%>/cart/list'">장바구니</button>
 			</li>
         </ul>
     </div>
@@ -203,103 +209,135 @@ button:focus {
 	
 </div>
 <!-- //클릭했을 때 나오는 스으윽 팝업 -->
-
+<link href="<%=ctxPath%>/css/chat/chat.css" rel="stylesheet" />
 <div class="fixed-talk">
     <button type="button" id="btnTalk" class="btn-talk">메시지</button>
 </div>
-<div id="talkLayer" class="layer">
-    <div class="layer-header">
-        <h3 class="layer-title">메시지</h3>
-        <button type="button" id="btnTalkClose" class="layer-close">X</button>
+
+
+<!-- 채팅 모달 -->
+<div class="modal fade" id="chatModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-slide modal-sm">
+        <div class="modal-content chat-modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Muodle Talk</h5>
+                <button type="button" class="modal-close-btn" data-bs-dismiss="modal" aria-label="닫기">
+                    <i class="bi bi-x"></i>
+                </button>
+            </div>
+            <div class="modal-body p-0">
+                <ul class="list-group list-group-flush chat-room-list" id="chatRoomList">
+                    <!-- JS로 채팅방 리스트가 렌더링됨 -->
+                </ul>
+            </div>
+        </div>
     </div>
-    <div class="layer-body">
-        <ul class="talk-list">
-            <li>
-                <div class="talk-img">
-                    <img src="<%= ctxPath%>/images/emotion/angry.png" alt="사용자 프로필 이미지" />
-                </div>
-                <div class="talk-info">
-                    <p class="talk-title">HanBinId</p>
-                    <p class="talk-text">7강의실 아이돌 한빈</p>
-                </div>
-            </li>
-            <li>
-                <div class="talk-img">
-                    <img src="<%= ctxPath%>/images/emotion/angry.png" alt="사용자 프로필 이미지" />
-                </div>
-                <div class="talk-info">
-                    <p class="talk-title">HanBinId</p>
-                    <p class="talk-text">7강의실 아이돌 한빈</p>
-                </div>
-            </li>
-            <li>
-                <div class="talk-img">
-                </div>
-                <div class="talk-info">
-                    <p class="talk-title">HanBinId</p>
-                    <p class="talk-text">7강의실 아이돌 한빈</p>
-                </div>
-            </li>
-            <li>
-                <div class="talk-img">
-                </div>
-                <div class="talk-info">
-                    <p class="talk-title">HanBinId</p>
-                    <p class="talk-text">7강의실 아이돌 한빈</p>
-                </div>
-            </li>
-            <li>
-                <div class="talk-img">
-                </div>
-                <div class="talk-info">
-                    <p class="talk-title">HanBinId</p>
-                    <p class="talk-text">7강의실 아이돌 한빈</p>
-                </div>
-            </li>
-            <li>
-                <div class="talk-img">
-                </div>
-                <div class="talk-info">
-                    <p class="talk-title">HanBinId</p>
-                    <p class="talk-text">7강의실 아이돌 한빈</p>
-                </div>
-            </li>
-            <li>
-                <div class="talk-img">
-                </div>
-                <div class="talk-info">
-                    <p class="talk-title">HanBinId</p>
-                    <p class="talk-text">7강의실 아이돌 한빈</p>
-                </div>
-            </li>
-            <li>
-                <div class="talk-img">
-                </div>
-                <div class="talk-info">
-                    <p class="talk-title">HanBinId</p>
-                    <p class="talk-text">7강의실 아이돌 한빈</p>
-                </div>
-            </li>
-            <li>
-                <div class="talk-img">
-                </div>
-                <div class="talk-info">
-                    <p class="talk-title">HanBinId</p>
-                    <p class="talk-text">7강의실 아이돌 한빈</p>
-                </div>
-            </li>
-            <li>
-                <div class="talk-img">
-                </div>
-                <div class="talk-info">
-                    <p class="talk-title">HanBinId</p>
-                    <p class="talk-text">7강의실 아이돌 한빈</p>
-                </div>
-            </li>
-        </ul>
-    </div>
-    <button type="button" class="btn-talk-write">작성버튼</button>
 </div>
+
+<!-- 프로필 확대 모달 -->
+<div class="modal fade" id="profileImageModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content bg-transparent border-0 shadow-none">
+            <button type="button" class="btn-close ms-auto me-2 mt-2" data-bs-dismiss="modal"></button>
+            <img id="profileImageModalImg" src="" alt="프로필 이미지" class="img-fluid rounded shadow">
+        </div>
+    </div>
+</div>
+
+
+<script src="<%=ctxPath%>/js/chat/chat.js" defer></script>
+<%--<div id="talkLayer" class="layer">--%>
+<%--    <div class="layer-header">--%>
+<%--        <h3 class="layer-title">메시지</h3>--%>
+<%--        <button type="button" id="btnTalkClose" class="layer-close">X</button>--%>
+<%--    </div>--%>
+<%--    <div class="layer-body">--%>
+<%--        <ul class="talk-list">--%>
+<%--            <li>--%>
+<%--                <div class="talk-img">--%>
+<%--                    <img src="<%= ctxPath%>/images/emotion/angry.png" alt="사용자 프로필 이미지" />--%>
+<%--                </div>--%>
+<%--                <div class="talk-info">--%>
+<%--                    <p class="talk-title">HanBinId</p>--%>
+<%--                    <p class="talk-text">7강의실 아이돌 한빈</p>--%>
+<%--                </div>--%>
+<%--            </li>--%>
+<%--            <li>--%>
+<%--                <div class="talk-img">--%>
+<%--                    <img src="<%= ctxPath%>/images/emotion/angry.png" alt="사용자 프로필 이미지" />--%>
+<%--                </div>--%>
+<%--                <div class="talk-info">--%>
+<%--                    <p class="talk-title">HanBinId</p>--%>
+<%--                    <p class="talk-text">7강의실 아이돌 한빈</p>--%>
+<%--                </div>--%>
+<%--            </li>--%>
+<%--            <li>--%>
+<%--                <div class="talk-img">--%>
+<%--                </div>--%>
+<%--                <div class="talk-info">--%>
+<%--                    <p class="talk-title">HanBinId</p>--%>
+<%--                    <p class="talk-text">7강의실 아이돌 한빈</p>--%>
+<%--                </div>--%>
+<%--            </li>--%>
+<%--            <li>--%>
+<%--                <div class="talk-img">--%>
+<%--                </div>--%>
+<%--                <div class="talk-info">--%>
+<%--                    <p class="talk-title">HanBinId</p>--%>
+<%--                    <p class="talk-text">7강의실 아이돌 한빈</p>--%>
+<%--                </div>--%>
+<%--            </li>--%>
+<%--            <li>--%>
+<%--                <div class="talk-img">--%>
+<%--                </div>--%>
+<%--                <div class="talk-info">--%>
+<%--                    <p class="talk-title">HanBinId</p>--%>
+<%--                    <p class="talk-text">7강의실 아이돌 한빈</p>--%>
+<%--                </div>--%>
+<%--            </li>--%>
+<%--            <li>--%>
+<%--                <div class="talk-img">--%>
+<%--                </div>--%>
+<%--                <div class="talk-info">--%>
+<%--                    <p class="talk-title">HanBinId</p>--%>
+<%--                    <p class="talk-text">7강의실 아이돌 한빈</p>--%>
+<%--                </div>--%>
+<%--            </li>--%>
+<%--            <li>--%>
+<%--                <div class="talk-img">--%>
+<%--                </div>--%>
+<%--                <div class="talk-info">--%>
+<%--                    <p class="talk-title">HanBinId</p>--%>
+<%--                    <p class="talk-text">7강의실 아이돌 한빈</p>--%>
+<%--                </div>--%>
+<%--            </li>--%>
+<%--            <li>--%>
+<%--                <div class="talk-img">--%>
+<%--                </div>--%>
+<%--                <div class="talk-info">--%>
+<%--                    <p class="talk-title">HanBinId</p>--%>
+<%--                    <p class="talk-text">7강의실 아이돌 한빈</p>--%>
+<%--                </div>--%>
+<%--            </li>--%>
+<%--            <li>--%>
+<%--                <div class="talk-img">--%>
+<%--                </div>--%>
+<%--                <div class="talk-info">--%>
+<%--                    <p class="talk-title">HanBinId</p>--%>
+<%--                    <p class="talk-text">7강의실 아이돌 한빈</p>--%>
+<%--                </div>--%>
+<%--            </li>--%>
+<%--            <li>--%>
+<%--                <div class="talk-img">--%>
+<%--                </div>--%>
+<%--                <div class="talk-info">--%>
+<%--                    <p class="talk-title">HanBinId</p>--%>
+<%--                    <p class="talk-text">7강의실 아이돌 한빈</p>--%>
+<%--                </div>--%>
+<%--            </li>--%>
+<%--        </ul>--%>
+<%--    </div>--%>
+<%--</div>--%>
 
 
 

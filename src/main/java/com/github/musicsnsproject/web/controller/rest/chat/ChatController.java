@@ -4,6 +4,7 @@ import com.github.musicsnsproject.repository.mongo.chat.ChatMessage;
 import com.github.musicsnsproject.repository.mongo.chat.ChatRoom;
 import com.github.musicsnsproject.service.chat.ChatService;
 import com.github.musicsnsproject.web.dto.chat.ChatMessageRequest;
+import com.github.musicsnsproject.web.dto.chat.ChatRoomListResponse;
 import com.github.musicsnsproject.web.dto.response.CustomSuccessResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -18,6 +19,14 @@ import java.util.List;
 public class ChatController {
     private final ChatService chatService;
     private final SimpMessagingTemplate messagingTemplate;
+    //나의 채팅목록 조회
+    @GetMapping("/rooms")
+    public CustomSuccessResponse<List<ChatRoomListResponse>> getMyChatRooms(@AuthenticationPrincipal Long userId){
+        List<ChatRoomListResponse> roomResponses = chatService.getMyChatRoomList(userId);
+        return CustomSuccessResponse.ofOk("나의 채팅방 목록 조회 성공", roomResponses);
+
+    }
+
 
     // 채팅방 생성 or 조회
     @PostMapping("/room")

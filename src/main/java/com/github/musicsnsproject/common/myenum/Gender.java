@@ -15,7 +15,8 @@ public enum Gender implements MyEnumInterface {
     // Enum의 기본 이미지에 현재 이미지가 포함되는지 검사
     public static boolean isDefaultProfileImg(String currentImg) {
         for (Gender gender : values()) {
-            if (gender.getDefaultProfileImgUrl().equals(currentImg)) return true;
+            if (gender.getDefaultProfileImgUrl().equals(currentImg))
+                return true;
         }
         return false;
     }

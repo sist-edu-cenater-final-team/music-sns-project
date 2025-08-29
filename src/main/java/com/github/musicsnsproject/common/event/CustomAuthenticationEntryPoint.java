@@ -12,6 +12,7 @@ import io.jsonwebtoken.UnsupportedJwtException;
 import io.jsonwebtoken.security.SignatureException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.data.redis.RedisConnectionFailureException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.AuthenticationException;
@@ -32,7 +33,8 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
             ExpiredJwtException.class, "만료된 토큰",
             SignatureException.class, "잘못된 서명의 토큰",
             NullPointerException.class, "잘못된 서명의 토큰", // NPE는 서명 검증 과정에서 발생 가능
-            CustomNotAcceptException.class, "로그아웃 후 무효화 된 토큰"
+            CustomNotAcceptException.class, "로그아웃 후 무효화 된 토큰",
+            RedisConnectionFailureException.class, "레디스 서버 연결 실패"
     );
     private static final String DEFAULT_ERROR_MESSAGE = "토큰 정보 없음";
 

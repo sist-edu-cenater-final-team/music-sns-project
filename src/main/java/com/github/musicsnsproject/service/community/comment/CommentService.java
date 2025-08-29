@@ -30,6 +30,17 @@ public class CommentService {
 
         List<ResponseCommentDTO> reponseList = commentRepository.findByCommentIdAndMyUser(postId);
 
+        if(reponseList.isEmpty()){
+            reponseList = null;
+        }
+        else{
+            reponseList.forEach(c -> {
+                c.getReplyCount();
+            });
+        }
+
+
+
         return reponseList;
     }
 
@@ -47,6 +58,11 @@ public class CommentService {
 
         try{
             commentRepository.save(saveComment);
+
+            if(parent != null){
+                Comment root = (parent.getRootComment() != null) ? parent.getRootComment() : parent;
+
+            }
 
             return ResponseCommentDTO.builder()
                     .commentId(saveComment.getCommentId())

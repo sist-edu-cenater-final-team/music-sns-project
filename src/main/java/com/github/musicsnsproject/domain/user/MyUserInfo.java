@@ -11,4 +11,5 @@ public class MyUserInfo {
 
 	private MyUserVO myuser;
 	private boolean isOwner;
+	private boolean isFollow;
 }

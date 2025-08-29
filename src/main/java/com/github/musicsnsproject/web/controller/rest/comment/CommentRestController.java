@@ -28,7 +28,7 @@ public class CommentRestController {
 
     @PostMapping("insertComment")
     public ResponseCommentDTO insertComment(@AuthenticationPrincipal Long userId,
-                                                  @RequestBody RequestCommentDTO requestCommentDTO){
+                                            @RequestBody RequestCommentDTO requestCommentDTO){
 
         return commentService.saveComments(userId, requestCommentDTO);
 

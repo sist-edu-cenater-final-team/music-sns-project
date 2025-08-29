@@ -1,5 +1,9 @@
 package com.github.musicsnsproject.repository.jpa.account.user;
 
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import com.github.musicsnsproject.common.exceptions.CustomBadRequestException;
 import com.github.musicsnsproject.common.myenum.Gender;
 import com.github.musicsnsproject.common.security.userdetails.CustomUserDetails;
@@ -8,27 +12,22 @@ import com.github.musicsnsproject.domain.user.MyUserVO;
 import com.github.musicsnsproject.repository.jpa.account.follow.QFollow;
 import com.github.musicsnsproject.repository.jpa.account.history.login.QLoginHistory;
 import com.github.musicsnsproject.repository.jpa.account.role.QRole;
-import com.github.musicsnsproject.repository.jpa.account.role.Role;
 import com.github.musicsnsproject.repository.jpa.account.socialid.QSocialId;
 import com.github.musicsnsproject.repository.jpa.account.socialid.SocialIdPk;
 import com.github.musicsnsproject.repository.jpa.community.post.QPost;
 import com.github.musicsnsproject.repository.jpa.community.post.QPostImage;
 import com.github.musicsnsproject.repository.jpa.emotion.QUserEmotion;
-import com.querydsl.core.BooleanBuilder;
+import com.github.musicsnsproject.web.dto.chat.ChatUserInfo;
 import com.querydsl.core.group.GroupBy;
 import com.querydsl.core.types.ExpressionUtils;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
-import com.querydsl.core.types.dsl.NumberExpression;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 
 @RequiredArgsConstructor
 public class MyUserQueryRepositoryImpl implements MyUserQueryRepository {
@@ -183,6 +182,7 @@ public class MyUserQueryRepositoryImpl implements MyUserQueryRepository {
 			            user.email,
 			            user.profileImage.as("profile_image"),
 			            user.profileMessage,
+			            user.coin,
 			            ExpressionUtils.as(
 			                JPAExpressions
 			                    .select(follow.followPk.follower.userId.countDistinct())
@@ -239,4 +239,37 @@ public class MyUserQueryRepositoryImpl implements MyUserQueryRepository {
 		
 		
 	}
+
+	@Override
+	public boolean isFollow(Map<String, Long> map) {
+		QFollow follow = QFollow.follow;
+
+		return queryFactory.selectOne()
+		        .from(follow)
+		        .where(
+		            follow.followPk.follower.userId.eq(map.get("userId"))
+		            .and(follow.followPk.followee.userId.eq(map.get("targetId")))
+		            )
+		        .fetchFirst() != null;
+	}
+
+
+    @Override
+    public List<ChatUserInfo> findAllByIdForChatRoom(Set<Long> allOtherIds) {
+        List<ChatUserInfo> response = queryFactory.from(qMyUser)
+                .where(qMyUser.userId.in(allOtherIds))
+                .select(Projections.fields(ChatUserInfo.class,
+                        qMyUser.userId,
+                        qMyUser.nickname,
+                        qMyUser.profileImage.as("profileImageUrl")
+                ))
+                .fetch();
+        if (response.size() != allOtherIds.size()) {
+            throw CustomBadRequestException.of()
+                    .customMessage("채팅방에 존재하지 않는 유저가 있습니다.")
+                    .request(allOtherIds)
+                    .build();
+        }
+        return response;
+    }
 }

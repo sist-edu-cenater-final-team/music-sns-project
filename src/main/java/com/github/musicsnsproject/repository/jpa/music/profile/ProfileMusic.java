@@ -27,4 +27,11 @@ class ProfileMusic {
     private UserEmotion userEmotion;
 
     private LocalDateTime createdAt;
+
+    @PrePersist // INSERT 전에 호출한다.
+    public void prePersist() {
+        // createdAt가 null이라면 현재 시각을 넣어준다.
+        // createdAt가 null이 아니라면 기존 시각을 보여준다.
+        this.createdAt = this.createdAt == null ? LocalDateTime.now() : this.createdAt;
+    }
 }

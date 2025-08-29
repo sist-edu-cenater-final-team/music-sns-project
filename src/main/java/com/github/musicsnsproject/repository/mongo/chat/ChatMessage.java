@@ -5,21 +5,28 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+
 @Getter
 @Document(collection = "chat_messages")
 public class ChatMessage {
     @Id
-    private String messageId;
+    private String chatMessageId;
     private String chatRoomId;
-    private Long senderId;
+    private Long userId;
     private String content;
+    private long unreadCount;
+    private final List<Long> readBy = new ArrayList<>(); // 읽은 유저 ID 목록
     private LocalDateTime sentAt;
 
-    public static ChatMessage create(String chatRoomId, long senderId, String content){
+    public static ChatMessage create(String chatRoomId, long senderId, String content, int unreadCount){
         ChatMessage chatMessage = new ChatMessage();
         chatMessage.chatRoomId = chatRoomId;
-        chatMessage.senderId = senderId;
+        chatMessage.userId = senderId;
+        chatMessage.readBy.add(senderId);
         chatMessage.content = content;
+        chatMessage.unreadCount = unreadCount;
         chatMessage.sentAt = LocalDateTime.now();
         return chatMessage;
     }
