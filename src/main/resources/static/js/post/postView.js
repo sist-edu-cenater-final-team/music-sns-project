@@ -194,44 +194,56 @@ $(function () {
 
                     const commentList = response.data;
 
-                    // console.log(commentList);
+                    console.log(commentList);
 
                     commentList.forEach(item => {
 
                         html += `
                                      <div class="comment d-flex mb-2"
                                      data-comment-id="${item.commentId}"
+                                     data-parent-id="${item.parentCommentId || ''}"
                                      data-writer="${item.writer}">
                                         <!-- 프로필 이미지 -->
                                         <img src= "${item.writerProfileImageUrl}" class="rounded-circle mr-2" 
                                              alt="userImage" style="width:32px; height:32px; object-fit:cover;">
                                 
                                         <!-- 닉네임 + 댓글 내용 -->
-                                        <div class="d-flex flex-column">
-                                            <div>
-                                                <span class="font-weight-bold mr-1">${item.writer}</span>
-                                                <span>${item.contents}</span>
+                                        <div class="comment-body d-flex flex-column">
+                                            <div class="mb-2">
+                                                <span class="font-weight-bold mr-1 mb-1">${item.writer}</span>
+                                                <span class="mb-2">${item.contents}</span>
                                             </div>
                                 
                                             <!-- 답글 -->
-                                            <div class="text-muted small mt-1">
+                                            <div class="text-muted small mt-1 mb-2">
                                                 <span>${item.createdAt}</span>
-                                                <span class="ml-3 reply-btn" role="button" tabindex="0" style="font-style: italic">답글 달기( 개)</span>
+                                                <span class="ml-3 reply-btn" role="button" tabindex="0" style="font-style: italic">답글 달기</span>
                                             </div>
-                                        </div>
-                                        <!-- ✅ 답글 n개 보기 버튼 -->
-                                        <div class="text-muted small mt-1 view-replies-btn" role="button" tabindex="0" style="cursor:pointer">
-                                          -- 답글 보기
-                                        </div>
-                                    
-                                        <!-- ✅ 대댓글이 들어갈 영역 -->
-                                        <div class="replies pl-4 mt-2" style="display:none;"></div>
-                                    </div>
-                        `;
+                                        
+                                    `;
+
+                                    if(item.parentCommentId == null || item.replyCount > 0){
+
+                                        html += `
+                                            <!-- ✅ 답글 n개 보기 버튼 -->
+                                            <div class="text-muted small mt-1 view-replies-btn" role="button" tabindex="0" style="cursor:pointer">
+                                                -- 답글 보기( ${item.replyCount}개)
+                                            </div>
+    
+                                            <!-- ✅ 대댓글이 들어갈 영역 -->
+                                            <div class="replies pl-4 mt-2" style="display:none;"></div>
+                                        `;
+                                    }
+
+                                    html += `    </div> <!-- 바디부분닫기 -->
+                                            </div>`; // .comment 쪽 닫기
+
+
 
                     })
 
                     await $('.pcCommentsArea').html(html);
+                    nestReplies('.pcCommentsArea');
 
                 }).catch(function (error) {
 
@@ -251,23 +263,51 @@ $(function () {
         })
 
         // 답글보기 버튼을 누르면 나타나는 것
-        $('div.view-replies-btn').on('click', function () {
-            $('div.replies').style.display = 'block';
-        })
+        $('.pcCommentsArea').on('click', '.view-replies-btn', function () {
+            const comment = $(this).closest('.comment');
+
+            // 우선 comment-body 안의 replies를 찾고,
+            let replies = comment.find('> .comment-body > .replies').first();
+
+            // (혹시 구조가 달라졌다면) .comment 바로 아래 것도 백업으로 찾기
+            if (!replies.length) {
+                replies = comment.children('.replies').first();
+            }
+
+            // replies 컨테이너가 정말 없다면 만들어 둠 (안전장치)
+            if (!replies.length) {
+                const where = comment.find('> .comment-body').first().length
+                    ? comment.find('> .comment-body').first()
+                    : comment;
+                replies = $('<div class="replies pl-4 mt-2" style="display:none;"></div>').appendTo(where);
+            }
+
+            replies.stop(true, true).slideToggle(200);
+        });
 
         // 답글달기 버튼을 누르면 댓글쓰기에 값 넣어주고, 부모댓글아이디 만들기
         let parentCommentId = null;
 
-        $('span.reply-btn').on('click', function () {
+        $(document).on('click', '.reply-btn', function (e) {
 
-            const writer = $(this).closest('.comment').data('writer');
-            parentCommentId = $(this).closest('.comment').data('comment-id');
+            const comment = $(this).closest('.comment');
+            const writer = comment.data('writer');
+            // data-comment-id → jQuery .data('commentId') 권장
+            parentCommentId = comment.data('commentId');
+            if (parentCommentId == null) {
+                // 혹시 매핑이 안 될 때 대비
+                parentCommentId = comment.attr('data-comment-id');
+            }
 
+            // console.log('parentCommentId:', parentCommentId);
             $('textarea.pcCommentInput').val(`@${writer} `).focus();
-        })
+        });
+
 
         // "게시" 버튼을 누르면 댓글을 db에 저장하는 것
         $('button.commentPost').on('click', function () {
+
+            console.log('parentCommentId:', parentCommentId);
 
             const body = {
                 'postId': postId,
@@ -275,38 +315,76 @@ $(function () {
                 'parentCommentId': parentCommentId,
             }
             AuthFunc.apiRequest(() => {
-                axios.post('/api/comment/insertComment',
+                return axios.post('/api/comment/insertComment',
                     body,
                     {headers: AuthFunc.getAuthHeader()})
             }).then(function (response) {
 
-                if(response.parentCommentId != null) {
+                if(response.data.parentCommentId != null) {
+
                     let html1 = ``;
 
-                    html1 += `
+                    html1 = `
                             <div class="comment d-flex mb-2"
-                                     data-comment-id="${response.commentId}"
-                                     data-writer="${response.writer}">
-                                        <!-- 프로필 이미지 -->
-                                        <img src= "${response.writerProfileImageUrl}" class="rounded-circle mr-2" 
-                                             alt="userImage" style="width:32px; height:32px; object-fit:cover;">
-                                
-                                        <!-- 닉네임 + 댓글 내용 -->
-                                        <div class="d-flex flex-column">
-                                            <div>
-                                                <span class="font-weight-bold mr-1">${response.writer}</span>
-                                                <span>${response.contents}</span>
-                                            </div>
-                                        </div>
+                                 data-comment-id="${response.data.commentId}"
+                                 data-writer="${response.data.writer}">
+                              <img src="${response.data.writerProfileImageUrl}" class="rounded-circle mr-2"
+                                   alt="userImage" style="width:32px; height:32px; object-fit:cover;">
+                              <div class="d-flex flex-column">
+                                <div>
+                                  <span class="font-weight-bold mr-1">${response.data.writer}</span>
+                                  <span>${response.data.contents}</span>
+                                </div>
+                                <div class="text-muted small mt-1 mb-2">
+                                  <span>${response.data.createdAt}</span>
+                                  <span class="ml-3 reply-btn" role="button" tabindex="0" style="font-style: italic">답글 달기</span>
+                                </div>
+                              </div>
                             </div>
-                    `;
+                          `;
 
-                    // $('div.replies').last().append(html1);
-                    $('div.replies').html(html1);
-                    return;
+                    // 1) 부모 댓글 엘리먼트 찾기
+                    let parentId = response.data.parentCommentId;
+                    let parent = $(`.comment[data-comment-id="${parentId}"]`);
+
+                    // 최상위 부모까지 거슬러 올라감
+                    while (parent.data('parentId')) {
+                        parentId = parent.data('parentId');
+                        parent = $(`.comment[data-comment-id="${parentId}"]`);
+                    }
+
+                    // 이제 parent는 항상 "최상위 댓글"
+                    let replies = parent.find('> .comment-body > .replies').first();
+                    if (!replies.length) {
+                        replies = $('<div class="replies pl-4 mt-2" style="display:none;"></div>')
+                            .appendTo(parent.find('> .comment-body'));
+                    }
+
+                    replies.append(html1);
+                    replies.stop(true, true).slideDown(120);
+                    // 답글보기 카운트 갱신
+                    const $viewRepliesBtn = parent.find('.view-replies-btn').first();
+                    if ($viewRepliesBtn.length) {
+                        // 현재 버튼 텍스트에서 숫자만 추출
+                        const text = $viewRepliesBtn.text();
+                        const match = text.match(/\d+/);
+                        let count = match ? parseInt(match[0], 10) : 0;
+                        count++;
+
+                        $viewRepliesBtn.text(`-- 답글 보기( ${count}개)`);
+                    }
+                    $('textarea.pcCommentInput').val('');
+                    // 4) 더 내려가서 일반 댓글 로직이 실행되지 않도록 종료
+                    //console.log('정상입니다.')
+
+
+                }
+                else {
+                    //console.log('왜와' + response.data.parentCommentId);
+                    $('textarea.pcCommentInput').val('');
                 }
 
-                $('textarea.pcCommentInput').val('');
+
 
             }).catch(function (error) {
                 console.error(error);
@@ -334,7 +412,39 @@ $(function () {
 }) // end of $(function () {})
 
 
+// 댓글, 대댓글 트리구조로 만드는 함수
+// 댓글, 대댓글을 "최상위 댓글" 단위로만 묶는 함수
+function nestReplies(rootSelector) {
+    const root = document.querySelector(rootSelector);
+    if (!root) return;
 
+    const children = root.querySelectorAll('.comment[data-parent-id]:not([data-parent-id=""])');
+
+    children.forEach(child => {
+        let parentId = child.getAttribute('data-parent-id');
+        let parent = root.querySelector(`.comment[data-comment-id="${parentId}"]`);
+        if (!parent) return;
+
+        // 🔑 최상위 부모까지 거슬러 올라가기
+        while (parent && parent.getAttribute('data-parent-id')) {
+            const higherParentId = parent.getAttribute('data-parent-id');
+            parent = root.querySelector(`.comment[data-comment-id="${higherParentId}"]`);
+        }
+
+        if (!parent) return;
+
+        // 이제 parent는 항상 "최상위 댓글"
+        let replies = parent.querySelector('.replies');
+        if (!replies) {
+            replies = document.createElement('div');
+            replies.className = 'replies pl-4 mt-2';
+            replies.style.display = 'none';
+            parent.querySelector('.comment-body').appendChild(replies);
+        }
+
+        replies.appendChild(child);
+    });
+}
 
 // 댓글 이모티콘을 누르면 나오는 모달에 캐러셀만드는 함수
 function buildCarouselHtml(imageUrls, carouselId) {

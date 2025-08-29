@@ -59,7 +59,7 @@ public class SecurityConfig {
                         .requestMatchers("/","/index.html","/resources/**","/api/auth/*", "/api/email/*",
                                 "/error","/swagger-ui/**", "/v3/api-docs/**", "/amp-docs.html").permitAll()
                         .requestMatchers("/api/oauth/**").anonymous()
-                        .requestMatchers("/api/mypage/eumpyo/**").authenticated()
+                        .requestMatchers("/api/mypage/eumpyo/**","/api/comment/insertComment").authenticated()
                         .requestMatchers("/api/chat/**").authenticated()
                         .anyRequest().permitAll()
                 )

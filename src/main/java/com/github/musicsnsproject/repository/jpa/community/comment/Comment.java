@@ -7,6 +7,7 @@ import lombok.Getter;
 import org.hibernate.annotations.DynamicInsert;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table(name = "comments")
@@ -29,6 +30,14 @@ public class Comment {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "parent_comment_id")
     private Comment parentComment;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "root_comment_id")
+    private Comment rootComment;
+
+    @OneToMany(mappedBy = "parentComment", fetch = FetchType.LAZY)
+    private List<Comment> childComments;
+    @OneToMany(mappedBy = "rootComment", fetch = FetchType.LAZY)
+    private List<Comment> allChildComments;
 
     @Column(name="created_at")
     private LocalDateTime createdAt;
@@ -47,7 +56,10 @@ public class Comment {
         commentEntity.contents = comment;
         commentEntity.parentComment = parent;
         commentEntity.createdAt = LocalDateTime.now();
+
         return commentEntity;
     }
+
+
 }
 
