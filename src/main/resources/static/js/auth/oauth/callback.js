@@ -1,12 +1,34 @@
-
 // URL 객체를 사용하여 파라미터 가져오기
 const url = new URL(window.location.href);
+const redirectUri = url.origin + url.pathname;
 const code = url.searchParams.get('code');
-const params = { authorizationCode: code };
 
-(async function requestLoginOrRegister() {//템플릿 리터럴 사용을위해 \역슬래시 한번
+const params = {
+    authorizationCode: code
+};
+
+switch (provider) {
+    case 'facebook':
+    case  'microsoft':
+    case 'google' :
+        params.redirectUri = redirectUri;
+        break;
+    case 'naver':
+        params.state = url.searchParams.get('state');
+        break;
+    case 'twitter':
+        params.state = url.searchParams.get('state');
+        params.redirectUri = redirectUri;
+        break;
+}
+
+
+
+
+// axios를 사용하여 POST 요청 보내기}
+
+(async function requestLoginOrRegister() {
     const response = await axios.post(`/api/oauth/${provider}`, params);
-    console.log(response.headers['x-is-connection']);
     console.log(response);
     const responseData = response.data.success.responseData;
 
