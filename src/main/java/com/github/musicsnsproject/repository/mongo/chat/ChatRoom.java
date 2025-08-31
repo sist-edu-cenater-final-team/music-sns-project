@@ -7,9 +7,7 @@ import org.springframework.data.mongodb.core.index.CompoundIndexes;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /*
 *
@@ -37,11 +35,18 @@ public class ChatRoom {
         ChatRoom chatRoom = new ChatRoom();
         chatRoom.participants = participants;
         chatRoom.createdAt = LocalDateTime.now();
+        chatRoom.hiddenUserIds = new HashSet<>();
+        chatRoom.hiddenUserMap = new HashMap<>();
         return chatRoom;
     }
     public void exitRoom(long userId){
         hiddenUserIds.add(userId);
         hiddenUserMap.put(userId, LocalDateTime.now());
-
+    }
+    public boolean isUserInRoom(long userId){
+        return participants.contains(userId);
+    }
+    public boolean isHiddenForUser(long userId){
+        return hiddenUserIds.contains(userId);
     }
 }

@@ -37,22 +37,22 @@ document.addEventListener("click", (e) => {
     }
 });
 
-
-// 메시지 팝업 관련
-const talkLayer = {
-    layer : document.querySelector("#talkLayer"),
-    btnTalk : document.querySelector("#btnTalk"),
-    btnTalkClose : document.querySelector("#btnTalkClose"),
-    open() {
-        this.layer.style.display = "block";
-    },
-    close() {
-        this.layer.style.display = "none";
-    }
-}
-
-talkLayer.btnTalk?.addEventListener("click", () => talkLayer.open());
-talkLayer.btnTalkClose?.addEventListener("click", () => talkLayer.close());
+//
+// // 메시지 팝업 관련
+// const talkLayer = {
+//     layer : document.querySelector("#talkLayer"),
+//     btnTalk : document.querySelector("#btnTalk"),
+//     btnTalkClose : document.querySelector("#btnTalkClose"),
+//     open() {
+//         this.layer.style.display = "block";
+//     },
+//     close() {
+//         this.layer.style.display = "none";
+//     }
+// }
+//
+// talkLayer.btnTalk?.addEventListener("click", () => talkLayer.open());
+// talkLayer.btnTalkClose?.addEventListener("click", () => talkLayer.close());
 
 // 우측 감정 플레이리스트
 const emotions = document.querySelector(".emotions");

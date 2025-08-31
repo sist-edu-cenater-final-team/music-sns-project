@@ -30,6 +30,9 @@
     width: 100%;
 }
 
+
+
+
 .modal.fade.show .modal-dialog-slide {
     transform: translateY(-4%);
 }
@@ -205,4 +208,31 @@
 }
 .last-message-time {
     margin-bottom: 6px;
+}
+
+
+/* chat.css에 추가 */
+.unread-badge {
+    position: absolute;
+    top: -6px;
+    right: -2px;
+    min-width: 31px;
+    /*height: 22px;*/
+    background: #ff2d55;
+    color: #fff;
+    font-size: 12px;
+    font-weight: bold;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 8px rgba(255, 45, 85, 0.18);
+    z-index: 2;
+    border: 2px solid #fff;
+    /* 아래 두 줄 추가 또는 수정 */
+    padding: 0;
+    line-height: 22px;
+}
+.btn-talk {
+    position: relative;
 }

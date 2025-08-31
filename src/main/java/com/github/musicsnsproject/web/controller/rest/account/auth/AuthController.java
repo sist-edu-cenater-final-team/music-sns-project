@@ -16,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import static com.github.musicsnsproject.common.MyUtils.createResponseEntity;
@@ -83,6 +84,10 @@ public class AuthController implements AuthControllerDocs {
     @GetMapping("/tttt")
     public CustomSuccessResponse<RoleEnum> tttt(@Parameter(schema = @Schema(type = "string", example = "카카오")) @RequestParam RoleEnum role){
         return CustomSuccessResponse.ofOk(role.name(), role);
+    }
+    @GetMapping("/pk")
+    public CustomSuccessResponse<Long> pk(@AuthenticationPrincipal Long userId){
+        return CustomSuccessResponse.ofOk("로그인 유저 PK 조회 성공", userId);
     }
 
 

@@ -4,6 +4,8 @@
 <link rel="stylesheet" href="<%=ctxPath%>/css/profile.css" />
 <link rel="stylesheet" href="<%=ctxPath%>/css/music/search/search.css" />
 <script type="text/javascript" src="<%=ctxPath%>/js/music/search/search.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sockjs-client/dist/sockjs.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/stompjs/lib/stomp.min.js"></script>
 
 <style type="text/css">
 

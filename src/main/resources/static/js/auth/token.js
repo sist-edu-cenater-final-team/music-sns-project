@@ -78,7 +78,8 @@
     window.AuthFunc = {
         getAuthHeader,
         apiRequest,
-        logout
+        logout,
+        primaryKey
     };
     // // ES6 모듈로도 export (모듈 스크립트용)
     // if (typeof module !== 'undefined' && module.exports) {
@@ -93,6 +94,16 @@
     // }
 })();
 
+function primaryKey() {
+    return AuthFunc.apiRequest(() =>
+            axios.get(`${ctxPath}/api/auth/pk`, { headers: AuthFunc.getAuthHeader() })
+        ).then(response => {
+            return response.data.success.responseData;
+        }).catch(error => {
+            console.error('Error fetching primary key:', error);
+            throw error;
+        });
+}
 
 function refreshAuthToken() {
     return axios.post(`${ctxPath}/api/auth/refresh`,{}, {
