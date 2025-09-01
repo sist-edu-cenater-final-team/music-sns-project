@@ -484,3 +484,93 @@
     scrollbar-width: thin;
     scrollbar-color: #6633FF #f4f3ff; /* thumb / track */
 }
+
+/* 날짜 구분선 스타일 */
+.date-separator {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 20px 0 15px 0;
+    position: relative;
+}
+
+.date-separator::before {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: #e0e0e0;
+    margin-right: 15px;
+}
+
+.date-separator::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: #e0e0e0;
+    margin-left: 15px;
+}
+
+.date-separator-text {
+    background: #f8f9fa;
+    color: #666;
+    font-size: 12px;
+    font-weight: 500;
+    padding: 6px 12px;
+    border-radius: 12px;
+    border: 1px solid #e0e0e0;
+    white-space: nowrap;
+}
+
+/* 메시지 안읽음 뱃지 스타일 */
+.message-bubble-container {
+    display: flex;
+    align-items: flex-end;
+    gap: 6px;
+}
+
+.message-item.my-message .message-bubble-container {
+    flex-direction: row-reverse;
+}
+
+.message-unread-badge {
+    background-color: #ff2d55;
+    color: white;
+    font-size: 11px;
+    font-weight: bold;
+    min-width: 18px;
+    height: 18px;
+    border-radius: 9px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 4px;
+    flex-shrink: 0;
+    margin-bottom: 2px;
+}
+/*여기까지읽으셨습니다.*/
+.read-indicator {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 15px 0;
+    position: relative;
+}
+
+.read-indicator-line {
+    flex: 1;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, #ff6b6b, transparent);
+    border-radius: 1px;
+}
+
+.read-indicator-text {
+    background: #fff;
+    color: #ff6b6b;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 4px 12px;
+    border-radius: 12px;
+    border: 2px solid #ff6b6b;
+    position: absolute;
+    white-space: nowrap;
+}

@@ -80,7 +80,7 @@ $(function(){
 	                                aria-labelledby="dropdownMenuButton"
 	                                style="min-width: 150px; border-radius: 10px;">
 	                                <a class="dropdown-item" href="#" style="color:black" data-toggle="modal" data-target="#blockedUser">차단유저</a>
-	                                <a class="dropdown-item text-danger font-weight-bold" href="#">로그아웃</a>
+	                                <a class="dropdown-item text-danger font-weight-bold" onclick="logout()">로그아웃</a>
 	                            </div>
 	                        </div>
 	                    `;
@@ -120,6 +120,17 @@ $(function(){
     
     
 }); // end of function (){} ---
+function logout(){
+    AuthFunc.logout().then((data) => {
+        console.log(data);
+        alert('로그아웃 되었습니다.');
+        // window.location.href = ctxPath + '/auth/login';
+    }).catch((error) => {
+        console.error('Logout failed:', error);
+        alert('로그아웃에 실패했습니다. 다시 시도해주세요.');
+    });
+}
+
 
 function getUserPost() {
     const authHeader = AuthFunc.getAuthHeader;

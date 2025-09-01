@@ -284,20 +284,47 @@ function renderChatRoomModal(roomData) {
         } else {
             messageTime = `${messageDate.getFullYear()}년 ${String(messageDate.getMonth() + 1).padStart(2, "0")}월 ${String(messageDate.getDate()).padStart(2, "0")}일`;
         }
+        // 날짜 구분선 로직
+        let dateSeparator = '';
+        const prevMessage = index > 0 ? messages[index - 1] : null;
 
-        return `
-            <div class="message-item ${messageClass} ${oldUnreadClass}" data-message-index="${index}">
-                <div class="message-content">
-                    ${!isMyMessage ? `<img src="${message.sender.profileImageUrl}" alt="${message.sender.nickname}" class="message-profile-img">` : ''}
-                    <div class="message-text-area">
-                        ${!isMyMessage ? `<div class="message-nickname">${message.sender.nickname}</div>` : ''}
-                        <div class="message-bubble">${message.content}</div>
-                        <div class="message-time">${messageTime}</div>
-                    </div>
-                    ${isMyMessage ? `<img src="${message.sender.profileImageUrl}" alt="${message.sender.nickname}" class="message-profile-img">` : ''}
-                </div>
+        if (!prevMessage || new Date(prevMessage.sentAt).toDateString() !== messageDate.toDateString()) {
+            let dateText;
+            if (isToday) {
+                dateText = "오늘";
+            } else if (isYesterday) {
+                dateText = "어제";
+            } else {
+                dateText = `${messageDate.getFullYear()}년 ${String(messageDate.getMonth() + 1).padStart(2, "0")}월 ${String(messageDate.getDate()).padStart(2, "0")}일`;
+            }
+
+            dateSeparator = `
+            <div class="date-separator">
+                <span class="date-separator-text">${dateText}</span>
             </div>
         `;
+        }
+
+        // 안읽음 수 표시
+        const unreadBadge = message.unreadCount > 0 ?
+            `<span class="message-unread-badge">${message.unreadCount}</span>` : '';
+
+        return `
+        ${dateSeparator}
+        <div class="message-item ${messageClass} ${oldUnreadClass}" data-message-index="${index}">
+            <div class="message-content">
+                ${!isMyMessage ? `<img src="${message.sender.profileImageUrl}" alt="${message.sender.nickname}" class="message-profile-img">` : ''}
+                <div class="message-text-area">
+                    ${!isMyMessage ? `<div class="message-nickname">${message.sender.nickname}</div>` : ''}
+                    <div class="message-bubble-container">
+                        <div class="message-bubble">${message.content}</div>
+                        ${unreadBadge}
+                    </div>
+                    <div class="message-time">${messageTime}</div>
+                </div>
+            </div>
+        </div>
+    `;
     }).join('');
 
     // 모달 내용 업데이트
@@ -307,23 +334,78 @@ function renderChatRoomModal(roomData) {
     document.getElementById('chatRoomModal').dataset.roomId = roomData.chatRoomId;
 
     // 스크롤 위치 조정
-    requestAnimationFrame(() => {
-        adjustScrollPosition(messages);
+    const modalEl = document.getElementById('chatRoomModal');
+    // 이미 떠있는 상태면 바로, 아니면 shown 시점에 실행
+    const run = () => {
+        // 한 프레임 뒤 + 이미지 로드 후에 스크롤 조정
+        requestAnimationFrame(() => adjustScrollPositionAfterPaint(roomData.messages));
+    };
+
+    if (modalEl.classList.contains('show')) {
+        run();
+    } else {
+        modalEl.addEventListener('shown.bs.modal', () => {
+            run();
+        }, {once: true});
+    }
+}
+function waitImages(container) {
+    const imgs = Array.from(container.querySelectorAll('img'));
+    const pendings = imgs.filter(img => !img.complete);
+
+    if (pendings.length === 0) return Promise.resolve();
+
+    return new Promise(resolve => {
+        let left = pendings.length;
+        const done = () => { if (--left === 0) resolve(); };
+        pendings.forEach(img => {
+            img.addEventListener('load', done, { once: true });
+            img.addEventListener('error', done, { once: true });
+        });
     });
 }
 
-// 스크롤 위치 조정 함수
-function adjustScrollPosition(messages) {
-    const messagesContainer = document.querySelector('.chat-messages-container');
 
-    // oldUnread가 true인 첫 번째 메시지 찾기
-    const firstUnreadIndex = messages.findIndex(message => message.oldUnread === true);
-    const container = document.getElementById("chatRoomMessages");
-    container.scrollTop = container.scrollHeight;
+async function adjustScrollPositionAfterPaint(messages) {
+    const container = document.getElementById('chatRoomMessages');
+    if (!container) return;
+
+    // 레이아웃 확정까지 2프레임 정도 기다리면 안전
+    await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
+
+    // 이미지 로드 대기
+    await waitImages(container);
+
+    // 1) oldUnread가 true인 첫 메시지로 맞추기
+    const firstUnreadIndex = messages.findIndex(m => m.oldUnread === true);
+    if (firstUnreadIndex >= 0) {
+        const target = container.querySelector(`[data-message-index="${firstUnreadIndex}"]`);
+        if (target) {
+            // 읽음 표시 구분선 추가
+            const readIndicator = document.createElement('div');
+            readIndicator.className = 'read-indicator';
+            readIndicator.innerHTML = `
+            <div class="read-indicator-line"></div>
+            <span class="read-indicator-text">여기까지 읽으셨습니다</span>
+        `;
+            // 타겟 메시지 바로 위에 삽입
+            target.parentNode.insertBefore(readIndicator, target);
+            // 컨테이너 최상단 정렬
+            container.scrollTop = target.offsetTop - container.offsetTop - 30;
+            // 또는 필요 시:
+            // target.scrollIntoView({ block: 'start' });
+        }
+    } else {
+        // 2) 없으면 맨 아래
+        container.scrollTop = container.scrollHeight;
+    }
+
+    // 디버깅 로그
     console.log("scrollTop:", container.scrollTop, "scrollHeight:", container.scrollHeight);
-
-
 }
+
+
+
 
 
 // 메시지 전송
