@@ -156,7 +156,9 @@ const purchase = {
             })
         )
         .then(response => {
-            console.log('가져온 음악 정보:', response.data);
+            console.log("추가완룧효훃훃", response.data);
+            alert(response.data);
+            purchase.closeProfileMusicModal();
         })
         .catch(error => {
             console.error('오류:', error);

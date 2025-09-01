@@ -2,7 +2,6 @@ package com.github.musicsnsproject.web.controller.rest.profile;
 
 import com.github.musicsnsproject.service.music.profile.ProfileService;
 import com.github.musicsnsproject.web.dto.profile.ProfileMusicResponse;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -17,7 +16,7 @@ public class ProfileMusicRestController {
 
     private final ProfileService profileService;
 
-    @GetMapping("list")
+    @GetMapping("/list")
     public ResponseEntity<List<ProfileMusicResponse>> getProfileMusicList(@AuthenticationPrincipal Long userId,
                                                                           @RequestParam(value = "musicId") String musicId){
 
@@ -27,7 +26,7 @@ public class ProfileMusicRestController {
     }
 
     // 프로필 음악리스트 추가하기
-    @PostMapping("add")
+    @PostMapping("/add")
     public ResponseEntity<String> addProfileMusic(@AuthenticationPrincipal Long userId,
                                                   @RequestParam(value = "musicId") String musicId,
                                                   @RequestParam(value = "emotionId") Long emotionId){
