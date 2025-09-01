@@ -22,7 +22,7 @@
 <%-- 여기서부터는 모달 나올거임 --%>
 
 <div class="modal fade" id="twoColumnModal" tabindex="-1" role="dialog" aria-hidden="true">
-    <div class="modal-dialog modal-lg  modal-dialog-centered" role="document"><!-- modal-dialog-centered: 화면 정가운데 -->
+    <div class="modal-dialog modal-lg  modal-dialog-centered postViewModal" role="document"><!-- modal-dialog-centered: 화면 정가운데 -->
         <div class="modal-content">
 
             <div class="modal-header">

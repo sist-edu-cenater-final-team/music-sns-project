@@ -26,7 +26,7 @@ public class CommentQueryRepositoryImpl implements CommentQueryRepository {
                 .select(Projections.constructor(
                         ResponseCommentDTO.class,
                         QComment.comment.commentId,
-                        QPost.post.postId,
+                        QComment.comment.post.postId,
                         QComment.comment.contents,
                         QMyUser.myUser.username,
                         QMyUser.myUser.profileImage,
@@ -35,7 +35,8 @@ public class CommentQueryRepositoryImpl implements CommentQueryRepository {
                         JPAExpressions
                                 .select(Wildcard.count)
                                 .from(child)
-                                .where(child.rootComment.eq(QComment.comment))
+                                .where(child.rootComment.eq(QComment.comment)
+                                        .and(child.ne(QComment.comment))) // 자기 자신 제외 (원댓글 자신은 빼고 하위만 카운트)
                 ))
                 .from(QComment.comment)
                 .join(QComment.comment.post, QPost.post)

@@ -57,6 +57,13 @@ public class Comment {
         commentEntity.parentComment = parent;
         commentEntity.createdAt = LocalDateTime.now();
 
+        if (parent == null) {
+            commentEntity.rootComment = commentEntity;
+        }
+        else {
+            commentEntity.rootComment = (parent.getRootComment() != null) ? parent.rootComment : parent;
+        }
+
         return commentEntity;
     }
 
