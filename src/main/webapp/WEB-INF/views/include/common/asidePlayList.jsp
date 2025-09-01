@@ -1,5 +1,8 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <!-- 오늘의 감정 플레이리스트 -->
+<% String ctxPath = request.getContextPath(); %>
+<script src="<%= ctxPath%>/js/sidePlayList.js"></script>
+
 <div class="aside-playlist sidebar">
     <div class="inner">
         <h2>오늘의 감정 플레이리스트</h2>
