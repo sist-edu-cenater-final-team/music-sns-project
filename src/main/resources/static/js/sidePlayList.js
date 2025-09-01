@@ -17,7 +17,7 @@ function musicList(emotionId) {
 	apiRequest(() =>
  		new Promise((resolve, reject) => {
 			$.ajax({
-				url:'/api/music/playList',
+				url:'/api/music/palyList',
 				data: {"emotionId":emotionId},
 				headers:authHeader(),
 				dataType:"json",
