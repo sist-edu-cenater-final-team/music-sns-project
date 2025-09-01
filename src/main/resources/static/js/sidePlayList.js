@@ -1,11 +1,11 @@
 $(function() {
 	musicList(1);
 
-
 	$("button#emotion").on("click", function() {
 		$(".emotions .btn").removeClass("active"); // 기존 active 제거
 		$(this).addClass("active"); // 현재 클릭한 버튼만 active
 		let emotionId = $(this).val();
+		console.log(emotionId);
 		musicList(emotionId);
 	});
 
@@ -25,7 +25,7 @@ function musicList(emotionId) {
 				headers: authHeader(),
 				dataType: "json",
 				success: function(json) {
-
+					console.log(json);
 					const musicList = $('div.recommended-music');
 
 					let v_html = `<ol>`;
@@ -34,6 +34,11 @@ function musicList(emotionId) {
 						
 						musicId.push(item.musicId);
 						})
+						
+						if (musicId.length < 1) {
+						        $('div.recommended-music').html('<p>추천할 음악이 없음.</p>');
+						        return;
+						    }
 
 						$.ajax({
 						    url: "/api/music/musicList",
@@ -41,12 +46,14 @@ function musicList(emotionId) {
 						    headers: authHeader(),
 						    dataType: "json",
 						    success: function(json) {
-						        console.log(json);
+						    
 
 						        let v_html = '<ol>';
 
 						        json.forEach((track, index) => {  // 배열로 받음
 						            let artist = '';
+									
+									
 						            if (track.album.artists.length > 1) {
 						                for (let i = 0; i < track.album.artists.length; i++) {
 						                    if (i === 0) {
