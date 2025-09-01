@@ -7,4 +7,6 @@ import com.github.musicsnsproject.domain.ProfileMusicVO;
 public interface ProfileMusicQueryRepository {
 
 	List<ProfileMusicVO> emotionPlayList(Long emotionId);
+	
+	List<ProfileMusicVO> profileMusicId(Long userId);
 }

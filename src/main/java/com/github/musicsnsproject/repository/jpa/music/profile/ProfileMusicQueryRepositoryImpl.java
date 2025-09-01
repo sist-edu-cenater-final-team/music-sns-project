@@ -46,4 +46,29 @@ public class ProfileMusicQueryRepositoryImpl implements ProfileMusicQueryReposit
     		
     }
 
+	@Override
+	public List<ProfileMusicVO> profileMusicId(Long userId) {
+		
+    	QProfileMusic profileMusic = QProfileMusic.profileMusic;
+    	QPurchaseMusic music = QPurchaseMusic.purchaseMusic;
+    	QMyMusic myMusic = QMyMusic.myMusic;
+    	QPurchaseHistory history = QPurchaseHistory.purchaseHistory;
+		
+    	return queryFactory
+    		    .select(Projections.fields(ProfileMusicVO.class,
+    		        music.musicId.as("musicId")
+    		    ))
+    		    .from(profileMusic)
+    		    .innerJoin(myMusic)
+    		        .on(profileMusic.myMusic.myMusicId.eq(myMusic.myMusicId))
+    		    .innerJoin(history)
+    		        .on(myMusic.purchaseHistory.purchaseHistoryId.eq(history.purchaseHistoryId)
+    		            .and(history.myUser.userId.eq(userId)))
+    		    .innerJoin(music)
+    		        .on(history.purchaseHistoryId.eq(music.purchaseHistory.purchaseHistoryId))
+    		    .fetch();
+				
+				
+	}
+
 }

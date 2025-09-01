@@ -1,6 +1,6 @@
 
 $(function () {
-
+	
     // 초기 데이터 로드
     getCounts();
     getfollowing();
@@ -138,7 +138,7 @@ function getCounts() {
 function getfollowing() {
     const apiRequest = AuthFunc.apiRequest;
     const authHeader = AuthFunc.getAuthHeader;
-
+	const ctxPath = "http://localhost:8080/";
     apiRequest(() =>
     
     	new Promise((resolve, reject) => {
@@ -159,7 +159,7 @@ function getfollowing() {
                         let v_html = `
 			    	        	<div class="followInfo row">
 			    	        	    <div>
-			    	        	    	<a style="display:flex; align-items:center; color:black; text-decoration: none;  " href="<%= ctxPath%>/mypage/myinfo?targetUserId=${user.userId}">
+			    	        	    	<a style="display:flex; align-items:center; color:black; text-decoration: none;  " href="${ctxPath}mypage/myinfo?targetUserId=${user.userId}">
 				    	        	        <span>
 				    	        	            <img style="width: 100px; height: 100px; object-fit: cover; border: 2px solid #ddd;" 
 				    	        	                 class="rounded-circle mr-4 profile-img" src="${user.profile_image}"/>
@@ -231,7 +231,7 @@ function getfollowing() {
 function getfollower() {
     const apiRequest = AuthFunc.apiRequest;
     const authHeader = AuthFunc.getAuthHeader;
-
+	const ctxPath = "http://localhost:8080/";
     apiRequest(() =>
         new Promise((resolve, reject) => {
 
@@ -297,7 +297,7 @@ function getfollower() {
                         let v_html = `
 		    	        	<div class="followInfo row">
 		    	        	    <div>
-			    	        	    	<a style="display:flex; align-items:center; color:black; text-decoration: none;" href="<%= ctxPath%>/mypage/myinfo?targetUserId=${user.userId}">
+			    	        	    	<a style="display:flex; align-items:center; color:black; text-decoration: none;" href="${ctxPath}mypage/myinfo?targetUserId=${user.userId}">
 			    	        	        <span>
 			    	        	            <img style="width: 100px; height: 100px; object-fit: cover; border: 2px solid #ddd;" 
 			    	        	                 class="rounded-circle mr-4 profile-img" src="${user.profile_image}"/>
@@ -626,7 +626,7 @@ function block(userId) {
 function searchUser(searchWord) {
     const authHeader = AuthFunc.getAuthHeader;
     const apiRequest = AuthFunc.apiRequest;
-
+	const ctxPath = "http://localhost:8080/";
     apiRequest(() =>
     	new Promise((resolve, reject) => {
             $.ajax({
@@ -648,7 +648,7 @@ function searchUser(searchWord) {
                         $.each(json, function (i, follow) {
                             let item = `
 			                        <div class="search-result-item">
-                            			<a style="display:flex; align-items:center; color:black; text-decoration: none;" href="<%= ctxPath%>/mypage/myinfo?targetUserId=${follow.user.userId}">
+                            			<a style="display:flex; align-items:center; color:black; text-decoration: none;" href="${ctxPath}mypage/myinfo?targetUserId=${follow.user.userId}">
 			                            <img style="height:30px; weight:30px;" src="${follow.user.profile_image}"/>
 			                            <div class="user-info ml-3">
 			                                <div><strong>${follow.user.nickname}</strong></div>

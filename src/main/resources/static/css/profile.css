@@ -53,11 +53,11 @@
 
   .song-artist span {
     display: inline-block;
-    padding-right: 100px; /* 여백을 줘서 자연스럽게 연결 */
+    padding-right: 150px; /* 여백을 줘서 자연스럽게 연결 */
   }
 
   .song-artist:hover .scrolling {
-    animation: scroll-loop 8s linear infinite;
+    animation: scroll-loop 10s linear infinite;
   }
 
   .scrolling-wrapper {
@@ -70,7 +70,7 @@
       transform: translateX(0);
     }
     100% {
-      transform: translateX(-30%);
+      transform: translateX(-50%);
     }
   }
 
