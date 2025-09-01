@@ -320,7 +320,7 @@ function adjustScrollPosition(messages) {
     const firstUnreadIndex = messages.findIndex(message => message.oldUnread === true);
     const container = document.getElementById("chatRoomMessages");
     container.scrollTop = container.scrollHeight;
-    container.log("scrollTop:", container.scrollTop, "scrollHeight:", container.scrollHeight);
+    console.log("scrollTop:", container.scrollTop, "scrollHeight:", container.scrollHeight);
 
 
 }
