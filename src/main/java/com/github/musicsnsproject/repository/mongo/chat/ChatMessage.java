@@ -17,17 +17,23 @@ public class ChatMessage {
     private Long userId;
     private String content;
     private long unreadCount;
-    private final List<Long> readBy = new ArrayList<>(); // 읽은 유저 ID 목록
+    private List<Long> readBy;// 읽은 유저 ID 목록
     private LocalDateTime sentAt;
 
-    public static ChatMessage create(String chatRoomId, long senderId, String content, int unreadCount){
+    public static ChatMessage create(String chatRoomId, long senderId, String content, int unreadCount) {
         ChatMessage chatMessage = new ChatMessage();
         chatMessage.chatRoomId = chatRoomId;
         chatMessage.userId = senderId;
-        chatMessage.readBy.add(senderId);
         chatMessage.content = content;
         chatMessage.unreadCount = unreadCount;
         chatMessage.sentAt = LocalDateTime.now();
+        chatMessage.readBy = new ArrayList<>();
+        chatMessage.readBy.add(senderId);
         return chatMessage;
+    }
+
+    public void addReadBy(Long userId) {
+        readBy.add(userId);
+        unreadCount = Math.max(0, unreadCount - 1);
     }
 }

@@ -1,6 +1,7 @@
 package com.github.musicsnsproject.web.dto.chat;
 
 import com.github.musicsnsproject.repository.mongo.chat.ChatMessage;
+import com.github.musicsnsproject.web.dto.chat.room.ReceiversInfo;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
@@ -23,6 +24,16 @@ public class ChatRoomListResponse {
         chatRoomListResponse.lastMessageTime = chatMessage.getSentAt();
 
         chatRoomListResponse.unreadCount = unreadCount;
+        return chatRoomListResponse;
+    }
+    public static ChatRoomListResponse fromSendResponse(ChatRoomSendResponse sendResponse, ReceiversInfo receiversInfo) {
+        ChatRoomListResponse chatRoomListResponse = new ChatRoomListResponse();
+        chatRoomListResponse.chatRoomId = sendResponse.getChatRoomId();
+        chatRoomListResponse.otherUsers = receiversInfo.getOtherUsers();
+        chatRoomListResponse.lastMessage = sendResponse.getLastMessage();
+        chatRoomListResponse.lastMessageTime = sendResponse.getSentAt();
+
+        chatRoomListResponse.unreadCount = receiversInfo.getUnreadCount();
         return chatRoomListResponse;
     }
 

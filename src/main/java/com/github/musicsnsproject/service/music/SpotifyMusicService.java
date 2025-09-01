@@ -214,6 +214,10 @@ public class SpotifyMusicService {
         Track track = spotifyDao.findTrackById(trackId);
         return convertToTrackResponseV1(track);
     }
+    public TrackResponse getTrackResponseV2ById(String trackId) {
+        Track track = spotifyDao.findTrackById(trackId);
+        return convertToTrackResponse(track);
+    }
 
 
     private void artistArrToRecommendArtistList(ArtistSimplified[] artistArr, List<RecommendSearch.RecommendArtist> response){

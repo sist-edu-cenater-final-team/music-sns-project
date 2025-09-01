@@ -4,6 +4,8 @@
 <link rel="stylesheet" href="<%=ctxPath%>/css/profile.css" />
 <link rel="stylesheet" href="<%=ctxPath%>/css/music/search/search.css" />
 <script type="text/javascript" src="<%=ctxPath%>/js/music/search/search.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sockjs-client/dist/sockjs.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/stompjs/lib/stomp.min.js"></script>
 
 <style type="text/css">
 
@@ -233,6 +235,45 @@ button:focus {
         </div>
     </div>
 </div>
+<%--채팅방 내부 모달--%>
+<!-- 채팅방 모달 -->
+<div class="modal fade" id="chatRoomModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-slide modal-sm">
+        <div class="modal-content chat-room-modal-content">
+            <div class="modal-header">
+                <div class="chat-participants-info">
+                    <div class="participants-images" id="chatRoomParticipantImages">
+                        <!-- JS로 참여자 프로필 이미지들이 렌더링됨 -->
+                    </div>
+                    <div class="participants-names" id="chatRoomParticipantNames">
+                        <!-- JS로 참여자 이름들이 렌더링됨 -->
+                    </div>
+                </div>
+                <button type="button" class="modal-close-btn" data-bs-dismiss="modal" aria-label="닫기">
+                    <i class="bi bi-x"></i>
+                </button>
+            </div>
+            <div class="modal-body p-0">
+                <div class="chat-messages-container" id="chatRoomMessages">
+                    <!-- JS로 메시지들이 렌더링됨 -->
+                </div>
+                <div class="chat-input-container">
+                    <textarea
+                            id="chatMessageInput"
+                            class="chat-input"
+                            placeholder="메시지를 입력하세요..."
+                            rows="1"
+                            onkeydown="handleChatInputKeydown(event)"></textarea>
+                    <button type="button" class="chat-send-btn" onclick="sendChatMessage()">
+                        <i class="bi bi-send-fill"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
 
 <!-- 프로필 확대 모달 -->
 <div class="modal fade" id="profileImageModal" tabindex="-1" aria-hidden="true">
