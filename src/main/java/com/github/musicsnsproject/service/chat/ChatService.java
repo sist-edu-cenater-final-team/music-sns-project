@@ -52,7 +52,7 @@ public class ChatService {
 
 
     /**
-     * 메시지 저장
+     메시지 저장
      */
     public ChatMessageResponse saveMessage(ChatMessageRequest chatMessageRequest, Long senderId) {
         ChatRoom chatRoom = chatRoomRepository.findById(chatMessageRequest.getChatRoomId())
