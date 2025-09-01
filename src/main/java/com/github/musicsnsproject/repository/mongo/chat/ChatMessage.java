@@ -24,11 +24,11 @@ public class ChatMessage {
         ChatMessage chatMessage = new ChatMessage();
         chatMessage.chatRoomId = chatRoomId;
         chatMessage.userId = senderId;
-        chatMessage.readBy.add(senderId);
         chatMessage.content = content;
         chatMessage.unreadCount = unreadCount;
         chatMessage.sentAt = LocalDateTime.now();
         chatMessage.readBy = new ArrayList<>();
+        chatMessage.readBy.add(senderId);
         return chatMessage;
     }
 

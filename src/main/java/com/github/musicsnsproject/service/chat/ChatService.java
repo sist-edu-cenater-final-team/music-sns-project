@@ -194,7 +194,7 @@ public class ChatService {
                 .toList();
     }
 
-    /** 채팅방 메세지 전송 후 반환용 */
+    /** 채팅방 메세지 전송 후 채팅방리스트에 반환용 */
     public ChatRoomSendResponse getSendRoomMessage(String chatRoomId ) {
         ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId)
                 .orElseThrow(() -> CustomNotFoundException.of().request(chatRoomId).customMessage("존재하지 않는 채팅방").build());
@@ -232,7 +232,9 @@ public class ChatService {
         if( chatRoom.isHiddenForUser(userId) )
             throw CustomNotFoundException.of().request(userId).customMessage("채팅방에서 나간 유저").build();
     }
-    @Transactional
+
+
+    @Transactional(readOnly = true)
     public ChatRoomResponse getRoomMessages(String roomId, long userId) {
         ChatRoom chatRoom = chatRoomRepository.findById(roomId)
                 .orElseThrow(() -> CustomNotFoundException.of().request(roomId).customMessage("존재하지 않는 채팅방").build());
@@ -241,21 +243,22 @@ public class ChatService {
         if(messages.isEmpty()) return null;
 
         // 내가 안읽은 메세지들 중 내가 읽은걸로 변경
-        changeUnreadMessagesToRead(messages, userId);
+        String oldUnreadId = changeUnreadMessagesToRead(messages, userId);
         // 참여중인 유저 정보들
         List<ChatUserInfo> participants = myUserRepository.findAllByIdForChatRoom(new HashSet<>(chatRoom.getParticipants()));
         Map<Long, ChatUserInfo> userInfoMap = listToKeyMap(ChatUserInfo::getUserId, participants);
         // 응답용 메세지 리스트
-        List<ChatMessageResponse> chatMessageResponses = chatMessageListToResponseList(messages, userInfoMap);
+        List<ChatMessageResponse> chatMessageResponses = chatMessageListToResponseList(messages, userInfoMap, oldUnreadId);
         return createRoomResponse(userInfoMap, userId, roomId, chatMessageResponses);
 
     }
 
-    private List<ChatMessageResponse> chatMessageListToResponseList(List<ChatMessage> messages, Map<Long, ChatUserInfo> userInfoMap) {
+    private List<ChatMessageResponse> chatMessageListToResponseList(List<ChatMessage> messages, Map<Long, ChatUserInfo> userInfoMap, String oldUnreadId) {
         List<ChatMessageResponse> responses = new ArrayList<>(messages.size());
         for (ChatMessage message : messages) {
             ChatUserInfo senderInfo = userInfoMap.get(message.getUserId());
-            ChatMessageResponse response = ChatMessageResponse.of(senderInfo, message.getContent(), message.getSentAt());
+            boolean oldUnread = message.getChatMessageId().equals(oldUnreadId);
+            ChatMessageResponse response = ChatMessageResponse.of(senderInfo, message.getContent(), message.getSentAt(), oldUnread);
             responses.add(response);
         }
         return responses;
@@ -280,13 +283,15 @@ public class ChatService {
                 .findFirst()
                 .orElseThrow(() -> CustomNotFoundException.of().request(userId).customMessage("채팅방에 참여중이지 않은 유저").build());
     }
-    private void changeUnreadMessagesToRead(List<ChatMessage> messages, Long userId){
+    private String changeUnreadMessagesToRead(List<ChatMessage> messages, Long userId){
         List<ChatMessage> unreadMessages = messages.stream()
                 .filter(msg -> msg.getUnreadCount() > 0 && !msg.getReadBy().contains(userId))
                 .toList();
         if(!unreadMessages.isEmpty()){
             unreadMessages.forEach(msg -> msg.addReadBy(userId));
-            chatMessageRepository.saveAll(unreadMessages);
+//            chatMessageRepository.saveAll(unreadMessages);
+            return unreadMessages.get(0).getChatMessageId();
         }
+        return null;
     }
 }

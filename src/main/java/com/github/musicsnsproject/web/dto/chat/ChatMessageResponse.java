@@ -11,4 +11,5 @@ public class ChatMessageResponse {
     private ChatUserInfo sender;
     private String content;
     private LocalDateTime sentAt;
+    private boolean isOldUnread;
 }

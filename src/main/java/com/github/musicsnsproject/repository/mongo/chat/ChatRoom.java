@@ -49,4 +49,5 @@ public class ChatRoom {
     public boolean isHiddenForUser(long userId){
         return hiddenUserIds.contains(userId);
     }
+
 }

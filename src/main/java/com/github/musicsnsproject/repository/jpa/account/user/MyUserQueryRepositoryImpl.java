@@ -261,7 +261,10 @@ public class MyUserQueryRepositoryImpl implements MyUserQueryRepository {
                 .select(Projections.fields(ChatUserInfo.class,
                         qMyUser.userId,
                         qMyUser.nickname,
-                        qMyUser.profileImage.as("profileImageUrl")
+                        qMyUser.profileImage.as("profileImageUrl"),
+                        qMyUser.username,
+                        qMyUser.profileMessage
+
                 ))
                 .fetch();
         if (response.size() != allOtherIds.size()) {
