@@ -11,6 +11,7 @@ import com.github.musicsnsproject.web.dto.account.auth.response.TokenResponse;
 import com.github.musicsnsproject.web.dto.response.CustomSuccessResponse;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -54,7 +55,9 @@ public class AuthController implements AuthControllerDocs {
     @Override
     @PostMapping("/refresh")
     public ResponseEntity<CustomSuccessResponse<TokenResponse>> regenerateToken(@RequestHeader(AUTH_HEADER_NAME) String authHeader,
-                                                                                @CookieValue(value = REFRESH_COOKIE_NAME) String refreshToken){
+                                                                                @CookieValue(value = REFRESH_COOKIE_NAME) String refreshToken,
+                                                                                HttpServletRequest request){
+        String requestUri = request.getRequestURI();
         String accessToken = authHeaderToToken(authHeader);
         TokenResponse tokenResponse = signUpLoginService.refreshTokenByTokens(accessToken, refreshToken);
         return createResponseEntity(
@@ -68,7 +71,7 @@ public class AuthController implements AuthControllerDocs {
         String accessToken = authHeaderToToken(authHeader);
         ResponseCookie responseCookie = signUpLoginService.logoutInvalidationToken(accessToken);
         CustomSuccessResponse<Void> response = CustomSuccessResponse
-                .emptyDataOk("로그아웃 성공");
+                .emptyDataOk("로그아웃 되었습니다.");
         return createResponseEntity(response, responseCookie);
     }
 

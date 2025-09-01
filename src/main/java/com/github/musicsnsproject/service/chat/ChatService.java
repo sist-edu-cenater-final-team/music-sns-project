@@ -243,7 +243,8 @@ public class ChatService {
         if(messages.isEmpty()) return null;
 
         // 내가 안읽은 메세지들 중 내가 읽은걸로 변경
-        String oldUnreadId = changeUnreadMessagesToRead(messages, userId);
+        List<ChatMessage> unreadMessages = getMyUnreadMessages(messages, userId);
+        String oldUnreadId = changeUnreadMessagesToRead(unreadMessages, userId);
         // 참여중인 유저 정보들
         List<ChatUserInfo> participants = myUserRepository.findAllByIdForChatRoom(new HashSet<>(chatRoom.getParticipants()));
         Map<Long, ChatUserInfo> userInfoMap = listToKeyMap(ChatUserInfo::getUserId, participants);
@@ -258,7 +259,7 @@ public class ChatService {
         for (ChatMessage message : messages) {
             ChatUserInfo senderInfo = userInfoMap.get(message.getUserId());
             boolean oldUnread = message.getChatMessageId().equals(oldUnreadId);
-            ChatMessageResponse response = ChatMessageResponse.of(senderInfo, message.getContent(), message.getSentAt(), oldUnread);
+            ChatMessageResponse response = ChatMessageResponse.of(senderInfo, message.getContent(), message.getSentAt(), message.getUnreadCount(), oldUnread);
             responses.add(response);
         }
         return responses;
@@ -283,10 +284,13 @@ public class ChatService {
                 .findFirst()
                 .orElseThrow(() -> CustomNotFoundException.of().request(userId).customMessage("채팅방에 참여중이지 않은 유저").build());
     }
-    private String changeUnreadMessagesToRead(List<ChatMessage> messages, Long userId){
-        List<ChatMessage> unreadMessages = messages.stream()
+    private List<ChatMessage> getMyUnreadMessages(List<ChatMessage> messages, Long userId){
+        return messages.stream()
+                .filter(msg -> !msg.getUserId().equals(userId)) // 내가 보낸 메세지 제외
                 .filter(msg -> msg.getUnreadCount() > 0 && !msg.getReadBy().contains(userId))
                 .toList();
+    }
+    private String changeUnreadMessagesToRead(List<ChatMessage> unreadMessages, Long userId){
         if(!unreadMessages.isEmpty()){
             unreadMessages.forEach(msg -> msg.addReadBy(userId));
 //            chatMessageRepository.saveAll(unreadMessages);
