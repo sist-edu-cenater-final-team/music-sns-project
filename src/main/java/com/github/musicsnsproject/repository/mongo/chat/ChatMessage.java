@@ -1,5 +1,6 @@
 package com.github.musicsnsproject.repository.mongo.chat;
 
+import com.github.musicsnsproject.web.dto.chat.ChatMessageRequest;
 import lombok.Getter;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -20,15 +21,14 @@ public class ChatMessage {
     private List<Long> readBy;// 읽은 유저 ID 목록
     private LocalDateTime sentAt;
 
-    public static ChatMessage create(String chatRoomId, long senderId, String content, int unreadCount) {
+    public static ChatMessage create(ChatMessageRequest request, long senderId, int unreadCount) {
         ChatMessage chatMessage = new ChatMessage();
-        chatMessage.chatRoomId = chatRoomId;
+        chatMessage.chatRoomId = request.getChatRoomId();
         chatMessage.userId = senderId;
-        chatMessage.content = content;
+        chatMessage.content = request.getContent();
         chatMessage.unreadCount = unreadCount;
         chatMessage.sentAt = LocalDateTime.now();
         chatMessage.readBy = new ArrayList<>();
-        chatMessage.readBy.add(senderId);
         return chatMessage;
     }
 

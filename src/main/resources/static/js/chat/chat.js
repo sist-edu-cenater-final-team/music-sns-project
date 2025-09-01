@@ -399,9 +399,6 @@ async function adjustScrollPositionAfterPaint(messages) {
         // 2) 없으면 맨 아래
         container.scrollTop = container.scrollHeight;
     }
-
-    // 디버깅 로그
-    console.log("scrollTop:", container.scrollTop, "scrollHeight:", container.scrollHeight);
 }
 
 

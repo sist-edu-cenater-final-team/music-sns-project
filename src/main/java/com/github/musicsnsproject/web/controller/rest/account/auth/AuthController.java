@@ -55,9 +55,8 @@ public class AuthController implements AuthControllerDocs {
     @Override
     @PostMapping("/refresh")
     public ResponseEntity<CustomSuccessResponse<TokenResponse>> regenerateToken(@RequestHeader(AUTH_HEADER_NAME) String authHeader,
-                                                                                @CookieValue(value = REFRESH_COOKIE_NAME) String refreshToken,
-                                                                                HttpServletRequest request){
-        String requestUri = request.getRequestURI();
+                                                                                @CookieValue(value = REFRESH_COOKIE_NAME) String refreshToken
+                                                                                ){
         String accessToken = authHeaderToToken(authHeader);
         TokenResponse tokenResponse = signUpLoginService.refreshTokenByTokens(accessToken, refreshToken);
         return createResponseEntity(

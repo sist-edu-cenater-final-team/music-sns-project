@@ -208,6 +208,6 @@ public interface AuthControllerDocs {
                                     }""")
             )
     )
-    ResponseEntity<CustomSuccessResponse<TokenResponse>> regenerateToken(String authHeader, String refreshToken, HttpServletRequest request);
+    ResponseEntity<CustomSuccessResponse<TokenResponse>> regenerateToken(String authHeader, String refreshToken);
 
 }

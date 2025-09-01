@@ -43,12 +43,6 @@ public class ChatService {
         List<Long> participants = Stream.of(loginUserId, targetUserId)
                 .sorted().toList();
 
-        ChatRoom chatRoom = chatRoomRepository.findByParticipants(participants)
-                .orElseGet(() -> {
-                    ChatRoom room = ChatRoom.create(participants);
-                    return chatRoomRepository.save(room);
-                });
-
         return chatRoomRepository.findByParticipants(participants)
                 .orElseGet(() -> {
                     ChatRoom room = ChatRoom.create(participants);
@@ -60,21 +54,21 @@ public class ChatService {
     /**
      * 메시지 저장
      */
-    public ChatMessage sendMessage(String chatRoomId, Long senderId, String content) {
-        ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId)
-                .orElseThrow(() -> CustomNotFoundException.of().request(chatRoomId).customMessage("존재하지 않는 채팅방").build());
+    public ChatMessageResponse saveMessage(ChatMessageRequest chatMessageRequest, Long senderId) {
+        ChatRoom chatRoom = chatRoomRepository.findById(chatMessageRequest.getChatRoomId())
+                .orElseThrow(() -> CustomNotFoundException.of().request(chatMessageRequest).customMessage("존재하지 않는 채팅방").build());
+
         Set<Long> otherIds = chatRoom.getParticipants().stream()
                 .filter(id -> !id.equals(senderId))
                 .collect(Collectors.toUnmodifiableSet());
-        List<ChatUserInfo> otherUsers = myUserRepository.findAllByIdForChatRoom(otherIds);
+//        Set<Long> test = listToSet(id->id.equals(senderId), chatRoom.getParticipants(), senderId);
+        ChatMessage message = ChatMessage.create(chatMessageRequest, senderId, otherIds.size());
+        ChatMessage saved = chatMessageRepository.save(message);
+        ChatUserInfo sender = myUserRepository.findAllByIdForChatRoom(Set.of(senderId)).get(0);
 
-
-
-
-        ChatMessage message = ChatMessage.create(chatRoomId, senderId, content, otherUsers.size());
-        chatMessageRepository.save(message);
-        return chatMessageRepository.save(message);
+        return new ChatMessageResponse(saved, sender);
     }
+
 
     /**
      * 대화 내역 조회
@@ -153,6 +147,11 @@ public class ChatService {
         return list.stream()
                 .collect(Collectors.toMap(keyMapper, item -> item));
     }
+//    private <T, R> Set<T> listToSet(Function<R, T> filter, List<R> list, T exclude){
+//        return list.stream()
+//                .filter(mapper)
+//                .collect(Collectors.toUnmodifiableSet());
+//    }
 
 
     /**
@@ -259,7 +258,13 @@ public class ChatService {
         for (ChatMessage message : messages) {
             ChatUserInfo senderInfo = userInfoMap.get(message.getUserId());
             boolean oldUnread = message.getChatMessageId().equals(oldUnreadId);
-            ChatMessageResponse response = ChatMessageResponse.of(senderInfo, message.getContent(), message.getSentAt(), message.getUnreadCount(), oldUnread);
+            ChatMessageResponse response = new ChatMessageResponse(
+                    message.getChatMessageId(),
+                    senderInfo, message.getContent(),
+                    message.getSentAt(),
+                    message.getUnreadCount(),
+                    oldUnread
+            );
             responses.add(response);
         }
         return responses;
