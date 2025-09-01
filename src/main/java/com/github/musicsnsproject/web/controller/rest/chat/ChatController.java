@@ -58,7 +58,7 @@ public class ChatController {
             @RequestBody ChatMessageRequest request,
             @AuthenticationPrincipal Long senderId
     ) {
-        ChatMessage saved = chatService.saveMessage(request, senderId);
+        ChatMessageResponse saved = chatService.saveMessage(request, senderId);
         // 방에 구독 중인 사용자에게 실시간 push
 //        messagingTemplate.convertAndSend("/topic/" + saved.getChatRoomId(), saved);
         ChatRoomSendResponse roomSendInfos = chatService.getSendRoomMessage(request.getChatRoomId());
