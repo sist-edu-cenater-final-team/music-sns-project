@@ -1,0 +1,43 @@
+@charset "UTF-8";
+
+.recommended-music {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.music-item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  padding: 6px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.music-item:hover {
+  background-color: #f5f0ff; /* 연한 보라 hover */
+}
+
+.music-thumb {
+  width: 40px;
+  height: 40px;
+  border-radius: 6px;
+  object-fit: cover;
+  margin-right: 10px;
+}
+
+.music-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.music-title {
+  font-weight: bold;
+  font-size: 14px;
+  color: #6633ff;
+  margin-bottom: 2px;
+}
