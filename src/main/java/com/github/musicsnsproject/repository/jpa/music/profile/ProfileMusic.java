@@ -4,14 +4,20 @@ import com.github.musicsnsproject.repository.jpa.emotion.UserEmotion;
 import com.github.musicsnsproject.repository.jpa.music.MyMusic;
 import com.github.musicsnsproject.repository.jpa.music.purchase.PurchaseHistory;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "profile_musics")
 @Getter
-class ProfileMusic {
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class ProfileMusic {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long profileMusicId;
