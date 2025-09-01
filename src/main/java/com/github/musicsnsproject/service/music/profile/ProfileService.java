@@ -10,5 +10,5 @@ public interface ProfileService {
     List<ProfileMusicResponse> getProfileMusicList(Long userId, String musicId);
 
     // 프로필 음악 추가하기
-    void addProfileMusic(Long userId, String musicId);
+    void addProfileMusic(Long userId, String musicId, Long emotionId);
 }

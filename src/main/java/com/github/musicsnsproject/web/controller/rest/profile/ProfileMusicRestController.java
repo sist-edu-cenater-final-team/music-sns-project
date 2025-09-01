@@ -15,7 +15,7 @@ import java.util.List;
 @RequestMapping("/api/profileMusic")
 public class ProfileMusicRestController {
 
-    ProfileService profileService;
+    private final ProfileService profileService;
 
     @GetMapping("list")
     public ResponseEntity<List<ProfileMusicResponse>> getProfileMusicList(@AuthenticationPrincipal Long userId,
@@ -29,9 +29,10 @@ public class ProfileMusicRestController {
     // 프로필 음악리스트 추가하기
     @PostMapping("add")
     public ResponseEntity<String> addProfileMusic(@AuthenticationPrincipal Long userId,
-                                                  @RequestParam(value = "musicId") String musicId){
+                                                  @RequestParam(value = "musicId") String musicId,
+                                                  @RequestParam(value = "emotionId") Long emotionId){
 
-        profileService.addProfileMusic(userId, musicId);
+        profileService.addProfileMusic(userId, musicId, emotionId);
 
         return ResponseEntity.ok("프로필 음악 추가되었습니다.");
     }

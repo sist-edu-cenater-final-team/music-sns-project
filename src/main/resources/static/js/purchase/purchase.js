@@ -5,7 +5,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
 const purchase = {
     tbody : document.querySelector('#myPurchaseMusicBody'),
-    checkAll : document.querySelector('#purchaseMusicAllCheck'),
+    profileMusicModal : new bootstrap.Modal(document.getElementById("profileMusicModal")),
+    profileMusicModalBody : document.querySelector('#profileMusicModalBody'),
+    selectProfileMusic : document.querySelector('#selectProfileMusic'),
     createList : (pageNo) => {
         console.log("넘긴거 받았어요~~!! :: ", pageNo);
         // 스프링 시큐리티 인증 토큰을 헤더에 추가하여 주문 목록 요청
@@ -54,22 +56,102 @@ const purchase = {
                         <p class="music-artist">${item.albumName}</p>
                     </td>
                     <td class="btn-form">
-                        <button type="button" class="btn btn-set-profile" onclick='purchase.addProfileMusic("${item.musicId}")'>설정하기</button>
+                        <button type="button" class="btn btn-set-profile" onclick="purchase.openProfileMusicModal(this, '${item.musicId}')">설정하기</button>
                     </td>
                 </tr>
             `;
         });
-
         purchase.tbody.innerHTML = HTML;
 
-
-        // 체크박스 이벤트 연결
-        //purchase.initCheckEvents();
     },
-    addProfileMusic : (musicId) => {
-        console.log("프로필 음악아읻 : ", musicId);
+    openProfileMusicModal : (el, musicId) => {
+
+        // 프로필 설정 팝업 열기
+        purchase.profileMusicModal.show();
+
+        // emotions 있는지 체크
+        const emotions = purchase.profileMusicModalBody.querySelector(".emotions");
+        if (!emotions) return;
+
+        // 기본 감정
+        const defaultEmotion = "CALM";
+        const defaultEmotionId = 0;
+        const buttons = emotions.querySelectorAll(".btn");
+
+        // 기본 활성화 설정
+        let activated = false;
+        buttons.forEach((item) => {
+            const isDefault = item.dataset.emotion === defaultEmotion;
+            item.classList.toggle("active", isDefault);
+            activated = activated || isDefault;
+        });
+        if (!activated && buttons.length) {
+            buttons[0].classList.add("active");
+        }
+
+        // 현재 선택된 감정값
+        const activeBtn = emotions.querySelector(".btn.active");
+        let btnValue = activeBtn?.dataset.emotion || defaultEmotion;
+        let btnIndex = activeBtn ? Array.from(buttons).indexOf(activeBtn) : -1;
+
+        // 클릭 이벤트로 갱신
+        emotions.onclick = (e) => {
+            const btn = e.target.closest(".btn");
+            if (!btn) return;
+
+            buttons.forEach((item) => item.classList.remove("active"));
+            btn.classList.add("active");
+
+            btnValue = btn.dataset.emotion || defaultEmotion;
+            btnIndex = Array.from(buttons).indexOf(btn);
+
+        };
+
+        // 모달 오픈 시점 값 확인
+        const current = emotions.querySelector(".btn.active")?.dataset.emotion || defaultEmotion;
+        console.log("btnValue (open):", current, "musicId:", musicId);
+
+        // 클릭한 요소 기준으로 TR 찾기
+        const row = el.closest("tr");
+        if (!row) return;
+
+        const musicContent = row.querySelectorAll("td:not(.btn-form)");
+
+        let html = "";
+        musicContent.forEach(cell => {
+            html += cell.outerHTML; // 셀 자체를 복사
+        });
+
+        purchase.selectProfileMusic.innerHTML = `
+                                                <div class="select-music-wrapper">${html}</div>
+                                                <div class="btn-form">
+                                                    <button type="button" class="btn btn-set-profile">프로필 음악 추가하기</button>
+                                                </div>
+                                                `;
+
+        purchase.selectProfileMusic.querySelector(".btn-set-profile").onclick = () => {
+            //console.log("btnIndex "+btnIndex + " musicId : "+ musicId);
+            purchase.addProfileMusic(btnIndex, musicId);
+        };
+
+    },
+    closeProfileMusicModal : () => {
+        purchase.profileMusicModal.hide();
+        const btnEmotions = purchase.profileMusicModalBody.querySelectorAll(".emotions .btn");
+
+        btnEmotions.forEach(btn => {
+            btn.classList.remove("active")
+        });
+
+        // 첫 번째 버튼에만 active 추가 (존재할 때만)
+        if (btnEmotions.length > 0) {
+            btnEmotions[0].classList.add("active");
+        }
+
+    },
+    addProfileMusic : (emotionId, musicId) => {
         return AuthFunc.apiRequest(() =>
-            axios.post(`${ctxPath}/api/profileMusic/add?musicId=${musicId}`,{}, {
+            axios.post(`${ctxPath}/api/profileMusic/add?musicId=${musicId}&emotionId=${emotionId}`,{}, {
                 headers: AuthFunc.getAuthHeader()
             })
         )
@@ -89,38 +171,6 @@ const purchase = {
                 }
             }
         });
-    },
-    initCheckEvents: () => {
-        const rowChecks = purchase.tbody.querySelectorAll('input[name="musicCheck"]');
-
-        // 전체 선택 클릭 시
-        purchase.checkAll.addEventListener('change', () => {
-            rowChecks.forEach(item => item.checked = purchase.checkAll.checked);
-            purchase.updateMasterState();
-        });
-
-        // 개별 체크박스 클릭 시
-        rowChecks.forEach(item => {
-            item.addEventListener('change', () => purchase.updateMasterState());
-        });
-
-        // 초기 상태 반영
-        purchase.updateMasterState();
-    },
-    updateMasterState: () => {
-        const rowChecks = purchase.tbody.querySelectorAll('input[name="musicCheck"]');
-        const checkedCount = purchase.tbody.querySelectorAll('input[name="musicCheck"]:checked').length;
-
-        if (checkedCount === 0) {
-            purchase.checkAll.checked = false;
-            purchase.checkAll.indeterminate = false;
-        } else if (checkedCount === rowChecks.length) {
-            purchase.checkAll.checked = true;
-            purchase.checkAll.indeterminate = false;
-        } else {
-            purchase.checkAll.checked = false;
-            purchase.checkAll.indeterminate = true;
-        }
     },
     // 리뷰리스트 페이지네이션 보여주기
     paginationCall : (currentPage, totalPages) => {
