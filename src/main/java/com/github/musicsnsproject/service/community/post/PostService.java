@@ -54,7 +54,7 @@ public class PostService {
 
     }
 
-    //
+    @Transactional(readOnly = true)
     public List<FollowPostVO> followPostSelect(Long userId) {
 
         List<FollowPostVO> followPostVOList = postRepository.findFollowPostByUserId(userId);
