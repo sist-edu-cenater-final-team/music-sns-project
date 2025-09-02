@@ -69,7 +69,7 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
         return EXCEPTION_MESSAGES.getOrDefault(resolvedException.getClass(), DEFAULT_ERROR_MESSAGE);
 
     }
-    private CustomErrorResponse<String> generateErrorResponse(String systemMessage, String customMessage, String request) {
+    public CustomErrorResponse<String> generateErrorResponse(String systemMessage, String customMessage, String request) {
         return CustomErrorResponse.<String>builder()
                 .httpStatus(HttpStatus.UNAUTHORIZED)
                 .systemMessage(systemMessage)

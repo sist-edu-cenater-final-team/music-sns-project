@@ -1,124 +1,71 @@
 // const apiRequest = AuthFunc.apiRequest;
 // const authHeader = AuthFunc.getAuthHeader;
 
-let chatRoomId = null;
 let loginUserId = null;
-AuthFunc.primaryKey().then(pk => {
+AuthFunc.primaryKey().then(async pk => {
     loginUserId = pk;
-    console.log(loginUserId + "님 환영합니다!");
-    subscribeChatRoom();
+    console.log(pk + "님 환영합니다!");
+    await connectStomp(pk)
+    await subscribeChatRoom(pk);
     // subscribeChatMessage("68b295afd79c160bedea0603");
 });
 
 
-const socket = new SockJS("/ws-chat");
-const stompClient = Stomp.over(socket);
+let stompClient = null;
 
 //소켓 준비 대기
-async function waitForSockJsAndStomp() {
-    while (!(window.SockJS && window.Stomp)) {
-        await new Promise(resolve => setTimeout(resolve, 50));
-    }
-}
+// async function waitForSockJsAndStomp() {
+//     while (!(window.SockJS && window.Stomp)) {
+//         await new Promise(resolve => setTimeout(resolve, 50));
+//     }
+// }
+function connectStomp(pk) {
+    return new Promise((resolve, reject) => {
 
-function connectStomp() {
-    return AuthFunc.apiRequest(() =>
-        new Promise((resolve, reject) => {
-            if (stompClient.connected) return resolve();
-            stompClient.connect(AuthFunc.getAuthHeader(), resolve, reject);
-        })
-    );
-}
+        const socket = new SockJS("/ws-chat");
+        stompClient = Stomp.over(socket);
+        const principalHeader = {principal: pk};
+        console.log("WebSocket 연결 시도...", principalHeader);
 
-function subscribeChatRoom() {
-    connectStomp().then(() => {
-        stompClient.subscribe("/rooms/" + loginUserId, (response) => {
-            // console.log("채팅방 목록 업데이트 메시지 수신:", JSON.parse(response.body));
-            const data = JSON.parse(response.body).success.responseData;
-
-            renderChatRoom(data);
-        });
-    }).catch(error => {
-        console.error(error)
+        stompClient.connect(
+            principalHeader,
+            () => {
+                console.log("WebSocket 연결 성공");
+                resolve(); // 연결 완료 시 Promise resolve
+            },
+            (error) => {
+                console.error("WebSocket 연결 실패:", error);
+                reject(error);
+            }
+        );
     });
 }
+
+function subscribeChatRoom(pk) {
+    stompClient.subscribe("/rooms/" + pk, (response) => {
+        // console.log("채팅방 목록 업데이트 메시지 수신:", JSON.parse(response.body));
+        const data = JSON.parse(response.body).success.responseData;
+
+        renderChatRoom(data);
+    });
+}
+
+let currentChatRoomSubscription = null; // 현재 채팅방 구독 객체 저장
 
 function subscribeChatMessage(roomId) {
-    connectStomp().then(() => {
-        stompClient.subscribe("/chat/" + roomId, (response) => {
-            console.log(JSON.parse(response.body))
-        });
-    }).catch(error => {
-        console.error(error)
+    // 기존 구독이 있으면 해제
+    if (currentChatRoomSubscription) {
+        currentChatRoomSubscription.unsubscribe();
+    }
+    // 새로운 구독 등록 및 저장
+    currentChatRoomSubscription = stompClient.subscribe("/chat/" + roomId, (response) => {
+        console.log(typeof response)
+        if (!isNaN(response))
+            console.log("누군가 들어왔어 " + response)
+        console.log(JSON.parse(response.body))
     });
 }
 
-
-function createRoom() {
-    const userId = document.getElementById("roomIdInput").value;
-    if (!userId) return;
-    AuthFunc.apiRequest(() =>
-        axios.post("/api/chat/room",
-            {},
-            {
-                headers: AuthFunc.getAuthHeader(),
-                params: {targetUserId: userId}
-            }
-        )
-    ).then(res => {
-        chatRoomId = res.data.success.responseData.chatRoomId;
-
-        alert("채팅방 생성됨! 방 ID: " + chatRoomId);
-        connectRoom(chatRoomId);
-    });
-
-}
-
-function connectRoom(roomId) {
-
-    // jwt는 헤더에 Authorization: Bearer ... 로 붙음
-    AuthFunc.apiRequest(() =>
-        new Promise((resolve, reject) => {
-            stompClient.connect(AuthFunc.getAuthHeader(), () => {
-                stompClient.subscribe("/topic/" + roomId, (message) => {
-                    console.log(message);
-                    const msg = JSON.parse(message.body);
-                    showMessage(msg);
-                });
-                alert("채팅방 " + roomId + " 연결됨!");
-                resolve(); // 성공 시 resolve
-            }, (error) => {
-                reject(error); // 에러 발생 시 reject
-            });
-        })
-    ).catch(error => {
-        console.error("STOMP 연결 실패:", error);
-    });
-
-}
-
-function send() {
-    const content = document.getElementById("messageInput").value;
-    if (!content) return;
-
-    const requestBody = {
-        chatRoomId: chatRoomId,
-        content: content
-    };
-
-    AuthFunc.apiRequest(() =>
-        axios.post("/api/chat/message",
-            requestBody,
-            {
-                headers: AuthFunc.getAuthHeader()
-            }
-        )
-    ).then(res => {
-        console.log("보낸 메시지:", res);
-    });
-
-    document.getElementById("messageInput").value = "";
-}
 
 function showMessage(msg) {
     const chatBox = document.getElementById("chatBox");
@@ -131,6 +78,16 @@ function showMessage(msg) {
 
 
 document.addEventListener("DOMContentLoaded", function () {
+    const chatRoomModal = document.getElementById('chatRoomModal');
+    // 모달이 완전히 닫혔을 때 구독 해제
+    chatRoomModal.addEventListener('hidden.bs.modal', function () {
+        if (currentChatRoomSubscription) {
+            console.log('채팅방 구독 해제');
+            currentChatRoomSubscription.unsubscribe();
+            currentChatRoomSubscription = null;
+        }
+    });
+
 
     // 서버에서 채팅방 리스트 가져오기
     AuthFunc.apiRequest(() =>
@@ -239,6 +196,7 @@ function openChatRoom(roomId) {
         chatRoomModal.show();
 
         // 채팅방 구독
+        console.log(roomId + ' 구독 시작');
         subscribeChatMessage(roomId);
 
     }).catch(error => {
@@ -349,6 +307,7 @@ function renderChatRoomModal(roomData) {
         }, {once: true});
     }
 }
+
 function waitImages(container) {
     const imgs = Array.from(container.querySelectorAll('img'));
     const pendings = imgs.filter(img => !img.complete);
@@ -357,10 +316,12 @@ function waitImages(container) {
 
     return new Promise(resolve => {
         let left = pendings.length;
-        const done = () => { if (--left === 0) resolve(); };
+        const done = () => {
+            if (--left === 0) resolve();
+        };
         pendings.forEach(img => {
-            img.addEventListener('load', done, { once: true });
-            img.addEventListener('error', done, { once: true });
+            img.addEventListener('load', done, {once: true});
+            img.addEventListener('error', done, {once: true});
         });
     });
 }
@@ -400,9 +361,6 @@ async function adjustScrollPositionAfterPaint(messages) {
         container.scrollTop = container.scrollHeight;
     }
 }
-
-
-
 
 
 // 메시지 전송

@@ -52,7 +52,7 @@ public class SecurityConfig {
                 })
                 .authorizeHttpRequests(a->a
                 		.requestMatchers("/api/admin/**").hasRole("ADMIN")
-                        .requestMatchers("/api/chat/**", "/api/auth/pk", "/api/music/*/chart", "/chat/*", "/rooms/*").authenticated()
+                        .requestMatchers("/api/chat/**", "/api/auth/pk", "/api/music/*/chart").authenticated()
                         .requestMatchers("/api/test/3").hasAnyRole("ADMIN","SUPER_USER")
                         .requestMatchers("/api/auth/authorize-test").hasRole("ADMIN")
                         .requestMatchers("/api/auth/auth-test", "/api/account/*/api","/api/userInfo/**","/api/follow/**", "/api/cart/**", "/api/order/**", "/api/purchaseMusic/**", "/api/profileMusic/**", "/api/post/**").authenticated()

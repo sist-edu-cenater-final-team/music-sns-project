@@ -44,9 +44,7 @@ public class JwtFilter extends OncePerRequestFilter {
                 ||request.getRequestURI().contains("/api-docs")
                 ||(request.getRequestURI().startsWith("/api/auth")&&!request.getRequestURI().startsWith("/api/auth/pk"))
                 ||
-                (!request.getRequestURI().startsWith("/api") && // /api가 아니고 chat, rooms 도 아니면 필터 적용 안함
-                        !request.getRequestURI().startsWith("/chat") &&
-                        !request.getRequestURI().startsWith("/rooms"));
+                !request.getRequestURI().startsWith("/api");
     }
 
 

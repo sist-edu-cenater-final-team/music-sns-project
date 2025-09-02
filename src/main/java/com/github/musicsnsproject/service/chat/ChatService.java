@@ -21,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -32,9 +33,6 @@ public class ChatService {
     private final MyUserRepository myUserRepository;
     private final MongoTemplate mongoTemplate;
 
-    /**
-     * 두 유저의 채팅방 조회 or 새로 생성
-     */
     public ChatRoom getOrCreateChatRoom(Long loginUserId, Long targetUserId) {
         List<UserStatus> activeStatuses = List.of(UserStatus.NORMAL, UserStatus.LOCK);
         boolean isUser = myUserRepository.existsByUserId_AndStatusIn(targetUserId, activeStatuses);
@@ -54,27 +52,18 @@ public class ChatService {
     /**
      메시지 저장
      */
-    public ChatMessageResponse saveMessage(ChatMessageRequest chatMessageRequest, Long senderId) {
+    public ChatMessageResponse saveMessage(ChatMessageRequest chatMessageRequest, Long senderId, Set<Long> activeReceiverIds) {
         ChatRoom chatRoom = chatRoomRepository.findById(chatMessageRequest.getChatRoomId())
                 .orElseThrow(() -> CustomNotFoundException.of().request(chatMessageRequest).customMessage("존재하지 않는 채팅방").build());
-
-        Set<Long> otherIds = chatRoom.getParticipants().stream()
-                .filter(id -> !id.equals(senderId))
+        Set<Long> otherIds = listToFilterStream(id -> !id.equals(senderId), chatRoom.getParticipants())
                 .collect(Collectors.toUnmodifiableSet());
-//        Set<Long> test = listToSet(id->id.equals(senderId), chatRoom.getParticipants(), senderId);
-        ChatMessage message = ChatMessage.create(chatMessageRequest, senderId, otherIds.size());
+        Set<Long> otherActiveIds = listToFilterStream(id -> !id.equals(senderId), activeReceiverIds)
+                .collect(Collectors.toUnmodifiableSet());
+        ChatMessage message = ChatMessage.create(chatMessageRequest, senderId, otherIds.size(), otherActiveIds);
         ChatMessage saved = chatMessageRepository.save(message);
         ChatUserInfo sender = myUserRepository.findAllByIdForChatRoom(Set.of(senderId)).get(0);
 
-        return new ChatMessageResponse(saved, sender);
-    }
-
-
-    /**
-     * 대화 내역 조회
-     */
-    public List<ChatMessage> getMessages(String chatRoomId) {
-        return chatMessageRepository.findByChatRoomIdOrderBySentAtAsc(chatRoomId);
+        return ChatMessageResponse.of(saved, sender, false);
     }
 
 
@@ -135,23 +124,20 @@ public class ChatService {
 
     private Set<Long> chatRoomToOtherIdList(List<ChatRoom> chatRooms, Long userId) {
         return chatRooms.stream()
-                .flatMap(chatRoom -> chatRoom.getParticipants().stream()
-                        .filter(id -> !id.equals(userId)))
-                .distinct()
+                .flatMap(chatRoom ->
+                        listToFilterStream(id -> !id.equals(userId), chatRoom.getParticipants()))
                 .collect(Collectors.toUnmodifiableSet());
     }
-
 
 
     private <T, R> Map<T, R> listToKeyMap(Function<R, T> keyMapper, List<R> list) {
         return list.stream()
                 .collect(Collectors.toMap(keyMapper, item -> item));
     }
-//    private <T, R> Set<T> listToSet(Function<R, T> filter, List<R> list, T exclude){
-//        return list.stream()
-//                .filter(mapper)
-//                .collect(Collectors.toUnmodifiableSet());
-//    }
+    private <T> Stream<T> listToFilterStream(Predicate<T> predicate, Collection<T> list) {
+        return list.stream()
+                .filter(predicate);
+    }
 
 
     /**
@@ -188,8 +174,7 @@ public class ChatService {
     public List<Long> otherIdsInRoom(String chatRoomId, Long senderId) {
         ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId)
                 .orElseThrow(() -> CustomNotFoundException.of().request(chatRoomId).customMessage("존재하지 않는 채팅방").build());
-        return chatRoom.getParticipants().stream()
-                .filter(id -> !id.equals(senderId))
+        return listToFilterStream(id-> !id.equals(senderId), chatRoom.getParticipants())
                 .toList();
     }
 
@@ -210,8 +195,8 @@ public class ChatService {
     private List<ReceiversInfo> crateReceiversInfo(List<ChatUserInfo> allUserInfos, String chatRoomId) {
         List<ReceiversInfo> receivers = new ArrayList<>(allUserInfos.size());
         for (ChatUserInfo userInfo : allUserInfos) {
-            List<ChatUserInfo> otherInfos = allUserInfos.stream()
-                    .filter(info -> info.getUserId() != userInfo.getUserId() )
+            List<ChatUserInfo> otherInfos =
+                    listToFilterStream(info -> info.getUserId() != userInfo.getUserId(), allUserInfos)
                     .toList();
             UnreadCount unreadCount = chatMessageRepository
                     .countUnreadByChatRoomIds(Set.of(chatRoomId), userInfo.getUserId())
@@ -258,40 +243,38 @@ public class ChatService {
         for (ChatMessage message : messages) {
             ChatUserInfo senderInfo = userInfoMap.get(message.getUserId());
             boolean oldUnread = message.getChatMessageId().equals(oldUnreadId);
-            ChatMessageResponse response = new ChatMessageResponse(
-                    message.getChatMessageId(),
-                    senderInfo, message.getContent(),
-                    message.getSentAt(),
-                    message.getUnreadCount(),
+            ChatMessageResponse response = ChatMessageResponse.of(
+                    message,
+                    senderInfo,
                     oldUnread
             );
+
             responses.add(response);
         }
         return responses;
     }
 
     private ChatRoomResponse createRoomResponse(Map<Long,ChatUserInfo> userInfoMap, long userId, String roomId, List<ChatMessageResponse> messageResponse) {
-        ChatUserInfo me = userInfoMap.get(userId);
-        List<ChatUserInfo> otherUsers = userInfoMap.values().stream()
-                .filter(userInfo -> userInfo.getUserId() != userId )
-                .toList();
-        return new ChatRoomResponse(roomId, me, otherUsers, messageResponse);
+        List<ChatUserInfo> otherUsers = listToFilterStream(
+                userinfo -> userinfo.getUserId() != userId,
+                userInfoMap.values()
+        ).toList();
+        return new ChatRoomResponse(roomId, userInfoMap.get(userId), otherUsers, messageResponse);
     }
 
     private List<ChatUserInfo> getOtherUsersInfo(List<ChatUserInfo> participants, long userId) {
-        return participants.stream()
-                .filter(userInfo -> userInfo.getUserId() != userId )
+        return listToFilterStream(userInfo -> userInfo.getUserId() != userId, participants)
                 .toList();
     }
     private ChatUserInfo getMeInfo(List<ChatUserInfo> participants, long userId) {
-        return participants.stream()
-                .filter(userInfo -> userInfo.getUserId() == userId )
+        return listToFilterStream(userInfo ->
+                userInfo.getUserId() == userId, participants)
                 .findFirst()
                 .orElseThrow(() -> CustomNotFoundException.of().request(userId).customMessage("채팅방에 참여중이지 않은 유저").build());
     }
     private List<ChatMessage> getMyUnreadMessages(List<ChatMessage> messages, Long userId){
-        return messages.stream()
-                .filter(msg -> !msg.getUserId().equals(userId)) // 내가 보낸 메세지 제외
+
+        return listToFilterStream(msg -> !msg.getUserId().equals(userId), messages) // 내가 보낸 메세지 제외
                 .filter(msg -> msg.getUnreadCount() > 0 && !msg.getReadBy().contains(userId))
                 .toList();
     }

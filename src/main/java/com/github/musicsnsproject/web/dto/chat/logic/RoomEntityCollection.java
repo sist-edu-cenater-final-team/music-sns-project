@@ -26,6 +26,7 @@ public class RoomEntityCollection {
 
     public void setField(List<ChatUserInfo> userInfos, List<UnreadCount> unreadCounts, List<ChatMessage> chatMessages, Long loginUserId) {
         Map<Long, ChatUserInfo> otherUserInfoMap = listToKeyMap(ChatUserInfo::getUserId, userInfos);
+
         setOtherUserInfoListMap(otherUserInfoMap, loginUserId);
         this.unreadCountMap = listToKeyMap(UnreadCount::getChatRoomId, unreadCounts);
         this.chatMessages = chatMessages;

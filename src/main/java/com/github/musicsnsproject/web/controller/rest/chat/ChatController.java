@@ -7,10 +7,15 @@ import com.github.musicsnsproject.web.dto.chat.*;
 import com.github.musicsnsproject.web.dto.response.CustomSuccessResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.messaging.simp.user.SimpUser;
+import org.springframework.messaging.simp.user.SimpUserRegistry;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/chat")
@@ -18,28 +23,30 @@ import java.util.List;
 public class ChatController {
     private final ChatService chatService;
     private final SimpMessagingTemplate messagingTemplate;
-    //나의 채팅목록 조회
+    private final SimpUserRegistry userRegistry;
+
     @GetMapping("/my-rooms")
     public CustomSuccessResponse<List<ChatRoomListResponse>> getMyChatRooms(@AuthenticationPrincipal Long userId){
         List<ChatRoomListResponse> roomResponses = chatService.getMyChatRoomList(userId);
         return CustomSuccessResponse.ofOk("나의 채팅방 목록 조회 성공", roomResponses);
     }
+
     @GetMapping("/{roomId}")
     public CustomSuccessResponse<ChatRoomResponse> getRoomMessages(
             @PathVariable String roomId,
             @AuthenticationPrincipal Long userId
     ) {
         ChatRoomResponse messages = chatService.getRoomMessages(roomId, userId);
+        messagingTemplate.convertAndSend("/chat/"+roomId, userId);
         return CustomSuccessResponse.ofOk("채팅방 메세지 조회 성공", messages);
     }
 
 
 
-    // 채팅방 생성 or 조회
     @PostMapping("/room")
     public CustomSuccessResponse<ChatRoom> getOrCreateRoom(
             @RequestParam Long targetUserId,
-            @AuthenticationPrincipal Long userId // JWT 인증된 유저
+            @AuthenticationPrincipal Long userId
     ) {
         ChatRoom room = chatService.getOrCreateChatRoom(userId, targetUserId);
         return CustomSuccessResponse.ofOk("채팅방 조회 성공", room);
@@ -51,6 +58,28 @@ public class ChatController {
             messagingTemplate.convertAndSend("/rooms/"+receiver.getReceiverId(), CustomSuccessResponse.ofOk("신규 메세지 반영 채팅방", response));
         });
     }
+    private Set<Long> getActiveUsersInRoom(String roomId) {
+        Set<SimpUser> test = userRegistry.getUsers();
+        for(SimpUser user : test){
+            user.getSessions().forEach(session -> {
+                session.getSubscriptions().forEach(subscription -> {
+                    String dest = subscription.getDestination();
+                    System.out.println("User: " + user.getName() + ", Subscription Destination: " + dest);
+                });
+            });
+        }
+        return userRegistry.getUsers().stream()
+                .filter(user -> user.getSessions().stream()
+                        .anyMatch(session -> session.getSubscriptions().stream()
+                                .anyMatch(sub -> sub.getDestination().equals("/chat/" + roomId))))
+                .map(simpUser -> Long.parseLong(simpUser.getName()))
+                .collect(Collectors.toSet());
+    }
+    @GetMapping("/active-test")
+    public String activeTest(@RequestParam String roomId){
+        Set<Long> activeUsers = getActiveUsersInRoom(roomId);
+        return "Active users in room " + roomId + ": " + activeUsers;
+    }
 
     // 메시지 보내기
     @PostMapping("/message")
@@ -58,25 +87,22 @@ public class ChatController {
             @RequestBody ChatMessageRequest request,
             @AuthenticationPrincipal Long senderId
     ) {
-        ChatMessageResponse saved = chatService.saveMessage(request, senderId);
+        // 현재 채팅방에 구독중인 사용자 확인
+        Set<Long> activeUserIds = getActiveUsersInRoom(request.getChatRoomId());
+        ChatMessageResponse saved = chatService.saveMessage(request, senderId, activeUserIds);
         // 방에 구독 중인 사용자에게 실시간 push
-//        messagingTemplate.convertAndSend("/topic/" + saved.getChatRoomId(), saved);
+        messagingTemplate.convertAndSend("/chat/" + saved.getChatRoomId(),
+                CustomSuccessResponse.ofOk("신규 메세지", saved));
+
+
         ChatRoomSendResponse roomSendInfos = chatService.getSendRoomMessage(request.getChatRoomId());
         broadcastNewRoomMessage(roomSendInfos);
 
-        messagingTemplate.convertAndSend(
-                "/chat/"+request.getChatRoomId(),
-                CustomSuccessResponse.emptyDataOk("메롱이다")
-        );
 
         return CustomSuccessResponse.emptyDataOk("메시지 전송 성공");
     }
 
-    // 대화내역 조회
-    @GetMapping("/messages/{roomId}")
-    public CustomSuccessResponse<List<ChatMessage>> getMessages(@PathVariable String roomId) {
-        return CustomSuccessResponse.ofOk("메세지 불러오기 성공", chatService.getMessages(roomId));
-    }
+
     @DeleteMapping("/room")
     public CustomSuccessResponse<Void> exitRoom(@RequestParam String roomId,
                                                 @AuthenticationPrincipal Long userId) {
