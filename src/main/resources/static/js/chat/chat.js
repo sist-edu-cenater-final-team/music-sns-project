@@ -648,4 +648,27 @@ function createRoomLiTag(room) {
     return li;
 }
 
+function createOrGetRoomId(userId) {
+    return AuthFunc.apiRequest(()=>axios.post(`${ctxPath}/api/chat/room`, {},{
+        headers: AuthFunc.getAuthHeader(),
+        params: { targetUserId: userId }
+    })).then(response => {
+        return response.data.success.responseData.chatRoomId;
+    }).catch(error => {
+        console.error(error);
+        alert("채팅방 생성에 실패했습니다.");
+    })
 
+}
+
+async function goToMessage(userId) {
+    alert(userId);
+    const chatRoomId = await createOrGetRoomId(userId);
+    if(chatRoomId){
+        const btnTalk = document.getElementById("btnTalk");
+        await openChatRoom(chatRoomId);
+        btnTalk.click();
+    }
+
+
+}
