@@ -187,7 +187,7 @@ function getfollowing() {
 			    	             </div>
 		
 			    	             <div style="display:flex; align-items:center; gap: 10px; margin-top: 10px;">
-			    	                 <button type="button" style="background-color: #6633FF; border-radius: 8px; height:40px; color:white; width:200px;" id="msg_${user.userId}">메세지 보내기</button>
+			    	                 <button type="button" style="background-color: #6633FF; border-radius: 8px; height:40px; color:white; width:200px;" id="${user.userId}">메세지 보내기</button>
 			    	                 
 			    	                 <!-- 메뉴 아이콘 버튼 -->
 			    	                 <div class="dropdown" style="position: relative;">

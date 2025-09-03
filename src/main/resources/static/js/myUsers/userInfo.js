@@ -4,6 +4,12 @@ $(function() {
 
 	const params = new URLSearchParams(window.location.search);
 	const targetUserId = params.get("targetUserId");
+
+	
+	$(document).on("click", ".post-img", function() {
+
+	});
+	
 	// 프로필 정보 가져오기
 	apiRequest(() =>
 		$.ajax({
@@ -145,7 +151,7 @@ function logout(){
     AuthFunc.logout().then((data) => {
         console.log(data);
         alert('로그아웃 되었습니다.');
-        // window.location.href = ctxPath + '/auth/login';
+        window.location.href = ctxPath + '/auth/login';
     }).catch((error) => {
         console.error('Logout failed:', error);
         alert('로그아웃에 실패했습니다. 다시 시도해주세요.');
@@ -192,9 +198,9 @@ function getUserPost() {
 					json.forEach(item => {
 						let images = Array.isArray(item.postImageUrl) ? item.postImageUrl : (item.postImageUrl ? [item.postImageUrl] : []);
 						if (images.length === 0) {
-							html += `<div class="post-item no-image">${item.title || ''}</div>`;
+							html += `<div class="post-item no-image post-img" >${item.title || ''}</div>`;
 						} else {
-							html += `<div class="post-item"><img src="${images[0]}" alt="post image"></div>`;
+							html += `<div class="post-item post-img"><img src="${images[0]}" alt="post image"></div>`;
 						}
 					});
 					html += '</div>';

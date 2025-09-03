@@ -16,7 +16,9 @@ body {
     padding: 40px;
     border-radius: 12px;
 }
-
+.post-img:hover {
+	cursor: pointer;
+}
 /* 상단 프로필 영역 */
 .profile-top {
     display: flex;
@@ -186,7 +188,7 @@ body {
     font-size: 16px;
     text-align: center;
     padding: 10px;
-    cursor: default;
+    cursor: pointer;
     transition: background 0.2s;
 }
 .post-item.no-image:hover {

@@ -24,7 +24,7 @@ function musicList(emotionId) {
 				headers: authHeader(),
 				dataType: "json",
 				success: function(json) {
-
+					console.log(json);
 					let musicId = [];
 					$.each(json, function(index, item) {
 
@@ -71,7 +71,7 @@ function getMusicList(musicId) {
 				headers: authHeader(),
 				dataType: "json",
 				success: function(json) {
-
+					console.log(json);
 					const musicList = $('div.recommended-music');
 
 					let v_html = '<ol>';
