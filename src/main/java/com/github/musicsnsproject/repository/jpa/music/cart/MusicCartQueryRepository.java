@@ -13,5 +13,7 @@ public interface MusicCartQueryRepository {
     // userId로 본인 musicCart 정보 조회하기
     List<MusicCart> findByCartUserId(Long userId);
 
+    boolean cartTrackCheck(MyUser user, String trackId);
 
+    boolean purchasedTrackCheck(MyUser user, String trackId);
 }

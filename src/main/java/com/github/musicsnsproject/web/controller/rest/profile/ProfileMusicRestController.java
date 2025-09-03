@@ -1,5 +1,6 @@
 package com.github.musicsnsproject.web.controller.rest.profile;
 
+import com.github.musicsnsproject.common.myenum.EmotionEnum;
 import com.github.musicsnsproject.service.music.profile.ProfileService;
 import com.github.musicsnsproject.web.dto.profile.ProfileMusicResponse;
 import lombok.RequiredArgsConstructor;
@@ -16,22 +17,22 @@ public class ProfileMusicRestController {
 
     private final ProfileService profileService;
 
-    @GetMapping("/list")
-    public ResponseEntity<List<ProfileMusicResponse>> getProfileMusicList(@AuthenticationPrincipal Long userId,
-                                                                          @RequestParam(value = "musicId") String musicId){
-
-        List<ProfileMusicResponse> profileMusicList = profileService.getProfileMusicList(userId, musicId);
-
-        return ResponseEntity.ok(profileMusicList);
-    }
+//    @GetMapping("/list")
+//    public ResponseEntity<List<ProfileMusicResponse>> getProfileMusicList(@AuthenticationPrincipal Long userId,
+//                                                                          @RequestParam(value = "musicId") String musicId){
+//
+//        List<ProfileMusicResponse> profileMusicList = profileService.getProfileMusicList(userId, musicId);
+//
+//        return ResponseEntity.ok(profileMusicList);
+//    }
 
     // 프로필 음악리스트 추가하기
     @PostMapping("/add")
     public ResponseEntity<String> addProfileMusic(@AuthenticationPrincipal Long userId,
-                                                  @RequestParam(value = "musicId") String musicId,
-                                                  @RequestParam(value = "emotionId") Long emotionId){
+                                                  @RequestParam(value = "emotion") EmotionEnum emotion,
+                                                  @RequestParam(value = "musicId") String musicId){
 
-        profileService.addProfileMusic(userId, musicId, emotionId);
+        profileService.addProfileMusic(userId, musicId, emotion);
 
         return ResponseEntity.ok("프로필 음악 추가되었습니다.");
     }
