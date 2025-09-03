@@ -1,5 +1,53 @@
-// const apiRequest = AuthFunc.apiRequest;
-// const authHeader = AuthFunc.getAuthHeader;
+//부트스트랩 버전 감지 및 통합 처리
+function getBootstrapVersion() {
+    if (typeof bootstrap !== 'undefined' && bootstrap.Modal && bootstrap.Modal.getInstance) {
+        return 5;
+    } else if (typeof $ !== 'undefined' && $.fn.modal) {
+        return 4; // Bootstrap 4
+    }
+    return null;
+}
+
+// 모달 인스턴스 생성 함수
+function createModal(elementId) {
+    const bootstrapVersion = getBootstrapVersion();
+    const element = document.getElementById(elementId);
+
+    if (bootstrapVersion === 5) {
+        return new bootstrap.Modal(element);
+    } else if (bootstrapVersion === 4) {
+        return $(element); // jQuery 객체 반환
+    }
+    return null;
+}
+
+// 모달 표시 함수
+function showModal(modal) {
+    const bootstrapVersion = getBootstrapVersion();
+
+    if (bootstrapVersion === 5) {
+        modal.show();
+    } else if (bootstrapVersion === 4) {
+        modal.modal('show');
+    }
+}
+
+// 모달 숨김 함수
+function hideModal(modal) {
+    const bootstrapVersion = getBootstrapVersion();
+
+    if (bootstrapVersion === 5) {
+        modal.hide();
+    } else if (bootstrapVersion === 4) {
+        modal.modal('hide');
+    }
+}
+
+
+
+
+
+
 
 let loginUserId = null;
 AuthFunc.primaryKey().then(async pk => {
@@ -53,7 +101,7 @@ function subscribeChatRoom(pk) {
 function chatRoomUnreadBadgeSetting(messageIds) {
     messageIds.forEach(messageId => {
         const badge = document.getElementById("unread:" + messageId);
-        if (!badge) return;  // early return으로 가독성 향상
+        if (!badge) return;
 
         const count = parseInt(badge.innerText, 10) || 0;  // NaN 방어
         const newCount = count - 1;
@@ -125,9 +173,8 @@ function appendNewMessage(messageData) {
 
     // 날짜 구분선 체크 (마지막 메시지와 날짜가 다른지)
     const lastMessage = messagesContainer.lastElementChild;
-    const dateSeparator = lastMessage && lastMessage.classList.contains('message-item')
-        ? checkDateSeparator(messageDate, lastMessage)
-        : '';
+    const dateSeparator =  checkDateSeparator(messageDate, lastMessage);
+
 
     // 안읽음 수 표시
     const unreadBadge = messageData.unreadCount > 0 ?
@@ -206,9 +253,31 @@ function showNewMessageNotification(messageData) {
 }
 
 
-
 function checkDateSeparator(currentElementDate, lastMessageElement) {
-    if (!lastMessageElement) return '';
+    // 이전 메시지가 없으면 (첫 번째 메시지) 현재 날짜 구분선 생성
+    if (!lastMessageElement) {
+        const today = new Date();
+        const yesterday = new Date(today);
+        yesterday.setDate(today.getDate() - 1);
+
+        const isToday = currentElementDate.toDateString() === today.toDateString();
+        const isYesterday = currentElementDate.toDateString() === yesterday.toDateString();
+
+        let dateText;
+        if (isToday) {
+            dateText = "오늘";
+        } else if (isYesterday) {
+            dateText = "어제";
+        } else {
+            dateText = `${currentElementDate.getFullYear()}년 ${String(currentElementDate.getMonth() + 1).padStart(2, "0")}월 ${String(currentElementDate.getDate()).padStart(2, "0")}일`;
+        }
+
+        return `
+            <div class="date-separator">
+                <span class="date-separator-text">${dateText}</span>
+            </div>
+        `;
+    }
 
     // data-send-at 속성에서 이전 메시지 날짜 가져오기
     const lastDateStr = lastMessageElement.dataset.sendAt;
@@ -257,14 +326,63 @@ function showMessage(msg) {
 
 document.addEventListener("DOMContentLoaded", function () {
     const chatRoomModal = document.getElementById('chatRoomModal');
+    const chatModal = document.getElementById('chatModal');
+    const bootstrapVersion = getBootstrapVersion();
     // 모달이 완전히 닫혔을 때 구독 해제
-    chatRoomModal.addEventListener('hidden.bs.modal', function () {
-        if (currentChatRoomSubscription) {
-            console.log('채팅방 구독 해제');
-            currentChatRoomSubscription.unsubscribe();
-            currentChatRoomSubscription = null;
-        }
-    });
+    // 부트스트랩 버전에 따른 이벤트 처리
+    if (bootstrapVersion === 5) {
+        // 채팅방 모달 ESC 키 이벤트 차단
+        chatRoomModal.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                e.stopPropagation(); // 이벤트 전파 차단
+                const modal = bootstrap.Modal.getInstance(chatRoomModal);
+                if (modal) {
+                    modal.hide();
+                }
+            }
+        });
+        chatRoomModal.addEventListener('hidden.bs.modal', function () {
+            if (currentChatRoomSubscription) {
+                console.log('채팅방 구독 해제');
+                currentChatRoomSubscription.unsubscribe();
+                currentChatRoomSubscription = null;
+            }
+
+            // 채팅방 목록 모달에 포커스 설정
+            const chatModalElement = document.getElementById('chatModal');
+            if (chatModalElement && chatModalElement.classList.contains('show')) {
+                chatModalElement.focus();
+                // 또는 모달 내부의 특정 요소에 포커스
+                const firstFocusableElement = chatModalElement.querySelector('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+                if (firstFocusableElement) {
+                    firstFocusableElement.focus();
+                }
+            }
+        });
+        // 채팅 목록 모달도 ESC 이벤트 관리
+        chatModal.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                // 채팅방 모달이 열려있으면 ESC 차단
+                if (chatRoomModal.classList.contains('show')) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    return false;
+                }
+            }
+        });
+    } else if (bootstrapVersion === 4) {
+        $(chatRoomModal).on('hidden.bs.modal', function () {
+            if (currentChatRoomSubscription) {
+                console.log('채팅방 구독 해제');
+                currentChatRoomSubscription.unsubscribe();
+                currentChatRoomSubscription = null;
+            }
+            // 채팅방 목록 모달에 포커스
+            if ($('#chatModal').hasClass('show')) {
+                $('#chatModal').focus();
+            }
+        });
+    }
 
 
     // 서버에서 채팅방 리스트 가져오기
@@ -281,12 +399,44 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     const btnTalk = document.getElementById("btnTalk");
-    const chatModal = new bootstrap.Modal(document.getElementById("chatModal"));
+    // const chatModal = new bootstrap.Modal(document.getElementById("chatModal"));
+
 
     btnTalk.addEventListener("click", function () {
-        // 모달 열기
-        chatModal.show();
+        if (bootstrapVersion === 5) {
+            const chatModal = new bootstrap.Modal(document.getElementById("chatModal"));
+            chatModal.show();
+        } else if (bootstrapVersion === 4) {
+            $('#chatModal').modal('show');
+        }
     });
+    // 채팅 목록 모달 닫기 버튼
+    const chatModalCloseBtn = document.querySelector('#chatModal .modal-close-btn');
+    if (chatModalCloseBtn) {
+        chatModalCloseBtn.addEventListener('click', function() {
+            // const bootstrapVersion = getBootstrapVersion();
+            if (bootstrapVersion === 5) {
+                const modal = bootstrap.Modal.getInstance(document.getElementById('chatModal'));
+                if (modal) modal.hide();
+            } else if (bootstrapVersion === 4) {
+                $('#chatModal').modal('hide');
+            }
+        });
+    }
+
+    // 채팅방 모달 닫기 버튼
+    const chatRoomModalCloseBtn = document.querySelector('#chatRoomModal .modal-close-btn');
+    if (chatRoomModalCloseBtn) {
+        chatRoomModalCloseBtn.addEventListener('click', function() {
+            // const bootstrapVersion = getBootstrapVersion();
+            if (bootstrapVersion === 5) {
+                const modal = bootstrap.Modal.getInstance(document.getElementById('chatRoomModal'));
+                if (modal) modal.hide();
+            } else if (bootstrapVersion === 4) {
+                $('#chatRoomModal').modal('hide');
+            }
+        });
+    }
 });
 
 function renderChatRoom(room) {
@@ -309,7 +459,7 @@ function renderChatRoom(room) {
 function renderChatRooms(data) {
     const chatRoomList = document.getElementById("chatRoomList");
     chatRoomList.innerHTML = ""; // 초기화
-    if(!data || data.length === 0){
+    if (!data || data.length === 0) {
         chatRoomList.innerHTML = `
         <li class="list-group-item text-center" id="emptyRoomMsg">
             <i class="bi bi-chat-dots empty-icon"></i>
@@ -381,11 +531,30 @@ function openChatRoom(roomId) {
         })
     ).then(response => {
         const data = response.data.success.responseData;
-        if(data)
-            renderChatRoomModal(data);
 
-        const chatRoomModal = new bootstrap.Modal(document.getElementById("chatRoomModal"));
-        chatRoomModal.show();
+        renderChatRoomModal(data);
+
+
+        // 부트스트랩 버전에 따른 모달 표시
+        const bootstrapVersion = getBootstrapVersion();
+        if (bootstrapVersion === 5) {
+            const chatRoomModal = new bootstrap.Modal(document.getElementById("chatRoomModal"), {
+                keyboard: true // ESC 키 허용하되 이벤트 처리는 위에서 관리
+            });
+            chatRoomModal.show();
+            // 모달이 완전히 표시된 후 포커스 설정
+            document.getElementById("chatRoomModal").addEventListener('shown.bs.modal', function() {
+                const messageInput = document.getElementById('chatMessageInput');
+                if (messageInput) {
+                    messageInput.focus();
+                }
+            }, { once: true });
+        } else if (bootstrapVersion === 4) {
+            $('#chatRoomModal').modal('show');
+            $('#chatRoomModal').on('shown.bs.modal', function() {
+                $('#chatMessageInput').focus();
+            });
+        }
 
         // 채팅방 구독
         console.log(roomId + ' 구독 시작');
@@ -403,15 +572,13 @@ function openChatRoom(roomId) {
 }
 
 
-
-
-
 // 채팅방 모달 렌더링
 // 채팅방 모달 렌더링 함수 수정
 function renderChatRoomModal(roomData) {
     console.log(roomData);
     const otherUsers = roomData.otherUsers;
     const messages = roomData.messages;
+
 
     // 참여자 프로필 이미지들
     const participantImagesHtml = otherUsers.map(user =>
@@ -420,6 +587,25 @@ function renderChatRoomModal(roomData) {
 
     // 참여자 닉네임들
     const participantNames = otherUsers.map(user => user.nickname).join(', ');
+
+
+    // 모달 내용 업데이트
+    document.getElementById('chatRoomParticipantImages').innerHTML = participantImagesHtml;
+    document.getElementById('chatRoomParticipantNames').textContent = participantNames;
+    document.getElementById('chatRoomModal').dataset.roomId = roomData.chatRoomId;
+    console.log('뭐지')
+    console.log(!messages || messages.length === 0)
+    if(!messages || messages.length === 0){
+        document.getElementById('chatRoomMessages').innerHTML =  `
+        <li class="list-group-item text-center" id="emptyRoomMsg">
+            <i class="bi bi-chat-dots empty-icon"></i>
+            <div class="empty-title">서로 나눈 대화 내역이 없습니다.</div>
+            <div class="empty-subtitle">새로운 대화를 시작해보세요</div>
+        </li>
+    `;
+        return;
+    }
+
 
     // 메시지들 렌더링
     const messagesHtml = messages.map((message, index) => {
@@ -487,11 +673,8 @@ function renderChatRoomModal(roomData) {
     `;
     }).join('');
 
-    // 모달 내용 업데이트
-    document.getElementById('chatRoomParticipantImages').innerHTML = participantImagesHtml;
-    document.getElementById('chatRoomParticipantNames').textContent = participantNames;
+
     document.getElementById('chatRoomMessages').innerHTML = messagesHtml;
-    document.getElementById('chatRoomModal').dataset.roomId = roomData.chatRoomId;
 
     // 스크롤 위치 조정
     const modalEl = document.getElementById('chatRoomModal');
@@ -650,9 +833,9 @@ function createRoomLiTag(room) {
 }
 
 function createOrGetRoomId(userId) {
-    return AuthFunc.apiRequest(()=>axios.post(`${ctxPath}/api/chat/room`, {},{
+    return AuthFunc.apiRequest(() => axios.post(`${ctxPath}/api/chat/room`, {}, {
         headers: AuthFunc.getAuthHeader(),
-        params: { targetUserId: userId }
+        params: {targetUserId: userId}
     })).then(response => {
         return response.data.success.responseData.chatRoomId;
     }).catch(error => {
@@ -665,11 +848,11 @@ function createOrGetRoomId(userId) {
 async function goToMessage(userId) {
     alert(userId);
     const chatRoomId = await createOrGetRoomId(userId);
-    if(chatRoomId){
+    if (chatRoomId) {
         const btnTalk = document.getElementById("btnTalk");
         await openChatRoom(chatRoomId);
         btnTalk.click();
     }
-
-
 }
+
+

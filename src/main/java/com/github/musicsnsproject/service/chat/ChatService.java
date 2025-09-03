@@ -234,9 +234,9 @@ public class ChatService {
         Map<Long, ChatUserInfo> userInfoMap = listToKeyMap(ChatUserInfo::getUserId, participants);
         // 메세지들
         List<ChatMessage> messages = chatMessageRepository.findByChatRoomIdOrderBySentAtAsc(roomId);
-        if(messages.isEmpty()) {
-            return createRoomResponse()
-        };
+
+        if(messages.isEmpty())
+            return createRoomResponse(userInfoMap, userId, roomId, List.of(), List.of());
 
         // 내가 안읽은 메세지들 내가 읽은걸로 변경 하고 가장 오래된 안읽은 메세지의 ID를 가져옴
         List<ChatMessage> unreadMessages = getMyUnreadMessages(messages, userId);
@@ -264,7 +264,11 @@ public class ChatService {
         return responses;
     }
 
-    private ChatRoomResponse createRoomResponse(Map<Long,ChatUserInfo> userInfoMap, long userId, String roomId, List<ChatMessageResponse> messageResponse, List<ChatMessage> unreadMessages) {
+    private ChatRoomResponse createRoomResponse(Map<Long,ChatUserInfo> userInfoMap,
+                                                long userId,
+                                                String roomId,
+                                                List<ChatMessageResponse> messageResponse,
+                                                List<ChatMessage> unreadMessages) {
         List<ChatUserInfo> otherUsers = listToFilterStream(
                 userinfo -> userinfo.getUserId() != userId,
                 userInfoMap.values()
@@ -274,6 +278,7 @@ public class ChatService {
                 .toList();
         return new ChatRoomResponse(roomId, userInfoMap.get(userId), otherUsers, messageResponse, unreadMessageIds);
     }
+
 
     private List<ChatUserInfo> getOtherUsersInfo(List<ChatUserInfo> participants, long userId) {
         return listToFilterStream(userInfo -> userInfo.getUserId() != userId, participants)

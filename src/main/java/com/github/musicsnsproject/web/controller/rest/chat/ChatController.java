@@ -1,6 +1,5 @@
 package com.github.musicsnsproject.web.controller.rest.chat;
 
-import com.github.musicsnsproject.repository.mongo.chat.ChatMessage;
 import com.github.musicsnsproject.repository.mongo.chat.ChatRoom;
 import com.github.musicsnsproject.service.chat.ChatService;
 import com.github.musicsnsproject.web.dto.chat.*;
@@ -8,12 +7,10 @@ import com.github.musicsnsproject.web.dto.response.CustomSuccessResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.messaging.simp.user.SimpUser;
 import org.springframework.messaging.simp.user.SimpUserRegistry;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-import java.security.Principal;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
