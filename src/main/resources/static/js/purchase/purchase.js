@@ -8,6 +8,26 @@ const purchase = {
     profileMusicModal : new bootstrap.Modal(document.getElementById("profileMusicModal")),
     profileMusicModalBody : document.querySelector('#profileMusicModalBody'),
     selectProfileMusic : document.querySelector('#selectProfileMusic'),
+    musicList : (musicData) => {
+        return AuthFunc.apiRequest(() =>
+            axios.get(`${ctxPath}/api/profileMusic/list?musicId=${musicData}`, {
+                headers: AuthFunc.getAuthHeader()
+            })
+        )
+        .then(response => {
+            console.log("musicDat212313a :: ", musicData);
+            console.log(" profileMusic :: ", response.data);
+        })
+        .catch(error => {
+            console.error('오류:', error);
+            if (error.response) {
+                const errorData = error.response.data.error;
+                if (errorData){
+                    alert(errorData.customMessage);
+                }
+            }
+        });
+    },
     createList : (pageNo) => {
         console.log("넘긴거 받았어요~~!! :: ", pageNo);
         // 스프링 시큐리티 인증 토큰을 헤더에 추가하여 주문 목록 요청
@@ -17,8 +37,8 @@ const purchase = {
             })
         )
         .then(response => {
-            console.log('구매한 상품 목록:', response.data);
-            purchase.renderMusicList(response.data);
+            const res = (response.data.purchaseMusic.length > 0) ? response.data : 0;
+            purchase.renderMusicList(res);
             console.log("response.data.pageNo :: ", response.data.pageNo);
             purchase.paginationCall(response.data.pageNo, response.data.totalPages);
         })
@@ -28,15 +48,18 @@ const purchase = {
                 const errorData = error.response.data.error;
                 if (errorData){
                     alert(errorData.customMessage);
-
-                    if(errorData.httpStatus === "NOT_ACCEPTABLE"){
-                        location.href = `${ctxPath}/auth/login`;
-                    }
                 }
             }
         });
     },
     renderMusicList : (musicData) => {
+
+        console.log("musicData :::: ", musicData);
+        if(musicData === 0) {
+            purchase.tbody.innerHTML = `<tr><td colspan="4">구매한 음악이 없습니다.</td></tr>`;
+            return;
+        }
+
         let HTML = ``;
         musicData.purchaseMusic.forEach((item, index) => {
             HTML += `
@@ -75,7 +98,6 @@ const purchase = {
 
         // 기본 감정
         const defaultEmotion = "CALM";
-        const defaultEmotionId = 0;
         const buttons = emotions.querySelectorAll(".btn");
 
         // 기본 활성화 설정
@@ -92,7 +114,6 @@ const purchase = {
         // 현재 선택된 감정값
         const activeBtn = emotions.querySelector(".btn.active");
         let btnValue = activeBtn?.dataset.emotion || defaultEmotion;
-        let btnIndex = activeBtn ? Array.from(buttons).indexOf(activeBtn) : -1;
 
         // 클릭 이벤트로 갱신
         emotions.onclick = (e) => {
@@ -103,13 +124,15 @@ const purchase = {
             btn.classList.add("active");
 
             btnValue = btn.dataset.emotion || defaultEmotion;
-            btnIndex = Array.from(buttons).indexOf(btn);
+            btnIndex = Array.from(buttons).indexOf(btn)+1;
+
+            console.log("btnIdx ::::: ", btnIndex);
 
         };
 
         // 모달 오픈 시점 값 확인
-        const current = emotions.querySelector(".btn.active")?.dataset.emotion || defaultEmotion;
-        console.log("btnValue (open):", current, "musicId:", musicId);
+        // const current = emotions.querySelector(".btn.active")?.dataset.emotion || defaultEmotion;
+        // console.log("btnValue (open):", current, "musicId:", musicId);
 
         // 클릭한 요소 기준으로 TR 찾기
         const row = el.closest("tr");
@@ -130,8 +153,7 @@ const purchase = {
                                                 `;
 
         purchase.selectProfileMusic.querySelector(".btn-set-profile").onclick = () => {
-            //console.log("btnIndex "+btnIndex + " musicId : "+ musicId);
-            purchase.addProfileMusic(btnIndex, musicId);
+            purchase.addProfileMusic(btnValue, musicId);
         };
 
     },
@@ -149,15 +171,17 @@ const purchase = {
         }
 
     },
-    addProfileMusic : (emotionId, musicId) => {
+    addProfileMusic : (emotion, musicId) => {
         return AuthFunc.apiRequest(() =>
-            axios.post(`${ctxPath}/api/profileMusic/add?musicId=${musicId}&emotionId=${emotionId}`,{}, {
+            // musicId=${musicId}&emotionId=${emotionId}
+            axios.post(`${ctxPath}/api/profileMusic/add?musicId=${musicId}&emotion=${emotion}`,{}, {
                 headers: AuthFunc.getAuthHeader()
             })
         )
         .then(response => {
-            console.log("추가완룧효훃훃", response.data);
+            // console.log("추가완룧효훃훃", response.data);
             alert(response.data);
+            //purchase.musicList(musicId);
             purchase.closeProfileMusicModal();
         })
         .catch(error => {
@@ -166,10 +190,6 @@ const purchase = {
                 const errorData = error.response.data.error;
                 if (errorData){
                     alert(errorData.customMessage);
-
-                    if(errorData.httpStatus === "NOT_ACCEPTABLE"){
-                        location.href = `${ctxPath}/auth/login`;
-                    }
                 }
             }
         });

@@ -2,6 +2,7 @@ package com.github.musicsnsproject.repository.jpa.music.cart;
 
 import com.github.musicsnsproject.common.exceptions.CustomNotAcceptException;
 import com.github.musicsnsproject.repository.jpa.account.user.MyUser;
+import com.github.musicsnsproject.repository.jpa.music.MyMusic;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 
@@ -9,6 +10,7 @@ import java.util.List;
 
 import static com.github.musicsnsproject.repository.jpa.account.user.QMyUser.myUser;
 import static com.github.musicsnsproject.repository.jpa.music.cart.QMusicCart.musicCart;
+import static com.github.musicsnsproject.repository.jpa.music.purchase.QPurchaseMusic.purchaseMusic;
 
 @RequiredArgsConstructor
 public class MusicCartQueryRepositoryImpl implements MusicCartQueryRepository {
@@ -44,5 +46,30 @@ public class MusicCartQueryRepositoryImpl implements MusicCartQueryRepository {
                 .selectFrom(musicCart)
                 .where(musicCart.myUser.userId.eq(userId))
                 .fetch();
+    }
+
+    @Override
+    public boolean cartTrackCheck(MyUser user, String trackId) {
+        return queryFactory
+                .selectOne()
+                .from(musicCart)
+                .where(musicCart.myUser.eq(user)
+                        .and(musicCart.musicId.eq(trackId)))
+                .fetchFirst() != null;
+    }
+
+    @Override
+    public boolean purchasedTrackCheck(MyUser user, String trackId) {
+        return queryFactory
+                .selectOne()
+                .from(purchaseMusic)
+                .join(musicCart).on(
+                        musicCart.musicId.eq(purchaseMusic.musicId)
+                )
+                .where(
+                    musicCart.myUser.eq(user)
+                            .and(purchaseMusic.musicId.eq(trackId))
+                )
+                .fetchOne() != null;
     }
 }

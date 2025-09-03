@@ -35,8 +35,8 @@ public class PlayListController {
 	
 	@GetMapping("/myProfileMusic")
 	public List<ProfileMusicVO> profileMusic(@AuthenticationPrincipal Long userId) {
-			Long fakeUserId = (long) 44;
-		return service.profileMusicId(fakeUserId);
+			//Long fakeUserId = (long) 44;
+		return service.profileMusicId(userId);
 	}
 	
 	

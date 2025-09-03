@@ -5,6 +5,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Getter
 @Builder
 @NoArgsConstructor
@@ -12,6 +14,8 @@ import lombok.NoArgsConstructor;
 public class ProfileMusicResponse {
     private String musicId;
     private String musicName;
+    private String artistName;
     private String albumImageUrl;
+
     private int listOrder;
 }

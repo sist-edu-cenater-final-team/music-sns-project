@@ -108,20 +108,25 @@ public class CartServiceImpl implements CartService {
         }
 
         // 장바구니에 같은 음악이 있는지 확인하기
-        boolean hasTrack = jpaQueryFactory
-                .selectOne()
-                .from(musicCart)
-                .where(musicCart.myUser.eq(user)
-                        .and(musicCart.musicId.eq(trackId)))
-                .fetchFirst() != null;
-
-        if (hasTrack) {
-            // 중복된 음악이 장바구니에 있는 경우 예외 처리
+        boolean cartTrackCheck = musicCartRepository.cartTrackCheck(user, trackId);
+        // 중복된 음악이 장바구니에 있는 경우 예외 처리
+        if (cartTrackCheck) {
             throw CustomNotAcceptException.of()
                     .customMessage("이미 장바구니에 담긴 음악입니다.")
                     .request(trackId)
                     .build();
         }
+        // 구매내역에 있는 음악인지 확인하기
+        boolean purchasedTrackCheck = musicCartRepository.purchasedTrackCheck(user, trackId);
+
+        if(purchasedTrackCheck) {
+            throw CustomNotAcceptException.of()
+                    .customMessage("이미 구매했던 음악입니다.")
+                    .request(trackId)
+                    .build();
+        }
+
+
 
         // 음악이 중복이 아니면 저장
         musicCartRepository.save(

@@ -1,5 +1,6 @@
 package com.github.musicsnsproject.service.music.profile;
 
+import com.github.musicsnsproject.common.myenum.EmotionEnum;
 import com.github.musicsnsproject.web.dto.profile.ProfileMusicResponse;
 
 import java.util.List;
@@ -10,5 +11,5 @@ public interface ProfileService {
     List<ProfileMusicResponse> getProfileMusicList(Long userId, String musicId);
 
     // 프로필 음악 추가하기
-    void addProfileMusic(Long userId, String musicId, Long emotionId);
+    void addProfileMusic(Long userId, String musicId, EmotionEnum emotion);
 }
