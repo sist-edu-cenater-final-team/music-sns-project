@@ -96,8 +96,8 @@ function getMusicList(musicId) {
 						  <li class="album-list" onclick="location.href='/music/search?searchType=all&keyword=${item.album.albumName}'">
 						      <span class="album-one">
 						          <span class="scrolling-wrapper">
-						              <span>${index+1}. ${item.album.albumName}</span>
-						              <span>${index+1}. ${item.album.albumName}</span>
+						              <span>${index+1}. ${item.track.trackName}</span>
+						              <span>${index+1}. ${item.track.trackName}</span>
 						          </span>
 						      </span>
 						      <div class="artist-wrap">
