@@ -381,7 +381,8 @@ function openChatRoom(roomId) {
         })
     ).then(response => {
         const data = response.data.success.responseData;
-        renderChatRoomModal(data);
+        if(data)
+            renderChatRoomModal(data);
 
         const chatRoomModal = new bootstrap.Modal(document.getElementById("chatRoomModal"));
         chatRoomModal.show();

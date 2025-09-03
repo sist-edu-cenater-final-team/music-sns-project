@@ -229,15 +229,18 @@ public class ChatService {
         ChatRoom chatRoom = chatRoomRepository.findById(roomId)
                 .orElseThrow(() -> CustomNotFoundException.of().request(roomId).customMessage("존재하지 않는 채팅방").build());
         validationRoomAndUser(chatRoom, userId);
+        // 참여중인 유저 정보들
+        List<ChatUserInfo> participants = myUserRepository.findAllByIdForChatRoom(new HashSet<>(chatRoom.getParticipants()));
+        Map<Long, ChatUserInfo> userInfoMap = listToKeyMap(ChatUserInfo::getUserId, participants);
+        // 메세지들
         List<ChatMessage> messages = chatMessageRepository.findByChatRoomIdOrderBySentAtAsc(roomId);
-        if(messages.isEmpty()) return null;
+        if(messages.isEmpty()) {
+            return createRoomResponse()
+        };
 
         // 내가 안읽은 메세지들 내가 읽은걸로 변경 하고 가장 오래된 안읽은 메세지의 ID를 가져옴
         List<ChatMessage> unreadMessages = getMyUnreadMessages(messages, userId);
         String oldUnreadId = changeUnreadMessagesToRead(unreadMessages, userId);
-        // 참여중인 유저 정보들
-        List<ChatUserInfo> participants = myUserRepository.findAllByIdForChatRoom(new HashSet<>(chatRoom.getParticipants()));
-        Map<Long, ChatUserInfo> userInfoMap = listToKeyMap(ChatUserInfo::getUserId, participants);
         // 응답용 메세지 리스트
         List<ChatMessageResponse> chatMessageResponses = chatMessageListToResponseList(messages, userInfoMap, oldUnreadId);
         return createRoomResponse(userInfoMap, userId, roomId, chatMessageResponses, unreadMessages);

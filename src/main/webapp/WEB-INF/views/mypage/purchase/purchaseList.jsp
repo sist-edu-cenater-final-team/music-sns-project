@@ -47,9 +47,9 @@
 			<div class="modal-content chat-modal-content">
 				<div class="modal-header">
 					<h5 class="modal-title">프로필 음악 설정하기</h5>
-					<button type="button" class="modal-close-btn" data-bs-dismiss="modal" aria-label="닫기" onclick="purchase.closeProfileMusicModal()">
-						<i class="bi bi-x"></i>
-					</button>
+<%--					<button type="button" class="modal-close-btn" data-bs-dismiss="modal" aria-label="닫기" onclick="purchase.closeProfileMusicModal()">--%>
+<%--						<i class="bi bi-x"></i>--%>
+<%--					</button>--%>
 				</div>
 				<div id="profileMusicModalBody" class="modal-body p-0">
 					<div class="emotions">
