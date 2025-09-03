@@ -4,12 +4,10 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.github.musicsnsproject.repository.mongo.chat.ChatMessage;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Set;
 
 @Getter
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
@@ -19,23 +17,41 @@ public class ChatMessageResponse {
     private final ChatUserInfo sender;
     private final String content;
     private final LocalDateTime sentAt;
-    private final long unreadCount;
     private final boolean isOldUnread;
+
+    @JsonIgnore
+    private final List<Long> participantIds;
 
     @JsonIgnore
     private final List<Long> readBy;
 
-    public static ChatMessageResponse of(ChatMessage chatMessage, ChatUserInfo sender, boolean isOldUnread) {
+    public long getUnreadCount() {
+        return participantIds.size() - readBy.size();
+    }
+
+    public static ChatMessageResponse of(ChatMessage chatMessage, ChatUserInfo sender, List<Long> chatTotalUserIds, boolean isOldUnread) {
         return new ChatMessageResponse(
                 chatMessage.getChatRoomId(),
                 chatMessage.getChatMessageId(),
                 sender,
                 chatMessage.getContent(),
                 chatMessage.getSentAt(),
-                chatMessage.getUnreadCount(),
                 isOldUnread,
+                chatTotalUserIds,
                 chatMessage.getReadBy()
         );
     }
 
+    public static ChatMessageResponse of(ChatMessage chatMessage, ChatUserInfo sender, List<Long> chatTotalUserIds) {
+        return new ChatMessageResponse(
+                chatMessage.getChatRoomId(),
+                chatMessage.getChatMessageId(),
+                sender,
+                chatMessage.getContent(),
+                chatMessage.getSentAt(),
+                false,
+                chatTotalUserIds,
+                chatMessage.getReadBy()
+        );
+    }
 }

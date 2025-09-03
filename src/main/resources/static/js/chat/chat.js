@@ -50,6 +50,22 @@ function subscribeChatRoom(pk) {
     });
 }
 
+function chatRoomUnreadBadgeSetting(messageIds) {
+    messageIds.forEach(messageId => {
+        const badge = document.getElementById("unread:" + messageId);
+        if (!badge) return;  // early return으로 가독성 향상
+
+        const count = parseInt(badge.innerText, 10) || 0;  // NaN 방어
+        const newCount = count - 1;
+
+        if (newCount <= 0) {
+            badge.remove();
+        } else {
+            badge.innerText = String(newCount);
+        }
+    });
+}
+
 let currentChatRoomSubscription = null; // 현재 채팅방 구독 객체 저장
 
 function subscribeChatMessage(roomId) {
@@ -59,11 +75,173 @@ function subscribeChatMessage(roomId) {
     }
     // 새로운 구독 등록 및 저장
     currentChatRoomSubscription = stompClient.subscribe("/chat/" + roomId, (response) => {
-        console.log(typeof response)
-        if (!isNaN(response))
-            console.log("누군가 들어왔어 " + response)
-        console.log(JSON.parse(response.body))
+        const data = JSON.parse(response.body).success;
+
+
+        // showMessage(data);
+
+        if (data.code === 200 && data.responseData) {
+            const responseData = data.responseData;
+            // console.log(responseData);
+            chatRoomUnreadBadgeSetting(responseData);
+
+            return;
+        }
+
+
+        if (data.code === 201 && data.responseData) {
+            console.log("채팅 메시지 수신:", data);
+            // 새로운 메시지 렌더링
+            appendNewMessage(data.responseData);
+        }
     });
+}
+
+function appendNewMessage(messageData) {
+    const messagesContainer = document.getElementById('chatRoomMessages');
+    if (!messagesContainer) return;
+
+    const isMyMessage = messageData.sender.userId === loginUserId;
+    const messageClass = isMyMessage ? 'my-message' : 'other-message';
+
+    const messageDate = new Date(messageData.sentAt);
+    const today = new Date();
+    const yesterday = new Date(today);
+    yesterday.setDate(today.getDate() - 1);
+
+    const isToday = messageDate.toDateString() === today.toDateString();
+    const isYesterday = messageDate.toDateString() === yesterday.toDateString();
+
+    let messageTime;
+    if (isToday) {
+        messageTime = messageDate.toLocaleTimeString("ko-KR", {
+            hour: "2-digit", minute: "2-digit"
+        });
+    } else if (isYesterday) {
+        messageTime = "어제";
+    } else {
+        messageTime = `${messageDate.getFullYear()}년 ${String(messageDate.getMonth() + 1).padStart(2, "0")}월 ${String(messageDate.getDate()).padStart(2, "0")}일`;
+    }
+
+    // 날짜 구분선 체크 (마지막 메시지와 날짜가 다른지)
+    const lastMessage = messagesContainer.lastElementChild;
+    const dateSeparator = lastMessage && lastMessage.classList.contains('message-item')
+        ? checkDateSeparator(messageDate, lastMessage)
+        : '';
+
+    // 안읽음 수 표시
+    const unreadBadge = messageData.unreadCount > 0 ?
+        `<span class="message-unread-badge" id="unread:${messageData.chatMessageId}">${messageData.unreadCount}</span>` : '';
+
+    const messageHtml = `
+        ${dateSeparator}
+        <div class="message-item ${messageClass}" data-send-at="${messageData.sentAt}" data-message-index="new">
+            <div class="message-content">
+                ${!isMyMessage ? `<img src="${messageData.sender.profileImageUrl}" alt="${messageData.sender.nickname}" class="message-profile-img">` : ''}
+                <div class="message-text-area">
+                    ${!isMyMessage ? `<div class="message-nickname">${messageData.sender.nickname}</div>` : ''}
+                    <div class="message-bubble-container">
+                        <div class="message-bubble">${messageData.content}</div>
+                        ${unreadBadge}
+                    </div>
+                    <div class="message-time">${messageTime}</div>
+                </div>
+            </div>
+        </div>
+    `;
+    const isAtBottom = messagesContainer.scrollTop >= messagesContainer.scrollHeight - messagesContainer.clientHeight - 120;
+    // 메시지 추가
+    messagesContainer.insertAdjacentHTML('beforeend', messageHtml);
+
+    // 내가 보낸 메시지면 스크롤을 맨 아래로
+    if (isMyMessage || isAtBottom) {
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    } else {
+        // 남이 보낸 메시지면 새 메시지 알림 표시
+        showNewMessageNotification(messageData);
+    }
+}
+
+// 새 메시지 알림 모달 표시
+function showNewMessageNotification(messageData) {
+    // 기존 알림 제거
+    const chatRoomModal = document.getElementById('chatRoomModal');
+    const chatMessagesContainer = document.getElementById('chatRoomMessages');
+    const chatInputContainer = document.querySelector('.chat-input-container');
+    if (!chatRoomModal || !chatMessagesContainer || !chatInputContainer) return;
+
+    const existingNotification = chatRoomModal.querySelector('.new-message-notification');
+    if (existingNotification) existingNotification.remove();
+
+    // 알림 생성
+    const notification = document.createElement('div');
+    notification.className = 'new-message-notification';
+    notification.innerHTML = `
+        <div class="notification-sender">${messageData.sender.nickname}</div>
+        <div class="notification-content">${messageData.content}</div>
+    `;
+
+    // chatRoomModal의 modal-body에 추가 (chat-input-container 바로 앞에)
+    const modalBody = chatRoomModal.querySelector('.modal-body');
+    modalBody.insertBefore(notification, chatInputContainer);
+
+    // 애니메이션 효과
+    setTimeout(() => {
+        notification.classList.add('show');
+    }, 100);
+
+    // 클릭 시 스크롤 맨 아래 + 알림 제거
+    notification.addEventListener('click', () => {
+        chatMessagesContainer.scrollTop = chatMessagesContainer.scrollHeight;
+        notification.remove();
+    });
+
+    // 4초 후 자동 제거
+    setTimeout(() => {
+        notification.classList.remove('show');
+        setTimeout(() => {
+            if (notification.parentNode) notification.remove();
+        }, 300);
+    }, 4000);
+}
+
+
+
+function checkDateSeparator(currentElementDate, lastMessageElement) {
+    if (!lastMessageElement) return '';
+
+    // data-send-at 속성에서 이전 메시지 날짜 가져오기
+    const lastDateStr = lastMessageElement.dataset.sendAt;
+    if (!lastDateStr) return '';
+
+    const lastDate = new Date(lastDateStr);
+
+    // 날짜가 다르면 구분선 생성
+    if (currentElementDate.toDateString() !== lastDate.toDateString()) {
+        const today = new Date();
+        const yesterday = new Date(today);
+        yesterday.setDate(today.getDate() - 1);
+
+        const isToday = currentElementDate.toDateString() === today.toDateString();
+        const isYesterday = currentElementDate.toDateString() === yesterday.toDateString();
+
+        let dateText;
+        if (isToday) {
+            dateText = "오늘";
+        } else if (isYesterday) {
+            dateText = "어제";
+        } else {
+            dateText = `${currentElementDate.getFullYear()}년 ${String(currentElementDate.getMonth() + 1).padStart(2, "0")}월 ${String(currentElementDate.getDate()).padStart(2, "0")}일`;
+        }
+
+        return `
+            <div class="date-separator">
+                <span class="date-separator-text">${dateText}</span>
+            </div>
+        `;
+    }
+
+    return '';
 }
 
 
@@ -114,6 +292,9 @@ document.addEventListener("DOMContentLoaded", function () {
 function renderChatRoom(room) {
     const chatRoomList = document.getElementById("chatRoomList");
     const existingRoom = document.getElementById(room.chatRoomId);
+    const emptyMsg = document.getElementById("emptyRoomMsg");
+    if (emptyMsg)
+        emptyMsg.remove();
     if (existingRoom)
         chatRoomList.removeChild(existingRoom);
     const li = createRoomLiTag(room);
@@ -128,6 +309,16 @@ function renderChatRoom(room) {
 function renderChatRooms(data) {
     const chatRoomList = document.getElementById("chatRoomList");
     chatRoomList.innerHTML = ""; // 초기화
+    if(!data || data.length === 0){
+        chatRoomList.innerHTML = `
+        <li class="list-group-item text-center" id="emptyRoomMsg">
+            <i class="bi bi-chat-dots empty-icon"></i>
+            <div class="empty-title">참여중인 대화가 없습니다</div>
+            <div class="empty-subtitle">새로운 대화를 시작해보세요</div>
+        </li>
+    `;
+        return;
+    }
 
     data.forEach(room => {
         const li = createRoomLiTag(room);
@@ -137,7 +328,7 @@ function renderChatRooms(data) {
 }
 
 function updateTotalUnreadBadgeFromDOM() {
-    // 모든 채팅방의 안읽은 뱃지(span.badge.bg-danger) 선택
+    // 모든 채팅방의 안읽은 뱃지(#chatRoomList .unread-count-badge) 선택
     const badges = document.querySelectorAll("#chatRoomList .unread-count-badge");
     let totalUnread = 0;
     badges.forEach(badge => {
@@ -198,11 +389,21 @@ function openChatRoom(roomId) {
         // 채팅방 구독
         console.log(roomId + ' 구독 시작');
         subscribeChatMessage(roomId);
-
+        //룸 뱃지 없애기
+        const roomLi = document.getElementById(roomId);
+        if (roomLi) {
+            const badge = roomLi.querySelector('.unread-count-badge');
+            if (badge) badge.remove();
+        }
+        updateTotalUnreadBadgeFromDOM();
     }).catch(error => {
         console.error("채팅방 불러오기 실패", error);
     });
 }
+
+
+
+
 
 // 채팅방 모달 렌더링
 // 채팅방 모달 렌더링 함수 수정
@@ -265,11 +466,11 @@ function renderChatRoomModal(roomData) {
 
         // 안읽음 수 표시
         const unreadBadge = message.unreadCount > 0 ?
-            `<span class="message-unread-badge">${message.unreadCount}</span>` : '';
+            `<span class="message-unread-badge" id="unread:${message.chatMessageId}">${message.unreadCount}</span>` : '';
 
         return `
         ${dateSeparator}
-        <div class="message-item ${messageClass} ${oldUnreadClass}" data-message-index="${index}">
+        <div class="message-item ${messageClass} ${oldUnreadClass}" data-send-at="${message.sentAt}" data-message-index="${index}">
             <div class="message-content">
                 ${!isMyMessage ? `<img src="${message.sender.profileImageUrl}" alt="${message.sender.nickname}" class="message-profile-img">` : ''}
                 <div class="message-text-area">

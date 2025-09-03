@@ -6,6 +6,7 @@ import com.github.musicsnsproject.service.chat.ChatService;
 import com.github.musicsnsproject.web.dto.chat.*;
 import com.github.musicsnsproject.web.dto.response.CustomSuccessResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.messaging.simp.user.SimpUser;
 import org.springframework.messaging.simp.user.SimpUserRegistry;
@@ -37,7 +38,8 @@ public class ChatController {
             @AuthenticationPrincipal Long userId
     ) {
         ChatRoomResponse messages = chatService.getRoomMessages(roomId, userId);
-        messagingTemplate.convertAndSend("/chat/"+roomId, userId);
+        CustomSuccessResponse<List<String>> response = CustomSuccessResponse.ofOk("채팅방에 누군가 들어왔어", messages.unreadMessageIds());
+        messagingTemplate.convertAndSend("/chat/"+roomId, response);
         return CustomSuccessResponse.ofOk("채팅방 메세지 조회 성공", messages);
     }
 
@@ -59,15 +61,6 @@ public class ChatController {
         });
     }
     private Set<Long> getActiveUsersInRoom(String roomId) {
-        Set<SimpUser> test = userRegistry.getUsers();
-        for(SimpUser user : test){
-            user.getSessions().forEach(session -> {
-                session.getSubscriptions().forEach(subscription -> {
-                    String dest = subscription.getDestination();
-                    System.out.println("User: " + user.getName() + ", Subscription Destination: " + dest);
-                });
-            });
-        }
         return userRegistry.getUsers().stream()
                 .filter(user -> user.getSessions().stream()
                         .anyMatch(session -> session.getSubscriptions().stream()
@@ -92,12 +85,10 @@ public class ChatController {
         ChatMessageResponse saved = chatService.saveMessage(request, senderId, activeUserIds);
         // 방에 구독 중인 사용자에게 실시간 push
         messagingTemplate.convertAndSend("/chat/" + saved.getChatRoomId(),
-                CustomSuccessResponse.ofOk("신규 메세지", saved));
+                CustomSuccessResponse.of(HttpStatus.CREATED,"신규 메세지", saved));
 
-
-        ChatRoomSendResponse roomSendInfos = chatService.getSendRoomMessage(request.getChatRoomId());
+        ChatRoomSendResponse roomSendInfos = chatService.getSendRoomMessage(saved);
         broadcastNewRoomMessage(roomSendInfos);
-
 
         return CustomSuccessResponse.emptyDataOk("메시지 전송 성공");
     }

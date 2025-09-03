@@ -12,6 +12,7 @@ import com.github.musicsnsproject.web.dto.chat.logic.RoomEntityCollection;
 import com.github.musicsnsproject.web.dto.chat.logic.UnreadCount;
 import com.github.musicsnsproject.web.dto.chat.room.ReceiversInfo;
 import lombok.RequiredArgsConstructor;
+import org.springdoc.core.service.GenericResponseService;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
@@ -32,6 +33,7 @@ public class ChatService {
     private final ChatMessageRepository chatMessageRepository;
     private final MyUserRepository myUserRepository;
     private final MongoTemplate mongoTemplate;
+    private final GenericResponseService responseBuilder;
 
     public ChatRoom getOrCreateChatRoom(Long loginUserId, Long targetUserId) {
         List<UserStatus> activeStatuses = List.of(UserStatus.NORMAL, UserStatus.LOCK);
@@ -48,22 +50,20 @@ public class ChatService {
                 });
     }
 
-
     /**
      메시지 저장
      */
     public ChatMessageResponse saveMessage(ChatMessageRequest chatMessageRequest, Long senderId, Set<Long> activeReceiverIds) {
         ChatRoom chatRoom = chatRoomRepository.findById(chatMessageRequest.getChatRoomId())
                 .orElseThrow(() -> CustomNotFoundException.of().request(chatMessageRequest).customMessage("존재하지 않는 채팅방").build());
-        Set<Long> otherIds = listToFilterStream(id -> !id.equals(senderId), chatRoom.getParticipants())
-                .collect(Collectors.toUnmodifiableSet());
+
         Set<Long> otherActiveIds = listToFilterStream(id -> !id.equals(senderId), activeReceiverIds)
                 .collect(Collectors.toUnmodifiableSet());
-        ChatMessage message = ChatMessage.create(chatMessageRequest, senderId, otherIds.size(), otherActiveIds);
+        ChatMessage message = ChatMessage.create(chatMessageRequest, senderId, otherActiveIds);
         ChatMessage saved = chatMessageRepository.save(message);
         ChatUserInfo sender = myUserRepository.findAllByIdForChatRoom(Set.of(senderId)).get(0);
 
-        return ChatMessageResponse.of(saved, sender, false);
+        return ChatMessageResponse.of(saved, sender, chatRoom.getParticipants());
     }
 
 
@@ -177,6 +177,12 @@ public class ChatService {
         return listToFilterStream(id-> !id.equals(senderId), chatRoom.getParticipants())
                 .toList();
     }
+    /** 채팅방 메세지 전송 후 채팅방리스트에 반환용 쿼리콜 줄인 ver */
+    public ChatRoomSendResponse getSendRoomMessage(ChatMessageResponse messageResponse){
+        List<ChatUserInfo> allUserInfos = myUserRepository.findAllByIdForChatRoom(new HashSet<>(messageResponse.getParticipantIds()));
+        List<ReceiversInfo> receivers = crateReceiversInfo(allUserInfos, messageResponse.getChatRoomId());
+        return ChatRoomSendResponse.of(messageResponse.getChatRoomId(), messageResponse.getContent(), messageResponse.getSentAt(), receivers);
+    }
 
     /** 채팅방 메세지 전송 후 채팅방리스트에 반환용 */
     public ChatRoomSendResponse getSendRoomMessage(String chatRoomId ) {
@@ -191,7 +197,7 @@ public class ChatService {
         return ChatRoomSendResponse.of(chatRoomId, lastMessages.getContent(), lastMessages.getSentAt(), receivers);
     }
 
-    /** 모든 유저들의 정보를 각각 수신자와 발신자로 한번씩 정리  */
+    /** 모든 유저들의 정보를 각각 수신자와 참여자로 한번씩 정리  */
     private List<ReceiversInfo> crateReceiversInfo(List<ChatUserInfo> allUserInfos, String chatRoomId) {
         List<ReceiversInfo> receivers = new ArrayList<>(allUserInfos.size());
         for (ChatUserInfo userInfo : allUserInfos) {
@@ -226,7 +232,7 @@ public class ChatService {
         List<ChatMessage> messages = chatMessageRepository.findByChatRoomIdOrderBySentAtAsc(roomId);
         if(messages.isEmpty()) return null;
 
-        // 내가 안읽은 메세지들 중 내가 읽은걸로 변경
+        // 내가 안읽은 메세지들 내가 읽은걸로 변경 하고 가장 오래된 안읽은 메세지의 ID를 가져옴
         List<ChatMessage> unreadMessages = getMyUnreadMessages(messages, userId);
         String oldUnreadId = changeUnreadMessagesToRead(unreadMessages, userId);
         // 참여중인 유저 정보들
@@ -234,7 +240,7 @@ public class ChatService {
         Map<Long, ChatUserInfo> userInfoMap = listToKeyMap(ChatUserInfo::getUserId, participants);
         // 응답용 메세지 리스트
         List<ChatMessageResponse> chatMessageResponses = chatMessageListToResponseList(messages, userInfoMap, oldUnreadId);
-        return createRoomResponse(userInfoMap, userId, roomId, chatMessageResponses);
+        return createRoomResponse(userInfoMap, userId, roomId, chatMessageResponses, unreadMessages);
 
     }
 
@@ -246,6 +252,7 @@ public class ChatService {
             ChatMessageResponse response = ChatMessageResponse.of(
                     message,
                     senderInfo,
+                    new ArrayList<>(userInfoMap.keySet()),
                     oldUnread
             );
 
@@ -254,12 +261,15 @@ public class ChatService {
         return responses;
     }
 
-    private ChatRoomResponse createRoomResponse(Map<Long,ChatUserInfo> userInfoMap, long userId, String roomId, List<ChatMessageResponse> messageResponse) {
+    private ChatRoomResponse createRoomResponse(Map<Long,ChatUserInfo> userInfoMap, long userId, String roomId, List<ChatMessageResponse> messageResponse, List<ChatMessage> unreadMessages) {
         List<ChatUserInfo> otherUsers = listToFilterStream(
                 userinfo -> userinfo.getUserId() != userId,
                 userInfoMap.values()
         ).toList();
-        return new ChatRoomResponse(roomId, userInfoMap.get(userId), otherUsers, messageResponse);
+        List<String> unreadMessageIds = unreadMessages.stream()
+                .map(ChatMessage::getChatMessageId)
+                .toList();
+        return new ChatRoomResponse(roomId, userInfoMap.get(userId), otherUsers, messageResponse, unreadMessageIds);
     }
 
     private List<ChatUserInfo> getOtherUsersInfo(List<ChatUserInfo> participants, long userId) {
@@ -275,13 +285,13 @@ public class ChatService {
     private List<ChatMessage> getMyUnreadMessages(List<ChatMessage> messages, Long userId){
 
         return listToFilterStream(msg -> !msg.getUserId().equals(userId), messages) // 내가 보낸 메세지 제외
-                .filter(msg -> msg.getUnreadCount() > 0 && !msg.getReadBy().contains(userId))
+                .filter(msg -> !msg.getReadBy().contains(userId))
                 .toList();
     }
     private String changeUnreadMessagesToRead(List<ChatMessage> unreadMessages, Long userId){
         if(!unreadMessages.isEmpty()){
             unreadMessages.forEach(msg -> msg.addReadBy(userId));
-//            chatMessageRepository.saveAll(unreadMessages);
+            chatMessageRepository.saveAll(unreadMessages);
             return unreadMessages.get(0).getChatMessageId();
         }
         return null;

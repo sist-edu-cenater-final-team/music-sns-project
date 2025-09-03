@@ -15,7 +15,7 @@ public interface ChatMessageRepository extends MongoRepository<ChatMessage, Stri
 
     /** 각 채팅방 별 내가 안읽은 메세지 카운트*/
     @Aggregation(pipeline = {
-            "{ '$match': { 'chatRoomId': { '$in': ?0 }, 'userId': { '$ne': ?1 }, 'unreadCount': { '$gte': 1 }, 'readBy': { '$ne': ?1 } } }",
+            "{ '$match': { 'chatRoomId': { '$in': ?0 }, 'userId': { '$ne': ?1 }, 'readBy': { '$ne': ?1 } } }",
             "{ '$group': { '_id': '$chatRoomId', 'count': { '$sum': 1 } } }"
     })
     List<UnreadCount> countUnreadByChatRoomIds(Set<String> chatRoomIds, Long userId);
