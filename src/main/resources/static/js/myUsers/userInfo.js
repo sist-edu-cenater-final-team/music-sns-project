@@ -14,7 +14,7 @@ $(function() {
 			success: function(json) {
 				const profile = $('div.profile-top');
 				userId = json.userId;
-
+				console.log(json);
 				const button = $(".profile-btns");
 				let b_html = "";
 
@@ -44,21 +44,37 @@ $(function() {
 	                                <strong class="mr-2">${json.myuser.postCount}</strong>
 	                            </div> 
 	                            <div class="mr-3 text-center"> 
-	                                <span style="font-weight: 600; font-size: 14pt">팔로워</span>
-	                                <a href="/mypage/myFollowers" class="text-dark text-center">
-	                                    <strong class="mr-2">${json.myuser.followeeCount}</strong>
-	                                </a> 
-	                            </div> 
-	                            <div class="text-center"> 
-	                                <span style="font-weight: 600; font-size: 14pt">팔로우</span>
-	                                <a href="/mypage/myFollowers" class="text-dark text-center"> 
-	                                    <strong class="mr-2">${json.myuser.followerCount}</strong>
-	                                </a> 
-	                            </div> 
+	                                <span style="font-weight: 600; font-size: 14pt">팔로워</span>`;
+								if (targetUserId == null || targetUserId == '') {
+		                        	v_html += `<a href="/mypage/myFollowers" class="text-dark text-center">
+				                                    <strong class="mr-2">${json.myuser.followeeCount}</strong>
+				                                </a> 
+				                            </div> 
+				                            <div class="text-center"> 
+				                                <span style="font-weight: 600; font-size: 14pt">팔로우</span>
+				                                <a href="/mypage/myFollowers" class="text-dark text-center"> 
+				                                    <strong class="mr-2">${json.myuser.followerCount}</strong>
+				                                </a> 
+				                            </div>`;
+								}
+								else {
+									v_html += `<a href="/mypage/myFollowers?targetUserId=${targetUserId}" class="text-dark text-center">
+				                                    <strong class="mr-2">${json.myuser.followeeCount}</strong>
+				                                </a> 
+				                            </div> 
+				                            <div class="text-center"> 
+				                                <span style="font-weight: 600; font-size: 14pt">팔로우</span>
+				                                <a href="/mypage/myFollowers?targetUserId=${targetUserId}" class="text-dark text-center"> 
+				                                    <strong class="mr-2">${json.myuser.followerCount}</strong>
+				                                </a> 
+				                            </div>`;
+								} 
+								
+				v_html += `
 	                        </div> 
 	                        <div class="my-3">${json.myuser.username}</div>`;
 
-				if (json.profileMessage != null) {
+				if (json.myuser.profileMessage != null) {
 					v_html += `<p class="mb-0 text-muted">${json.myuser.profileMessage}</p>`;
 				} else {
 					v_html += `<p class="mb-0 text-muted">상태메세지 없음</p>`;

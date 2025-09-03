@@ -3,15 +3,10 @@ package com.github.musicsnsproject.repository.jpa.account.follow;
 import java.util.List;
 import java.util.Map;
 
-import com.github.musicsnsproject.domain.ProfileMusicVO;
 import com.github.musicsnsproject.domain.follow.FollowVO;
 import com.github.musicsnsproject.domain.user.MyUserVO;
 import com.github.musicsnsproject.repository.jpa.account.user.QMyUser;
 import com.github.musicsnsproject.repository.jpa.community.block.QBlockUser;
-import com.github.musicsnsproject.repository.jpa.music.QMyMusic;
-import com.github.musicsnsproject.repository.jpa.music.profile.QProfileMusic;
-import com.github.musicsnsproject.repository.jpa.music.purchase.QPurchaseHistory;
-import com.github.musicsnsproject.repository.jpa.music.purchase.QPurchaseMusic;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.ExpressionUtils;
 import com.querydsl.core.types.Projections;
@@ -27,60 +22,60 @@ import lombok.RequiredArgsConstructor;
 public class FollowQueryRepositoryImpl implements FollowQueryRepository {
     private final JPAQueryFactory queryFactory;
 
+    @Override
+    public List<FollowVO> findByFollowerAndUserInfo(Long userId, Long viewUserId) {
+        QFollow follow = QFollow.follow;
+        QMyUser user = QMyUser.myUser;  
+        QFollow follow2 = new QFollow("follow2");
+        QBlockUser blockUser = QBlockUser.blockUser;
+
+        return queryFactory.select(Projections.fields(FollowVO.class,
+                follow.followPk.followee.userId.as("followee"),
+                follow.followPk.follower.userId.as("follower"),
+                Projections.fields(MyUserVO.class,
+                        user.userId,
+                        user.nickname,
+                        user.email,
+                        user.profileImage.as("profile_image"),
+                        user.profileMessage
+                ).as("user"),
+                ExpressionUtils.as(
+                    JPAExpressions
+                        .selectOne()
+                        .from(follow)
+                        .where(
+                            follow.followPk.follower.userId.eq(userId)
+                            .and(follow.followPk.followee.userId.eq(user.userId))
+                            .and(follow.favorite.isTrue())
+                        )
+                        .exists(),
+                    "favorite"
+                ),
+                new CaseBuilder()
+                    .when(follow2.isNotNull())
+                    .then(true)
+                    .otherwise(false)
+                    .as("teist")
+            )
+        )
+        .from(follow)
+        .join(user).on(follow.followPk.followee.userId.eq(user.userId))
+        .leftJoin(follow2)
+            .on(follow2.followPk.follower.userId.eq(userId)
+                .and(follow2.followPk.followee.userId.eq(follow.followPk.follower.userId)))
+        .leftJoin(blockUser)
+            .on(blockUser.blockUserPk.myUser.userId.eq(userId)
+                .and(blockUser.blockUserPk.blockUser.userId.eq(user.userId)))
+        .where(
+            follow.followPk.follower.userId.eq(userId)
+            .and(blockUser.blockUserPk.myUser.isNull())
+            .and(viewUserId != null ? user.userId.ne(viewUserId) : null) // viewUserId 제외
+        )
+        .fetch();
+    }
+
 	@Override
-	public List<FollowVO> findByFollowerAndUserInfo(Long userId) {
-	    QFollow follow = QFollow.follow;
-	    QMyUser user = QMyUser.myUser;  
-	    QFollow follow2 = new QFollow("follow2");
-	    QBlockUser blockUser = QBlockUser.blockUser;
-
-	    return queryFactory.select(Projections.fields(FollowVO.class,
-	            follow.followPk.followee.userId.as("followee"),
-	            follow.followPk.follower.userId.as("follower"),
-	            Projections.fields(MyUserVO.class,
-	                    user.userId,
-	                    user.nickname,
-	                    user.email,
-	                    user.profileImage.as("profile_image"),
-	                    user.profileMessage
-			            ).as("user"),
-			    		ExpressionUtils.as(
-			    			    JPAExpressions
-			    			        .selectOne()
-			    			        .from(follow)
-			    			        .where(
-			    			            follow.followPk.follower.userId.eq(userId)
-			    			            .and(follow.followPk.followee.userId.eq(user.userId))
-			    			            .and(follow.favorite.isTrue())
-			    			        )
-			    			        .exists(),
-			    			    "favorite"
-			    			),
-			            new CaseBuilder()
-			                .when(follow2.isNotNull())
-			                .then(true)
-			                .otherwise(false)
-			                .as("teist")
-					    )
-
-			    		)
-					    .from(follow)
-					    .join(user).on(follow.followPk.followee.userId.eq(user.userId))
-					    .leftJoin(follow2)
-					        .on(follow2.followPk.follower.userId.eq(userId)
-					            .and(follow2.followPk.followee.userId.eq(follow.followPk.follower.userId)))
-					    .leftJoin(blockUser)
-					        .on(blockUser.blockUserPk.myUser.userId.eq(userId)
-					            .and(blockUser.blockUserPk.blockUser.userId.eq(user.userId)))
-					    .where(
-					        follow.followPk.follower.userId.eq(userId)
-					        .and(blockUser.blockUserPk.myUser.isNull()) 
-					    )
-					    .fetch();
-			}
-
-	@Override
-	public List<FollowVO> findByFolloweeAndUserInfo(Long userId) {
+	public List<FollowVO> findByFolloweeAndUserInfo(Long userId, Long viewUserId) {
 		
 		QFollow follow = QFollow.follow;
 		QFollow follow2 = new QFollow("follow2");
@@ -125,7 +120,8 @@ public class FollowQueryRepositoryImpl implements FollowQueryRepository {
 	        .on(blockUser.blockUserPk.myUser.userId.eq(userId)
 	            .and(blockUser.blockUserPk.blockUser.userId.eq(user.userId)))
 	        .where(follow.followPk.followee.userId.eq(userId)
-	        		.and(blockUser.blockUserPk.myUser.isNull()))
+	        		.and(blockUser.blockUserPk.myUser.isNull())
+	        		.and(viewUserId != null ? user.userId.ne(viewUserId) : null))
 	        .fetch();
 	}
 
@@ -196,11 +192,13 @@ public class FollowQueryRepositoryImpl implements FollowQueryRepository {
 
 	    BooleanBuilder builder = new BooleanBuilder();
 	    
+	    String phone = (searchWord == null) ? "" : searchWord.replace("-", "");
+	    
 	    if (searchWord != null && !searchWord.isEmpty()) {
 	        builder.and(
 	            user.nickname.containsIgnoreCase(searchWord)
-	                .or(user.email.containsIgnoreCase(searchWord))
-	                	.or(user.phoneNumber.containsIgnoreCase(searchWord))
+	                .or(user.email.eq(searchWord))
+	                	.or(user.phoneNumber.eq(phone))
 	        );
 	    }
 	    return queryFactory
@@ -244,7 +242,7 @@ public class FollowQueryRepositoryImpl implements FollowQueryRepository {
 	}
 
 	@Override
-	public List<FollowVO> getfavoriteList(Long userId) {
+	public List<FollowVO> getfavoriteList(Long userId, Long viewUserId) {
 		QFollow follow = QFollow.follow;
 		QMyUser user = QMyUser.myUser;
 		QFollow follow2 = new QFollow("follow2");
@@ -272,7 +270,8 @@ public class FollowQueryRepositoryImpl implements FollowQueryRepository {
 	        .on(follow2.followPk.follower.userId.eq(userId)
 	        	.and(follow2.followPk.followee.userId.eq(follow.followPk.follower.userId)))
 	        .where(follow.followPk.follower.userId.eq(userId)
-	        		.and(follow.favorite.isTrue()))
+	        		.and(follow.favorite.isTrue())
+	        		.and(viewUserId != null ? user.userId.ne(viewUserId) : null))
 	        .fetch();
 	}
 

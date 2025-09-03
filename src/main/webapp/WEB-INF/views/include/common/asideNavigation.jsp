@@ -30,10 +30,10 @@ button:focus {
 <!-- 왼쪽 네비게이션 사이드바 -->
 <div class="aside-navigation sidebar">
 	<div class="inner">
-		<a href="javascript:;" class="btn-logo"><span class="blind">홈으로가기</span></a>
+		<a href='<%=ctxPath%>/index' class="btn-logo"><span class="blind">홈으로가기</span></a>
 		<ul class="navigation-list">
 			<li>
-				<button type="button" class="btn home">홈</button>
+				<button type="button" class="btn home" onclick="location.href='<%=ctxPath%>/index'">홈</button>
 			</li>
 			<li>
 				<button type="button" class="btn search" data-target="searchLayer">검색</button>

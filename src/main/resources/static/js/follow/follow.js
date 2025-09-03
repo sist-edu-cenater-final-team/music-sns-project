@@ -1,6 +1,6 @@
 
 $(function () {
-	
+
     // 초기 데이터 로드
     getCounts();
     getfollowing();
@@ -111,7 +111,9 @@ $(function () {
 function getCounts() {
     const apiRequest = AuthFunc.apiRequest;
     const authHeader = AuthFunc.getAuthHeader;
-
+	const params = new URLSearchParams(window.location.search);
+	const targetUserId = params.get("targetUserId");
+	
     const urls = [
         { url: '/api/follow/follower', selector: '#following', label: '팔로워' },
         { url: '/api/follow/followee', selector: '#followers', label: '팔로잉' },
@@ -123,6 +125,7 @@ function getCounts() {
             new Promise((resolve, reject) => {
                 $.ajax({
                     url: item.url,
+					data:{"targetUserId":targetUserId},
                     headers: authHeader(),
                     dataType: 'json',
                     success: json => $(item.selector).text(`${item.label} ${json.length}명`),
@@ -139,6 +142,8 @@ function getfollowing() {
     const apiRequest = AuthFunc.apiRequest;
     const authHeader = AuthFunc.getAuthHeader;
 	const ctxPath = "http://localhost:8080/";
+	const params = new URLSearchParams(window.location.search);
+	const targetUserId = params.get("targetUserId");
     apiRequest(() =>
     
     	new Promise((resolve, reject) => {
@@ -146,6 +151,7 @@ function getfollowing() {
     	
             $.ajax({
                 url:  '/api/follow/follower',
+				data:{"targetUserId":targetUserId},
                 headers: authHeader(),
                 dataType: 'json',
                 success: function (json) {
@@ -232,11 +238,14 @@ function getfollower() {
     const apiRequest = AuthFunc.apiRequest;
     const authHeader = AuthFunc.getAuthHeader;
 	const ctxPath = "http://localhost:8080/";
+	const params = new URLSearchParams(window.location.search);
+	const targetUserId = params.get("targetUserId");
     apiRequest(() =>
         new Promise((resolve, reject) => {
 
             $.ajax({
                 url:  '/api/follow/followee',
+				data:{"targetUserId":targetUserId},
                 headers: authHeader(),
                 dataType: 'json',
                 success: function (json) {
@@ -346,11 +355,13 @@ function getfollower() {
 function favoriteList() {
     const apiRequest = AuthFunc.apiRequest;
     const authHeader = AuthFunc.getAuthHeader;
-
+	const params = new URLSearchParams(window.location.search);
+	const targetUserId = params.get("targetUserId");
     apiRequest(() =>
     	new Promise((resolve, reject) => {
             $.ajax({
                 url:  '/api/follow/favorite',
+				data:{"targetUserId":targetUserId},
                 headers: authHeader(),
                 dataType: 'json',
                 success: function (json) {

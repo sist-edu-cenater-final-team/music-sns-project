@@ -6,38 +6,49 @@
   margin: 0;
 }
 
-.music-item {
-  position: relative;
+.album-list {
   display: flex;
   align-items: center;
-  padding: 6px 10px;
-  border-radius: 8px;
+  justify-content: space-between;
+  padding: 8px 8px;
+  border-radius: 10px;
   cursor: pointer;
   transition: background-color 0.3s;
 }
 
-.music-item:hover {
-  background-color: #f5f0ff; /* 연한 보라 hover */
+.album-list:hover {
+  background-color: #f5f0ff;
+  cursor:pointer;
 }
 
-.music-thumb {
-  width: 40px;
-  height: 40px;
-  border-radius: 6px;
-  object-fit: cover;
-  margin-right: 10px;
-}
-
-.music-info {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-}
-
-.music-title {
+.album-one {
+  flex: 0 0 65%;
   font-weight: bold;
-  font-size: 14px;
+  font-size: 15px;
   color: #6633ff;
-  margin-bottom: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  position: relative;
+}
+
+.scrolling-wrapper {
+  display: inline-block;
+  white-space: nowrap;
+}
+
+/* 글자 반복을 위한 내부 span */
+.scrolling-wrapper span {
+  display: inline-block;
+  padding-right: 120px; /* 글자 사이 간격 */
+  height: 20px;
+}
+
+/* hover 시 자연스러운 무한 스크롤 */
+.album-one:hover .scrolling-wrapper {
+  animation: scroll-loop 7s linear infinite;
+}
+
+@keyframes scroll-loop {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); } /* 글자 반복으로 자연스럽게 이어짐 */
 }
