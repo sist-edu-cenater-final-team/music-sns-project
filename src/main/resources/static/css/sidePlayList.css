@@ -26,6 +26,7 @@
   border-radius: 10px;
   cursor: pointer;
   transition: background-color 0.3s;
+  line-height:20px;
 }
 
 .album-list:hover {
