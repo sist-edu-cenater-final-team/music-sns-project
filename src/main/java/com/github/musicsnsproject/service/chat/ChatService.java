@@ -63,7 +63,7 @@ public class ChatService {
         ChatMessage saved = chatMessageRepository.save(message);
         ChatUserInfo sender = myUserRepository.findAllByIdForChatRoom(Set.of(senderId)).get(0);
 
-        return ChatMessageResponse.of(saved, sender, chatRoom.getParticipants());
+        return ChatMessageResponse.of(saved, sender, chatRoom.getParticipants(), otherActiveIds);
     }
 
 

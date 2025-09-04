@@ -51,9 +51,10 @@ public class ChatController {
         return CustomSuccessResponse.ofOk("채팅방 조회 성공", room);
     }
 
-    private void broadcastNewRoomMessage(ChatRoomSendResponse roomSendInfos){
+    private void broadcastNewRoomMessage(ChatRoomSendResponse roomSendInfos, ChatMessageResponse message) {
         roomSendInfos.getReceivers().forEach(receiver -> {
-            var response = ChatRoomListResponse.fromSendResponse(roomSendInfos, receiver);
+            ChatToastResponse toastResponse = ChatToastResponse.fromChatMessageResponse(message);
+            var response = ChatRoomListResponse.fromSendResponse(roomSendInfos, receiver, toastResponse);
             messagingTemplate.convertAndSend("/rooms/"+receiver.getReceiverId(), CustomSuccessResponse.ofOk("신규 메세지 반영 채팅방", response));
         });
     }
@@ -85,7 +86,7 @@ public class ChatController {
                 CustomSuccessResponse.of(HttpStatus.CREATED,"신규 메세지", saved));
 
         ChatRoomSendResponse roomSendInfos = chatService.getSendRoomMessage(saved);
-        broadcastNewRoomMessage(roomSendInfos);
+        broadcastNewRoomMessage(roomSendInfos, saved);
 
         return CustomSuccessResponse.emptyDataOk("메시지 전송 성공");
     }

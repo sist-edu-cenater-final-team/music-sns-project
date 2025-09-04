@@ -44,11 +44,6 @@ function hideModal(modal) {
 }
 
 
-
-
-
-
-
 let loginUserId = null;
 AuthFunc.primaryKey().then(async pk => {
     loginUserId = pk;
@@ -92,12 +87,13 @@ function connectStomp(pk) {
             }
         );
         // 연결 해제 시 재연결 시도
-        socket.onclose = function() {
+        socket.onclose = function () {
             console.log("WebSocket 연결이 종료되었습니다.");
             handleReconnect(pk);
         };
     });
 }
+
 function handleReconnect(pk, resolve = null, reject = null) {
     if (reconnectAttempts < maxReconnectAttempts) {
         reconnectAttempts++;
@@ -120,6 +116,7 @@ function handleReconnect(pk, resolve = null, reject = null) {
         if (reject) reject(new Error("연결 실패"));
     }
 }
+
 // 재연결 시 기존 구독들을 복원하는 함수
 function restoreSubscriptions() {
     if (loginUserId) {
@@ -137,8 +134,15 @@ function subscribeChatRoom(pk) {
     stompClient.subscribe("/rooms/" + pk, (response) => {
         // console.log("채팅방 목록 업데이트 메시지 수신:", JSON.parse(response.body));
         const data = JSON.parse(response.body).success.responseData;
-
+        console.log(data);
         renderChatRoom(data);
+        const chatToast = data.chatToast;
+        const senderId = chatToast.sender.userId;
+        const otherActiveUserIds = chatToast.otherActiveUserIds;
+        if(senderId === loginUserId || (Array.isArray(otherActiveUserIds) && otherActiveUserIds.includes(loginUserId)))
+            return;
+        // 알림 표시
+        showNewMessageToast(chatToast);
     });
 }
 
@@ -217,22 +221,26 @@ function appendNewMessage(messageData) {
 
     // 날짜 구분선 체크 (마지막 메시지와 날짜가 다른지)
     const lastMessage = messagesContainer.lastElementChild;
-    const dateSeparator =  checkDateSeparator(messageDate, lastMessage);
+    const dateSeparator = checkDateSeparator(messageDate, lastMessage);
 
 
     // 안읽음 수 표시
     const unreadBadge = messageData.unreadCount > 0 ?
         `<span class="message-unread-badge" id="unread:${messageData.chatMessageId}">${messageData.unreadCount}</span>` : '';
 
+    const nickname = messageData.sender.nickname || '알 수 없는 사용자';
+    const profileMessage = messageData.sender.profileMessage || '';
+    const profileImageUrl = messageData.sender.profileImageUrl || ctxPath + '/images/default-profile.png';
+
     const messageHtml = `
         ${dateSeparator}
         <div class="message-item ${messageClass}" data-send-at="${messageData.sentAt}" data-message-index="new">
             <div class="message-content">
-                ${!isMyMessage ? `<img src="${messageData.sender.profileImageUrl}" alt="${messageData.sender.nickname}" class="message-profile-img" >` : ''}
+                ${!isMyMessage ? `<img src="${messageData.sender.profileImageUrl}" alt="${messageData.sender.nickname}" class="message-profile-img" onclick="openProfileImageModal('${nickname}', '${profileMessage}', '${profileImageUrl}')">` : ''}
                 <div class="message-text-area">
                     ${!isMyMessage ? `<div class="message-nickname">${messageData.sender.nickname}</div>` : ''}
                     <div class="message-bubble-container">
-                        <div class="message-bubble">${messageData.content}</div>
+                        <div class="message-bubble" id="${messageData.chatMessageId}">${messageData.content}</div>
                         ${unreadBadge}
                     </div>
                     <div class="message-time">${messageTime}</div>
@@ -267,9 +275,24 @@ function showNewMessageNotification(messageData) {
     // 알림 생성
     const notification = document.createElement('div');
     notification.className = 'new-message-notification';
+
+    const profileImageUrl = messageData.sender.profileImageUrl || ctxPath + '/images/default-profile.png';
+    const nickname = messageData.sender.nickname || '알 수 없는 사용자';
+
     notification.innerHTML = `
-        <div class="notification-sender">${messageData.sender.nickname}</div>
-        <div class="notification-content">${messageData.content}</div>
+        <div class="notification-content">
+            <div class="notification-left">
+                <img src="${profileImageUrl}" alt="${nickname}" class="notification-profile-img">
+                <div class="notification-text">
+                    <div class="notification-sender">${nickname}</div>
+                    <div class="notification-message">${messageData.content}</div>
+                </div>
+            </div>
+            <div class="notification-right">
+                <i class="bi bi-chevron-up notification-icon"></i>
+                <div class="notification-hint">클릭하여 확인</div>
+            </div>
+        </div>
     `;
 
     // chatRoomModal의 modal-body에 추가 (chat-input-container 바로 앞에)
@@ -287,13 +310,13 @@ function showNewMessageNotification(messageData) {
         notification.remove();
     });
 
-    // 4초 후 자동 제거
+    // 5초 후 자동 제거
     setTimeout(() => {
         notification.classList.remove('show');
         setTimeout(() => {
             if (notification.parentNode) notification.remove();
         }, 300);
-    }, 4000);
+    }, 5000);
 }
 
 
@@ -377,7 +400,7 @@ document.addEventListener("DOMContentLoaded", function () {
     // 부트스트랩 버전에 따른 이벤트 처리
     if (bootstrapVersion === 5) {
         // 채팅방 모달 ESC 키 이벤트 차단
-        chatRoomModal.addEventListener('keydown', function(e) {
+        chatRoomModal.addEventListener('keydown', function (e) {
             if (e.key === 'Escape') {
                 e.stopPropagation(); // 이벤트 전파 차단
                 const modal = bootstrap.Modal.getInstance(chatRoomModal);
@@ -405,7 +428,7 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         });
         // 채팅 목록 모달도 ESC 이벤트 관리
-        chatModal.addEventListener('keydown', function(e) {
+        chatModal.addEventListener('keydown', function (e) {
             if (e.key === 'Escape') {
                 // 채팅방 모달이 열려있으면 ESC 차단
                 if (chatRoomModal.classList.contains('show')) {
@@ -458,7 +481,7 @@ document.addEventListener("DOMContentLoaded", function () {
     // 채팅 목록 모달 닫기 버튼
     const chatModalCloseBtn = document.querySelector('#chatModal .modal-close-btn');
     if (chatModalCloseBtn) {
-        chatModalCloseBtn.addEventListener('click', function() {
+        chatModalCloseBtn.addEventListener('click', function () {
             // const bootstrapVersion = getBootstrapVersion();
             if (bootstrapVersion === 5) {
                 const modal = bootstrap.Modal.getInstance(document.getElementById('chatModal'));
@@ -472,7 +495,7 @@ document.addEventListener("DOMContentLoaded", function () {
     // 채팅방 모달 닫기 버튼
     const chatRoomModalCloseBtn = document.querySelector('#chatRoomModal .modal-close-btn');
     if (chatRoomModalCloseBtn) {
-        chatRoomModalCloseBtn.addEventListener('click', function() {
+        chatRoomModalCloseBtn.addEventListener('click', function () {
             // const bootstrapVersion = getBootstrapVersion();
             if (bootstrapVersion === 5) {
                 const modal = bootstrap.Modal.getInstance(document.getElementById('chatRoomModal'));
@@ -573,7 +596,7 @@ function openProfileImageModal(nickname, profileMessage, imageUrl) {
 
     // 모달 배경 클릭 시 닫기 이벤트 추가
     const modalBody = document.querySelector('.simple-profile-body');
-    modalBody.onclick = function(e) {
+    modalBody.onclick = function (e) {
         if (e.target === modalBody || e.target.closest('.profile-image-overlay')) {
             const bootstrapVersion = getBootstrapVersion();
             if (bootstrapVersion === 5) {
@@ -618,15 +641,15 @@ function openChatRoom(roomId) {
             });
             chatRoomModal.show();
             // 모달이 완전히 표시된 후 포커스 설정
-            document.getElementById("chatRoomModal").addEventListener('shown.bs.modal', function() {
+            document.getElementById("chatRoomModal").addEventListener('shown.bs.modal', function () {
                 const messageInput = document.getElementById('chatMessageInput');
                 if (messageInput) {
                     messageInput.focus();
                 }
-            }, { once: true });
+            }, {once: true});
         } else if (bootstrapVersion === 4) {
             $('#chatRoomModal').modal('show');
-            $('#chatRoomModal').on('shown.bs.modal', function() {
+            $('#chatRoomModal').on('shown.bs.modal', function () {
                 $('#chatMessageInput').focus();
             });
         }
@@ -647,8 +670,7 @@ function openChatRoom(roomId) {
 }
 
 
-// 채팅방 모달 렌더링
-// 채팅방 모달 렌더링 함수 수정
+// 채팅방 내부 모달 렌더링 함수 수정
 function renderChatRoomModal(roomData) {
     const otherUsers = roomData.otherUsers;
     const messages = roomData.messages;
@@ -656,9 +678,12 @@ function renderChatRoomModal(roomData) {
 
 
     // 참여자 프로필 이미지들
-    const participantImagesHtml = otherUsers.map(user =>
-
-        `<img src="${user.profileImageUrl}" alt="${user.nickname}" class="participant-img" onclick="openProfileImageModal('${user.nickname}', '${user.profileMessage}', '${user.profileImageUrl}')">`
+    const participantImagesHtml = otherUsers.map(user => {
+            const profileImageUrl = user.profileImageUrl || ctxPath + '/images/default-profile.png';
+            const nickname = user.nickname || '알 수 없는 사용자';
+            const profileMessage = user.profileMessage || '';
+            return `<img src="${profileImageUrl}" alt="${nickname}" class="participant-img" onclick="openProfileImageModal('${nickname}', '${profileMessage}', '${profileImageUrl}')">`
+        }
     ).join('');
 
     // 참여자 닉네임들
@@ -670,8 +695,8 @@ function renderChatRoomModal(roomData) {
     document.getElementById('chatRoomParticipantNames').textContent = participantNames;
     document.getElementById('chatRoomModal').dataset.roomId = roomData.chatRoomId;
 
-    if(!messages || messages.length === 0){
-        document.getElementById('chatRoomMessages').innerHTML =  `
+    if (!messages || messages.length === 0) {
+        document.getElementById('chatRoomMessages').innerHTML = `
         <li class="list-group-item text-center" id="emptyRoomMsg">
             <i class="bi bi-chat-dots empty-icon"></i>
             <div class="empty-title">서로 나눈 대화 내역이 없습니다.</div>
@@ -730,15 +755,19 @@ function renderChatRoomModal(roomData) {
         const unreadBadge = message.unreadCount > 0 ?
             `<span class="message-unread-badge" id="unread:${message.chatMessageId}">${message.unreadCount}</span>` : '';
 
+        const profileImageUrl = message.sender.profileImageUrl || ctxPath + '/images/default-profile.png';
+        const nickname = message.sender.nickname || '알 수 없는 사용자';
+        const profileMessage = message.sender.profileMessage || '';
+
         return `
         ${dateSeparator}
         <div class="message-item ${messageClass} ${oldUnreadClass}" data-send-at="${message.sentAt}" data-message-index="${index}">
             <div class="message-content">
-                ${!isMyMessage ? `<img src="${message.sender.profileImageUrl}" alt="${message.sender.nickname}" class="message-profile-img" onclick="openProfileImageModal(message.sender.nickname, message.sender.profileMessage, message.sender.profileImageUrl)">` : ''}
+                ${!isMyMessage ? `<img src="${message.sender.profileImageUrl}" alt="${message.sender.nickname}" class="message-profile-img" onclick="openProfileImageModal('${nickname}', '${profileMessage}', '${profileImageUrl}')">` : ''}
                 <div class="message-text-area">
                     ${!isMyMessage ? `<div class="message-nickname">${message.sender.nickname}</div>` : ''}
                     <div class="message-bubble-container">
-                        <div class="message-bubble">${message.content}</div>
+                        <div class="message-bubble" id="${message.chatMessageId}">${message.content}</div>
                         ${unreadBadge}
                     </div>
                     <div class="message-time">${messageTime}</div>
@@ -940,8 +969,171 @@ async function goToMessage(userId) {
 
         setTimeout(() => {
             openChatRoom(chatRoomId);
-        }, 300);
+        }, 500);
+    }
+}
+
+const audio = new Audio(ctxPath + '/sounds/chat-notification.mp3');
+// 알림음 재생 함수
+function playNotificationSound() {
+    try {
+
+        // 볼륨 설정 (0.0 ~ 1.0)
+        audio.volume = 1.0;
+
+        // 재생
+        audio.play().catch(error => {
+            console.log('알림음 재생 실패:', error);
+            // 브라우저 자동재생 정책으로 실패할 수 있음
+        });
+    } catch (error) {
+        console.log('알림음 생성 실패:', error);
     }
 }
 
 
+// 새 메시지 알림 표시 함수
+function showNewMessageToast(messageData) {
+    // alert('showNewMessageToast 실행');
+    playNotificationSound()
+    const { chatRoomId, chatMessageId, sender, content } = messageData;
+
+    // 기존 토스트가 있다면 제거
+    const existingToast = document.querySelector('.new-message-toast');
+    if (existingToast) {
+        existingToast.remove();
+    }
+
+    // 토스트 엘리먼트 생성
+    const toast = document.createElement('div');
+    toast.className = 'new-message-toast';
+    toast.innerHTML = `
+        <div class="toast-content">
+            <img src="${sender.profileImageUrl || ctxPath + '/images/default-profile.png'}" 
+                 alt="${sender.nickname}" class="toast-profile-img">
+            <div class="toast-message-info">
+                <div class="toast-nickname">${sender.nickname}</div>
+                <div class="toast-message">${content}</div>
+            </div>
+            <i class="bi bi-chat-dots toast-icon"></i>
+        </div>
+    `;
+
+    // 클릭 이벤트 추가
+    toast.addEventListener('click', () => {
+        hideNewMessageToast(toast);
+        openChatRoomAndHighlightMessage(chatRoomId, chatMessageId);
+    });
+
+    // 문서에 추가
+    document.body.appendChild(toast);
+
+    // 애니메이션 시작
+    setTimeout(() => {
+        toast.classList.add('show');
+    }, 100);
+
+    // 3초 후 자동 숨김
+    setTimeout(() => {
+        hideNewMessageToast(toast);
+    }, 3000);
+}
+
+// 토스트 숨김 함수
+function hideNewMessageToast(toast) {
+    if (!toast || !toast.parentNode) return;
+
+    toast.classList.remove('show');
+    setTimeout(() => {
+        if (toast.parentNode) {
+            toast.parentNode.removeChild(toast);
+        }
+    }, 400);
+}
+
+// 채팅방 열기 및 메시지 하이라이트 함수
+function openChatRoomAndHighlightMessage(chatRoomId, chatMessageId) {
+    // 채팅 목록 모달이 열려있지 않다면 열기
+    const chatModal = document.getElementById('chatModal');
+    if (!chatModal.classList.contains('show')) {
+        const btnTalk = document.getElementById('btnTalk');
+        btnTalk.click();
+
+        // 모달이 열린 후 채팅방 열기
+        setTimeout(() => {
+            openChatRoomWithHighlight(chatRoomId, chatMessageId);
+        }, 500);
+    } else {
+        openChatRoomWithHighlight(chatRoomId, chatMessageId);
+    }
+}
+
+// 채팅방 열기 및 특정 메시지 하이라이트
+function openChatRoomWithHighlight(chatRoomId, chatMessageId) {
+    // 기존 openChatRoom 함수를 수정하여 사용
+    AuthFunc.apiRequest(() =>
+        axios.get(`${ctxPath}/api/chat/${chatRoomId}`, {
+            headers: AuthFunc.getAuthHeader()
+        })
+    ).then(response => {
+        const data = response.data.success.responseData;
+        renderChatRoomModal(data);
+
+        const bootstrapVersion = getBootstrapVersion();
+        if (bootstrapVersion === 5) {
+            const chatRoomModal = new bootstrap.Modal(document.getElementById("chatRoomModal"), {
+                keyboard: true
+            });
+            chatRoomModal.show();
+
+            // 모달이 표시된 후 메시지 하이라이트
+            document.getElementById("chatRoomModal").addEventListener('shown.bs.modal', function () {
+                setTimeout(() => {
+                    highlightMessage(chatMessageId);
+                }, 200);
+            }, {once: true});
+        } else if (bootstrapVersion === 4) {
+            $('#chatRoomModal').modal('show');
+            $('#chatRoomModal').on('shown.bs.modal', function () {
+                setTimeout(() => {
+                    highlightMessage(chatMessageId);
+                }, 200);
+            });
+        }
+
+        console.log(chatRoomId + ' 구독 시작');
+        subscribeChatMessage(chatRoomId);
+
+        // 룸 뱃지 없애기
+        const roomLi = document.getElementById(chatRoomId);
+        if (roomLi) {
+            const badge = roomLi.querySelector('.unread-count-badge');
+            if (badge) badge.remove();
+        }
+        updateTotalUnreadBadgeFromDOM();
+    }).catch(error => {
+        console.error("채팅방 불러오기 실패", error);
+    });
+}
+
+// 특정 메시지 하이라이트 및 흔들림 애니메이션
+function highlightMessage(chatMessageId) {
+    const messageElement = document.getElementById(chatMessageId);
+    if (!messageElement) return;
+
+    // 메시지로 스크롤
+    messageElement.scrollIntoView({
+        behavior: 'smooth',
+        block: 'center'
+    });
+
+    // 흔들림 애니메이션 추가
+    setTimeout(() => {
+        messageElement.classList.add('message-shake');
+
+        // 애니메이션 완료 후 클래스 제거
+        setTimeout(() => {
+            messageElement.classList.remove('message-shake');
+        }, 600);
+    }, 500);
+}

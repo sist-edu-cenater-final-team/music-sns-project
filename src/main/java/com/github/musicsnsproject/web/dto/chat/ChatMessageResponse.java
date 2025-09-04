@@ -8,6 +8,7 @@ import lombok.Getter;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 
 @Getter
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
@@ -25,6 +26,8 @@ public class ChatMessageResponse {
     @JsonIgnore
     private final List<Long> readBy;
 
+    private final Set<Long> otherActiveUserIds;
+
     public long getUnreadCount() {
         return participantIds.size() - readBy.size();
     }
@@ -38,11 +41,12 @@ public class ChatMessageResponse {
                 chatMessage.getSentAt(),
                 isOldUnread,
                 chatTotalUserIds,
-                chatMessage.getReadBy()
+                chatMessage.getReadBy(),
+                null
         );
     }
 
-    public static ChatMessageResponse of(ChatMessage chatMessage, ChatUserInfo sender, List<Long> chatTotalUserIds) {
+    public static ChatMessageResponse of(ChatMessage chatMessage, ChatUserInfo sender, List<Long> chatTotalUserIds, Set<Long> otherActiveUserIds) {
         return new ChatMessageResponse(
                 chatMessage.getChatRoomId(),
                 chatMessage.getChatMessageId(),
@@ -51,7 +55,8 @@ public class ChatMessageResponse {
                 chatMessage.getSentAt(),
                 false,
                 chatTotalUserIds,
-                chatMessage.getReadBy()
+                chatMessage.getReadBy(),
+                otherActiveUserIds
         );
     }
 }

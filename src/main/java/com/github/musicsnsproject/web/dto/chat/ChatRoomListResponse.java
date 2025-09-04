@@ -15,6 +15,7 @@ public class ChatRoomListResponse {
     private String lastMessage;
     private LocalDateTime lastMessageTime;
     private long unreadCount;
+    private ChatToastResponse chatToast;
 
     public static ChatRoomListResponse of(ChatMessage chatMessage, List<ChatUserInfo> otherUsers, long unreadCount) {
         ChatRoomListResponse chatRoomListResponse = new ChatRoomListResponse();
@@ -26,7 +27,7 @@ public class ChatRoomListResponse {
         chatRoomListResponse.unreadCount = unreadCount;
         return chatRoomListResponse;
     }
-    public static ChatRoomListResponse fromSendResponse(ChatRoomSendResponse sendResponse, ReceiversInfo receiversInfo) {
+    public static ChatRoomListResponse fromSendResponse(ChatRoomSendResponse sendResponse, ReceiversInfo receiversInfo, ChatToastResponse chatToast) {
         ChatRoomListResponse chatRoomListResponse = new ChatRoomListResponse();
         chatRoomListResponse.chatRoomId = sendResponse.getChatRoomId();
         chatRoomListResponse.otherUsers = receiversInfo.getOtherUsers();
@@ -34,6 +35,7 @@ public class ChatRoomListResponse {
         chatRoomListResponse.lastMessageTime = sendResponse.getSentAt();
 
         chatRoomListResponse.unreadCount = receiversInfo.getUnreadCount();
+        chatRoomListResponse.chatToast = chatToast;
         return chatRoomListResponse;
     }
 
