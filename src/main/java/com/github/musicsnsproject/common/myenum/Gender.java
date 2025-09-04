@@ -8,7 +8,7 @@ import lombok.Getter;
 public enum Gender implements MyEnumInterface {
     MALE("남성","https://uxwing.com/wp-content/themes/uxwing/download/peoples-avatars/man-user-color-icon.png"),
     FEMALE("여성","https://uxwing.com/wp-content/themes/uxwing/download/peoples-avatars/woman-user-color-icon.png"),
-    UNKNOWN("미정","https://uxwing.com/wp-content/themes/uxwing/download/peoples-avatars/anonymous-user-icon.png");
+    UNKNOWN("미정","/images/profile/default-profile.png");
     private final String value;
     private final String defaultProfileImgUrl;
 

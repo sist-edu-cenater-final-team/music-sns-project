@@ -36,6 +36,9 @@
 .modal.fade.show .modal-dialog-slide {
     transform: translateY(-4%);
 }
+#chatRoomDialog {
+    transform: translateY(-3%);
+}
 
 .chat-modal-content {
     border-radius: 16px;
@@ -199,11 +202,6 @@
     margin: 0;
 }
 
-#profileImageModalImg {
-    max-width: 70vw;   /* 화면 너비의 최대 70% */
-    max-height: 70vh;  /* 화면 높이의 최대 70% */
-    object-fit: contain; /* 비율 유지 + 잘리면 안됨 */
-}
 .text-end {
     text-align: end;
 }
@@ -329,7 +327,7 @@
     padding: 15px;
     background-color: #f8f9fa;
     min-height: 0;
-    max-height: calc(600px - 150px); /* 헤더와 입력창 제외한 높이 */
+    /*max-height: calc(600px - 150px); !* 헤더와 입력창 제외한 높이 *!*/
 }
 
 .message-item {
@@ -681,4 +679,222 @@
 /* 모달 z-index 조정 */
 #chatRoomModal {
     z-index: 1055;
+}
+
+
+
+.unread-count-badge{
+    color:white;
+}
+
+
+
+
+#profileImageModalImg {
+    max-width: 70vw;   /* 화면 너비의 최대 70% */
+    max-height: 70vh;  /* 화면 높이의 최대 70% */
+    object-fit: contain; /* 비율 유지 + 잘리면 안됨 */
+    margin: 0 auto;
+}
+
+/* 프로필 모달 스타일 */
+/* 심플 프로필 모달 스타일 */
+.simple-profile-modal {
+    border: none;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 10px 40px rgba(102, 51, 255, 0.2);
+    background: linear-gradient(135deg, #6633FF 0%, #8b5cf6 100%);
+    max-width: min(90vw, 600px);  /* 최대 600px까지 허용 */
+    max-height: min(90vh, 700px); /* 최대 700px까지 허용 */
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.simple-profile-body {
+    padding: 0;
+    background: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+}
+
+.profile-image-overlay {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 20px;
+    overflow: hidden;
+    background: transparent;
+    max-width: 100%;
+    max-height: 100%;
+}
+
+.simple-profile-image {
+    display: block;
+    max-width: min(85vw, 550px);  /* 가로 최대값 증가 */
+    max-height: min(80vh, 650px); /* 세로 최대값 증가 */
+    min-width: 250px;   /* 최소 너비 설정 */
+    min-height: 200px;  /* 최소 높이 설정 */
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    border-radius: 15px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    flex-shrink: 0;
+}
+
+.profile-overlay-info {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(transparent, rgba(102, 51, 255, 0.7), rgba(102, 51, 255, 0.95));
+    padding: 40px 20px 20px 20px;
+    color: white;
+    text-align: center;
+    border-radius: 0 0 15px 15px;
+    min-height: 80px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+}
+
+.overlay-nickname {
+    font-size: 22px;
+    font-weight: 700;
+    color: white;
+    margin-bottom: 8px;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+    letter-spacing: -0.5px;
+}
+
+.overlay-message {
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.95);
+    line-height: 1.4;
+    margin-bottom: 0;
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
+    max-height: 40px;
+    overflow-y: auto;
+    word-wrap: break-word;
+}
+
+.overlay-message:empty::before {
+    content: "상태메시지가 없습니다";
+    color: rgba(255, 255, 255, 0.7);
+    font-style: italic;
+    font-size: 12px;
+}
+
+/* 상태메시지 스크롤바 (오버레이용) */
+.overlay-message::-webkit-scrollbar {
+    width: 3px;
+}
+
+.overlay-message::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 2px;
+}
+
+.overlay-message::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 2px;
+}
+
+.overlay-message::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.5);
+}
+
+/* 모달 배경 클릭 시 닫히도록 */
+.simple-profile-modal .modal-body {
+    cursor: pointer;
+}
+
+/* 모달 컨텐츠 투명 배경 */
+.simple-profile-modal .modal-content {
+    background: transparent;
+    border: none;
+    box-shadow: none;
+}
+
+/* 오버플로우 방지 */
+.simple-profile-modal {
+    width: fit-content;
+    height: fit-content;
+}
+
+/* 모바일 대응 */
+@media (max-width: 480px) {
+    .simple-profile-modal {
+        margin: 10px;
+        max-width: calc(100vw - 20px);
+        max-height: calc(100vh - 20px);
+        border-radius: 15px;
+    }
+
+    .simple-profile-image {
+        max-width: calc(100vw - 40px);
+        max-height: calc(100vh - 100px);
+        min-width: 200px;
+        min-height: 150px;
+        border-radius: 12px;
+    }
+
+    .profile-overlay-info {
+        padding: 25px 15px 15px 15px;
+        border-radius: 0 0 12px 12px;
+        min-height: 60px;
+    }
+
+    .overlay-nickname {
+        font-size: 18px;
+        margin-bottom: 6px;
+    }
+
+    .overlay-message {
+        font-size: 12px;
+        max-height: 30px;
+    }
+}
+
+/* 태블릿 대응 */
+@media (max-width: 768px) {
+    .simple-profile-modal {
+        max-width: min(95vw, 500px);
+        max-height: min(95vh, 600px);
+    }
+
+    .simple-profile-image {
+        max-width: min(90vw, 450px);
+        max-height: min(85vh, 550px);
+        min-width: 220px;
+        min-height: 170px;
+    }
+
+    .overlay-nickname {
+        font-size: 20px;
+    }
+
+    .overlay-message {
+        font-size: 13px;
+    }
+}
+
+/* 아주 작은 이미지 대응 */
+@media (min-width: 769px) {
+    .simple-profile-image {
+        min-width: 300px;
+        min-height: 250px;
+    }
+}
+
+.participant-img,
+.message-profile-img {
+    cursor : pointer;
 }
