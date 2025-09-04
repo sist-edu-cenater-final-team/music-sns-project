@@ -141,7 +141,7 @@ button:focus {
 <!-- 채팅방 모달 -->
 <div class="modal fade" id="chatRoomModal" tabindex="-1"
 	aria-hidden="true">
-	<div class="modal-dialog modal-dialog-slide modal-sm">
+	<div class="modal-dialog modal-dialog-slide modal-sm" id="chatRoomDialog">
 		<div class="modal-content chat-room-modal-content">
 			<div class="modal-header">
 				<div class="chat-participants-info">
@@ -178,16 +178,20 @@ button:focus {
 
 
 <!-- 프로필 확대 모달 -->
-<div class="modal fade" id="profileImageModal" tabindex="-1"
-	aria-hidden="true">
-	<div class="modal-dialog modal-dialog-centered">
-		<div class="modal-content bg-transparent border-0 shadow-none">
-			<button type="button" class="btn-close ms-auto me-2 mt-2"
-				data-bs-dismiss="modal"></button>
-			<img id="profileImageModalImg" src="" alt="프로필 이미지"
-				class="img-fluid rounded shadow">
-		</div>
-	</div>
+<div class="modal fade" id="profileImageModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content simple-profile-modal">
+            <div class="modal-body simple-profile-body">
+                <div class="profile-image-overlay">
+                    <img id="profileImageModalImg" class="simple-profile-image" alt="프로필 이미지">
+                    <div class="profile-overlay-info">
+                        <h3 id="profileModalNickname" class="overlay-nickname"></h3>
+                        <p id="profileModalMessage" class="overlay-message"></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 

@@ -60,6 +60,9 @@ AuthFunc.primaryKey().then(async pk => {
 
 
 let stompClient = null;
+let reconnectAttempts = 0;
+const maxReconnectAttempts = 5;
+let reconnectInterval = 1000; // 1초부터 시작
 
 //소켓 준비 대기
 // async function waitForSockJsAndStomp() {
@@ -79,14 +82,55 @@ function connectStomp(pk) {
             principalHeader,
             () => {
                 console.log("WebSocket 연결 성공");
+                reconnectAttempts = 0; // 성공 시 재연결 시도 횟수 초기화
+                reconnectInterval = 1000; // 재연결 간격 초기화
                 resolve(); // 연결 완료 시 Promise resolve
             },
             (error) => {
                 console.error("WebSocket 연결 실패:", error);
-                reject(error);
+                handleReconnect(pk, resolve, reject);
             }
         );
+        // 연결 해제 시 재연결 시도
+        socket.onclose = function() {
+            console.log("WebSocket 연결이 종료되었습니다.");
+            handleReconnect(pk);
+        };
     });
+}
+function handleReconnect(pk, resolve = null, reject = null) {
+    if (reconnectAttempts < maxReconnectAttempts) {
+        reconnectAttempts++;
+        console.log(`재연결 시도 ${reconnectAttempts}/${maxReconnectAttempts} (${reconnectInterval}ms 후)`);
+
+        setTimeout(() => {
+            connectStomp(pk).then(() => {
+                if (resolve) resolve();
+                // 재연결 성공 시 기존 구독들 복원
+                restoreSubscriptions();
+            }).catch((error) => {
+                if (reject) reject(error);
+            });
+        }, reconnectInterval);
+
+        // 재연결 간격을 점진적으로 증가 (최대 30초)
+        reconnectInterval = Math.min(reconnectInterval * 2, 30000);
+    } else {
+        console.error("최대 재연결 시도 횟수를 초과했습니다.");
+        if (reject) reject(new Error("연결 실패"));
+    }
+}
+// 재연결 시 기존 구독들을 복원하는 함수
+function restoreSubscriptions() {
+    if (loginUserId) {
+        subscribeChatRoom(loginUserId);
+
+        // 현재 열린 채팅방이 있다면 다시 구독
+        const currentRoomId = document.getElementById('chatRoomModal')?.dataset?.roomId;
+        if (currentRoomId) {
+            subscribeChatMessage(currentRoomId);
+        }
+    }
 }
 
 function subscribeChatRoom(pk) {
@@ -184,7 +228,7 @@ function appendNewMessage(messageData) {
         ${dateSeparator}
         <div class="message-item ${messageClass}" data-send-at="${messageData.sentAt}" data-message-index="new">
             <div class="message-content">
-                ${!isMyMessage ? `<img src="${messageData.sender.profileImageUrl}" alt="${messageData.sender.nickname}" class="message-profile-img">` : ''}
+                ${!isMyMessage ? `<img src="${messageData.sender.profileImageUrl}" alt="${messageData.sender.nickname}" class="message-profile-img" >` : ''}
                 <div class="message-text-area">
                     ${!isMyMessage ? `<div class="message-nickname">${messageData.sender.nickname}</div>` : ''}
                     <div class="message-bubble-container">
@@ -255,7 +299,8 @@ function showNewMessageNotification(messageData) {
 
 function checkDateSeparator(currentElementDate, lastMessageElement) {
     // 이전 메시지가 없으면 (첫 번째 메시지) 현재 날짜 구분선 생성
-    if (!lastMessageElement) {
+    // console.log(lastMessageElement);
+    if (!lastMessageElement.dataset.sendAt) {
         const today = new Date();
         const yesterday = new Date(today);
         yesterday.setDate(today.getDate() - 1);
@@ -512,18 +557,48 @@ function showTotalUnreadBadge(data) {
 }
 
 // 프로필 이미지를 클릭했을 때 원본 모달 표시
-function openProfileImageModal(imgUrl) {
+function openProfileImageModal(nickname, profileMessage, imageUrl) {
+    // 이미지 설정
     const modalImg = document.getElementById("profileImageModalImg");
-    modalImg.src = imgUrl;
+    modalImg.src = imageUrl;
+    // modalImg.style.backgroundImage =  "url("+imageUrl+")";
 
-    const profileModal = new bootstrap.Modal(document.getElementById("profileImageModal"));
-    profileModal.show();
+    // 닉네임 설정
+    const modalNickname = document.getElementById("profileModalNickname");
+    modalNickname.textContent = nickname || "알 수 없는 사용자";
+
+    // 상태메시지 설정
+    const modalMessage = document.getElementById("profileModalMessage");
+    modalMessage.textContent = profileMessage || "";
+
+    // 모달 배경 클릭 시 닫기 이벤트 추가
+    const modalBody = document.querySelector('.simple-profile-body');
+    modalBody.onclick = function(e) {
+        if (e.target === modalBody || e.target.closest('.profile-image-overlay')) {
+            const bootstrapVersion = getBootstrapVersion();
+            if (bootstrapVersion === 5) {
+                const modal = bootstrap.Modal.getInstance(document.getElementById("profileImageModal"));
+                if (modal) modal.hide();
+            } else if (bootstrapVersion === 4) {
+                $('#profileImageModal').modal('hide');
+            }
+        }
+    };
+
+    // 부트스트랩 버전에 따른 모달 표시
+    const bootstrapVersion = getBootstrapVersion();
+    if (bootstrapVersion === 5) {
+        const profileModal = new bootstrap.Modal(document.getElementById("profileImageModal"));
+        profileModal.show();
+    } else if (bootstrapVersion === 4) {
+        $('#profileImageModal').modal('show');
+    }
 }
 
 
 //채팅방 로직
 
-// 채팅방 모달 열기
+// 채팅방 채팅내역 모달 열기
 function openChatRoom(roomId) {
     AuthFunc.apiRequest(() =>
         axios.get(`${ctxPath}/api/chat/${roomId}`, {
@@ -575,14 +650,15 @@ function openChatRoom(roomId) {
 // 채팅방 모달 렌더링
 // 채팅방 모달 렌더링 함수 수정
 function renderChatRoomModal(roomData) {
-    console.log(roomData);
     const otherUsers = roomData.otherUsers;
     const messages = roomData.messages;
+    console.log(otherUsers);
 
 
     // 참여자 프로필 이미지들
     const participantImagesHtml = otherUsers.map(user =>
-        `<img src="${user.profileImageUrl}" alt="${user.nickname}" class="participant-img">`
+
+        `<img src="${user.profileImageUrl}" alt="${user.nickname}" class="participant-img" onclick="openProfileImageModal('${user.nickname}', '${user.profileMessage}', '${user.profileImageUrl}')">`
     ).join('');
 
     // 참여자 닉네임들
@@ -593,8 +669,7 @@ function renderChatRoomModal(roomData) {
     document.getElementById('chatRoomParticipantImages').innerHTML = participantImagesHtml;
     document.getElementById('chatRoomParticipantNames').textContent = participantNames;
     document.getElementById('chatRoomModal').dataset.roomId = roomData.chatRoomId;
-    console.log('뭐지')
-    console.log(!messages || messages.length === 0)
+
     if(!messages || messages.length === 0){
         document.getElementById('chatRoomMessages').innerHTML =  `
         <li class="list-group-item text-center" id="emptyRoomMsg">
@@ -659,7 +734,7 @@ function renderChatRoomModal(roomData) {
         ${dateSeparator}
         <div class="message-item ${messageClass} ${oldUnreadClass}" data-send-at="${message.sentAt}" data-message-index="${index}">
             <div class="message-content">
-                ${!isMyMessage ? `<img src="${message.sender.profileImageUrl}" alt="${message.sender.nickname}" class="message-profile-img">` : ''}
+                ${!isMyMessage ? `<img src="${message.sender.profileImageUrl}" alt="${message.sender.nickname}" class="message-profile-img" onclick="openProfileImageModal(message.sender.nickname, message.sender.profileMessage, message.sender.profileImageUrl)">` : ''}
                 <div class="message-text-area">
                     ${!isMyMessage ? `<div class="message-nickname">${message.sender.nickname}</div>` : ''}
                     <div class="message-bubble-container">
@@ -676,20 +751,27 @@ function renderChatRoomModal(roomData) {
 
     document.getElementById('chatRoomMessages').innerHTML = messagesHtml;
 
-    // 스크롤 위치 조정
+    // 스크롤 위치 조정 (안읽은 메세지 기준)
     const modalEl = document.getElementById('chatRoomModal');
     // 이미 떠있는 상태면 바로, 아니면 shown 시점에 실행
     const run = () => {
         // 한 프레임 뒤 + 이미지 로드 후에 스크롤 조정
         requestAnimationFrame(() => adjustScrollPositionAfterPaint(roomData.messages));
     };
-
+    const bootstrapVersion = getBootstrapVersion();
     if (modalEl.classList.contains('show')) {
         run();
     } else {
-        modalEl.addEventListener('shown.bs.modal', () => {
-            run();
-        }, {once: true});
+        // 부트스트랩 버전에 따른 이벤트 처리 분리
+        if (bootstrapVersion === 5) {
+            modalEl.addEventListener('shown.bs.modal', () => {
+                run();
+            }, {once: true});
+        } else if (bootstrapVersion === 4) {
+            $('#chatRoomModal').one('shown.bs.modal', () => {
+                run();
+            });
+        }
     }
 }
 
@@ -713,6 +795,7 @@ function waitImages(container) {
 
 
 async function adjustScrollPositionAfterPaint(messages) {
+    // alert('adjustScrollPositionAfterPaint 실행')
     const container = document.getElementById('chatRoomMessages');
     if (!container) return;
 
@@ -802,14 +885,17 @@ function createRoomLiTag(room) {
         lastTime = `${lastMsgDate.getFullYear()}년 ${String(lastMsgDate.getMonth() + 1).padStart(2, "0")}월 ${String(lastMsgDate.getDate()).padStart(2, "0")}일`;
     }
 
+    const imageUrl = room.otherUsers[0]?.profileImageUrl;
+    const nickname = room.otherUsers[0]?.nickname || "알 수 없음";
+    const profileMessage = room.otherUsers[0]?.profileMessage || '';
     const li = document.createElement("li");
     li.className = "list-group-item d-flex align-items-center gap-2";
     li.id = room.chatRoomId;
     li.innerHTML = `
-    <img src="${room.otherUsers[0].profileImageUrl}" 
+    <img src="${imageUrl}" 
          alt="프로필" 
          class="rounded-circle"
-         onclick="openProfileImageModal('${room.otherUsers[0].profileImageUrl}')">
+         onclick="openProfileImageModal('${nickname}', '${profileMessage}', '${imageUrl}')">
     <div class="room-list-right">
         <div class="flex-grow-1">
             <div class="fw-bold">${room.otherUsers[0].nickname}</div>
@@ -846,12 +932,15 @@ function createOrGetRoomId(userId) {
 }
 
 async function goToMessage(userId) {
-    alert(userId);
+    // alert(userId);
     const chatRoomId = await createOrGetRoomId(userId);
     if (chatRoomId) {
         const btnTalk = document.getElementById("btnTalk");
-        await openChatRoom(chatRoomId);
         btnTalk.click();
+
+        setTimeout(() => {
+            openChatRoom(chatRoomId);
+        }, 300);
     }
 }
 
