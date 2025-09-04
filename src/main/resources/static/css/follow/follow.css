@@ -230,3 +230,33 @@ button#clearBtn {
     text-overflow: ellipsis;
     white-space: nowrap;
 }
+.followInfo.row {
+  display: flex;
+  justify-content: space-between;  /* 양쪽 끝 정렬 */
+  align-items: center;             /* 세로 가운데 정렬 */
+  flex-wrap: nowrap;               /* 줄바꿈 방지 */
+}
+
+.followInfo .follow-text {
+  flex: 1;                         /* 남는 공간 모두 차지 */
+  min-width: 0;                    /* overflow 동작 보장 */
+}
+
+.followInfo .follow-text div {
+  white-space: nowrap;             /* 줄바꿈 방지 */
+  overflow: hidden;                /* 넘치면 숨김 */
+  text-overflow: ellipsis;         /* … 처리 */
+}
+.message-button {
+    cursor: pointer; /* 클릭 가능한 요소임을 명확히 */
+   
+}
+
+/* 마우스 올렸을 때 적용될 스타일 */
+.message-button:hover {
+    background-color: #5522DD; /* 조금 더 진한 보라색으로 변경 */
+    color: white; /* 텍스트 색상 유지 */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); 
+    transform: translateY(-2px); 
+    
+}
