@@ -73,7 +73,7 @@ function musicList(emotionId) {
 						        $('div.recommended-music').html(v_html);
 						    },
 						    error: function() {
-						        alert("노래 불러오기 실패!");
+						        // alert("노래 불러오기 실패!");
 						    }
 						});
 

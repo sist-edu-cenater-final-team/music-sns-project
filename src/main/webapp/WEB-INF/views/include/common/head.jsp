@@ -34,12 +34,14 @@
 
     <link rel="stylesheet" href="<%=ctxPath%>/css/reset.css" />
     <link rel="stylesheet" href="<%=ctxPath%>/css/common.css" />
+    <link rel="stylesheet" href="<%=ctxPath%>/css/post/postEdit.css" />
 
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script src="<%=ctxPath%>/js/common.js" defer></script>
 
     <link rel="stylesheet" href="<%=ctxPath%>/css/indexPost.css" />
     <script src="<%=ctxPath%>/js/indexPost.js"></script>
+    <script src="<%=ctxPath%>/js/post/postEdit.js"></script>
 
 
     <script>

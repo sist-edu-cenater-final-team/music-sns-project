@@ -28,4 +28,5 @@ public class PostImage {
         postImage.postImageName = postImageName;
         return postImage;
     }
+
 }
