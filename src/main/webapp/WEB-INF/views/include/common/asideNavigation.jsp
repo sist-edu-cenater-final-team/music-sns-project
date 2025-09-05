@@ -353,7 +353,7 @@
 					<textarea class="form-control mb-3" id="contents" name="contents"
 						rows="4" placeholder="문구를 입력하세요..."></textarea>
 					<div class="d-flex justify-content-between">
-						<button type="button" class="btn btn-secondary" id="btnNext">다음</button>
+						<button type="button" class="btn btn-primary" id="btnNext">다음</button>
 						<button type="button" class="btn btn-primary" id="btnUploadStep1"
 							data-context-path="${pageContext.request.contextPath}">올리기</button>
 					</div>
@@ -361,7 +361,7 @@
 
 				<!-- STEP 2 -->
 				<div id="step2" style="display: none;">
-					<button type="button" class="btn btn-secondary mb-3" id="imageSave">이미지저장</button>
+					<button type="button" class="btn btn-primary mb-3" id="imageSave">이미지저장</button>
 					<div id="selectImageDelete"></div>
 					<div id="tui-image-editor" style="height: 500px;"></div>
 					<button type="button" class="btn btn-danger mr-3 mt-3"
@@ -399,7 +399,7 @@
 					<button type="button" class="btn btn-danger mr-3 mt-5 mb-4"
 						id="btnBeforeStep3">이전</button>
 					<button type="button" id="btnUploadStep3"
-						class="btn btn-success mt-5 mb-4"
+						class="btn btn-primary mt-5 mb-4"
 						data-context-path="${pageContext.request.contextPath}">올리기</button>
 				</div>
 
