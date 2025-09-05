@@ -210,7 +210,7 @@ function handleSignup() {
     // 폼 데이터 수집
     const formData = createSignUpFormData();
     const endPoint = ctxPath +
-        window.socialSignUpData ? '/api/oauth/sign-up' : '/api/auth/sign-up';
+        (window.socialSignUpData ? '/api/oauth/sign-up' : '/api/auth/sign-up');
 
     // 유효성 검사
     if (!validateSignupForm(formData)) return;

@@ -409,7 +409,7 @@ function block(userId) {
 			})
 
 		})).then((json) => {
-
+            location.href = ctxPath + "/mypage/userInfo";
 		}).catch((error) => {});
 }
 
