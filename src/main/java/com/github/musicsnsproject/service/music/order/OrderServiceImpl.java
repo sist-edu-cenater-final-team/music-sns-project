@@ -21,6 +21,7 @@ import se.michaelthelin.spotify.model_objects.specification.ArtistSimplified;
 import se.michaelthelin.spotify.model_objects.specification.Track;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -196,9 +197,15 @@ public class OrderServiceImpl implements OrderService{
         // 구매헀던 음악 찾기
         List<String> purchasedMusicIds = purchaseMusicRepository.findPurchasedMusicIds(userId, cartMusicIds);
 
+        // 구매했던 음악이 있는경우 구매한 곡 이름 불러오기
+        Track[] tracks = spotifyDao.findAllTrackByIds(purchasedMusicIds);
+        List<String> purchasedMusicName = Arrays.stream(tracks)
+                                                .map(Track::getName)
+                                                .toList();
+
         if (!purchasedMusicIds.isEmpty()) {
             throw CustomNotAcceptException.of()
-                    .customMessage("이미 구매한 음악이 있습니다: " + purchasedMusicIds)
+                    .customMessage("이미 구매한 음악이 있습니다:\n" + purchasedMusicName)
                     .request(cartIdList)
                     .build();
         }

@@ -17,9 +17,9 @@
 				<jsp:include page="../../include/mypage/mypagePointInfo.jsp" />
 				<%-- 보유 음표 영역 --%>
 				<div class="purchase-tab">
-					<button type="button" class="btn active">전체</button>
-					<button type="button" class="btn">구매한 음악</button>
-					<button type="button" class="btn">선물받은 음악</button>
+<%--					<button type="button" class="btn active">전체</button>--%>
+					<button type="button" class="btn">내가 구매한 음악</button>
+<%--					<button type="button" class="btn">선물받은 음악</button>--%>
 				</div>
 				<table class="music-cart-table table">
 					<thead>

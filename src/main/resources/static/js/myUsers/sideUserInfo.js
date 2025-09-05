@@ -100,7 +100,7 @@ window.profileMusic = {
     },
     renderProfileMusicList : (musicData) => {
         if(musicData.length < 1) {
-            document.querySelector("#profileMusicList").innerHTML = `<div>설정된 프로필 음악이 없습니다!</div>`;
+            document.querySelector("#profileMusicList").innerHTML = `<div class="empty-profile">설정된 프로필 음악이 없습니다!</div>`;
             return;
         }
         let html = `<div class="playlist-section">
