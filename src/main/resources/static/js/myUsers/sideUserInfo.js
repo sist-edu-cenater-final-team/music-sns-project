@@ -33,7 +33,7 @@ function getUserProfile() {
 			});
 		})
 	).then((json) => {
-		const profile = $('div#profileInfo');
+		const profile = $('div#profileLayer');
 
 		let v_html = `
 		<div class="inner" style="background-color: #F2F0FF;">

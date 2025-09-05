@@ -109,11 +109,7 @@ button:focus {
 
 
 
-<div id="profileLayer" class="aside-navigation-layer sidebar">
-
-<div id="profileInfo"></div>
-<div id="profileMusic"></div>
-</div>
+<div id="profileLayer" class="aside-navigation-layer sidebar"></div>
 <!-- //클릭했을 때 나오는 스으윽 팝업 -->
 <link href="<%=ctxPath%>/css/chat/chat.css" rel="stylesheet" />
 <div class="fixed-talk">

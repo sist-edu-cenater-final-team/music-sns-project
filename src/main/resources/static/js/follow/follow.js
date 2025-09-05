@@ -250,7 +250,6 @@ function getfollowing() {
 			                    });
 		})
 		.catch((errror)=>{
-			alert("되냐?")
 		});
 
 };
