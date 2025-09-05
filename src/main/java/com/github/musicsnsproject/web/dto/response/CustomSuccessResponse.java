@@ -17,7 +17,7 @@ public class CustomSuccessResponse<T> {
 
     @Getter
     @AllArgsConstructor(access = AccessLevel.PRIVATE)
-    private static class SuccessDetail<T> {
+    public static class SuccessDetail<T> {
         private  int code;
         private  HttpStatus httpStatus;
         private  String message;

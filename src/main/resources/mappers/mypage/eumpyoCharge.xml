@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- ==== mapper 기본설정 ==== -->
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="eumpyoCharge">
+
+	<!-- 현재 사용자 코인 조회(잠금) -->
+  	<select id="selectUserCoinForUpdate" parameterType="long" resultType="long">
+    	select nvl(coin, 0)
+      	from users
+     	where user_id = #{value}
+     	for update
+  	</select>
+
+  	<!-- 최종 잔액 그대로 저장 : MERGE 제거, 단순 UPDATE (무결성 보호) -->
+  	<update id="setUserCoin" parameterType="map">
+    	update users
+       	set coin = #{coin}
+     	where user_id = #{userId}
+  	</update>
+
+  	<!-- 충전내역 기록 : at_that_user_coin(충전 후 잔액) 저장 -->
+  	<insert id="insertChargeHistory" parameterType="map">
+    	insert into coin_history (
+      		user_id, coin, at_that_price, created_at, at_that_user_coin
+    	)
+    	values (
+      		#{userId},
+      		#{coin},
+      		#{atThatPrice},
+      		systimestamp,
+	      	<choose>
+	        	<when test="afterBalance != null">
+	          		#{afterBalance}
+	        	</when>
+	        	<otherwise>
+	          		(select nvl(u.coin, 0) + #{coin} from users u where u.user_id = #{userId})
+	        	</otherwise>
+	      	</choose>
+    	)
+  	</insert>
+
+  	<!-- 사용자 현재 코인 조회 -->
+  	<select id="selectUserCoin" parameterType="long" resultType="long">
+    	select nvl(u.coin, 0)
+      	from users u
+    	where u.user_id = #{value}
+  	</select>
+
+</mapper>

@@ -1,47 +1,52 @@
+const apiRequest = AuthFunc.apiRequest;//함수참조
+
 document.addEventListener("DOMContentLoaded", function () {
+
     cart.createList();
 
-
-    // 선택 삭제
-    document.querySelector('.btn-delete').addEventListener('click', cart.selectDelete);
-
-    // 결제하러가기
-    document.querySelector('.btn-payment').addEventListener('click', cart.payment);
-
-    // 장바구니 추가하기
-    //document.querySelector('.btn-cart-add').addEventListener('click', cart.add);
 });
-const userId = 23;
 
 const cart = {
     tbody : document.querySelector('#cartBody'),
     checkAll : document.querySelector('#cartAllCheck'),
     renderCart : (cartData) => {
         console.log('cartData:', cartData);
+
         let cartHTML = ``;
-        cartData.forEach( (item, index) => {
+        // 장바구니가 비어있을 경우
+        if(!cartData || cartData.length === 0) {
+            cart.tbody.innerHTML = `<tr><td colspan="7">장바구니가 비어있습니다.</td></tr>`;
+            return;
+        }
+        cartData.forEach((item, index) => {
             cartHTML += `
                 <tr>
                     <td>
-                        <input type="checkbox" id="cartCheck${index+1}" name="cartCheck" data-cart-id="${item.cartId}">
+                        <label class="check-form">
+                            <input type="checkbox" id="cartCheck${index + 1}" name="cartCheck" data-cart-id="${item.cartId}">
+                            <span class="check"></span>
+                        </label>
                     </td>
-                    <td scope="row">${index+1}</td>
-                    <td>
+                    <td scope="row">${index + 1}</td>
+                    <td class="link_td" onclick="window.open('https://open.spotify.com/track/${item.musicId}')">
                         <div class="music-info">
                             <div class="music-img">
                                 <img src="${item.albumImageUrl}" alt="노래 이미지" />
                             </div>
-                            <p class="music-text">${item.musicName}</p>
+                            <p>${item.musicName}</p>
                         </div>
                     </td>
-                    <td>
+                    <td class="link_td" onclick="window.open('https://open.spotify.com/artist/${item.artistId}')">
                         <p class="music-artist">${item.artistName}</p>
                     </td>
-                    <td>
+                    <td class="link_td" onclick="window.open('https://open.spotify.com/album/${item.albumId}')">
                         <p class="music-artist">${item.albumName}</p>
                     </td>
                     <td>
-                        <p class="music-text"><span class="music-price">1</span>음표</p>
+                        <p class="music-text">
+                            <i class="ico-eumpyo"></i>
+                            <span class="music-price">1</span>
+                        </p>
                     </td>
                     <td>
                         <button type="button" class="btn-cart-delete" data-cart-id="${item.cartId}" onclick="cart.directDelete(this)"></button>
@@ -50,22 +55,37 @@ const cart = {
             `;
         });
 
+
         cart.tbody.innerHTML = cartHTML;
+
+        document.querySelector("#musicCartCount").innerHTML = cartData.length;
 
         // 체크박스 이벤트 연결
         cart.initCheckEvents();
     },
     createList : () => {
-        fetch(`/api/cart/list?userId=${encodeURIComponent(userId)}`)
-        .then(response => response.json())
-        .then(data => {
-            //console.log('cart list:', data);
-            cart.renderCart(data);
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('장바구니 목록 조회 중 오류가 발생했습니다.');
-        });
+        return AuthFunc.apiRequest(() =>
+                    axios.get(`${ctxPath}/api/cart/list`, {
+                        headers: AuthFunc.getAuthHeader()
+                    }))
+                .then(response => {
+                    // console.log("cartList:", response);
+                    // console.log("cartList:", response.data);
+                    cart.renderCart(response.data);
+                })
+                .catch((error) => {
+                    console.error('오류:', error);
+                    if (error.response) {
+                        const errorData = error.response.data.error;
+                        if (errorData){
+                            alert(errorData.customMessage);
+
+                            // if(errorData.httpStatus === "NOT_ACCEPTABLE"){
+                            //     location.href = `${ctxPath}/auth/login`;
+                            // }
+                        }
+                    }
+                });
     },
     initCheckEvents: () => {
         const rowChecks = cart.tbody.querySelectorAll('input[name="cartCheck"]');
@@ -107,51 +127,21 @@ const cart = {
             cart.checkAll.indeterminate = true;
         }
     },
-    // 선택된 cartId 배열 반환
-    getSelectedCartIds: () => {
-        return Array.from(cart.tbody.querySelectorAll('input[name="cartCheck"]:checked'))
-            .map(cb => cb.dataset.cartId);
-    },
     selectDelete : () => {
-        const cartId = document.querySelector("#cartId");
-        cartId.value = cart.getSelectedCartIds();
-
-        //
-        const cartIdList = cartId.value.split(',');
+        // 받아온 cartId 배열 만들기
+        const cartIdList = Array.from(cart.tbody.querySelectorAll('input[name="cartCheck"]:checked'))
+            .map(cb => Number(cb.dataset.cartId));
 
         cart.deleteItem(1, cartIdList);
     },
     // 바로 삭제하기
     directDelete : (e) => {
-        const cartId = e.dataset.cartId;
+        const cartId = [Number(e.dataset.cartId)];
         cart.deleteItem(0, cartId);
-        console.log(cartId);
     },
-    add : () => {
-        fetch('/api/cart/add', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json'
-            },
-            body: JSON.stringify({
-                userId: userId,
-                trackId: trackid
-            })
-        })
-            .then(response => response.json())
-            .then(data => {
-                console.log('cart add:', data);
-                alert('장바구니에 담았습니다.');
+    deleteItem : (status, cartIdList) => {
 
-                cart.createList();
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('장바구니 추가 중 오류가 발생했습니다.');
-            });
-    },
-    deleteItem : (status, cartId) => {
+        console.log("cartIdList : " + cartIdList);
         // status 0 : 바로 삭제
         // ststus 1 : 선택 삭제
         if (status !== 0 && cart.tbody.querySelectorAll('input[name="cartCheck"]:checked').length < 1) {
@@ -160,33 +150,77 @@ const cart = {
         }
         if (!confirm('정말 상품을 삭제하시겠습니까?')) return;
 
-        fetch('/api/cart/delete', {
-            method: 'DELETE',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                userId: userId,
-                cartId: cartId
+        return apiRequest(() =>
+            axios.delete('/api/cart/delete?cartIdList='+cartIdList, {
+                headers: AuthFunc.getAuthHeader()
             })
-        })
+        )
         .then(async (response) => {
             console.log("response : ", response);
-            console.log("response.status : ", response.status);
-            const msg = await response.text();
-
-            if (response.status !== 200) {
-                alert("상품 삭제에 실패하였습니다."+ msg);
-                return;
-            }
             alert("상품을 삭제하였습니다.");
 
             cart.createList();
         })
         .catch(error => {
+            console.log("삭제 error " + error);
             console.error('삭제 중 오류 발생:', error.message);
             alert('서버 또는 네트워크 오류입니다.');
         });
     },
-    payment : () => {
+    order : () => {
+        // 받아온 cartId 배열 만들기
+        const cartIdList = Array.from(cart.tbody.querySelectorAll('input[name="cartCheck"]:checked'))
+            .map(cb => Number(cb.dataset.cartId));
+
+        // URLSearchParams 객체 만들기
+        const params = new URLSearchParams();
+        cartIdList.forEach(id => params.append("cartIdList", id));
+
+        if (cart.tbody.querySelectorAll('input[name="cartCheck"]:checked').length < 1) {
+            alert("주문할 상품을 선택해주세요!");
+            return;
+        }
+
+        return apiRequest(() =>
+                axios.post('/api/order/create?'+params.toString(), {}, {
+                    headers: AuthFunc.getAuthHeader(),
+                })
+            )
+            .then( (response) => {
+                console.log("order response : ", response);
+
+                // 선택한 cartIdList를 sessionStorage에 저장하기
+                sessionStorage.setItem("cartIdList", JSON.stringify(cartIdList));
+
+                // 주문 미리보기페이지 이동
+                location.href = `${ctxPath}/order/preview`;
+
+            })
+            .catch(error => {
+                console.error('오류:', error);
+                if (error.response) {
+                    const errorData = error.response.data.error;
+                    if (errorData) {
+                        if (error.response.status === 401) {
+                            // 인증 오류 처리 (예: 로그인 페이지로 리다이렉트)
+                            alert('로그인이 필요합니다. 로그인 페이지로 이동합니다.');
+                            location.href = `${ctxPath}/auth/login`;
+                            return;
+                        } else {
+                            alert(errorData.customMessage);
+                        }
+                    } else {
+                        alert('서버 또는 네트워크 오류입니다.');
+                    }
+                }
+            });
 
     }
 }
+
+
+
+// 선택 삭제
+document.querySelector('.btn-delete')?.addEventListener('click', cart.selectDelete);
+// 주문하러가기
+document.querySelector('.btn-order')?.addEventListener('click', cart.order);

@@ -11,3 +11,63 @@
 #postModal .modal-content {
     overflow: hidden;
 }
+
+
+.post_step1 .emotions {
+    margin: 30px 0;
+    display: flex;
+    justify-content: center;
+    gap: 0 10px;
+}
+
+.post_step1 .emotions .btn {
+    width: 44px;
+    height: 44px;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 100% auto;
+    outline: none;
+    border-radius: 50%;
+}
+.post_step1 .emotions .btn.natural {
+    background-image: url("../images/emotion/natural.png");
+}
+.post_step1 .emotions .btn.natural.active {
+    background-image: url("../images/emotion/natural_active.png");
+}
+
+.post_step1 .emotions .btn.happy {
+    background-image: url("../images/emotion/happy.png");
+}
+.post_step1 .emotions .btn.happy.active {
+    background-image: url("../images/emotion/happy_active.png");
+}
+
+.post_step1 .emotions .btn.love {
+    background-image: url("../images/emotion/love.png");
+}
+.post_step1 .emotions .btn.love.active {
+    background-image: url("../images/emotion/love_active.png");
+}
+
+.post_step1 .emotions .btn.sad {
+    background-image: url("../images/emotion/sad.png");
+}
+.post_step1 .emotions .btn.sad.active {
+    background-image: url("../images/emotion/sad_active.png");
+}
+
+.post_step1 .emotions .btn.angry {
+    background-image: url("../images/emotion/angry.png");
+}
+.post_step1 .emotions .btn.angry.active {
+    background-image: url("../images/emotion/angry_active.png");
+}
+
+.post_step1 .emotions .btn.tire {
+    background-image: url("../images/emotion/tire.png");
+}
+.post_step1 .emotions .btn.tire.active {
+    background-image: url("../images/emotion/tire_active.png");
+}
+

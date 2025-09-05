@@ -1,22 +1,33 @@
 package com.github.musicsnsproject.repository.jpa.account.user;
 
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import com.github.musicsnsproject.common.exceptions.CustomBadRequestException;
+import com.github.musicsnsproject.common.myenum.Gender;
 import com.github.musicsnsproject.common.security.userdetails.CustomUserDetails;
+import com.github.musicsnsproject.domain.PostVO;
+import com.github.musicsnsproject.domain.user.MyUserVO;
+import com.github.musicsnsproject.repository.jpa.account.follow.QFollow;
 import com.github.musicsnsproject.repository.jpa.account.history.login.QLoginHistory;
 import com.github.musicsnsproject.repository.jpa.account.role.QRole;
-import com.github.musicsnsproject.repository.jpa.account.role.Role;
 import com.github.musicsnsproject.repository.jpa.account.socialid.QSocialId;
 import com.github.musicsnsproject.repository.jpa.account.socialid.SocialIdPk;
+import com.github.musicsnsproject.repository.jpa.community.post.QPost;
+import com.github.musicsnsproject.repository.jpa.community.post.QPostImage;
+import com.github.musicsnsproject.repository.jpa.emotion.QUserEmotion;
+import com.github.musicsnsproject.web.dto.chat.ChatUserInfo;
 import com.querydsl.core.group.GroupBy;
 import com.querydsl.core.types.ExpressionUtils;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
-import java.util.List;
-import java.util.Optional;
 
 @RequiredArgsConstructor
 public class MyUserQueryRepositoryImpl implements MyUserQueryRepository {
@@ -25,12 +36,13 @@ public class MyUserQueryRepositoryImpl implements MyUserQueryRepository {
 
     @Override
     public Optional<MyUser> findBySocialIdPkOrUserEmail(SocialIdPk socialIdPk, String email) {
+        BooleanExpression emailPredicate = email != null ? qMyUser.email.eq(email) : null;
         QSocialId qSocialId = QSocialId.socialId;
         List<MyUser> myUserList = queryFactory.select(qMyUser)
                 .from(qMyUser)
                 .leftJoin(qMyUser.socialIds, qSocialId).fetchJoin()
                 .leftJoin(qMyUser.roles, QRole.role).fetchJoin()
-                .where(qSocialId.socialIdPk.eq(socialIdPk).or(qMyUser.email.eq(email)))
+                .where(qSocialId.socialIdPk.eq(socialIdPk).or(emailPredicate))
                 .fetch();
         MyUser response = singleOutAUser(myUserList, socialIdPk);
         return Optional.ofNullable(response);
@@ -121,5 +133,149 @@ public class MyUserQueryRepositoryImpl implements MyUserQueryRepository {
                         myUserList.stream().filter(user ->
                                         user.getSocialIds().stream().anyMatch(id -> id.getSocialIdPk().equals(socialIdPk)))
                                 .findFirst().orElse(null);
+    }
+
+    
+    
+	@Override
+	public List<PostVO> getUserPost(Long userId) {
+		QPost post = QPost.post;
+		QUserEmotion emotion = QUserEmotion.userEmotion;
+		QPostImage image = QPostImage.postImage;
+		
+		return 	queryFactory.select(
+					emotion.myUser.userId,
+					post.postId,
+					image.postImageUrl,
+					post.title
+				)
+				.from(post)
+				.join(emotion)
+				.on(post.userEmotion.userEmotionId.eq(emotion.userEmotionId))
+				.leftJoin(image)
+				.on(image.post.postId.eq(post.postId))
+				.where(emotion.myUser.userId.eq(userId))
+				.transform(
+						GroupBy.groupBy(post.postId)
+						.list(Projections.fields(PostVO.class, 
+								emotion.myUser.userId,
+								post.postId,
+								post.title,
+								GroupBy.list(image.postImageUrl).as("postImageUrl")
+								)
+						)
+				);
+	}
+	@Override
+	public MyUserVO getUserInfo(Long userId) {
+		
+		QMyUser user = QMyUser.myUser;
+		QFollow follow = QFollow.follow;
+		QFollow follow2 = new QFollow("follow2");
+		QUserEmotion emotion = QUserEmotion.userEmotion;
+		QPost post = QPost.post;
+		return queryFactory
+			    .select(Projections.fields(MyUserVO.class,
+			            user.userId,
+			            user.nickname,
+			            user.username,
+			            user.gender,
+			            user.email,
+			            user.profileImage.as("profile_image"),
+			            user.profileMessage,
+			            user.coin,
+			            ExpressionUtils.as(
+			                JPAExpressions
+			                    .select(follow.followPk.follower.userId.countDistinct())
+			                    .from(follow)
+			                    .where(follow.followPk.followee.userId.eq(user.userId)),
+			                "followerCount"   
+			            ),
+			            ExpressionUtils.as(
+			                JPAExpressions
+			                    .select(follow2.followPk.followee.userId.countDistinct())
+			                    .from(follow2)
+			                    .where(follow2.followPk.follower.userId.eq(user.userId)),
+			                "followeeCount"  
+			            ),
+			            ExpressionUtils.as(
+			            		JPAExpressions
+			            			.select(emotion.userEmotionId.countDistinct())
+			            			.from(emotion)
+			            			.join(post)
+			            				.on(emotion.userEmotionId.eq(post.userEmotion.userEmotionId))
+			            			.where(emotion.myUser.userId.eq(user.userId))
+			            			, "postCount")
+			        ))
+			        .from(user)
+			        .where(user.userId.eq(userId))
+			        .fetchOne();
+
+	}
+
+	@Override
+	@Transactional
+	public long updateUserInfo(Map<String, Object> paraMap) {
+		QMyUser user = QMyUser.myUser;
+		
+
+	    if (paraMap.get("profile_image") != null) {
+
+			return queryFactory.update(user)
+					.set(user.profileImage, String.valueOf(paraMap.get("profile_image")))
+					.set(user.profileMessage, String.valueOf(paraMap.get("profileMessage")))
+					.set(user.nickname, String.valueOf(paraMap.get("nickname")))
+					.set(user.gender, (Gender)paraMap.get("gender"))
+					.where(user.userId.eq((Long) paraMap.get("userId")))
+					.execute();
+	    }
+	    else {
+
+			return queryFactory.update(user)
+					.set(user.profileMessage, String.valueOf(paraMap.get("profileMessage")))
+					.set(user.nickname, String.valueOf(paraMap.get("nickname")))
+					.set(user.gender, (Gender)paraMap.get("gender"))
+					.where(user.userId.eq((Long) paraMap.get("userId")))
+					.execute();
+	    }
+
+		
+		
+	}
+
+	@Override
+	public boolean isFollow(Map<String, Long> map) {
+		QFollow follow = QFollow.follow;
+
+		return queryFactory.selectOne()
+		        .from(follow)
+		        .where(
+		            follow.followPk.follower.userId.eq(map.get("userId"))
+		            .and(follow.followPk.followee.userId.eq(map.get("targetId")))
+		            )
+		        .fetchFirst() != null;
+	}
+
+
+    @Override
+    public List<ChatUserInfo> findAllByIdForChatRoom(Set<Long> allOtherIds) {
+        List<ChatUserInfo> response = queryFactory.from(qMyUser)
+                .where(qMyUser.userId.in(allOtherIds))
+                .select(Projections.fields(ChatUserInfo.class,
+                        qMyUser.userId,
+                        qMyUser.nickname,
+                        qMyUser.profileImage.as("profileImageUrl"),
+                        qMyUser.username,
+                        qMyUser.profileMessage
+
+                ))
+                .fetch();
+        if (response.size() != allOtherIds.size()) {
+            throw CustomBadRequestException.of()
+                    .customMessage("채팅방에 존재하지 않는 유저가 있습니다.")
+                    .request(allOtherIds)
+                    .build();
+        }
+        return response;
     }
 }

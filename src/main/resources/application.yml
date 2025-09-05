@@ -1,14 +1,14 @@
 jasypt:
   encryptor:
     password: ${JASYPT_PASSWORD}
-jwtpassword:
+jwt-password:
   source: ENC(6b81wzyzcQ5WoKJdEtKeoEi3A48AAmimddIGBeu7bzR0lT51ZYtu5b0HPsWT5BJLIwp+0aOz8Q7mSIAxX/m+pu43WtljFpsXl/6hdPxbmyI=)
 
-coolsms:
-  api-key: ENC(CJLHuVy5J38qMOv2yJgs6eKTfC8WFAG8o3rGfFMGqcc=)
-  api-secret: ENC(Lssx1pA4F5tBUTmrMKLnQjvOAcPWd0XSram8jkukBc8ApVxVB5NVLvVOgDw+sJG8)
+cool-sms:
+  api-key: ENC(zpPT/zdtRyzfCe3Sr2rvhSQ6QIF79KC1V6SC8+oq3/4=)
+  api-secret: ENC(CaCsmsaAwNd2l4wprRfq8STtunrSBInz9neFJsnitwJc177y/tvyPQh/okBXtIdv)
   domain : https://api.solapi.com
-  phone-number: ENC(DgjXQGDwsFscBdsbseVF0bwLwnLhTXJT) # ????
+  phone-number: ENC(BLpW8of2lRuzytBtswZcpK2AuZKxv8Nr) # ????
 
 server:
   tomcat:
@@ -18,7 +18,7 @@ spring:
     base: ENC(eAV32/4c9hWU0yc8LNmFBlmzx1+M2uZ50FKV9xuYkdU=)
     https: ???
   mvc:
-    pathmatch:
+    path match:
       matching-strategy: ant_path_matcher #????????? ???? ???? ???
       #    jsp??
     view:
@@ -50,6 +50,8 @@ spring:
       max-file-size: 10MB #??? 1MB
       max-request-size: 20MB #??? 10MB
   data:
+    mongodb:
+      database: musicSNS
     redis:
       host: ENC(0p2kKHWaQnA1J667rTSG9QX5weT1LIJ6)
       port: 6379
@@ -141,3 +143,8 @@ oauth:
       auth: https://github.com
       api: https://api.github.com
 
+logging:
+  level:
+    org.springframework.data.mongodb.core.MongoTemplate: DEBUG
+    org.mongodb.driver.cluster: INFO
+    org.mongodb.driver.protocol.command: DEBUG

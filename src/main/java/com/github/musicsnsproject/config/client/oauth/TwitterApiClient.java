@@ -35,8 +35,8 @@ public class TwitterApiClient extends OAuthApiClient{
     @Override
     protected OAuthUserInfo requestUserInfo(HttpEntity<?> request, String url) {
         OAuthUserInfo userInfo = super.getRestTemplate().exchange(url, HttpMethod.GET, request,this.getUserInfoClass()).getBody();
-        assert userInfo != null;//트위터는 email을 엑세스할 방법이 없음 랜덤값 임시 지정
-        return userInfo.updateEmailReturnThis(UUID.randomUUID().toString());
+        assert userInfo != null;//트위터는 email을 엑세스할 방법이 없음 그냥 null 반환
+        return userInfo;
     }
 
     @Override

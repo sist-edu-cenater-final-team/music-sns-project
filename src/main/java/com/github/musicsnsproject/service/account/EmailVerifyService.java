@@ -17,6 +17,8 @@ import java.nio.file.Paths;
 import java.time.Duration;
 import java.util.Random;
 
+import static com.github.musicsnsproject.common.MyUtils.generateRandomNumber;
+
 
 @Service
 @RequiredArgsConstructor
@@ -38,7 +40,7 @@ public class EmailVerifyService {
         String verifyCode = String.valueOf(generateRandomNumber());
         try {
             //html 파일 읽기
-            String htmlContent = Files.readString(Paths.get("src/main/resources/static/MailTemplate.html"));
+            String htmlContent = Files.readString(Paths.get("src/main/resources/static/email/MailTemplate.html"));
             // 플레이스홀더 {{verifyCode}}를 실제 인증 코드로 치환
             htmlContent = htmlContent.replace("{{verifyCode}}", verifyCode);
             htmlContent = htmlContent.replace("{{email}}", from);
@@ -50,7 +52,7 @@ public class EmailVerifyService {
             MimeMessageHelper helper = new MimeMessageHelper(mimeMessage);
             //수신자, 제목 , 본문
             helper.setTo(to);
-            helper.setSubject("Account-Management-Project Email 인증코드");
+            helper.setSubject("Moodle SNS Email 인증코드");
             helper.setText(htmlContent, true);
             //메일 보내기
             mailSender.send(mimeMessage);
@@ -78,11 +80,6 @@ public class EmailVerifyService {
 
     }
 
-    //랜덤 코드 생성
-    private int generateRandomNumber() {
-        Random random = new Random();
-        return 100000 + random.nextInt(900000);
-    }
 
     //이메일 인증
     public boolean verifyEmail(String email, String code) {

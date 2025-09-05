@@ -16,13 +16,13 @@
 
 .mypage-point .point-info .point-title {
     font-size: 20px;
-    color:#5a5a5a;
-    font-weight: 600;
+    color:#5A5A5A;
+    font-weight: 700;
 }
 .mypage-point .point-info .real-point {
     font-size: 24px;
     color:#6633FF;
-    font-weight: 600;
+    font-weight: 700;
     margin-left: 10px;
 }
 .mypage-point .btn {
@@ -31,72 +31,86 @@
 
 
 /* 장바구니 */
-#musicCart .music-cart-top {
+.cart-container .cart-title {
+    font-size: 20px;
+    color: #000;
+    font-weight: 500;
+    margin-top: 44px;
+    margin-bottom: 18px;
+}
+.cart-container .music-cart-top {
     display: flex;
     align-items: center;
     justify-content: space-between;
     margin: 30px 0;
 }
-#musicCart .music-check-info {
+.cart-container .music-check-info {
     display: flex;
     align-items: center;
     gap: 0 14px;
 }
-#musicCart .music-check-info div {
+.cart-container .music-check-info div {
     position: relative;
     display: flex;
     align-items: center;
     gap: 0 10px;
 }
-#musicCart .music-check-info div:not(:last-child) {
+.cart-container .music-check-info div:not(:last-child) {
     border-right: 1px solid #ddd;
     padding-right: 14px;
 }
 
-#musicCart .music-check-info .title {
+.cart-container .music-check-info .title {
     font-size: 15px;
     color: #8a8a8a;
     font-weight: 500;
 }
-#musicCart .music-check-info .title.point {
+.cart-container .music-check-info .title.point {
     font-weight: bold;
 }
-#musicCart .music-check-info .text {
+.cart-container .music-check-info .text {
     font-size: 15px;
     color: #333;
     font-weight: bold;
 }
 
-#musicCart .music-cart-table {
+.cart-container .music-cart-table {
     width: 100%;
 }
-#musicCart .music-cart-table th {
+.cart-container .music-cart-table th {
     padding: 14px 0;
     border-bottom:0;
     border-color: #e0e0e0;
     text-align: center;
 }
-#musicCart .music-cart-table td {
+.cart-container .music-cart-table td {
     border-bottom: 1px solid #e0e0e0;
     vertical-align: middle;
     text-align: center;
     font-size: 14px;
 }
+.cart-container .music-cart-table td.link_td {
+    cursor: pointer;
+}
+.cart-container .music-cart-table td.link_td:hover * {
+    color: #6633FF;
+    font-weight: 600;
+}
 
-#musicCart .music-cart-table .music-info {
+.cart-container .music-cart-table .music-info {
     display: flex;
     align-items: center;
 
 }
-#musicCart .music-cart-table .music-img {
+.cart-container .music-cart-table .music-img {
     margin-left: 14px;
     margin-right: 14px;
 }
-#musicCart .music-cart-table .music-img img {
+.cart-container .music-cart-table .music-img img {
     width: 80px;
 }
 
-#musicCart .btn-cart-delete {
+.cart-container .btn-cart-delete {
     display: block;
     width: 24px;
     height: 24px;
@@ -104,12 +118,199 @@
     background-size: 24px;
     margin: 0 auto;
 }
-#musicCart .btn-delete {
+.cart-container .btn-delete {
     background: #8a8a8a;
     color: #fff;
 }
-#musicCart .btn-payment {
+.cart-container .btn-order {
     background: #6633FF;
     color: #fff;
     margin-left: 12px;
+}
+
+.cart-container .music-text {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4px 7px 4px 4px;
+    background: #F3F2F8;
+    border-radius: 4px;
+}
+.cart-container .music-text .music-price {
+    color: #6633FF;
+    font-weight: bold;
+    font-size: 15px;
+}
+.cart-container .ico-eumpyo {
+    width: 22px;
+    height: 22px;
+    background: url("../images/mypage/eumpyo.png") no-repeat 0 center;
+    background-size: cover;
+}
+
+#musicOrder .btn-order {
+    display: block;
+    font-size: 18px;
+    padding: 13px 60px;
+    margin: 40px auto;
+}
+
+#musicOrder #orderCartFoot td {
+    padding: 20px 0.75rem;
+    font-size: 18px;
+    font-weight: 500;
+    color: #000;
+}
+#musicOrder #orderCartFoot #orderTotalPrice {
+    color: #6633FF;
+    font-weight: bold;
+}
+
+/* 구매한 음악 */
+#musicPurchase .purchase-tab {
+    display: flex;
+    margin-top:34px;
+    border-bottom: 1px solid #E0E0E0
+}
+#musicPurchase .purchase-tab .btn {
+    flex: 1;
+    display: block;
+    text-align: left;
+    padding: 16px 16px 16px 0;
+    font-size: 18px;
+    color: #000;
+    font-weight: 600;
+    position: relative;
+    line-height: 1;
+}
+
+#musicPurchase .purchase-tab .btn.active {
+    border-bottom: 3px solid;
+    color: #6633FF;
+    font-weight: 700;
+}
+
+#musicPurchase .purchase-tab .btn:focus {
+    border: none;
+    outline:none;
+}
+
+#musicPurchase #myPurchaseMusicBody tr {
+    position: relative;
+}
+
+#musicPurchase .btn-set-profile {
+    background: #6633FF;
+    color: #fff;
+    margin: 0;
+    padding: 10px 14px;
+}
+
+#musicPurchase #pageBar {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 20px;
+}
+
+#musicPurchase .page-btn {
+    min-width: 36px;
+    height: 36px;
+    padding: 0 12px;
+    border: none;
+    border-radius: 8px;
+    background-color: #f5f5f5;
+    color: #333;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+#musicPurchase .page-btn:hover {
+    background-color: #e0e0ff;
+    color: #5a32d6; /* 보라색 계열 */
+}
+
+#musicPurchase .page-btn.active {
+    background-color: #5a32d6; /* 메인 보라색 */
+    color: #fff;
+    font-weight: 600;
+}
+
+#profileMusicModal .modal-content {
+    height: auto;
+    padding-bottom: 40px;
+}
+
+#profileMusicModal .btn-form {
+    text-align: center;
+}
+#profileMusicModal .btn-set-profile {
+    background: #6633FF;
+    color: #fff;
+    margin: 0;
+    padding: 10px 14px;
+    font-size: 16px;
+}
+
+#profileMusicList .empty-profile {
+    font-size: 14px;
+    color: #333;
+    margin-top: 40px;
+    text-align: center;
+}
+
+.select-music-wrapper {
+    display: flex;
+    max-width: 90%;
+    margin: 0 auto 40px;
+    align-items: center;
+    gap: 16px;
+    padding: 16px;
+    background: #fafafa;
+}
+
+/* 이미지 + 곡 제목 묶음 */
+.select-music-wrapper .music-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex: 1;
+}
+
+/* 앨범 이미지 */
+.select-music-wrapper .music-img {
+    width: 80px;
+    height: 80px;
+    border-radius: 10px;
+    overflow: hidden;
+    background-color: #ddd; /* 이미지 없을 때 placeholder */
+}
+
+.select-music-wrapper .music-img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* 곡 제목 */
+.select-music-wrapper .music-text {
+    font-size: 18px;
+    font-weight: 600;
+    line-height: 1.4;
+    word-break: keep-all;
+    margin: 0;
+}
+
+/* 아티스트, 앨범명 */
+.select-music-wrapper .music-artist {
+    max-width: 200px;
+    font-size: 14px;
+    color: #555;
+    margin: 0;
+}
+.select-music-wrapper .music-artist:last-of-type {
+    font-size: 13px;
+    color: #888;
 }

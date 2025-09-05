@@ -1,5 +1,6 @@
 package com.github.musicsnsproject.config.spotify;
 
+import lombok.extern.log4j.Log4j2;
 import org.apache.hc.core5.http.ParseException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -12,7 +13,8 @@ import se.michaelthelin.spotify.requests.authorization.client_credentials.Client
 
 import java.io.IOException;
 import java.util.Date;
-
+import java.util.function.Function;
+@Log4j2
 @Configuration
 public class SpotifyConfig {
     @Value("${spotify.client-id}")
@@ -33,7 +35,7 @@ public class SpotifyConfig {
                 .build();
 
         refreshAccessToken(); // 초기 토큰 발급
-        scheduleTokenRefresh(); // 자동 갱신 스케줄링
+//        scheduleTokenRefresh(); // 자동 갱신 스케줄링
 
         return this.spotifyApi;
     }
@@ -46,17 +48,25 @@ public class SpotifyConfig {
             this.tokenExpiresAt = System.currentTimeMillis() + (credentials.getExpiresIn() * 1000L);
             this.spotifyApi.setAccessToken(currentAccessToken);
 
-            System.out.println("Spotify 토큰 갱신 완료. 만료시간: " + new Date(tokenExpiresAt));
+            log.info("Spotify API 토큰 갱신 완료. 만료시간: {}", new Date(tokenExpiresAt));
         } catch (IOException | SpotifyWebApiException | ParseException e) {
+            log.error("Spotify API 토큰 갱신 실패: {}", e.getMessage(),e);
             throw new RuntimeException("Spotify API 토큰 발급 실패", e);
         }
     }
-
-    @Scheduled(fixedRate = 3300000) // 55분마다 실행 (3300초)
-    public void scheduleTokenRefresh() {
-        System.out.println("토큰 갱신 스케줄 실행 중...");
-        refreshAccessToken();
+    @Bean
+    public Function<Void, Void> refreshSpotifyToken() {
+        return (Void) -> {
+            refreshAccessToken();
+            return null;
+        };
     }
+//
+//    @Scheduled(fixedRate = 3300000) // 55분마다 실행 (3300초)
+//    public void scheduleTokenRefresh() {
+//        System.out.println("토큰 갱신 스케줄 실행 중...");
+//        refreshAccessToken();
+//    }
 
 
 }

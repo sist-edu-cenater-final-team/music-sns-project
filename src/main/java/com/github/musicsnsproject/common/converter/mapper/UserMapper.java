@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 
 
 @Mapper
-public interface UserMapper {
+public  interface UserMapper {
     UserMapper INSTANCE = Mappers.getMapper(UserMapper.class);
 
     @Mapping(target = "roles", qualifiedByName = "getMyRoles")
@@ -38,8 +38,10 @@ public interface UserMapper {
     }
 
 ////닉네임이 고유값이어야 할때    @Mapping(target = "nickname", expression = "java(oAuthInfoResponse.getNickName()+\"_\"+oAuthInfoResponse.getSocialId())")
-    @Mapping(target = "password", expression = "java(java.util.UUID.randomUUID().toString())")
+//    @Mapping(target = "password", expression = "java(java.util.UUID.randomUUID().toString())")
     @Mapping(target = "status", constant = "TEMP")
+    @Mapping(target = "username", source = "nickname")
+    @Mapping(target = "nickname", ignore = true)
     MyUser oAuthInfoResponseToMyUser(OAuthUserInfo oAuthUserInfo);
 
     @AfterMapping

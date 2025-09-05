@@ -1,0 +1,408 @@
+.album-container {
+    background: #fff;
+    padding: 20px;
+    border-radius: 16px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    max-width: 900px;
+    margin: 0 auto;
+}
+.album-type{
+    margin-bottom: 15px;
+}
+.album-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: stretch; /* flex-start에서 stretch로 변경 */
+    flex: 1; /* 가능한 공간을 차지하되 bottom을 위한 공간 확보 */
+    min-height: 120px; /* 최소 높이 보장 */
+}
+.album-header .spotify-link {
+    width: 100px;
+    display: none;
+    margin-top: 10px;
+    padding: 8px 14px;
+    font-size: 0.9rem;
+    text-align: center;
+    align-self: flex-start; /* header 영역 내에서 상단 정렬 */
+}
+/*앨범 이미지 로딩 스피너 적용*/
+.album-image-container {
+    position: relative;
+    width: 160px;
+    height: 160px;
+}
+
+.album-image {
+    width: 160px;
+    height: 160px;
+    object-fit: cover;
+    border-radius: 10%;
+    /*border: 2px solid #6633fd;*/
+    transition: opacity 0.3s ease;
+}
+
+.album-image.loading {
+    opacity: 0;
+}
+
+.loading-spinner {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 40px;
+    height: 40px;
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #6633fd;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: translate(-50%, -50%) rotate(0deg); }
+    100% { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+.loading-spinner.hidden {
+    display: none;
+}
+
+.album-info {
+    flex: 1;
+    display: flex; /* Flexbox 적용 */
+    flex-direction: column; /* 세로 방향 배치 */
+}
+.info-box {
+    display: flex;
+    flex-direction: column;
+    height: 100%; /* 부모의 전체 높이 사용 */
+    flex: 1; /* 가능한 모든 공간 차지 */
+}
+
+.artist-item {
+    color: black;
+    text-decoration: none;
+}
+.artist-item:hover {
+    text-decoration: none;
+    color: black;
+}
+
+.album-name {
+    font-size: 1.5rem;
+    margin-bottom: 8px;
+}
+
+.album-genres {
+    color: #666;
+    font-size: 0.95rem;
+    margin-bottom: 4px;
+}
+
+.album-release-date {
+    color: #999;
+    font-size: 0.9rem;
+    margin-top: auto; /* 자동으로 아래쪽으로 밀어냄 */
+}
+
+.spotify-link {
+    display: block;
+    margin-top: 10px;
+    background: #6533fc;
+    color: white;
+    padding: 5px 0;
+    border-radius: 20px;
+    text-decoration: none;
+    font-size: 0.7rem;
+    transition: background 0.2s;
+    margin-left: auto;
+    width: 70px;
+}
+
+
+.spotify-link:hover {
+    background: #531fea;
+    text-decoration: none;
+    box-shadow: 0 2px 6px rgba(83, 31, 234, 0.3);
+    transform: translateY(-2px);
+    color: white;
+}
+
+
+.stat-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 24px;
+    gap: 0 30px;
+    text-align: center;
+    width: 100%;
+    margin-top: 28px;
+}
+
+.stat-label {
+    display: block;
+    color: #6633FF;
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+/*.stat-value {*/
+/*    font-size: 1.2rem;*/
+/*    font-weight: bold;*/
+/*}*/
+.popularity-bar {
+    flex:1;
+    height: 25px;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.popularity-bar .progress-bar {
+    font-size: 0.85rem;
+    font-weight: bold;
+    text-align: center;
+}
+.album-artists {
+    color: #6633ff;
+}
+.album-artists a {
+    color: #6633ff;
+    text-decoration: none;
+    transition: all 0.5s ease;
+}
+.album-artists a:hover {
+    text-decoration: underline;
+}
+
+.album-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 500;
+    color: #444;
+    padding: 6px 12px;
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: 20px;
+    border: 1px solid rgba(102, 51, 255, 0.2);
+    width: fit-content;
+    margin-top: 8px;
+    cursor: default;
+    /*margin-left: auto;*/
+}
+.album-bottom{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: auto; /* 자동으로 아래쪽으로 밀어냄 */
+}
+.album-duration{
+    /*margin-top: auto;*/
+}
+.album-label i {
+    color: #6633ff;
+    font-size: 1.1em;
+}
+.album-top-head {
+    display: flex;
+    align-items: stretch; /* 자식 요소들이 같은 높이를 가지도록 */
+    gap: 20px;
+}
+.album-top-right {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    margin-left: 17px;
+}
+
+.track-list-container {
+    margin-top: 30px;
+    border-radius: 12px;
+    overflow: hidden;
+    background: rgba(255, 255, 255, 0.9);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.track-list-header {
+    display: grid;
+    grid-template-columns: 50px 1fr 200px 80px; /* 마지막 50px 컬럼 제거 */
+    gap: 15px;
+    padding: 12px 0;
+    background: linear-gradient(135deg, #6633ff, #8b5cf6);
+    color: white;
+    font-weight: 600;
+    font-size: 0.9rem;
+    align-items: center;
+}
+
+.track-list-body {
+    max-height: 500px;
+    overflow-y: auto;
+}
+.track-name span {
+    cursor:pointer;
+}
+.track-header-number, .track-header-duration {
+    text-align: center;
+}
+
+.track-item {
+    display: grid;
+    grid-template-columns: 50px 1fr 200px 80px; /* 마지막 50px 컬럼 제거 */
+    gap: 15px;
+    border-bottom: 1px solid rgba(102, 51, 255, 0.1);
+    align-items: center;
+    transition: all 0.3s ease;
+    cursor: default;
+    min-height: 40px;
+}
+
+.track-item:hover {
+    background: linear-gradient(135deg, rgba(102, 51, 255, 0.05), rgba(139, 92, 246, 0.05));
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(102, 51, 255, 0.1);
+}
+
+.track-item:last-child {
+    border-bottom: none;
+}
+
+.track-number {
+    color: #666;
+    font-weight: 500;
+    text-align: center;
+    font-size: 0.85rem; /* 폰트 크기 약간 줄임 */
+}
+
+.track-name {
+    font-weight: 600;
+    color: #333;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 0.9rem; /* 폰트 크기 약간 줄임 */
+    line-height: 1.3;
+}
+
+.track-artist {
+    color: #6633ff;
+    font-size: 0.8rem; /* 0.9rem에서 0.8rem로 줄임 */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.track-artist a {
+    color: #6633ff;
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.track-artist a:hover {
+    color: #531fea;
+    text-decoration: underline;
+}
+
+.track-duration {
+    color: #666;
+    font-size: 0.8rem;
+    text-align: center;
+    transition: opacity 0.2s ease;
+    /* absolute 제거하고 일반 배치로 변경 */
+}
+
+.track-actions {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 40px;
+}
+
+
+/* 호버 시 duration 숨기고 장바구니 버튼 표시 */
+.track-item:hover .track-duration {
+    opacity: 0;
+}
+
+.track-item:hover .add-to-cart-btn {
+    opacity: 1;
+}
+
+.add-to-cart-btn {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: #6633ff;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 25px;
+    height: 25px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    font-size: 0.8rem;
+    z-index: 2;
+}
+.add-to-cart-btn:hover {
+    background: #531fea;
+    transform: translate(-50%, -50%) scale(1.1);
+    box-shadow: 0 4px 12px rgba(102, 51, 255, 0.3);
+}
+.add-to-cart-btn:active {
+    transform: translate(-50%, -50%) scale(0.95);
+}
+
+/* 스크롤바 스타일링 */
+.track-list-body::-webkit-scrollbar {
+    width: 8px;
+}
+
+.track-list-body::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
+
+.track-list-body::-webkit-scrollbar-thumb {
+    background: #6633ff;
+    border-radius: 10px;
+}
+
+.track-list-body::-webkit-scrollbar-thumb:hover {
+    background: #531fea;
+}
+
+.disc-header {
+     padding: 13px 20px 6px 20px; /* 20px 10px에서 12px 6px로 줄임 */
+     background: rgba(102, 51, 255, 0.03);
+     /*border-top: 2px solid rgba(102, 51, 255, 0.1);*/
+     /*margin-top: 8px; !* 10px에서 8px로 줄임 *!*/
+ }
+
+.disc-header:first-child {
+    margin-top: 0;
+    border-top: none;
+}
+
+.disc-header h4 {
+    margin: 0;
+    color: #6633ff;
+    font-size: 0.9rem; /* 1rem에서 0.9rem로 줄임 */
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 6px; /* 8px에서 6px로 줄임 */
+}
+.disc-header h4 i {
+    font-size: 1.1em;
+}
+
+/* 디스크 헤더 다음의 첫 번째 트랙 아이템 스타일 조정 */
+.disc-header + .track-item {
+    border-top: 1px solid rgba(102, 51, 255, 0.1);
+}

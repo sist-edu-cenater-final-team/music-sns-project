@@ -5,12 +5,18 @@ import com.github.musicsnsproject.common.myenum.MyMusicType;
 import com.github.musicsnsproject.repository.jpa.music.gift.GiftBox;
 import com.github.musicsnsproject.repository.jpa.music.purchase.PurchaseHistory;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Check;
 @Getter
 @Entity
 @Table(name = "my_music")
 @Check(constraints = "source_type IN ('구매','선물')")
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class MyMusic {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
