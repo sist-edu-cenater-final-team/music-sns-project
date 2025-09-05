@@ -53,7 +53,7 @@ const purchase = {
                             <p>${item.musicName}</p>
                         </div>
                     </td>
-                    <td class="link_td" onclick="window.open('https://open.spotify.com/artist/${item.artistId}')">
+                    <td class="link_td" style="max-width: 200px" onclick="window.open('https://open.spotify.com/artist/${item.artistId}')">
                         <p class="music-artist">${item.artistName}</p>
                     </td>
                     <td class="link_td" onclick="window.open('https://open.spotify.com/album/${item.albumId}')">
