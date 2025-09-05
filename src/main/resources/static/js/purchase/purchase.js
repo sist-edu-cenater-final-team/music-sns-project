@@ -159,6 +159,7 @@ const purchase = {
             // console.log("추가완룧효훃훃", response.data);
             alert(response.data);
             // purchase.createProfileMusicList(musicId);
+            profileMusic.createProfileMusicList();
             purchase.closeProfileMusicModal();
         })
         .catch(error => {
