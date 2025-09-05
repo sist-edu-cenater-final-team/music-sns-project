@@ -23,7 +23,49 @@
 </style>
 
 <script type="text/javascript">
+	(function () {
+		var ctxPath =
+			window.ctxPath ||
+			(document.querySelector('meta[name="ctxPath"]') &&
+				document.querySelector('meta[name="ctxPath"]').content) ||
+			'';
+		var basePath = ctxPath;
 
+		// 인증 헤더 만들기
+		function buildAuthHeaders() {
+			try {
+				var appHeaders =
+					window.AuthFunc &&
+					window.AuthFunc.getAuthHeader &&
+					window.AuthFunc.getAuthHeader();
+				if (appHeaders && typeof appHeaders == 'object' && Object.keys(appHeaders).length > 0) {
+					if (!('X-Requested-With' in appHeaders)) appHeaders['X-Requested-With'] = 'XMLHttpRequest';
+					return appHeaders;
+				}
+			} catch (e) {}
+			var token = localStorage.getItem('accessToken');
+			var type = localStorage.getItem('tokenType') || 'Bearer';
+			var headers = { 'X-Requested-With': 'XMLHttpRequest' };
+			if (token) headers.Authorization = type + ' ' + token;
+			return headers;
+		}
+
+	  // ADMIN 여부 확인: /api/auth/authorize-test (SecurityConfig에서 hasRole("ADMIN"))
+	  $.ajax({
+	    url: ctxPath + '/api/auth/authorize-test',
+	    method: 'GET',
+	    headers: buildAuthHeader(),
+	    dataType: 'json'
+	  })
+	  .done(function () {
+	    // 200 이면 ADMIN
+	    var el = document.getElementById('adminStatsItem');
+	    if (el) el.style.display = ''; // 표시
+	  })
+	  .fail(function () {
+	    // 401/403/기타 → 그대로 숨김
+	  });
+	})();
 </script>
 
 <!-- 왼쪽 네비게이션 사이드바 -->
@@ -42,15 +84,19 @@
 				<button type="button" class="btn chart"
 					onclick="location.href='<%=ctxPath%>/music/chart'">플리</button>
 			</li>
+			<li id="adminStatsItem" style="display:none;">
+			  	<button type="button" class="btn adminstats"
+			    	onclick="location.href='<%=ctxPath%>/admin/stats'">통계</button>
+			</li>
 			<li>
 				<button type="button" class="btn noti" data-target="notiLayer">알림</button>
 			</li>
 			<li>
 				<button type="button" class="btn profile" data-target="profileLayer">프로필</button>
 			</li>
-			<li>
+			<!-- <li>
 				<button type="button" class="btn setting">설정</button>
-			</li>
+			</li> -->
 			<li>
 				<button type="button" class="btn post" data-toggle="modal"
 					data-target="#postModal">게시물작성</button>
