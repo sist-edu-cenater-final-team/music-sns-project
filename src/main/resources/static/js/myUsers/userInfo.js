@@ -29,7 +29,7 @@ $(function() {
 		                        <h2>${json.myuser.nickname} </h2>`;
 				if (targetUserId == null || targetUserId == '') {
 					v_html += `
-	                        <button class="coin ml-2">
+	                        <button class="coin ml-2" onclick="location.href='/mypage/eumpyo/charge'">
 	                        <span class="coin-text">${json.myuser.coin}</span>
 	                        <img src='${ctxPath}/images/mypage/eumpyo.png' alt='coin' class="coin-icon">
 	                    	</button>
