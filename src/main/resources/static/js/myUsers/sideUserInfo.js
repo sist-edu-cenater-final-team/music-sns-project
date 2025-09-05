@@ -53,75 +53,13 @@ function getInfo() {
                             <span>${json.myuser.nickname}님의 프로필 음악</span> 
                             <button style="margin-right: 3px;" id="myPlayList">+</button>
                         </div>
-                        <div class="playlist-section">
-                            <ul class="playlist-list mt-3">
+                        <div id="profileMusicList"></div>
+                    </div>
                     `;
 
-                    // profileMusic 가져오기
-                    apiRequest(() =>
-                        new Promise((resolve2, reject2) => {
-                            $.ajax({
-                                url: "/api/music/myProfileMusic",
-                                headers: authHeader(),
-                                dataType: "json",
-                                success: function(profileMusicJson) {
-                                    // musicId 배열 생성
-                                    let musicIdArr = profileMusicJson.map(item => item.musicId);
+                    profileMusic.createProfileMusicList();
 
-                                    if(musicIdArr.length === 0) {
-                                        v_html += `<li>등록된 음악이 없습니다.</li></ul></div></div>`;
-                                        profile.html(v_html);
-                                        return;
-                                    }
-
-                                    // 한 번에 musicList 가져오기
-                                    $.ajax({
-                                        url: "/api/music/musicList",
-                                        data: { musicId: musicIdArr },
-                                        headers: authHeader(),
-                                        dataType: "json",
-                                        success: function(musicJson) {
-                                            musicJson.forEach((item, index) => {
-                                                let artist = '';
-                                                if(item.album.artists.length > 1){
-                                                    artist = item.album.artists.map(a => a.artistName).join(', ');
-                                                } else {
-                                                    artist = item.album.artists[0].artistName;
-                                                }
-
-                                                v_html += `
-                                                <li class="playlist-item">
-                                                    <img src="${item.album.albumImageUrl}" style="width: 40px; height: 40px; margin-right: 10px;"/>
-                                                    <div class="song-title">
-                                                        <strong>${item.album.albumName}</strong>
-                                                        <div class="song-artist">
-                                                            <div class="scrolling-wrapper scrolling">
-                                                                <span>${artist}</span>
-                                                                <span>${artist}</span>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <div class="song-button">
-                                                        <button>x</button>
-                                                    </div>
-                                                </li>
-                                                `;
-                                            });
-
-                                            v_html += `</ul></div></div>`;
-                                            profile.html(v_html);
-                                        },
-                                        error: function() {
-                                            alert("음악 정보를 불러오는데 실패했습니다.");
-                                        }
-                                    });
-                                },
-                                error: function() {
-                                    alert("프로필 음악을 불러오는데 실패했습니다.");
-                                }
-                            });
-                        })
-                    );
+                    profile.html(v_html);
                 },
                 error: function(xhr, textStatus, errorThrown) {
                     const error = new Error(errorThrown || textStatus);
@@ -136,4 +74,76 @@ function getInfo() {
             });
         })
     );
+}
+
+
+window.profileMusic = {
+    createProfileMusicList : () => {
+        return AuthFunc.apiRequest(() =>
+            axios.get(`${ctxPath}/api/profileMusic/list`, {
+                headers: AuthFunc.getAuthHeader()
+            })
+        )
+            .then(response => {
+                console.log(" profileMusic :: ", response.data);
+                profileMusic.renderProfileMusicList(response.data);
+            })
+            .catch(error => {
+                console.error('오류:', error);
+                if (error.response) {
+                    const errorData = error.response.data.error;
+                    if (errorData){
+                        alert(errorData.customMessage);
+                    }
+                }
+            });
+    },
+    renderProfileMusicList : (musicData) => {
+        if(musicData.length < 1) {
+            document.querySelector("#profileMusicList").innerHTML = `<div>설정된 프로필 음악이 없습니다!</div>`;
+            return;
+        }
+        let html = `<div class="playlist-section">
+                            <ul class="playlist-list mt-3">`;
+        musicData.forEach((item, index) => {
+            html += `
+                    <li class="playlist-item">
+                        <img src="${item.albumImageUrl}" style="width: 40px; height: 40px; margin-right: 10px;"/>
+                        <div class="song-title">
+                            <strong>${item.musicName}</strong>
+                            <div class="song-artist">
+                                <div class="scrolling-wrapper scrolling">
+                                    <span>${item.artistName}</span>
+                                    <span>${item.artistName}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <button type="button" class="btn-delete-profile" onclick="profileMusic.deleteProfileMusic('${item.musicId}')">x</button>
+                    </li>`;
+        });
+
+        html += `</ul></div>`;
+
+        document.querySelector("#profileMusicList").innerHTML = html;
+    },
+    deleteProfileMusic : (musicId) => {
+        return AuthFunc.apiRequest(() =>
+            axios.delete(`${ctxPath}/api/profileMusic/delete?musicId=${musicId}`, {
+                headers: AuthFunc.getAuthHeader()
+            })
+        )
+        .then(response => {
+            alert(response.data);
+            profileMusic.createProfileMusicList();
+        })
+        .catch(error => {
+            console.error('오류:', error);
+            if (error.response) {
+                const errorData = error.response.data.error;
+                if (errorData){
+                    alert(errorData.customMessage);
+                }
+            }
+        });
+    }
 }

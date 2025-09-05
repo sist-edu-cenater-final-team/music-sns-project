@@ -28,6 +28,7 @@ import java.util.stream.Collectors;
 
 import static com.github.musicsnsproject.repository.jpa.account.user.QMyUser.myUser;
 import static com.github.musicsnsproject.repository.jpa.music.cart.QMusicCart.musicCart;
+import static com.github.musicsnsproject.repository.jpa.music.purchase.QPurchaseMusic.purchaseMusic;
 
 @Service
 @RequiredArgsConstructor
@@ -180,6 +181,24 @@ public class OrderServiceImpl implements OrderService{
                     .customMessage("보유 코인이 부족합니다. " +
                             "\n현재 보유 코인: " + userCoin +
                             "\n필요한 코인: " + orderTotalPrice)
+                    .request(cartIdList)
+                    .build();
+        }
+    }
+
+    // 구매한적 있는 음악 체크하기
+    @Override
+    public void purchasedMusicCheck(Long userId, List<Long> cartIdList) {
+
+        // cartId로 장바구니에 담긴 musicId 가져오기
+        List<String> cartMusicIds = musicCartRepository.findMusicIdsByCartIds(cartIdList);
+
+        // 구매헀던 음악 찾기
+        List<String> purchasedMusicIds = purchaseMusicRepository.findPurchasedMusicIds(userId, cartMusicIds);
+
+        if (!purchasedMusicIds.isEmpty()) {
+            throw CustomNotAcceptException.of()
+                    .customMessage("이미 구매한 음악이 있습니다: " + purchasedMusicIds)
                     .request(cartIdList)
                     .build();
         }

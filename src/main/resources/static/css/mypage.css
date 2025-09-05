@@ -131,13 +131,21 @@
 .cart-container .music-text {
     display: flex;
     align-items: center;
+    justify-content: center;
+    padding: 4px 7px 4px 4px;
+    background: #F3F2F8;
+    border-radius: 4px;
+}
+.cart-container .music-text .music-price {
+    color: #6633FF;
+    font-weight: bold;
+    font-size: 15px;
 }
 .cart-container .ico-eumpyo {
-    width: 28px;
-    height: 28px;
+    width: 22px;
+    height: 22px;
     background: url("../images/mypage/eumpyo.png") no-repeat 0 center;
     background-size: cover;
-    margin-right: 4px;
 }
 
 #musicOrder .btn-order {
@@ -230,6 +238,21 @@
     font-weight: 600;
 }
 
+#profileMusicModal .modal-content {
+    height: auto;
+    padding-bottom: 40px;
+}
+
+#profileMusicModal .btn-form {
+    text-align: center;
+}
+#profileMusicModal .btn-set-profile {
+    background: #6633FF;
+    color: #fff;
+    margin: 0;
+    padding: 10px 14px;
+    font-size: 16px;
+}
 
 .select-music-wrapper {
     display: flex;
