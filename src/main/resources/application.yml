@@ -86,8 +86,8 @@ portOne:
   primary: ENC(DbwxFBSPGk5nC307yuIONt116Jej3zDJ)
 
 spotify:
-  client-id: ENC(iflZaKZj+6Jx7LpWGiDsiSCdwdxeSmjdksPmPGJRxrHV1CizwCe6mnOyOtJ+FXA/)
-  client-secret: ENC(Xa5WiRFxU0hj6ELzxZsy4BuzqNAiwlh0qJtEPYm4wI3scGlPIS7lISX2WNfuslZI)
+  client-id: ENC(sm8jQs3oSVg6k9tE1BulVWNWNngOv9daWADHJ8a125X5oK0br5SGOlMXksSXD08a)
+  client-secret: ENC(S209QI25foWw2y21Yrkix+HIPsBLm62iF6zMRMcrskQSH75SpbnDDHylkQJaTOZc)
 music:
   chart:
     bugs: https://music.bugs.co.kr/chart
