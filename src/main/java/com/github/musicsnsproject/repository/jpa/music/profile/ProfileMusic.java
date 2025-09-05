@@ -26,6 +26,8 @@ public class ProfileMusic {
     @JoinColumn(name = "my_music_id", nullable = false)
     private MyMusic myMusic;
 
+    private String musicId;
+
     private Integer listOrder;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -39,5 +41,10 @@ public class ProfileMusic {
         // createdAt가 null이라면 현재 시각을 넣어준다.
         // createdAt가 null이 아니라면 기존 시각을 보여준다.
         this.createdAt = this.createdAt == null ? LocalDateTime.now() : this.createdAt;
+    }
+
+    // 프로필 음악리스트 순번 업데이트용
+    public void decrementListOrder() {
+        this.listOrder--;
     }
 }

@@ -7,8 +7,9 @@ import java.util.List;
 
 public interface PurchaseMusicQueryRepository {
 
-    // userId로 본인 PurchaseMusic 정보 조회하기
-    List<PurchaseMusic> findByPurchaseMusicUserId(Long userId);
-
     Page<PurchaseMusic> findPageByPurchaseMusicUserId(Long userId, Pageable pageable);
+
+    Long findOneMyMusicIdByMusicId(Long userId, String musicId);
+
+    List<String> findPurchasedMusicIds(Long userId, List<String> cartMusicIds);
 }

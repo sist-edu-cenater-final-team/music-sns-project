@@ -34,13 +34,25 @@
 .playlist-item {
   display: flex;
   justify-content: space-between;
+  align-items: center;
   padding: 10px 5px;
   border-bottom: 1px solid #ddd;
 }
 
+.playlist-item .btn-delete-profile {
+    width: 30px;
+    height: 30px;
+    background: #F2F0FF;
+    color: #6633FF;
+    font-weight: bold;
+    border-radius: 4px;
+}
+
 .song-title {
   flex: 2;
-  margin-top: 5px;
+font-size: 14px;
+color: #000;
+line-height: 1.2;
 }
 
   .song-artist {
@@ -48,6 +60,8 @@
     overflow: hidden;
     width: 150px;
     height: 20px;
+      font-size: 13px;
+      color: #777;
     white-space: nowrap;
   }
 

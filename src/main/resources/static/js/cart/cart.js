@@ -6,9 +6,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
 });
 
-//const token = "Bearer eyJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE3NTU2NzQ1OTQsImV4cCI6NDkwOTI3NDU5NCwic3ViIjoiMjMiLCJyb2xlcyI6IlJPTEVfVVNFUiJ9.J2-HxxZZuEVrfQIjmPeujwehl6ExKDm8gdtae291uu4";
-
-
 const cart = {
     tbody : document.querySelector('#cartBody'),
     checkAll : document.querySelector('#cartAllCheck'),
@@ -36,7 +33,7 @@ const cart = {
                             <div class="music-img">
                                 <img src="${item.albumImageUrl}" alt="노래 이미지" />
                             </div>
-                            <p class="music-text">${item.musicName}</p>
+                            <p>${item.musicName}</p>
                         </div>
                     </td>
                     <td class="link_td" onclick="window.open('https://open.spotify.com/artist/${item.artistId}')">
@@ -48,7 +45,7 @@ const cart = {
                     <td>
                         <p class="music-text">
                             <i class="ico-eumpyo"></i>
-                            <span class="music-price">1</span>음표
+                            <span class="music-price">1</span>
                         </p>
                     </td>
                     <td>
@@ -67,11 +64,6 @@ const cart = {
         cart.initCheckEvents();
     },
     createList : () => {
-        // if(!localStorage.getItem("accessToken")){
-        //     alert("로그인이 필요합니다.");
-        //     location.href = `${ctxPath}/auth/login`;
-        //     return;
-        // }
         return AuthFunc.apiRequest(() =>
                     axios.get(`${ctxPath}/api/cart/list`, {
                         headers: AuthFunc.getAuthHeader()

@@ -13,4 +13,7 @@ public interface OrderService {
 
     // 사용자의 보유코인 알아오기
     void checkCoin(Long userId, List<Long> cartIdList);
+
+    // 구매한적 있는 음악 체크하기
+    void purchasedMusicCheck(Long userId, List<Long> cartIdList);
 }
