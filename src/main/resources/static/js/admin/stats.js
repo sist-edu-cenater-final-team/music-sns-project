@@ -122,7 +122,7 @@
 		if (refreshGatePromise != null) return refreshGatePromise;
 		var dfd = $.Deferred();
 		refreshGatePromise = dfd.promise();
-		var refreshFn = window.refreshAuthToken;
+		var refreshFn = AuthFunc.refreshAuthToken;
 
 		if (typeof refreshFn != 'function') {
 			dfd.reject();

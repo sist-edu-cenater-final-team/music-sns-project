@@ -20,7 +20,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class EumpyoHistoryService_imple implements EumpyoHistoryService {
 
-    private final EumpyoHistoryDAO dao;
+    private final EumpyoHistoryDAO eumpyoHistoryDAO;
     private final SpotifyMusicService spotifyMusicService;
 
     
@@ -47,12 +47,12 @@ public class EumpyoHistoryService_imple implements EumpyoHistoryService {
     	
         size = Math.max(1, size); 
         
-        int totalCount = dao.countChargeHistory(userId); // 총 건수
+        int totalCount = eumpyoHistoryDAO.countChargeHistory(userId); // 총 건수
         int totalPage  = (int) Math.ceil((double) totalCount / size); // 총 페이지 수
         int current    = Math.max(1, Math.min(page, Math.max(totalPage, 1))); 
         int offset     = (current - 1) * size; 
 
-        List<Map<String, Object>> list = dao.findChargeHistoryPage(userId, offset, size); 
+        List<Map<String, Object>> list = eumpyoHistoryDAO.findChargeHistoryPage(userId, offset, size); 
 
         Map<String, Object> map = new HashMap<>(); 
         
@@ -74,12 +74,12 @@ public class EumpyoHistoryService_imple implements EumpyoHistoryService {
 
         size = Math.max(1, size);
 
-        int totalCount = dao.countPurchaseHistory(userId);
+        int totalCount = eumpyoHistoryDAO.countPurchaseHistory(userId);
         int totalPage  = (int) Math.ceil((double) totalCount / size);
         int current    = Math.max(1, Math.min(page, Math.max(totalPage, 1)));
         int offset     = (current - 1) * size;
 
-        List<Map<String, Object>> list = dao.findPurchaseHistoryPage(userId, offset, size);
+        List<Map<String, Object>> list = eumpyoHistoryDAO.findPurchaseHistoryPage(userId, offset, size);
 
         for (Map<String, Object> row : list) {
             Object midObj = row.get("mainMusicId");
@@ -157,7 +157,7 @@ public class EumpyoHistoryService_imple implements EumpyoHistoryService {
         Map<String, Object> map = new HashMap<>();
 
         // 로그인한 유저의 구매내역인지 확인
-        boolean own = dao.existsPurchaseByUser(userId, purchaseHistoryId);
+        boolean own = eumpyoHistoryDAO.existsPurchaseByUser(userId, purchaseHistoryId);
         
         if (!own) {
         	map.put("result", "fail");
@@ -167,7 +167,7 @@ public class EumpyoHistoryService_imple implements EumpyoHistoryService {
         }
 
         // 구매음악 조회 (purchase_music)
-        List<Map<String, Object>> purchaseMusic = dao.findPurchaseMusic(userId, purchaseHistoryId);
+        List<Map<String, Object>> purchaseMusic = eumpyoHistoryDAO.findPurchaseMusic(userId, purchaseHistoryId);
 
         for (Map<String, Object> row : purchaseMusic) {
         	

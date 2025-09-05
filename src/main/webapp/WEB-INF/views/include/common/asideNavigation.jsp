@@ -1,26 +1,25 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java"%>
 <% String ctxPath= request.getContextPath(); %>
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+
+<meta name="ctxPath" content="<%=ctxPath%>">
+
 <link rel="stylesheet" href="<%=ctxPath%>/css/profile.css" />
 <link rel="stylesheet" href="<%=ctxPath%>/css/music/search/search.css" />
-<script type="text/javascript"
-	src="<%=ctxPath%>/js/music/search/search.js"></script>
-<script
-	src="https://cdn.jsdelivr.net/npm/sockjs-client/dist/sockjs.min.js"></script>
+<link rel="stylesheet" href="<%=ctxPath%>/css/users/notification.css" />
+
+<%--<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>--%>
+<script src="https://cdn.jsdelivr.net/npm/sockjs-client/dist/sockjs.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/stompjs/lib/stomp.min.js"></script>
 
-<script type="text/javascript"
-	src="<%=ctxPath%>/js/myUsers/sideUserInfo.js"></script>
-
+<script type="text/javascript" src="<%=ctxPath%>/js/music/search/search.js"></script>
+<script type="text/javascript" src="<%=ctxPath%>/js/myUsers/notification.js" defer></script>
+<script type="text/javascript" src="<%=ctxPath%>/js/myUsers/sideUserInfo.js"></script>
 
 <style type="text/css">
-button {
-	outline: none;
-}
 
-button:focus {
-	outline: none;
-}
+	button,button:focus { outline: none;}
+
 </style>
 
 <script type="text/javascript">
@@ -30,10 +29,11 @@ button:focus {
 <!-- 왼쪽 네비게이션 사이드바 -->
 <div class="aside-navigation sidebar">
 	<div class="inner">
-		<a href='<%=ctxPath%>/index' class="btn-logo"><span class="blind">홈으로가기</span></a>
+		<a href="<%=ctxPath%>/index" class="btn-logo"><span class="blind">홈으로가기</span></a>
 		<ul class="navigation-list">
 			<li>
-				<button type="button" class="btn home" onclick="location.href='<%=ctxPath%>/index'">홈</button>
+				<button type="button" class="btn home"
+					onclick="location.href='<%=ctxPath%>/index'">홈</button>
 			</li>
 			<li>
 				<button type="button" class="btn search" data-target="searchLayer">검색</button>
@@ -66,9 +66,9 @@ button:focus {
 		</ul>
 	</div>
 </div>
-<!-- //왼쪽 네비게이션 사이드바 -->
+<!-- 왼쪽 네비게이션 사이드바 -->
 
-<!-- 클릭했을 때 나오는 스으윽 팝업 -->
+<!-- 클릭했을 때 나오는 팝업 -->
 <div id="searchLayer" class="aside-navigation-layer sidebar">
 	<div class="inner">
 		<form id="sideSearchForm"
@@ -103,19 +103,32 @@ button:focus {
 		</div>
 	</div>
 </div>
+<!-- 알림 -->
 <div id="notiLayer" class="aside-navigation-layer sidebar">
-	<div class="inner">알림 스으윽</div>
+	<div class="inner">
+		<div class="noti-header">
+			<div class="noti-title-wrap">
+				<span class="noti-title">알림</span>
+				<span id="notiBadge" class="badge bg-danger" style="display:none;">0</span>
+			</div>
+			<div class="noti-header-actions">
+				<button type="button" id="btnNotiMarkAllRead" class="btn btn-light btn-sm">모두 읽음</button>
+				<button type="button" id="btnNotiDeleteAll" class="btn btn-outline-danger btn-sm">전체 삭제</button>
+			</div>
+		</div>
+
+		<!-- 알림 목록 -->
+		<ul id="notiList" class="noti-list"></ul>
+	</div>
 </div>
-
-
+<!-- 알림 레이어 -->
 
 <div id="profileLayer" class="aside-navigation-layer sidebar"></div>
-<!-- //클릭했을 때 나오는 스으윽 팝업 -->
+<!-- 클릭했을 때 나오는 팝업 -->
 <link href="<%=ctxPath%>/css/chat/chat.css" rel="stylesheet" />
 <div class="fixed-talk">
 	<button type="button" id="btnTalk" class="btn-talk">메시지</button>
 </div>
-
 
 <!-- 채팅 모달 -->
 <div class="modal fade" id="chatModal" tabindex="-1" aria-hidden="true">
