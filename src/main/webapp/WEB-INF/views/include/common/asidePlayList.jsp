@@ -17,28 +17,7 @@
 
         <h3>추천 음악</h3>
         <div class="recommended-music">
-            <ol>
-                <li>
-                    <span class="music-title">1. Song Title</span>
-                    <span class="music-artist">Artist</span>
-                </li>
-                <li>
-                    <span class="music-title">2. Song Title</span>
-                    <span class="music-artist">Artist</span>
-                </li>
-                <li>
-                    <span class="music-title">3. Song Title</span>
-                    <span class="music-artist">Artist</span>
-                </li>
-                <li>
-                    <span class="music-title">4. Song Title</span>
-                    <span class="music-artist">Artist</span>
-                </li>
-                <li>
-                    <span class="music-title">5. Song Title</span>
-                    <span class="music-artist">Artist</span>
-                </li>
-            </ol>
+        
         </div>
     </div>
 </div>

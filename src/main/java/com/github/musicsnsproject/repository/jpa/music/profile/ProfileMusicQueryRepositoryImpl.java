@@ -34,7 +34,7 @@ public class ProfileMusicQueryRepositoryImpl implements ProfileMusicQueryReposit
     	
     	return queryFactory.select(Projections.fields(ProfileMusicVO.class, 
     				music.musicId.as("musicId"),
-    				profileMusic.count().as("count")
+    				profileMusic.myMusic.myMusicId.count().as("count")
     			))
     			.from(profileMusic)
     			.leftJoin(myMusic)
@@ -43,7 +43,7 @@ public class ProfileMusicQueryRepositoryImpl implements ProfileMusicQueryReposit
     				.on(myMusic.purchaseHistory.purchaseHistoryId.eq(history.purchaseHistoryId))
     			.leftJoin(music)
     				.on(history.purchaseHistoryId.eq(music.purchaseHistory.purchaseHistoryId))
-    			.where(profileMusic.userEmotion.userEmotionId.eq(emotionId))
+    			.where(profileMusic.userEmotion.emotion.emotionId.eq(emotionId))
     	        .groupBy(music.musicId)
     	        .orderBy(profileMusic.count().desc())
     			.limit(5)

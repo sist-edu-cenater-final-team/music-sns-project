@@ -24,7 +24,6 @@ public class PlayListController {
 	
 	@GetMapping("/palyList")
 	public List<ProfileMusicVO> playList(@RequestParam("emotionId") Long emotionId ) {
-		
 		return service.emotionPlayList(emotionId);
 	}
 	
