@@ -280,7 +280,7 @@
     justify-content: space-between;
 }
 .aside-playlist li:not(:last-child){
-    margin-bottom: 14px;
+    margin-bottom: 4px;
 }
 
 .aside-playlist .music-title {
