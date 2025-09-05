@@ -115,7 +115,6 @@ function getUserInfo() {
 				// 내 프로필일 때
 				b_html += `
 				                        <button class="btn custom-btn" onclick="location.href='/mypage/updateInfo'">프로필 편집</button>
-				                        <button class="btn custom-btn">위시리스트</button>
 				                        <button class="btn custom-btn" onclick="location.href='/cart/list'">장바구니</button>
 
 				                        <div class="dropdown">
@@ -142,7 +141,7 @@ function getUserInfo() {
 				}
 
 				b_html += `
-				                        <button class="btn custom-btn" onclick="#">메시지</button>
+				                        <button class="btn custom-btn" onclick="goToMessage('${targetUserId}')">메세지</button>
 				                        <button class="btn custom-btn" onclick="block(${targetUserId})">차단</button>
 				                    `;
 			}
@@ -409,7 +408,8 @@ function block(userId) {
 			})
 
 		})).then((json) => {
-
+			alert("차단완료");
+			location.href="http://localhost:8080/mypage/myinfo"
 		}).catch((error) => {});
 }
 

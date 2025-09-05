@@ -78,7 +78,7 @@ function getMusicList(musicId) {
 				},
 				error: function(xhr, textStatus, errorThrown) {
 
-					alert("code: " + xhr.status + "\nmessage: " + xhr.responseText + "\nerror: " + error);
+					
 					// axios 스타일의 에러 객체로 변환
 					const error = new Error(errorThrown || textStatus);
 					error.response = {
@@ -86,6 +86,7 @@ function getMusicList(musicId) {
 						statusText: xhr.statusText,
 						data: xhr.responseJSON || xhr.responseText
 					};
+					alert("code: " + xhr.status + "\nmessage: " + xhr.responseText + "\nerror: " + error);
 					error.request = xhr;
 					reject(error);
 				}

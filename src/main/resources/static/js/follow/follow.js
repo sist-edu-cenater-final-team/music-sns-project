@@ -743,7 +743,7 @@ function searchUser(searchWord) {
 						                            `
 
 			                            if (follow.teist) {
-			                                item += `<button class="btn" style="background-color: #6633FF; color: white;">메세지</button>`
+			                                item += `<button class="btn" style="background-color: #6633FF; color: white;" onclick="goToMessage('${follow.user.userId}')">메세지</button>`
 			                            } else {
 			                                item += `<button class="btn" style="background-color: #9966FF; color: white;" onclick="gofollow(${follow.user.userId})">팔로우</button>`
 			                            }
