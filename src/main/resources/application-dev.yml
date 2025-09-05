@@ -1,0 +1,6 @@
+spring:
+  devtools:
+    restart:
+      enabled: false  # 자동 재시작 비활성화
+    livereload:
+      enabled: true   # 라이브 리로드는 활성화 (브라우저 자동 새로고침)

@@ -162,6 +162,10 @@ public class JwtProvider {
         //새로운 액세스 토큰 생성
         return createNewAccessToken(payload.get("sub").toString(), payload.get("roles").toString());
     }
+    public Object getUserIdFromToken(String accessToken) {
+        Map<String, Object> payload = extractPayloadFromToken(accessToken);
+        return payload.get("sub");
+    }
 
     private Map<String, Object> extractPayloadFromToken(String accessToken) {
         //엑세스토큰 payload

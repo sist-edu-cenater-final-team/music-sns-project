@@ -3,6 +3,7 @@ package com.github.musicsnsproject.repository.mongo.chat;
 import com.github.musicsnsproject.web.dto.chat.logic.UnreadCount;
 import org.springframework.data.mongodb.repository.Aggregation;
 import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.data.mongodb.repository.Query;
 
 import java.util.List;
 import java.util.Optional;
@@ -14,5 +15,7 @@ public interface ChatRoomRepository extends MongoRepository<ChatRoom, String> {
 
     List<ChatRoom> findByParticipantsContains(Long userId);
 
+    @Query("{ 'participants': ?0, 'hiddenUserIds': { $nin: [?0] } }")
+    List<ChatRoom> findMyActiveRoomByUserId(Long userId);
 
 }

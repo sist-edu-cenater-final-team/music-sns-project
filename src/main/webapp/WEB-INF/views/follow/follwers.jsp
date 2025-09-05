@@ -2,7 +2,6 @@
 <html>
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <jsp:include page="../include/common/head.jsp"/>
-
 <script src="<%= request.getContextPath() %>/js/follow/follow.js"></script>
 <link rel="stylesheet" href="${pageContext.request.contextPath}/css/follow/follow.css"/>
 

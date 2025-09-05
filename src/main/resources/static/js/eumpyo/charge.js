@@ -48,7 +48,7 @@
                 .fail(function (xhr, textStatus, errorThrown) {
                     if (xhr && xhr.status === 401 && !retried) {
                         retried = true;
-                        var refreshFn = window.refreshAuthToken;
+                        var refreshFn = AuthFunc.refreshAuthToken;
                         if (typeof refreshFn === 'function') {
                             $.when(refreshFn())
                                 .done(function () {

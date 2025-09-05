@@ -30,15 +30,6 @@ public class CommentService {
 
         List<ResponseCommentDTO> reponseList = commentRepository.findByCommentIdAndMyUser(postId);
 
-        if(reponseList.isEmpty()){
-            reponseList = null;
-        }
-        else{
-            reponseList.forEach(c -> {
-                c.getReplyCount();
-            });
-        }
-
 
 
         return reponseList;
@@ -52,21 +43,23 @@ public class CommentService {
         MyUser myUser = myUserOp.orElseThrow(()->
                 CustomNotFoundException.of().customMessage("해당 유저아이디의 유저가 존재하지 않습니다.").build());
 
-        Comment parent = requestCommentDTO.getParentCommentId() != null ?
-                         Comment.onlyId(requestCommentDTO.getParentCommentId()) : null;
+
+
+        Comment parent = null;
+        if (requestCommentDTO.getParentCommentId() != null) {
+            parent = commentRepository.findById(requestCommentDTO.getParentCommentId())
+                    .orElseThrow(() -> CustomNotFoundException.of()
+                            .customMessage("부모 댓글을 찾을 수 없습니다.")
+                            .build());
+        }
         Comment saveComment = Comment.of(post, myUser, requestCommentDTO.getComment(), parent);
 
         try{
             commentRepository.save(saveComment);
 
-            if(parent != null){
-                Comment root = (parent.getRootComment() != null) ? parent.getRootComment() : parent;
-
-            }
-
             return ResponseCommentDTO.builder()
                     .commentId(saveComment.getCommentId())
-                    .parentCommentId(saveComment.getCommentId() == null ? null : saveComment.getParentComment().getCommentId())
+                    .parentCommentId(saveComment.getParentComment() != null ? saveComment.getParentComment().getCommentId() : null)
                     .createdAt(saveComment.getCreatedAt())
                     .writerProfileImageUrl(saveComment.getMyUser().getProfileImage())
                     .writer(saveComment.getMyUser().getUsername())

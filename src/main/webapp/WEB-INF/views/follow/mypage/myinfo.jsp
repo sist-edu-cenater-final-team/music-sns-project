@@ -6,6 +6,9 @@
 <jsp:include page="../../include/common/head.jsp" />
 
 <script src="<%= ctxPath%>/js/myUsers/userInfo.js"></script>
+<script src="<%= ctxPath%>/js/post/postView.js"></script>
+
+
 <link rel="stylesheet" href="<%= ctxPath%>/css/users/userInfo.css" />
 
 

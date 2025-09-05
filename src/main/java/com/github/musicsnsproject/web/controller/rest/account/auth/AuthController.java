@@ -11,11 +11,13 @@ import com.github.musicsnsproject.web.dto.account.auth.response.TokenResponse;
 import com.github.musicsnsproject.web.dto.response.CustomSuccessResponse;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import static com.github.musicsnsproject.common.MyUtils.createResponseEntity;
@@ -53,7 +55,8 @@ public class AuthController implements AuthControllerDocs {
     @Override
     @PostMapping("/refresh")
     public ResponseEntity<CustomSuccessResponse<TokenResponse>> regenerateToken(@RequestHeader(AUTH_HEADER_NAME) String authHeader,
-                                                                                @CookieValue(value = REFRESH_COOKIE_NAME) String refreshToken){
+                                                                                @CookieValue(value = REFRESH_COOKIE_NAME) String refreshToken
+                                                                                ){
         String accessToken = authHeaderToToken(authHeader);
         TokenResponse tokenResponse = signUpLoginService.refreshTokenByTokens(accessToken, refreshToken);
         return createResponseEntity(
@@ -67,7 +70,7 @@ public class AuthController implements AuthControllerDocs {
         String accessToken = authHeaderToToken(authHeader);
         ResponseCookie responseCookie = signUpLoginService.logoutInvalidationToken(accessToken);
         CustomSuccessResponse<Void> response = CustomSuccessResponse
-                .emptyDataOk("로그아웃 성공");
+                .emptyDataOk("로그아웃 되었습니다.");
         return createResponseEntity(response, responseCookie);
     }
 
@@ -83,6 +86,10 @@ public class AuthController implements AuthControllerDocs {
     @GetMapping("/tttt")
     public CustomSuccessResponse<RoleEnum> tttt(@Parameter(schema = @Schema(type = "string", example = "카카오")) @RequestParam RoleEnum role){
         return CustomSuccessResponse.ofOk(role.name(), role);
+    }
+    @GetMapping("/pk")
+    public CustomSuccessResponse<Long> pk(@AuthenticationPrincipal Long userId){
+        return CustomSuccessResponse.ofOk("로그인 유저 PK 조회 성공", userId);
     }
 
 

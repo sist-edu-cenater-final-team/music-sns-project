@@ -1,6 +1,5 @@
 (() => {
 
-const authHeader = AuthFunc.getAuthHeader();//즉시호출
 const apiRequest = AuthFunc.apiRequest;//함수참조
 let imageEditor = null;
 let editorResizeObserver = null;
@@ -319,25 +318,36 @@ $(document).ready(function () {
                             images
                         };
 
-                        $.ajax({
-                            url: `/api/post/postTextAndTitle`,
-                            type: 'POST',
-                            contentType: 'application/json',
-                            headers: AuthFunc.getAuthHeader(),
-                            data: JSON.stringify(postLoad),
-                            success: function (json) {
-                                // 게시글 저장 성공 시에만 UI 정리
-                                imageArray = [];
-                                $('#postModal').modal('hide');
-                                // 필요 시 성공 알림/리다이렉트 등
-                                location.href = '/index';
-                            },
-                            error: function (request, status, error) {
-                                console.error('게시글 저장 실패:', status, error, request.responseText);
-                                alert('게시글 저장 중 오류가 발생했습니다.');
-                            }
-                            // complete는 바깥 complete에서 버튼 제어
-                        });
+                        return apiRequest(() =>
+                            new Promise((resolve, reject)=>{
+                                $.ajax({
+                                    url: `/api/post/postTextAndTitle`,
+                                    type: 'POST',
+                                    contentType: 'application/json',
+                                    headers: AuthFunc.getAuthHeader(),
+                                    data: JSON.stringify(postLoad),
+                                    success: function (json) {
+                                        // 게시글 저장 성공 시에만 UI 정리
+                                        imageArray = [];
+                                        $('#postModal').modal('hide');
+                                        // 필요 시 성공 알림/리다이렉트 등
+                                        location.href = '/index';
+                                    },
+                                    error: function(xhr, textStatus, errorThrown) {
+                                        // axios 스타일의 에러 객체로 변환
+                                        const error = new Error(errorThrown || textStatus);
+                                        error.response = {
+                                            status: xhr.status,
+                                            statusText: xhr.statusText,
+                                            data: xhr.responseJSON || xhr.responseText
+                                        };
+                                        error.request = xhr;
+                                        reject(error);
+                                    }
+                                    // complete는 바깥 complete에서 버튼 제어
+                                })
+                            })
+                        );
                     },
                     error: function(xhr, textStatus, errorThrown) {
                         // axios 스타일의 에러 객체로 변환
@@ -353,7 +363,8 @@ $(document).ready(function () {
                     complete: function () {
                         $btn.prop('disabled', false).text('업로드');
                     }
-                })
+
+                }) // end of $.ajax({})
             })
         );
     }); // end of $('#btnUploadStep3').on('click', function () {})

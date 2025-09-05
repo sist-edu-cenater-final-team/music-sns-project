@@ -1,4 +1,39 @@
 (function () {
+    let refreshPromise = null; // 진행 중인 토큰 갱신 Promise
+
+    // 토큰 갱신 함수 (단일 인스턴스 보장)
+    function refreshAuthToken() {
+        // 이미 진행 중인 갱신이 있다면 그 Promise를 반환
+        if (refreshPromise) {
+            return refreshPromise;
+        }
+
+        console.log("토큰 갱신 시작");
+
+        refreshPromise = axios.post(`${ctxPath}/api/auth/refresh`, {}, {
+            headers: AuthFunc.getAuthHeader(),
+            withCredentials: true
+        })
+            .then(response => {
+                const responseData = response.data.success.responseData;
+                localStorage.setItem('accessToken', responseData.accessToken);
+                localStorage.setItem('tokenType', responseData.tokenType);
+                console.log("토큰 갱신 완료");
+                return response;
+            })
+            .catch(error => {
+                console.error('토큰 갱신 실패:', error);
+                alert('세션이 만료되었습니다. 다시 로그인해주세요.');
+                throw error;
+            })
+            .finally(() => {
+                // 완료되면 Promise 초기화
+                refreshPromise = null;
+            });
+
+        return refreshPromise;
+    }
+
 //Auth 인증 관련 - 동적으로 헤더 생성하는 함수
     function getAuthHeader() {
         const accessToken = localStorage.getItem('accessToken');
@@ -14,12 +49,11 @@
 
 // 토큰 만료 시 자동 갱신 및 재시도 함수
     async function apiRequest(requestFn, maxRetries = 1) {
-        console.log("일단요청시작")
         try {
             return await requestFn();
         } catch (error) {
             console.log("에러받음")
-			console.log(error)
+            console.log(error)
             // 401 에러이고 토큰 만료인 경우
             if (error?.response?.status === 401 &&
                 error?.response?.data?.error?.customMessage === "만료된 토큰" &&
@@ -78,7 +112,9 @@
     window.AuthFunc = {
         getAuthHeader,
         apiRequest,
-        logout
+        logout,
+        primaryKey,
+        refreshAuthToken
     };
     // // ES6 모듈로도 export (모듈 스크립트용)
     // if (typeof module !== 'undefined' && module.exports) {
@@ -93,22 +129,34 @@
     // }
 })();
 
-
-function refreshAuthToken() {
-    return axios.post(`${ctxPath}/api/auth/refresh`,{}, {
-        headers: AuthFunc.getAuthHeader(),
-        withCredentials: true
-    })
-        .then(response => {
-            const responseData = response.data.success.responseData;
-            localStorage.setItem('accessToken', responseData.accessToken);
-            localStorage.setItem('tokenType', responseData.tokenType);
-
-        }).catch(error => {
-            console.error('Error refreshing token:', error);
-            console.error(error.response.data.error);
-            alert('세션이 만료되었습니다. 다시 로그인해주세요.');
-            // window.location.href = ctxPath + '/auth/login';
-            throw error; // 에러를 다시 던져서 상위에서 처리할 수 있도록
-        });
+function primaryKey() {
+    return AuthFunc.apiRequest(() =>
+        axios.get(`${ctxPath}/api/auth/pk`, {headers: AuthFunc.getAuthHeader()})
+    ).then(response => {
+        return response.data.success.responseData;
+    }).catch(error => {
+        console.error('Error fetching primary key:', error);
+        throw error;
+    });
 }
+
+
+//TODO: 삭제 예정 - 위의 apiRequest로 대체
+// function refreshAuthToken() {
+//     return axios.post(`${ctxPath}/api/auth/refresh`, {}, {
+//         headers: AuthFunc.getAuthHeader(),
+//         withCredentials: true
+//     })
+//         .then(response => {
+//             const responseData = response.data.success.responseData;
+//             localStorage.setItem('accessToken', responseData.accessToken);
+//             localStorage.setItem('tokenType', responseData.tokenType);
+//
+//         }).catch(error => {
+//             console.error('Error refreshing token:', error);
+//             console.error(error.response.data.error);
+//             alert('세션이 만료되었습니다. 다시 로그인해주세요.');
+//             // window.location.href = ctxPath + '/auth/login';
+//             throw error; // 에러를 다시 던져서 상위에서 처리할 수 있도록
+//         });
+// }

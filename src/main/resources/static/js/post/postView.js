@@ -34,6 +34,10 @@ $(document).ready(function(){
                                     <div class="post-header-right">
                                         <span style="color: #5e35b1; font-weight: bold">${item.emotionLabel}</span>
                                         <button type="button" class="menu-btn">⋮</button>
+                                          <ul class="dropdown-menu" style="display:none;">
+                                            <li class="menuItem" data-action="delete" style="color: red; font-weight: bold" >삭제하기</li>
+                                            <li class="menuItem" data-action="edit"><a href="/post/postEdit?postId=${item.postId}">수정하기</a></li>
+                                          </ul>
                                     </div>
                                 </div>`;
 
@@ -102,6 +106,60 @@ $(document).ready(function(){
 
                     $('div#feed').html(v_html);
 
+                    // 메뉴 버튼 클릭하면 해당 게시물 메뉴만 토글
+                    $(document).on("click", ".menu-btn", function(e) {
+                        e.stopPropagation(); // 문서 클릭 이벤트랑 충돌 방지
+
+                        const $menu = $(this).siblings(".dropdown-menu");
+
+                        // 다른 메뉴 닫고 현재 것만 열기
+                        $(".dropdown-menu").not($menu).hide();
+                        $menu.toggle();
+                    });
+
+                    // 화면 아무 곳이나 클릭하면 메뉴 닫기
+                    $(document).on("click", function() {
+                        $(".dropdown-menu").hide();
+                    });
+
+                    $(document).on("click", '.menuItem', function(e) {
+
+                        const action = $(this).data('action');
+                        const postId = $(this).closest('.post').data('post-id');
+
+                        if(action === 'delete') {
+
+                            if (confirm("정말로 게시물을 삭제하시겟습니까?")){
+                                AuthFunc.apiRequest(() => {
+                                    return axios.delete('/api/post/deletePost',
+                                        {
+                                            params: {postId: postId},
+                                            headers: AuthFunc.getAuthHeader()
+                                        }
+                                        )
+                                }).then(function (response) {
+                                    if(response.data == postId){
+                                        alert("게시글이 삭제되었습니다.");
+                                        location.href = "/";
+                                    }
+                                    else {
+                                        alert("게시글 삭제에 실패했습니다.")
+                                    }
+
+                                }).catch(function (error) {
+                                    if(error.status === 403)
+                                        alert(error.response.data.error.customMessage);
+
+                                    // console.error(error);
+                                    // console.log(error.response.data.error.customMessage)
+                                })
+                            }
+
+                        } // end of if(action === 'delete') {}
+
+
+                    })
+
                 },
                 error: function(xhr, textStatus, errorThrown) {
                     // axios 스타일의 에러 객체로 변환
@@ -117,12 +175,8 @@ $(document).ready(function(){
 
 
             }) // end of $.ajax({})
-
-
         })
     );
-
-
 
     /*function 댓글등록(){
         const body = {
@@ -149,7 +203,7 @@ $(document).ready(function(){
 $(function () {
 
     // 댓글 모양을 누르면 모달을 나오게 함
-    $('div.feed-container').on('click', 'button[name="comments"]', function () {
+    $('div.feed-container').off('click.post', 'button[name="comments"]').on('click.post', 'button[name="comments"]', function () {
         const post = $(this).closest('.post');
         // console.log(post);
 
@@ -163,7 +217,7 @@ $(function () {
         let postImageUrls = post.find('.carousel-inner img').map((_, img) => $(img).attr('src')).get();
 
 
-        // console.log(postId);
+        console.log(postId);
         // console.log(postTitle);
         // console.log(postContent);
         // console.log(username);
@@ -184,86 +238,22 @@ $(function () {
         $('.pcPostTitle').text(postTitle);
         $('.pcPostContent').text(postContent);
 
-        AuthFunc.apiRequest(()=>{
-            axios.get('/api/comment/getCommentList',
-                {params: {postId: postId}},
-                {headers: AuthFunc.getAuthHeader()})
-                .then(async function (response) {
-
-                    let html = ``;
-
-                    const commentList = response.data;
-
-                    console.log(commentList);
-
-                    commentList.forEach(item => {
-
-                        html += `
-                                     <div class="comment d-flex mb-2"
-                                     data-comment-id="${item.commentId}"
-                                     data-parent-id="${item.parentCommentId || ''}"
-                                     data-writer="${item.writer}">
-                                        <!-- 프로필 이미지 -->
-                                        <img src= "${item.writerProfileImageUrl}" class="rounded-circle mr-2" 
-                                             alt="userImage" style="width:32px; height:32px; object-fit:cover;">
-                                
-                                        <!-- 닉네임 + 댓글 내용 -->
-                                        <div class="comment-body d-flex flex-column">
-                                            <div class="mb-2">
-                                                <span class="font-weight-bold mr-1 mb-1">${item.writer}</span>
-                                                <span class="mb-2">${item.contents}</span>
-                                            </div>
-                                
-                                            <!-- 답글 -->
-                                            <div class="text-muted small mt-1 mb-2">
-                                                <span>${item.createdAt}</span>
-                                                <span class="ml-3 reply-btn" role="button" tabindex="0" style="font-style: italic">답글 달기</span>
-                                            </div>
-                                        
-                                    `;
-
-                                    if(item.parentCommentId == null || item.replyCount > 0){
-
-                                        html += `
-                                            <!-- ✅ 답글 n개 보기 버튼 -->
-                                            <div class="text-muted small mt-1 view-replies-btn" role="button" tabindex="0" style="cursor:pointer">
-                                                -- 답글 보기( ${item.replyCount}개)
-                                            </div>
-    
-                                            <!-- ✅ 대댓글이 들어갈 영역 -->
-                                            <div class="replies pl-4 mt-2" style="display:none;"></div>
-                                        `;
-                                    }
-
-                                    html += `    </div> <!-- 바디부분닫기 -->
-                                            </div>`; // .comment 쪽 닫기
-
-
-
-                    })
-
-                    await $('.pcCommentsArea').html(html);
-                    nestReplies('.pcCommentsArea');
-
-                }).catch(function (error) {
-
-            })
-
-        })
+        loadCommentList(postId);
 
         // 댓글쓰기에서 값이 없으면 disabled, 값이 있으면 해제
-        $('textarea.pcCommentInput').on('input', function() {
+        $('textarea.pcCommentInput').off('input.post').on('input.post', function() {
             $('button.commentPost').prop('disabled', $(this).val().trim() === "");
         });
-
-        $('textarea.pcCommentInput').on('keyup', function(e) {
+        
+        
+        $('textarea.pcCommentInput').off('keyup.post').on('keyup.post', function(e) {
             if(e.keyCode === 13) {
                 $('button.commentPost').trigger('click');
             }
         })
 
         // 답글보기 버튼을 누르면 나타나는 것
-        $('.pcCommentsArea').on('click', '.view-replies-btn', function () {
+        $('.pcCommentsArea').off('click.post', '.view-replies-btn').on('click.post', '.view-replies-btn', function () {
             const comment = $(this).closest('.comment');
 
             // 우선 comment-body 안의 replies를 찾고,
@@ -287,8 +277,9 @@ $(function () {
 
         // 답글달기 버튼을 누르면 댓글쓰기에 값 넣어주고, 부모댓글아이디 만들기
         let parentCommentId = null;
+        let replyTarget = null;
 
-        $(document).on('click', '.reply-btn', function (e) {
+        $(document).off('click.post', '.reply-btn').on('click.post', '.reply-btn', function (e) {
 
             const comment = $(this).closest('.comment');
             const writer = comment.data('writer');
@@ -300,18 +291,39 @@ $(function () {
             }
 
             // console.log('parentCommentId:', parentCommentId);
-            $('textarea.pcCommentInput').val(`@${writer} `).focus();
+            replyTarget = `@${writer}`;  // 저장
+            $('textarea.pcCommentInput').val(`${replyTarget} `).focus();
         });
 
+        // textarea 입력 감지
+        $('textarea.pcCommentInput').off('input.reply').on('input.reply', function () {
+            const val = $(this).val().trimStart();
+
+            // replyTarget 이 없거나, 입력값이 더 이상 @유저명 으로 시작하지 않으면 초기화
+            if (replyTarget && !val.startsWith(replyTarget)) {
+                parentCommentId = null;
+                replyTarget = null;
+            }
+        });
 
         // "게시" 버튼을 누르면 댓글을 db에 저장하는 것
-        $('button.commentPost').on('click', function () {
+        $('button.commentPost').off('click.post').on('click.post', function () {
+
+            const $btn = $(this);
+            const commentText = $('textarea.pcCommentInput').val().trim();
+            if (!commentText) {
+                return; // 빈 값 방지
+            }
+            if ($btn.data('busy')) {
+                return; // 중복 전송 방지
+            }
+            $btn.data('busy', true).prop('disabled', true);
 
             console.log('parentCommentId:', parentCommentId);
 
             const body = {
                 'postId': postId,
-                'comment': $('textarea.pcCommentInput').val().trim(),
+                'comment': commentText,
                 'parentCommentId': parentCommentId,
             }
             AuthFunc.apiRequest(() => {
@@ -374,17 +386,18 @@ $(function () {
                         $viewRepliesBtn.text(`-- 답글 보기( ${count}개)`);
                     }
                     $('textarea.pcCommentInput').val('');
+                    parentCommentId = null;
+                    replyTarget = null;
                     // 4) 더 내려가서 일반 댓글 로직이 실행되지 않도록 종료
                     //console.log('정상입니다.')
-
+                    // 댓글달기 하면 바로 뷰단에 보이게 하기
 
                 }
                 else {
                     //console.log('왜와' + response.data.parentCommentId);
                     $('textarea.pcCommentInput').val('');
+                    loadCommentList(postId);
                 }
-
-
 
             }).catch(function (error) {
                 console.error(error);
@@ -402,7 +415,10 @@ $(function () {
                     alert('댓글 입력이 안됨.');
                 }
 
+            }).finally(function(){
+                $btn.data('busy', false).prop('disabled', false);
             })
+
 
         })
 
@@ -411,6 +427,87 @@ $(function () {
 
 }) // end of $(function () {})
 
+
+// 댓글을 가져오는 함수
+function loadCommentList(postId) {
+
+    AuthFunc.apiRequest(()=>{
+        axios.get('/api/comment/getCommentList',
+            {
+                params: {postId: postId},
+                headers: AuthFunc.getAuthHeader()
+            })
+            .then(async function (response) {
+
+                let html = ``;
+
+                const commentList = response.data;
+
+                // console.log(commentList);
+
+                if(commentList.length === 0) {
+                    html += `<span style="font-weight: bold">댓글이 없습니다</span>`
+                }
+                else {
+                    commentList.forEach(item => {
+
+                        html += `
+                                     <div class="comment d-flex mb-2"
+                                     data-comment-id="${item.commentId}"
+                                     data-parent-id="${item.parentCommentId || ''}"
+                                     data-writer="${item.writer}">
+                                        <!-- 프로필 이미지 -->
+                                        <img src= "${item.writerProfileImageUrl}" class="rounded-circle mr-2" 
+                                             alt="userImage" style="width:32px; height:32px; object-fit:cover;">
+                                
+                                        <!-- 닉네임 + 댓글 내용 -->
+                                        <div class="comment-body d-flex flex-column">
+                                            <div class="mb-2">
+                                                <span class="font-weight-bold mr-1 mb-1">${item.writer}</span>
+                                                <span class="mb-2">${item.contents}</span>
+                                            </div>
+                                
+                                            <!-- 답글 -->
+                                            <div class="text-muted small mt-1 mb-2">
+                                                <span>${item.createdAt}</span>
+                                                <span class="ml-3 reply-btn" role="button" tabindex="0" style="font-style: italic">답글 달기</span>
+                                            </div>
+                                        
+                                    `;
+
+                        // 최상위 댓글(top-level) 에만 "답글 보기" 버튼을 렌더링
+                        if((!item.parentCommentId || item.parentCommentId === '') && item.replyCount >= 1){
+
+                            html += `
+                                            <!-- ✅ 답글 n개 보기 버튼 (top-level 전용) -->
+                                            <div class="text-muted small mt-1 view-replies-btn" role="button" tabindex="0" style="cursor:pointer">
+                                                -- 답글 보기( ${item.replyCount}개)
+                                            </div>
+    
+                                            <!-- ✅ 대댓글이 들어갈 영역 (top-level 전용 컨테이너) -->
+                                            <div class="replies pl-4 mt-2" style="display:none;"></div>
+                                        `;
+                        }
+
+                        html += `    </div> <!-- 바디부분닫기 -->
+                                            </div>`; // .comment 쪽 닫기
+
+
+
+                    })
+
+
+                }
+                await $('.pcCommentsArea').html(html);
+                nestReplies('.pcCommentsArea');
+
+            }).catch(function (error) {
+
+        })
+
+    })
+
+}
 
 // 댓글, 대댓글 트리구조로 만드는 함수
 // 댓글, 대댓글을 "최상위 댓글" 단위로만 묶는 함수

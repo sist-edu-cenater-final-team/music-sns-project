@@ -48,7 +48,8 @@ public abstract class AccountParent {
             "^(19|20)\\d{2}-(0?[13578]|1[0,2])-(31)$")
     private String dateOfBirth;
 
-    @Pattern(regexp = "^(http(s)?://)[\\w.-]+(/[\\w+.%&=;:@#\\-]*)*\\.(jpg|jpeg|png|gif|bmp|svg|JPG|JPEG|PNG|GIF|BMP|SVG)$",
+
+    @Pattern(regexp = "^(https?://)?([\\w.-]+)(:[0-9]+)?(/([\\w\\-./?%&=;:@#]*)?)?$",
             message = "프로필 이미지는 이미지 링크의 URL 로 요청을 보내주세요.")
     @Schema(description = "프로필 이미지 (요청 값에 포함 시키지 않을 시 기본 사진이 적용 됩니다.)",
             defaultValue = "https://uxwing.com/wp-content/themes/uxwing/download/peoples-avatars/elderly-man-icon.png",

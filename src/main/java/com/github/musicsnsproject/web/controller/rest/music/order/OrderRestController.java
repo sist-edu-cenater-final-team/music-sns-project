@@ -28,6 +28,11 @@ public class OrderRestController {
     @PostMapping("create")
     public ResponseEntity<List<CartResponse>> orderCreate(@AuthenticationPrincipal Long userId,
                                                           @RequestParam("cartIdList") List<Long> cartIdList){
+
+        // 구매한적 있는 음악 체크하기
+        orderService.purchasedMusicCheck(userId, cartIdList);
+
+        // 보유 코인 체크하기
         orderService.checkCoin(userId, cartIdList);
 
         return ResponseEntity.ok(orderService.getOrderPreviewList(userId, cartIdList));

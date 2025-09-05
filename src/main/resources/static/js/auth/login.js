@@ -105,6 +105,8 @@ function handleLogin(identifier, password) {
             }
         });
 }
+
+
 function showMessage(message, type) {
     // 기존 메시지 제거
     removeMessage();

@@ -5,193 +5,301 @@
 
 <mapper namespace="adminStats">
 
-  <!-- 음표 충전 총합 -->
-  <select id="sumChargedCoin" parameterType="map" resultType="long">
-    select nvl(sum(ch.coin), 0)
-    from   coin_history ch
-    <where>
-      <if test="startDate != null and startDate != ''">
-        and ch.created_at &gt;= to_date(#{startDate}, 'YYYY-MM-DD')
-      </if>
-      <if test="endDate != null and endDate != ''">
-        and ch.created_at &lt;  to_date(#{endDate}, 'YYYY-MM-DD') + 1
-      </if>
-    </where>
-  </select>
+	<!-- 기간 내 충전 음표 합계 조회 -->
+	<select id="sumChargedCoin" parameterType="map" resultType="long">
+		select nvl(sum(ch.coin), 0)
+		from coin_history ch
+		<choose>
+			<when test="(startDate != null and startDate != '') or (endDate != null and endDate != '')">
+				where
+				<if test="startDate != null and startDate != ''">
+					trunc(ch.created_at) &gt;= to_date(#{startDate}, 'YYYY-MM-DD')
+				</if>
+				<if test="endDate != null and endDate != ''">
+					<if test="startDate != null and startDate != ''"> and </if>
+					trunc(ch.created_at) &lt;= to_date(#{endDate}, 'YYYY-MM-DD')
+				</if>
+			</when>
+			<otherwise/>
+		</choose>
+	</select>
 
-  <!-- 매출 총합 (원/가격 합계) -->
-  <select id="sumRevenue" parameterType="map" resultType="long">
-    /* AT_THAT_PRICE 컬럼 합계, null 안전 */
-    select nvl(sum(nvl(ch.at_that_price, 0)), 0)
-    from   coin_history ch
-    <where>
-      <if test="startDate != null and startDate != ''">
-        and ch.created_at &gt;= to_date(#{startDate}, 'YYYY-MM-DD')
-      </if>
-      <if test="endDate != null and endDate != ''">
-        and ch.created_at &lt;  to_date(#{endDate}, 'YYYY-MM-DD') + 1
-      </if>
-    </where>
-  </select>
+	<!-- 기간 내 매출 합계 조회 -->
+	<select id="sumRevenue" parameterType="map" resultType="long">
+		select nvl(sum(ch.at_that_price), 0)
+		from coin_history ch
+		<choose>
+			<when test="(startDate != null and startDate != '') or (endDate != null and endDate != '')">
+				where
+				<if test="startDate != null and startDate != ''">
+					trunc(ch.created_at) &gt;= to_date(#{startDate}, 'YYYY-MM-DD')
+				</if>
+				<if test="endDate != null and endDate != ''">
+					<if test="startDate != null and startDate != ''"> and </if>
+					trunc(ch.created_at) &lt;= to_date(#{endDate}, 'YYYY-MM-DD')
+				</if>
+			</when>
+			<otherwise/>
+		</choose>
+	</select>
 
-  <!-- 사용 음표 총합 -->
-  <select id="sumUsedCoin" parameterType="map" resultType="long">
-    select nvl(sum(pm.at_that_coin), 0)
-    from   purchase_music pm
-           join purchase_history ph on ph.purchase_history_id = pm.purchase_history_id
-    <where>
-      <if test="startDate != null and startDate != ''">
-        and ph.purchased_at &gt;= to_date(#{startDate}, 'YYYY-MM-DD')
-      </if>
-      <if test="endDate != null and endDate != ''">
-        and ph.purchased_at &lt;  to_date(#{endDate}, 'YYYY-MM-DD') + 1
-      </if>
-    </where>
-  </select>
+	<!-- 기간 내 사용 음표 합계 조회 -->
+	<select id="sumUsedCoin" parameterType="map" resultType="long">
+		select nvl(sum(pm.at_that_coin), 0)
+		from purchase_history ph
+			 join purchase_music pm on pm.purchase_history_id = ph.purchase_history_id
+		<choose>
+			<when test="(startDate != null and startDate != '') or (endDate != null and endDate != '')">
+				where
+				<if test="startDate != null and startDate != ''">
+					trunc(ph.purchased_at) &gt;= to_date(#{startDate}, 'YYYY-MM-DD')
+				</if>
+				<if test="endDate != null and endDate != ''">
+					<if test="startDate != null and startDate != ''"> and </if>
+					trunc(ph.purchased_at) &lt;= to_date(#{endDate}, 'YYYY-MM-DD')
+				</if>
+			</when>
+			<otherwise/>
+		</choose>
+	</select>
 
-  <!-- 일자별 충전 음표 (일 단위 고정) -->
-  <select id="seriesChargedCoin" parameterType="map" resultType="map">
-    select
-      to_char(trunc(ch.created_at), 'YYYY-MM-DD') as bucket,
-      nvl(sum(ch.coin), 0) as value
-    from coin_history ch
-    <where>
-      <if test="startDate != null and startDate != ''">
-        and ch.created_at &gt;= to_date(#{startDate}, 'YYYY-MM-DD')
-      </if>
-      <if test="endDate != null and endDate != ''">
-        and ch.created_at &lt;  to_date(#{endDate}, 'YYYY-MM-DD') + 1
-      </if>
-    </where>
-    group by trunc(ch.created_at)
-    order by 1
-  </select>
+	<!-- 일자별 충전 음표 -->
+	<select id="seriesChargedCoin" parameterType="map" resultType="map">
+		select to_char(trunc(ch.created_at), 'YYYY-MM-DD') as "bucket",
+			   nvl(sum(ch.coin), 0) as "value"
+		from coin_history ch
+		<choose>
+			<when test="(startDate != null and startDate != '') or (endDate != null and endDate != '')">
+				where
+				<if test="startDate != null and startDate != ''">
+					trunc(ch.created_at) &gt;= to_date(#{startDate}, 'YYYY-MM-DD')
+				</if>
+				<if test="endDate != null and endDate != ''">
+					<if test="startDate != null and startDate != ''"> and </if>
+					trunc(ch.created_at) &lt;= to_date(#{endDate}, 'YYYY-MM-DD')
+				</if>
+			</when>
+			<otherwise/>
+		</choose>
+		group by trunc(ch.created_at)
+		order by trunc(ch.created_at)
+	</select>
 
-  <!-- 일자별 사용 음표 (일 단위 고정) -->
-  <select id="seriesUsedCoin" parameterType="map" resultType="map">
-    select
-      to_char(trunc(ph.purchased_at), 'YYYY-MM-DD') as bucket,
-      nvl(sum(pm.at_that_coin), 0) as value
-    from   purchase_music pm
-           join purchase_history ph on ph.purchase_history_id = pm.purchase_history_id
-    <where>
-      <if test="startDate != null and startDate != ''">
-        and ph.purchased_at &gt;= to_date(#{startDate}, 'YYYY-MM-DD')
-      </if>
-      <if test="endDate != null and endDate != ''">
-        and ph.purchased_at &lt;  to_date(#{endDate}, 'YYYY-MM-DD') + 1
-      </if>
-    </where>
-    group by trunc(ph.purchased_at)
-    order by 1
-  </select>
+	<!-- 일자별 사용 음표 -->
+	<select id="seriesUsedCoin" parameterType="map" resultType="map">
+		select to_char(trunc(ph.purchased_at), 'YYYY-MM-DD') as "bucket",
+			   nvl(sum(pm.at_that_coin), 0) as "value"
+		from purchase_history ph
+			 join purchase_music pm on pm.purchase_history_id = ph.purchase_history_id
+		<choose>
+			<when test="(startDate != null and startDate != '') or (endDate != null and endDate != '')">
+				where
+				<if test="startDate != null and startDate != ''">
+					trunc(ph.purchased_at) &gt;= to_date(#{startDate}, 'YYYY-MM-DD')
+				</if>
+				<if test="endDate != null and endDate != ''">
+					<if test="startDate != null and startDate != ''"> and </if>
+					trunc(ph.purchased_at) &lt;= to_date(#{endDate}, 'YYYY-MM-DD')
+				</if>
+			</when>
+			<otherwise/>
+		</choose>
+		group by trunc(ph.purchased_at)
+		order by trunc(ph.purchased_at)
+	</select>
 
-  <!-- top 10 충전 유저 -->
-  <select id="topChargers" parameterType="map" resultType="map">
-    select u.user_id as userid,
-           u.nickname as nickname,
-           nvl(sum(ch.coin), 0) as totalcoin
-    from   coin_history ch
-           join users u on u.user_id = ch.user_id
-    <where>
-      <if test="startDate != null and startDate != ''">
-        and ch.created_at &gt;= to_date(#{startDate}, 'YYYY-MM-DD')
-      </if>
-      <if test="endDate != null and endDate != ''">
-        and ch.created_at &lt;  to_date(#{endDate}, 'YYYY-MM-DD') + 1
-      </if>
-    </where>
-    group by u.user_id, u.nickname
-    order  by totalcoin desc
-    fetch first 10 rows only
-  </select>
+	<!-- 음표 충전 Top 10 -->
+	<select id="topChargers" parameterType="map" resultType="map">
+		select u.user_id as "userId",
+			   u.nickname as "nickname",
+			   nvl(sum(ch.coin),0) as "totalcoin"
+		from coin_history ch
+			 join users u on u.user_id = ch.user_id
+		<choose>
+			<when test="(startDate != null and startDate != '') or (endDate != null and endDate != '')">
+				where
+				<if test="startDate != null and startDate != ''">
+					trunc(ch.created_at) &gt;= to_date(#{startDate}, 'YYYY-MM-DD')
+				</if>
+				<if test="endDate != null and endDate != ''">
+					<if test="startDate != null and startDate != ''"> and </if>
+					trunc(ch.created_at) &lt;= to_date(#{endDate}, 'YYYY-MM-DD')
+				</if>
+			</when>
+			<otherwise/>
+		</choose>
+		group by u.user_id, u.nickname
+		order by sum(ch.coin) desc
+		fetch first 10 rows only
+	</select>
 
-  <!-- top 10 사용 유저 -->
-  <select id="topSpenders" parameterType="map" resultType="map">
-    select u.user_id as userid,
-           u.nickname as nickname,
-           nvl(sum(pm.at_that_coin), 0) as usedcoin
-    from   purchase_music pm
-           join purchase_history ph on ph.purchase_history_id = pm.purchase_history_id
-           join users u             on u.user_id = ph.user_id
-    <where>
-      <if test="startDate != null and startDate != ''">
-        and ph.purchased_at &gt;= to_date(#{startDate}, 'YYYY-MM-DD')
-      </if>
-      <if test="endDate != null and endDate != ''">
-        and ph.purchased_at &lt;  to_date(#{endDate}, 'YYYY-MM-DD') + 1
-      </if>
-    </where>
-    group by u.user_id, u.nickname
-    order by usedcoin desc
-    fetch first 10 rows only
-  </select>
+	<!-- 음표 사용 Top 10 -->
+	<select id="topSpenders" parameterType="map" resultType="map">
+		select u.user_id as "userId",
+			   u.nickname as "nickname",
+			   nvl(sum(pm.at_that_coin),0) as "usedcoin"
+		from purchase_history ph
+			 join users u on u.user_id = ph.user_id
+			 join purchase_music pm on pm.purchase_history_id = ph.purchase_history_id
+		<choose>
+			<when test="(startDate != null and startDate != '') or (endDate != null and endDate != '')">
+				where
+				<if test="startDate != null and startDate != ''">
+					trunc(ph.purchased_at) &gt;= to_date(#{startDate}, 'YYYY-MM-DD')
+				</if>
+				<if test="endDate != null and endDate != ''">
+					<if test="startDate != null and startDate != ''"> and </if>
+					trunc(ph.purchased_at) &lt;= to_date(#{endDate}, 'YYYY-MM-DD')
+				</if>
+			</when>
+			<otherwise/>
+		</choose>
+		group by u.user_id, u.nickname
+		order by sum(pm.at_that_coin) desc
+		fetch first 10 rows only
+	</select>
 
-  <!-- 일자별 신규 가입자 (일 단위 고정) -->
-  <select id="seriesNewMembers" parameterType="map" resultType="map">
-    select
-      to_char(trunc(u.registered_at), 'YYYY-MM-DD') as bucket,
-      count(*) as value
-    from users u
-    <where>
-      <if test="startDate != null and startDate != ''">
-        and u.registered_at &gt;= to_date(#{startDate}, 'YYYY-MM-DD')
-      </if>
-      <if test="endDate != null and endDate != ''">
-        and u.registered_at &lt;  to_date(#{endDate}, 'YYYY-MM-DD') + 1
-      </if>
-    </where>
-    group by trunc(u.registered_at)
-    order by 1
-  </select>
+	<!-- 일자별 신규 가입자 -->
+	<select id="seriesNewMembers" parameterType="map" resultType="map">
+		select to_char(trunc(u.registered_at), 'YYYY-MM-DD') as "bucket",
+			   count(*) as "value"
+		from users u
+		<choose>
+			<when test="(startDate != null and startDate != '') or (endDate != null and endDate != '')">
+				where
+				<if test="startDate != null and startDate != ''">
+					trunc(u.registered_at) &gt;= to_date(#{startDate}, 'YYYY-MM-DD')
+				</if>
+				<if test="endDate != null and endDate != ''">
+					<if test="startDate != null and startDate != ''"> and </if>
+					trunc(u.registered_at) &lt;= to_date(#{endDate}, 'YYYY-MM-DD')
+				</if>
+			</when>
+			<otherwise/>
+		</choose>
+		group by trunc(u.registered_at)
+		order by trunc(u.registered_at)
+	</select>
 
-  <!-- 회원 상태 분포(전체) -->
-  <select id="memberStatusDist" resultType="map">
-    select u.status as status,
-           count(*) as cnt
-    from   users u
-    group by u.status
-  </select>
+	<!-- 팔로워 Top 10 -->
+	<select id="topFollowers" parameterType="map" resultType="map">
+		select u.user_id as "userId",
+			   u.nickname as "nickname",
+			   count(f.followee_id) as "followers"
+		from users u
+			 join follows f on f.followee_id = u.user_id
+		<choose>
+			<when test="(startDate != null and startDate != '') or (endDate != null and endDate != '')">
+				where
+				<if test="startDate != null and startDate != ''">
+					trunc(f.created_at) &gt;= to_date(#{startDate}, 'YYYY-MM-DD')
+				</if>
+				<if test="endDate != null and endDate != ''">
+					<if test="startDate != null and startDate != ''"> and </if>
+					trunc(f.created_at) &lt;= to_date(#{endDate}, 'YYYY-MM-DD')
+				</if>
+			</when>
+			<otherwise/>
+		</choose>
+		group by u.user_id, u.nickname
+		order by count(f.followee_id) desc
+		fetch first 10 rows only
+	</select>
 
-  <!-- top 10 베스트셀러 음악 -->
-  <select id="topMusic" parameterType="map" resultType="map">
-    select pm.music_id                  as musicid,
-           count(*)                     as soldcount,
-           nvl(sum(pm.at_that_coin), 0) as coinsum
-    from   purchase_music pm
-           join purchase_history ph on ph.purchase_history_id = pm.purchase_history_id
-    <where>
-      <if test="startDate != null and startDate != ''">
-        and ph.purchased_at &gt;= to_date(#{startDate}, 'YYYY-MM-DD')
-      </if>
-      <if test="endDate != null and endDate != ''">
-        and ph.purchased_at &lt;  to_date(#{endDate}, 'YYYY-MM-DD') + 1
-      </if>
-    </where>
-    group  by pm.music_id
-    order  by soldcount desc, coinsum desc
-    fetch first 10 rows only
-  </select>
+	<!-- 일자별 수익 -->
+	<select id="seriesRevenue" parameterType="map" resultType="map">
+		select to_char(trunc(ch.created_at), 'YYYY-MM-DD') as "bucket",
+			   nvl(sum(ch.at_that_price), 0) as "value"
+		from coin_history ch
+		<choose>
+			<when test="(startDate != null and startDate != '') or (endDate != null and endDate != '')">
+				where
+				<if test="startDate != null and startDate != ''">
+					trunc(ch.created_at) &gt;= to_date(#{startDate}, 'YYYY-MM-DD')
+				</if>
+				<if test="endDate != null and endDate != ''">
+					<if test="startDate != null and startDate != ''"> and </if>
+					trunc(ch.created_at) &lt;= to_date(#{endDate}, 'YYYY-MM-DD')
+				</if>
+			</when>
+			<otherwise/>
+		</choose>
+		group by trunc(ch.created_at)
+		order by trunc(ch.created_at)
+	</select>
 
-  <!-- top 10 팔로워 많은 유저 -->
-  <select id="topFollowers" parameterType="map" resultType="map">
-    select
-      u.user_id  as userid,
-      u.nickname as nickname,
-      count(*)   as followercount
-    from   follow f
-           join users u on u.user_id = f.followee_id
-    <where>
-      <if test="startDate != null and startDate != ''">
-        and f.created_at &gt;= to_date(#{startDate}, 'YYYY-MM-DD')
-      </if>
-      <if test="endDate != null and endDate != ''">
-        and f.created_at &lt;  to_date(#{endDate}, 'YYYY-MM-DD') + 1
-      </if>
-    </where>
-    group by u.user_id, u.nickname
-    order by followercount desc
-    fetch first 10 rows only
-  </select>
+	<!-- 시간별 방문자 -->
+	<select id="seriesHourlyVisitors" parameterType="map" resultType="map">
+		select to_char(lh.logged_at, 'HH24') as "bucket",
+			   count(distinct lh.user_id) as "value"
+		from login_history lh
+		<choose>
+			<when test="(startDate != null and startDate != '') or (endDate != null and endDate != '')">
+				where
+				<if test="startDate != null and startDate != ''">
+					trunc(lh.logged_at) &gt;= to_date(#{startDate}, 'YYYY-MM-DD')
+				</if>
+				<if test="endDate != null and endDate != ''">
+					<if test="startDate != null and startDate != ''"> and </if>
+					trunc(lh.logged_at) &lt;= to_date(#{endDate}, 'YYYY-MM-DD')
+				</if>
+			</when>
+			<otherwise/>
+		</choose>
+		group by to_char(lh.logged_at, 'HH24')
+		order by "bucket"
+	</select>
+
+	<!-- 일자별 방문자 -->
+	<select id="seriesDailyVisitors" parameterType="map" resultType="map">
+		select to_char(trunc(lh.logged_at), 'YYYY-MM-DD') as "bucket",
+			   count(distinct lh.user_id) as "value"
+		from login_history lh
+		<choose>
+			<when test="(startDate != null and startDate != '') or (endDate != null and endDate != '')">
+				where
+				<if test="startDate != null and startDate != ''">
+					trunc(lh.logged_at) &gt;= to_date(#{startDate}, 'YYYY-MM-DD')
+				</if>
+				<if test="endDate != null and endDate != ''">
+					<if test="startDate != null and startDate != ''"> and </if>
+					trunc(lh.logged_at) &lt;= to_date(#{endDate}, 'YYYY-MM-DD')
+				</if>
+			</when>
+			<otherwise/>
+		</choose>
+		group by trunc(lh.logged_at)
+		order by trunc(lh.logged_at)
+	</select>
+
+	<!-- 전체 이용자 수 -->
+	<select id="countTotalUsers" resultType="long">
+		select count(*) from users
+	</select>
+
+	<!-- 음악 판매/음표 Top 10 -->
+	<select id="topMusic" parameterType="map" resultType="map">
+		select pm.music_id as "musicid",
+			   count(pm.purchase_music_id) as "soldcount",
+			   nvl(sum(pm.at_that_coin), 0) as "coinsum"
+		from purchase_music pm
+			 join purchase_history ph on ph.purchase_history_id = pm.purchase_history_id
+		<choose>
+			<when test="(startDate != null and startDate != '') or (endDate != null and endDate != '')">
+				where
+				<if test="startDate != null and startDate != ''">
+					trunc(ph.purchased_at) &gt;= to_date(#{startDate}, 'YYYY-MM-DD')
+				</if>
+				<if test="endDate != null and endDate != ''">
+					<if test="startDate != null and startDate != ''"> and </if>
+					trunc(ph.purchased_at) &lt;= to_date(#{endDate}, 'YYYY-MM-DD')
+				</if>
+			</when>
+			<otherwise/>
+		</choose>
+		group by pm.music_id
+		order by count(pm.purchase_music_id) desc, sum(pm.at_that_coin) desc
+		fetch first 10 rows only
+	</select>
 
 </mapper>

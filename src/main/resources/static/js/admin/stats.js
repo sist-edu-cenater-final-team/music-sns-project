@@ -1,725 +1,524 @@
-// src/main/webapp/js/admin/stats.js
 (function () {
-  const contextPath =
-    window.ctxPath ||
-    document.querySelector('meta[name="ctxPath"]')?.content ||
-    '';
-
-  // ===== 전역 중복 제어 플래그 =====
-  var sessionRedirected = false;            // 세션 만료로 로그인 이동 1회만
-  var permissionBlocked = false;            // 권한 없음 알림 1회만
-  var genericFailAlertShown = false;        // 조회 실패 알림 1회만
-
-  // ===== 미로그인 시 즉시 차단 =====
-  try {
-    if (!localStorage.getItem('accessToken')) {
-      alert('로그인이 필요합니다.');
-      location.href = contextPath + '/auth/login';
-      return;
-    }
-  } catch (e) {}
-
-  // ===== 공통 인증 헤더 =====
-  function getAuthHeader() {
-    try {
-      var fromApp = window.AuthFunc?.getAuthHeader?.();
-      if (fromApp && typeof fromApp === 'object' && Object.keys(fromApp).length) {
-        if (!('X-Requested-With' in fromApp)) fromApp['X-Requested-With'] = 'XMLHttpRequest';
-        return fromApp;
-      }
-    } catch (e) {}
-
-    var accessToken = localStorage.getItem('accessToken');
-    var tokenType   = localStorage.getItem('tokenType') || 'Bearer';
-    var headers     = { 'X-Requested-With': 'XMLHttpRequest' };
-    if (accessToken) headers.Authorization = tokenType + ' ' + accessToken;
-    return headers;
-  }
-
-  // ===== 보호 유틸 =====
-  function isRedirecting() { return !!window.__SESSION_REDIRECTING_TO_LOGIN__; }
-
-  function alertOnce(msg) {
-    if (window.__ALERT_ONCE_SHOWN__) return;
-    window.__ALERT_ONCE_SHOWN__ = true;
-    try { alert(msg); } catch (e) {}
-  }
-
-  function alertGenericFailOnce() {
-    if (genericFailAlertShown || sessionRedirected || permissionBlocked || isRedirecting()) return;
-    genericFailAlertShown = true;
-    alert('일부 대시보드 데이터를 불러오지 못했습니다.');
-  }
-
-  function handleSessionExpiredOnce() {
-    if (window.__SESSION_REDIRECTING_TO_LOGIN__) return;
-    window.__SESSION_REDIRECTING_TO_LOGIN__ = true;
-    if (sessionRedirected) return;
-    sessionRedirected = true;
-
-    try {
-      localStorage.removeItem('accessToken');
-      localStorage.removeItem('tokenType');
-    } catch (e) {}
-
-    alertOnce('세션이 만료되었습니다. 다시 로그인해주세요.');
-    location.replace(contextPath + '/auth/login'); // 히스토리에 남기지 않음
-  }
-
-  function handlePermissionDeniedOnce() {
-    if (permissionBlocked) return;
-    permissionBlocked = true;
-    alert('관리자 권한이 필요합니다.');
-    location.replace(contextPath + '/auth/login');
-  }
-
-  // ===== AJAX 공통 =====
-  function ajaxGet(url, params) {
-    return $.ajax({
-      url: url,
-      type: 'GET',
-      data: params || {},
-      headers: getAuthHeader(),
-      dataType: 'json'
-    });
-  }
-
-  function isHtmlResponse(xhr) {
-    try {
-      var ct = xhr?.getResponseHeader?.('content-type');
-      return ct && typeof ct === 'string' && ct.indexOf('text/html') !== -1;
-    } catch (e) { return false; }
-  }
-
-  // ===== [NEW] 리프레시 단일화(single-flight) =====
-  var refreshPromise = null;
-  function ensureRefreshed() {
-    if (refreshPromise) return refreshPromise; // 이미 진행 중이면 그 Promise 대기
-
-    var dfd = $.Deferred();
-    refreshPromise = dfd.promise();
-
-    var refreshFn = window.refreshAuthToken;
-    if (typeof refreshFn !== 'function') {
-      setTimeout(function(){ dfd.reject('NO_REFRESH_FN'); refreshPromise = null; }, 0);
-      return dfd.promise();
-    }
-
-    $.when(refreshFn())
-      .done(function(){ dfd.resolve(); })
-      .fail(function(){ dfd.reject('REFRESH_FAIL'); })
-      .always(function(){ refreshPromise = null; });
-
-    return dfd.promise();
-  }
-
-  // 401 → 리프레시 단일화 → 재시도
-  function withAuthRetry(run) {
-    var dfd = $.Deferred();
-    var retried = false;
-
-    function attempt() {
-      if (isRedirecting()) { dfd.reject(); return; }
-
-      // 진행 중 리프레시가 있으면 완료까지 대기한 뒤 시도
-      var gate = refreshPromise ? refreshPromise : $.Deferred().resolve().promise();
-
-      gate
-        .done(function () {
-          run()
-            .done(function (data, _textStatus, xhr) {
-              if (isHtmlResponse(xhr)) { handleSessionExpiredOnce(); dfd.reject(xhr); return; }
-              dfd.resolve(data);
-            })
-            .fail(function (xhr) {
-              if (isHtmlResponse(xhr)) { handleSessionExpiredOnce(); dfd.reject(xhr); return; }
-
-              if (xhr && xhr.status === 401) {
-                if (retried) { handleSessionExpiredOnce(); dfd.reject(xhr); return; }
-                retried = true;
-                ensureRefreshed()
-                  .done(function(){ attempt(); })
-                  .fail(function(){ handleSessionExpiredOnce(); dfd.reject(xhr); });
-                return;
-              }
-
-              if (xhr && xhr.status === 403) { handlePermissionDeniedOnce(); dfd.reject(xhr); return; }
-
-              console.warn('데이터 로딩 실패:', xhr?.status);
-              alertGenericFailOnce();
-              dfd.reject(xhr);
-            });
-        })
-        .fail(function () {
-          handleSessionExpiredOnce();
-          dfd.reject();
-        });
-    }
-
-    attempt();
-    return dfd.promise();
-  }
-
-  function unwrapData(resp) {
-    return resp?.success?.responseData ?? resp?.responseData ?? resp;
-  }
-
-  // ===== 포맷터 =====
-  function formatNumber(v) {
-    try { return Number(v == null ? 0 : v).toLocaleString(); }
-    catch { return (v == null ? 0 : v) + ''; }
-  }
-
-  function formatDate(d) {
-    var y = d.getFullYear();
-    var m = String(d.getMonth() + 1); if (m.length === 1) m = '0' + m;
-    var day = String(d.getDate());    if (day.length === 1) day = '0' + day;
-    return y + '-' + m + '-' + day;
-  }
-
-  // ===== 날짜 범위(입력 컨트롤용) =====
-  function setTodayRange() {
-    var today = new Date();
-    $('#startDate').val(formatDate(today));
-    $('#endDate').val(formatDate(today));
-  }
-  function setThisWeekRange() {
-    var now = new Date();
-    var dayOfWeek = now.getDay();
-    var mondayOffset = (dayOfWeek === 0 ? -6 : 1 - dayOfWeek);
-    var monday = new Date(now);
-    monday.setDate(now.getDate() + mondayOffset);
-    var sunday = new Date(monday);
-    sunday.setDate(monday.getDate() + 6);
-    $('#startDate').val(formatDate(monday));
-    $('#endDate').val(formatDate(sunday));
-  }
-  function setThisMonthRange() {
-    var now = new Date();
-    var first = new Date(now.getFullYear(), now.getMonth(), 1);
-    var last  = new Date(now.getFullYear(), now.getMonth() + 1, 0);
-    $('#startDate').val(formatDate(first));
-    $('#endDate').val(formatDate(last));
-  }
-  function setLastNDaysRange(n) {
-    var end = new Date();
-    var start = new Date();
-    start.setDate(end.getDate() - (n - 1));
-    $('#startDate').val(formatDate(start));
-    $('#endDate').val(formatDate(end));
-  }
-
-  // ===== 공통 파라미터/부제 =====
-  function buildQueryParams() {
-    var params = {};
-    var start = $('#startDate').val();
-    var end   = $('#endDate').val();
-    if (start) params.startDate = start;
-    if (end)   params.endDate   = end;
-    return params;
-  }
-
-  function buildSubtitle(unitText) {
-    var s = $('#startDate').val() || '전체';
-    var e = $('#endDate').val()   || '전체';
-    return '기간: ' + s + ' ~ ' + e + (unitText ? ' · 단위: ' + unitText : '');
-  }
-
-  // ===== [신규] 최근 7일 고정 차트(예제 포맷) =====
-  function last7DaysDates() {
-    var arr = [];
-    var today = new Date();
-    for (var i = 6; i >= 0; i--) {
-      var d = new Date(today);
-      d.setDate(today.getDate() - i);
-      arr.push(d);
-    }
-    return arr; // 과거→오늘
-  }
-  function toYmd(d) { return formatDate(d); } // YYYY-MM-DD
-  function toMd(d)  { // MM/DD
-    var m = String(d.getMonth() + 1).padStart(2, '0');
-    var da = String(d.getDate()).padStart(2, '0');
-    return m + '/' + da;
-  }
-  function normKey(s) {
-    if (!s) return '';
-    var only = String(s).replace(/\D/g, '');
-    return (only.length >= 8) ? (only.slice(0,4) + '-' + only.slice(4,6) + '-' + only.slice(6,8)) : s;
-  }
-  function arrToMap(rows) {
-    var m = {};
-    if (Array.isArray(rows)) {
-      rows.forEach(function (r) {
-        var k = normKey(r.bucket || r.date || r.day);
-        var v = Number(r.value || r.count || 0) || 0;
-        if (k) m[k] = v;
-      });
-    }
-    return m;
-  }
-
-  function drawWeeklyUsedChargedChart(labels, chargedData, usedData, startYmd, endYmd) {
-    if (!document.getElementById('chart-weekly-used-vs-charged')) return; // 컨테이너 없으면 스킵
-    Highcharts.chart('chart-weekly-used-vs-charged', {
-      chart: { zooming: { type: 'xy' } },
-      title: { text: '최근 7일 충전/사용 음표', align: 'left' },
-      subtitle: { text: '기간: ' + startYmd + ' ~ ' + endYmd + ' · 단위: 개', align: 'left' },
-      credits: { enabled: false },
-      xAxis: [{ categories: labels, crosshair: true }],
-      yAxis: [{
-        labels: { format: '{value} 개' },
-        title: { text: '사용 음표' },
-        lineColor: Highcharts.getOptions().colors[1],
-        lineWidth: 2
-      }, {
-        title: { text: '충전 음표' },
-        labels: { format: '{value} 개' },
-        lineColor: Highcharts.getOptions().colors[0],
-        lineWidth: 2,
-        opposite: true
-      }],
-      tooltip: { shared: true },
-      legend: { align: 'left', verticalAlign: 'top' },
-      series: [{
-        name: '충전 음표',
-        type: 'column',
-        yAxis: 1,
-        data: chargedData,
-        tooltip: { valueSuffix: ' 개' }
-      }, {
-        name: '사용 음표',
-        type: 'spline',
-        data: usedData,
-        tooltip: { valueSuffix: ' 개' }
-      }]
-    });
-  }
-
-  function loadWeeklyUsedVsChargedChart() {
-    var days = last7DaysDates();
-    var labels = days.map(toMd);
-    var keys   = days.map(toYmd);
-    var startYmd = keys[0];
-    var endYmd   = keys[keys.length - 1];
-
-    var param = { startDate: startYmd, endDate: endYmd };
-
-    var pCharged = withAuthRetry(function () {
-      return ajaxGet(contextPath + '/api/admin/stats/series/charged', param);
-    });
-    var pUsed = withAuthRetry(function () {
-      return ajaxGet(contextPath + '/api/admin/stats/series/used', param);
-    });
-
-    $.when(pCharged, pUsed)
-      .done(function (respCharged, respUsed) {
-        var rowsCharged = unwrapData(respCharged) || [];
-        var rowsUsed    = unwrapData(respUsed)    || [];
-
-        var mapC = arrToMap(rowsCharged);
-        var mapU = arrToMap(rowsUsed);
-
-        var chargedData = keys.map(function (k) { return mapC[k] || 0; });
-        var usedData    = keys.map(function (k) { return mapU[k] || 0; });
-
-        drawWeeklyUsedChargedChart(labels, chargedData, usedData, startYmd, endYmd);
-      })
-      .fail(function () {
-        console.warn('주간 충전/사용 차트 로드 실패');
-      });
-  }
-
-  // ===== 기존 차트/테이블 =====
-  function drawChargedColumnChart(categories, dataArr, subtitleText) {
-    Highcharts.chart('chart-charged', {
-      chart: { type: 'column' },
-      title: { text: '충전 음표 추이(일)' },
-      subtitle: { text: subtitleText || '' },
-      xAxis: { categories: categories, title: { text: '일자' } },
-      yAxis: { title: { text: '충전 음표(개)' }, min: 0 },
-      legend: { enabled: false },
-      tooltip: { headerFormat: '일자: <b>{point.key}</b><br/>', pointFormat: '충전: <b>{point.y}</b>' },
-      credits: { enabled: false },
-      series: [{ name: '일자별', data: dataArr, dataLabels: { enabled: true, format: '{point.y}' } }]
-    });
-  }
-
-  function drawUsedColumnChart(categories, dataArr, subtitleText) {
-    Highcharts.chart('chart-used', {
-      chart: { type: 'column' },
-      title: { text: '사용 음표 추이(일)' },
-      subtitle: { text: subtitleText || '' },
-      xAxis: { categories: categories, title: { text: '일자' } },
-      yAxis: { title: { text: '사용 음표(개)' }, min: 0 },
-      legend: { enabled: false },
-      tooltip: { headerFormat: '일자: <b>{point.key}</b><br/>', pointFormat: '사용: <b>{point.y}</b>' },
-      credits: { enabled: false },
-      series: [{ name: '일자별', data: dataArr, dataLabels: { enabled: true, format: '{point.y}' } }]
-    });
-  }
-
-  function drawRevenueColumnChart(categories, dataArr, subtitleText) {
-    Highcharts.chart('chart-revenue', {
-      chart: { type: 'column' },
-      title: { text: '음표 수익 추이(일)' },
-      subtitle: { text: subtitleText || '' },
-      xAxis: { categories: categories, title: { text: '일자' } },
-      yAxis: { title: { text: '수익(코인 기준)' }, min: 0 },
-      legend: { enabled: false },
-      tooltip: { headerFormat: '일자: <b>{point.key}</b><br/>', pointFormat: '수익: <b>{point.y}</b>' },
-      credits: { enabled: false },
-      series: [{ name: '일자별', data: dataArr, dataLabels: { enabled: true, format: '{point.y}' } }]
-    });
-  }
-
-  function drawNewMembersColumnChart(categories, dataArr, subtitleText) {
-    Highcharts.chart('chart-new-members', {
-      chart: { type: 'column' },
-      title: { text: '신규가입 회원 수(일)' },
-      subtitle: { text: subtitleText || '' },
-      xAxis: { categories: categories, title: { text: '일자' } },
-      yAxis: { title: { text: '신규가입(명)' }, min: 0 },
-      legend: { enabled: false },
-      tooltip: { headerFormat: '일자: <b>{point.key}</b><br/>', pointFormat: '신규가입: <b>{point.y}</b>' },
-      credits: { enabled: false },
-      series: [{ name: '일자별', data: dataArr, dataLabels: { enabled: true, format: '{point.y}' } }]
-    });
-  }
-
-  function drawActiveRatioDonut(active, inactive, subtitleText) {
-    Highcharts.chart('chart-active-ratio', {
-      chart: { type: 'pie' },
-      title: { text: '활성/비활성 이용자 비율' },
-      subtitle: { text: subtitleText || '' },
-      plotOptions: { pie: { innerSize: '60%', dataLabels: { enabled: true, format: '{point.name}: {point.y}' } } },
-      credits: { enabled: false },
-      series: [{
-        name: '이용자',
-        data: [
-          { name: '활성',   y: Number(active)   || 0 },
-          { name: '비활성', y: Number(inactive) || 0 }
-        ]
-      }]
-    });
-  }
-
-  function drawHourlyVisitorsLineChart(categories, dataArr, subtitleText) {
-    Highcharts.chart('chart-hourly-visitors', {
-      chart: { type: 'line' },
-      title: { text: '시간별 방문자 현황' },
-      subtitle: { text: subtitleText || '' },
-      xAxis: { categories: categories, title: { text: '시간' } },
-      yAxis: { title: { text: '방문자(명)' }, min: 0 },
-      legend: { enabled: false },
-      tooltip: { headerFormat: '시간: <b>{point.key}</b><br/>', pointFormat: '방문자: <b>{point.y}</b>' },
-      credits: { enabled: false },
-      series: [{ name: '시간별', data: dataArr, dataLabels: { enabled: true, format: '{point.y}' } }]
-    });
-  }
-
-  function drawDailyVisitorsColumnChart(categories, dataArr, subtitleText) {
-    Highcharts.chart('chart-daily-visitors', {
-      chart: { type: 'column' },
-      title: { text: '일자별 방문자 현황' },
-      subtitle: { text: subtitleText || '' },
-      xAxis: { categories: categories, title: { text: '일자' } },
-      yAxis: { title: { text: '방문자(명)' }, min: 0 },
-      legend: { enabled: false },
-      tooltip: { headerFormat: '일자: <b>{point.key}</b><br/>', pointFormat: '방문자: <b>{point.y}</b>' },
-      credits: { enabled: false },
-      series: [{ name: '일자별', data: dataArr, dataLabels: { enabled: true, format: '{point.y}' } }]
-    });
-  }
-
-  // ===== 데이터 로더 =====
-  function loadSummaryCards() {
-    return withAuthRetry(function () {
-      return ajaxGet(contextPath + '/api/admin/stats/summary', buildQueryParams());
-    }).done(function (resp) {
-      var data = unwrapData(resp) || {};
-      var sumCharged = (data.sumChargedCoin != null) ? data.sumChargedCoin : 0;
-      var sumRevenue = (data.sumRevenue     != null) ? data.sumRevenue     : 0;
-      var sumUsed    = (data.sumUsedCoin    != null) ? data.sumUsedCoin    : 0;
-      $('#sumChargedCoin').text(formatNumber(sumCharged));
-      $('#sumRevenue').text(formatNumber(sumRevenue));
-      $('#sumUsedCoin').text(formatNumber(sumUsed));
-    });
-  }
-
-  function loadChargedSeriesChart() {
-    return withAuthRetry(function () {
-      return ajaxGet(contextPath + '/api/admin/stats/series/charged', buildQueryParams());
-    }).done(function (resp) {
-      var rows = unwrapData(resp) || [];
-      var categories = [], seriesData = [];
-      if (rows && rows.length) {
-        $.each(rows, function (_i, row) {
-          categories.push(row.bucket);
-          seriesData.push(Number(row.value) || 0);
-        });
-      }
-      drawChargedColumnChart(categories, seriesData, buildSubtitle('음표'));
-    });
-  }
-
-  function loadUsedSeriesChart() {
-    return withAuthRetry(function () {
-      return ajaxGet(contextPath + '/api/admin/stats/series/used', buildQueryParams());
-    }).done(function (resp) {
-      var rows = unwrapData(resp) || [];
-      var categories = [], seriesData = [];
-      if (rows && rows.length) {
-        $.each(rows, function (_i, row) {
-          categories.push(row.bucket);
-          seriesData.push(Number(row.value) || 0);
-        });
-      }
-      drawUsedColumnChart(categories, seriesData, buildSubtitle('음표'));
-    });
-  }
-
-  function loadRevenueSeriesChart() {
-    return withAuthRetry(function () {
-      return ajaxGet(contextPath + '/api/admin/stats/series/revenue', buildQueryParams());
-    }).done(function (resp) {
-      var rows = unwrapData(resp) || [];
-      var categories = [], seriesData = [];
-      if (rows && rows.length) {
-        $.each(rows, function (_i, row) {
-          categories.push(row.bucket);
-          seriesData.push(Number(row.value) || 0);
-        });
-      }
-      drawRevenueColumnChart(categories, seriesData, buildSubtitle('코인'));
-    });
-  }
-
-  function loadTopChargersTable() {
-    return withAuthRetry(function () {
-      return ajaxGet(contextPath + '/api/admin/stats/top/chargers', buildQueryParams());
-    }).done(function (resp) {
-      var rows = unwrapData(resp) || [];
-      var $tbody = $('#tbl-top-chargers').empty();
-      if (rows && rows.length) {
-        $.each(rows, function (i, row) {
-          var $tr = $('<tr/>');
-          $('<td/>').text(i + 1).appendTo($tr);
-          $('<td/>').addClass('nickname').text(row.nickname || '').appendTo($tr);
-          $('<td/>').addClass('text-end').text(formatNumber(row.totalcoin)).appendTo($tr);
-          $tbody.append($tr);
-        });
-      } else {
-        $tbody.append('<tr><td colspan="3" class="text-center text-muted">데이터 없음</td></tr>');
-      }
-    });
-  }
-
-  function loadTopSpendersTable() {
-    return withAuthRetry(function () {
-      return ajaxGet(contextPath + '/api/admin/stats/top/spenders', buildQueryParams());
-    }).done(function (resp) {
-      var rows = unwrapData(resp) || [];
-      var $tbody = $('#tbl-top-spenders').empty();
-      if (rows && rows.length) {
-        $.each(rows, function (i, row) {
-          var $tr = $('<tr/>');
-          $('<td/>').text(i + 1).appendTo($tr);
-          $('<td/>').addClass('nickname').text(row.nickname || '').appendTo($tr);
-          $('<td/>').addClass('text-end').text(formatNumber(row.usedcoin)).appendTo($tr);
-          $tbody.append($tr);
-        });
-      } else {
-        $tbody.append('<tr><td colspan="3" class="text-center text-muted">데이터 없음</td></tr>');
-      }
-    });
-  }
-
-  function loadTopMusicTable() {
-    return withAuthRetry(function () {
-      return ajaxGet(contextPath + '/api/admin/stats/top/music', buildQueryParams());
-    }).done(function (resp) {
-      var rows = unwrapData(resp) || [];
-      var $tbody = $('#tbl-top-music').empty();
-      if (rows && rows.length) {
-        $.each(rows, function (i, row) {
-          var $tr = $('<tr/>');
-          $('<td/>').text(i + 1).appendTo($tr);
-          $('<td/>').addClass('musicid').text(row.musicid).appendTo($tr);
-          $('<td/>').addClass('text-end').text(formatNumber(row.soldcount)).appendTo($tr);
-          $('<td/>').addClass('text-end').text(formatNumber(row.coinsum)).appendTo($tr);
-          $tbody.append($tr);
-        });
-      } else {
-        $tbody.append('<tr><td colspan="4" class="text-center text-muted">데이터 없음</td></tr>');
-      }
-    });
-  }
-
-  function loadNewMembersChart() {
-    return withAuthRetry(function () {
-      return ajaxGet(contextPath + '/api/admin/stats/members/new', buildQueryParams());
-    }).done(function (resp) {
-      var rows = unwrapData(resp) || [];
-      var categories = [], values = [];
-      if (rows && rows.length) {
-        $.each(rows, function (_i, row) {
-          categories.push(row.bucket);
-          values.push(Number(row.value) || 0);
-        });
-      }
-      drawNewMembersColumnChart(categories, values, buildSubtitle('명'));
-    });
-  }
-
-  function loadActiveRatioChart() {
-    return withAuthRetry(function () {
-      return ajaxGet(contextPath + '/api/admin/stats/members/active-ratio', buildQueryParams());
-    }).done(function (resp) {
-      var data = unwrapData(resp) || {};
-      var active   = data.active   ?? 0;
-      var inactive = data.inactive ?? 0;
-      drawActiveRatioDonut(active, inactive, buildSubtitle('명'));
-    });
-  }
-
-  function loadTopFollowedTable() {
-    return withAuthRetry(function () {
-      return ajaxGet(contextPath + '/api/admin/stats/members/top-followed', buildQueryParams());
-    }).done(function (resp) {
-      var rows = unwrapData(resp) || [];
-      var $tbody = $('#tbl-top-followed').empty();
-      if (rows && rows.length) {
-        $.each(rows, function (i, row) {
-          var $tr = $('<tr/>');
-          $('<td/>').text(i + 1).appendTo($tr);
-          $('<td/>').addClass('nickname').text(row.nickname || '').appendTo($tr);
-          $('<td/>').addClass('text-end').text(formatNumber(row.followers)).appendTo($tr);
-          $tbody.append($tr);
-        });
-      } else {
-        $tbody.append('<tr><td colspan="3" class="text-center text-muted">데이터 없음</td></tr>');
-      }
-    });
-  }
-
-  function loadHourlyVisitorsChart() {
-    return withAuthRetry(function () {
-      return ajaxGet(contextPath + '/api/admin/stats/visits/hourly', buildQueryParams());
-    }).done(function (resp) {
-      var rows = unwrapData(resp) || [];
-      var categories = [], values = [];
-      if (rows && rows.length) {
-        $.each(rows, function (_i, row) {
-          categories.push(row.bucket); // '00' ~ '23'
-          values.push(Number(row.value) || 0);
-        });
-      }
-      drawHourlyVisitorsLineChart(categories, values, buildSubtitle('명'));
-    });
-  }
-
-  function loadDailyVisitorsChart() {
-    return withAuthRetry(function () {
-      return ajaxGet(contextPath + '/api/admin/stats/visits/daily', buildQueryParams());
-    }).done(function (resp) {
-      var rows = unwrapData(resp) || [];
-      var categories = [], values = [];
-      if (rows && rows.length) {
-        $.each(rows, function (_i, row) {
-          categories.push(row.bucket);
-          values.push(Number(row.value) || 0);
-        });
-      }
-      drawDailyVisitorsColumnChart(categories, values, buildSubtitle('명'));
-    });
-  }
-
-  function loadTotalUsersCard() {
-    return withAuthRetry(function () {
-      return ajaxGet(contextPath + '/api/admin/stats/visits/summary', buildQueryParams());
-    }).done(function (resp) {
-      var data = unwrapData(resp) || {};
-      var total = data.totalUsers ?? 0;
-      $('#totalUsers').text(formatNumber(total));
-    });
-  }
-
-  function loadTopGiftedMusicTable() {
-    return withAuthRetry(function () {
-      return ajaxGet(contextPath + '/api/admin/stats/music/top-gifted', buildQueryParams());
-    }).done(function (resp) {
-      var rows = unwrapData(resp) || [];
-      var $tbody = $('#tbl-top-gifted').empty();
-      if (rows && rows.length) {
-        $.each(rows, function (i, row) {
-          var $tr = $('<tr/>');
-          $('<td/>').text(i + 1).appendTo($tr);
-          $('<td/>').addClass('musicid').text(row.musicid).appendTo($tr);
-          $('<td/>').addClass('text-end').text(formatNumber(row.giftcount)).appendTo($tr);
-          $('<td/>').addClass('text-end').text(formatNumber(row.coinsum)).appendTo($tr);
-          $tbody.append($tr);
-        });
-      } else {
-        $tbody.append('<tr><td colspan="4" class="text-center text-muted">데이터 없음</td></tr>');
-      }
-    });
-  }
-
-  // ===== 일괄 로드 =====
-  function loadAllWidgets() {
-    var start = $('#startDate').val();
-    var end   = $('#endDate').val();
-    if (start && end && start > end) {
-      alert('시작일이 종료일보다 큽니다.');
-      return;
-    }
-
-    // [신규] 최근 7일 고정 차트 (Highcharts 이중 Y축 포맷)
-    loadWeeklyUsedVsChargedChart();
-
-    // 거래·매출
-    loadSummaryCards();
-    loadChargedSeriesChart();
-    loadUsedSeriesChart();
-    loadRevenueSeriesChart();
-    loadTopChargersTable();
-    loadTopSpendersTable();
-
-    // 회원
-    loadNewMembersChart();
-    loadActiveRatioChart();
-    loadTopFollowedTable();
-
-    // 이용
-    loadHourlyVisitorsChart();
-    loadDailyVisitorsChart();
-    loadTotalUsersCard();
-
-    // 콘텐츠
-    loadTopMusicTable();
-    loadTopGiftedMusicTable();
-  }
-
-  // ===== 초기 바인딩 =====
-  $(function () {
-    // 빠른 날짜 범위 버튼
-    $('#btnToday').click(function () { setTodayRange();       loadAllWidgets(); });
-    $('#btnWeek').click(function ()  { setThisWeekRange();    loadAllWidgets(); });
-    $('#btnMonth').click(function () { setThisMonthRange();   loadAllWidgets(); });
-    $('#btn7').click(function ()     { setLastNDaysRange(7);  loadAllWidgets(); });
-    $('#btn30').click(function ()    { setLastNDaysRange(30); loadAllWidgets(); });
-
-    // 검색/리셋
-    $('#btnSearch').click(loadAllWidgets);
-    $('#btnReset').click(function () {
-      $('#startDate').val('');
-      $('#endDate').val('');
-      loadAllWidgets();
-    });
-
-    // 기본값: 오늘(일간) — 주간차트는 별도로 최근 7일 고정
-    setTodayRange();
-    loadAllWidgets();
-  });
+	var ctxPath =
+		window.ctxPath ||
+		(document.querySelector('meta[name="ctxPath"]') &&
+			document.querySelector('meta[name="ctxPath"]').content) ||
+		'';
+	var basePath = ctxPath;
+
+	// Highcharts 공통
+	if (window.Highcharts) {
+		Highcharts.setOptions({
+			colors: ['#6633FF', '#22C55E', '#F59E0B', '#3B82F6', '#EC4899', '#14B8A6'],
+			chart: {
+				backgroundColor: 'transparent',
+				spacing: [16, 16, 16, 16], 
+				style: { fontFamily: "'Segoe UI', Apple SD Gothic Neo, Pretendard, Roboto, sans-serif" }
+			},
+			title: { style: { color: '#0F172A', fontWeight: '800', fontSize: '16px' } },
+			subtitle: { style: { color: '#475569', fontSize: '12px' } },
+			xAxis: {
+				lineColor: '#E5E7EB',
+				tickColor: '#E5E7EB',
+				labels: { style: { color: '#475569' } }
+			},
+			yAxis: {
+				gridLineColor: '#EEF2F7',
+				title: { style: { color: '#475569', fontWeight: 700 } },
+				labels: { style: { color: '#475569' } }
+			},
+			legend: {
+				itemStyle: { color: '#334155', fontWeight: 600 },
+				itemHoverStyle: { color: '#111827' },
+				margin: 12
+			},
+			tooltip: {
+				borderColor: '#E5E7EB',
+				backgroundColor: '#FFFFFF',
+				style: { color: '#0F172A', fontWeight: 600 }
+			},
+			plotOptions: {
+				series: {
+					marker: { radius: 3, symbol: 'circle' },
+					lineWidth: 3,
+					softThreshold: true,
+					states: { hover: { lineWidthPlus: 0 } },
+					dataLabels: {
+						enabled: true,
+						allowOverlap: false,
+						padding: 2,
+						y: -6, 
+						crop: true,
+						overflow: 'justify',
+						style: { textOutline: 'none', fontWeight: 700 },
+						formatter: function () {
+							if (!this.y) return '';
+							return Highcharts.numberFormat(this.y, 0);
+						}
+					}
+				},
+				line: {
+					enableMouseTracking: true
+				},
+				pie: {
+					dataLabels: {
+						style: { color: '#0F172A', textOutline: 'none', fontWeight: 700 }
+					}
+				}
+			},
+			credits: { enabled: false }
+		});
+	}
+
+	// 로그인 체크 및 공통
+	var isAuthAlertShown = false;
+	var isLoginRedirecting = false;
+
+	function alertOnce(msg) {
+		if (!isAuthAlertShown) {
+			isAuthAlertShown = true;
+			alert(msg);
+		}
+	}
+	function redirectLoginOnce() {
+		if (!isLoginRedirecting) {
+			isLoginRedirecting = true;
+			location.replace(ctxPath + '/auth/login');
+		}
+	}
+
+	// 미로그인시 로그인 화면으로 보내기
+	try {
+		var savedToken = localStorage.getItem('accessToken');
+		if (savedToken == null || savedToken == '') {
+			alertOnce('로그인이 필요합니다.');
+			redirectLoginOnce();
+			return;
+		}
+	} catch (e) {}
+
+	// 인증 헤더 만들기
+	function buildAuthHeaders() {
+		try {
+			var appHeaders =
+				window.AuthFunc &&
+				window.AuthFunc.getAuthHeader &&
+				window.AuthFunc.getAuthHeader();
+			if (appHeaders && typeof appHeaders == 'object' && Object.keys(appHeaders).length > 0) {
+				if (!('X-Requested-With' in appHeaders)) appHeaders['X-Requested-With'] = 'XMLHttpRequest';
+				return appHeaders;
+			}
+		} catch (e) {}
+		var token = localStorage.getItem('accessToken');
+		var type = localStorage.getItem('tokenType') || 'Bearer';
+		var headers = { 'X-Requested-With': 'XMLHttpRequest' };
+		if (token) headers.Authorization = type + ' ' + token;
+		return headers;
+	}
+
+	// 토큰 갱신
+	var refreshGatePromise = null;
+	function refreshAuthIfNeeded() {
+		if (refreshGatePromise != null) return refreshGatePromise;
+		var dfd = $.Deferred();
+		refreshGatePromise = dfd.promise();
+		var refreshFn = AuthFunc.refreshAuthToken;
+
+		if (typeof refreshFn != 'function') {
+			dfd.reject();
+			refreshGatePromise = null;
+			return dfd.promise();
+		}
+
+		$.when(refreshFn())
+			.done(() => dfd.resolve())
+			.fail(() => dfd.reject())
+			.always(() => { refreshGatePromise = null; });
+
+		return dfd.promise();
+	}
+
+	// HTML 응답 감지 (세션만료 페이지)
+	function isHtmlResponse(xhr) {
+		try {
+			var ct = xhr && xhr.getResponseHeader && xhr.getResponseHeader('content-type');
+			return !!(ct && ct.indexOf('text/html') != -1);
+		} catch (e) { return false; }
+	}
+
+	// 인증 오류 처리
+	function onUnauthorized() {
+		try { localStorage.removeItem('accessToken'); localStorage.removeItem('tokenType'); } catch (e) {}
+		alertOnce('세션이 만료되었습니다. 다시 로그인해주세요.');
+		redirectLoginOnce();
+	}
+	function onForbidden() {
+		alertOnce('관리자 권한이 필요합니다.');
+		redirectLoginOnce();
+	}
+
+	// GET 요청 보내기
+	function getJson(url, params) {
+		return $.ajax({ url: url, type: 'GET', data: params || {}, dataType: 'json', headers: buildAuthHeaders() });
+	}
+
+	// 토큰 만료시, 한 번만 새 토큰 받고, 같은 요청 다시 시도
+	function requestWithAuthRetry(runAjax) {
+		var dfd = $.Deferred();
+		var retried = false;
+
+		(function exec() {
+			var gate = refreshGatePromise != null ? refreshGatePromise : $.Deferred().resolve().promise();
+			gate
+				.done(function () {
+					runAjax()
+						.done(function (data, _text, xhr) {
+							if (isHtmlResponse(xhr)) { onUnauthorized(); dfd.reject(xhr); return; }
+							dfd.resolve(data);
+						})
+						.fail(function (xhr) {
+							if (isHtmlResponse(xhr)) { onUnauthorized(); dfd.reject(xhr); return; }
+							if (xhr && xhr.status == 401 && !retried) {
+								retried = true;
+								refreshAuthIfNeeded().done(exec).fail(function () { onUnauthorized(); dfd.reject(xhr); });
+								return;
+							}
+							if (xhr && xhr.status == 403) { onForbidden(); dfd.reject(xhr); return; }
+							console.warn('요청 실패', xhr && xhr.status);
+							dfd.reject(xhr);
+						});
+				})
+				.fail(function () { onUnauthorized(); dfd.reject(); });
+		})();
+		return dfd.promise();
+	}
+
+	function getBody(resp) {
+		return (
+			(resp && resp.success && resp.success.responseData) ||
+			(resp && resp.responseData) ||
+			resp
+		);
+	}
+
+	// 숫자, 날짜 포맷
+	function formatNumber(v) {
+		try { return Number(v || 0).toLocaleString(); } catch (e) { return (v || 0) + ''; }
+	}
+	function formatDate(d) {
+		var y = d.getFullYear();
+		var m = ('0' + (d.getMonth() + 1)).slice(-2);
+		var day = ('0' + d.getDate()).slice(-2);
+		return y + '-' + m + '-' + day;
+	}
+
+	// 최근 7일 기본 범위
+	function getLast7Days() {
+		var today = new Date();
+		var keys = [], labels = [];
+		for (var i = 6; i >= 0; i--) {
+			var d = new Date(today);
+			d.setDate(today.getDate() - i);
+			var y = d.getFullYear();
+			var m = ('0' + (d.getMonth() + 1)).slice(-2);
+			var dd = ('0' + d.getDate()).slice(-2);
+			keys.push(y + '-' + m + '-' + dd);
+			labels.push(m + '/' + dd);
+		}
+		return { keys: keys, labels: labels, start: keys[0], end: keys[6] };
+	}
+
+	// 입력된 범위가 있으면 그 범위를 사용, 없으면 최근 7일 사용
+	function getActiveRange() {
+		var s = ($('#startDate').val() || '').trim();
+		var e = ($('#endDate').val() || '').trim();
+		if (!s || !e) return getLast7Days(); // 기본 7일
+
+		var start = new Date(s), end = new Date(e);
+		// 일자 리스트 생성
+		var keys = [], labels = [];
+		var cur = new Date(start);
+		while (cur.getTime() <= end.getTime()) {
+			var y = cur.getFullYear();
+			var m = ('0' + (cur.getMonth() + 1)).slice(-2);
+			var dd = ('0' + cur.getDate()).slice(-2);
+			keys.push(y + '-' + m + '-' + dd);
+			labels.push(m + '/' + dd);
+			cur.setDate(cur.getDate() + 1);
+		}
+		return { keys: keys, labels: labels, start: s, end: e };
+	}
+
+	function rowsToMap(rows) {
+		var map = {};
+		(rows || []).forEach(function (r) { map[r.bucket] = Number(r.value || 0) || 0; });
+		return map;
+	}
+
+	// 차트 렌더링
+	function renderLineChart(containerId, titleText, subtitleText, categories, data, yAxisTitle) {
+		Highcharts.chart(containerId, {
+			chart: { type: 'line' },
+			title: { text: titleText },
+			subtitle: { text: subtitleText || '' },
+			xAxis: { categories: categories },
+			yAxis: { title: { text: yAxisTitle }, min: 0 },
+			tooltip: { shared: true, valueDecimals: 0 },
+			series: [{ name: titleText, data: data }]
+		});
+	}
+
+	// 오늘
+	function setToday() {
+		var t = new Date();
+		$('#startDate').val(formatDate(t));
+		$('#endDate').val(formatDate(t));
+	}
+	// 이번 주 (월~일)
+	function setThisWeek() {
+		var now = new Date();
+		var dow = now.getDay();
+		var move = dow == 0 ? -6 : 1 - dow;
+		var monday = new Date(now); monday.setDate(now.getDate() + move);
+		var sunday = new Date(monday); sunday.setDate(monday.getDate() + 6);
+		$('#startDate').val(formatDate(monday));
+		$('#endDate').val(formatDate(sunday));
+	}
+	// 이번 달 (1일~말일)
+	function setThisMonth() {
+		var now = new Date();
+		var first = new Date(now.getFullYear(), now.getMonth(), 1);
+		var last = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+		$('#startDate').val(formatDate(first));
+		$('#endDate').val(formatDate(last));
+	}
+	// 최근 N일
+	function setLastNDays(n) {
+		var end = new Date();
+		var start = new Date(); start.setDate(end.getDate() - (n - 1));
+		$('#startDate').val(formatDate(start));
+		$('#endDate').val(formatDate(end));
+	}
+
+	// 쿼리 파라미터 구성
+	function getQueryParams() {
+		var p = {};
+		var s = $('#startDate').val();
+		var e = $('#endDate').val();
+		if (s) p.startDate = s;
+		if (e) p.endDate = e;
+		return p;
+	}
+
+	// 차트 부제목
+	function buildSubtitleBy(range, unit) {
+		return '기간: ' + range.start + ' ~ ' + range.end + (unit ? ' · 단위: ' + unit : '');
+	}
+
+	// 합계 카드
+	function loadSummary() {
+		return requestWithAuthRetry(function () {
+			return getJson(ctxPath + '/api/admin/stats/summary', getQueryParams());
+		}).done(function (resp) {
+			var data = getBody(resp) || {};
+			$('#sumChargedCoin').text(formatNumber(data.sumChargedCoin || 0));
+			$('#sumRevenue').text(formatNumber(data.sumRevenue || 0));
+			$('#sumUsedCoin').text(formatNumber(data.sumUsedCoin || 0));
+		});
+	}
+
+	// 일자별 충전 음표
+	function loadChargedDaily() {
+		var range = getActiveRange();
+		return requestWithAuthRetry(function () {
+			return getJson(ctxPath + '/api/admin/stats/series/charged', { startDate: range.start, endDate: range.end });
+		}).done(function (resp) {
+			var map = rowsToMap(getBody(resp) || []);
+			var values = range.keys.map(function (k) { return map[k] || 0; });
+			renderLineChart('chart-charged', '충전 음표', buildSubtitleBy(range, '개'), range.labels, values, '개');
+		});
+	}
+
+	// 일자별 사용 음표
+	function loadUsedDaily() {
+		var range = getActiveRange();
+		return requestWithAuthRetry(function () {
+			return getJson(ctxPath + '/api/admin/stats/series/used', { startDate: range.start, endDate: range.end });
+		}).done(function (resp) {
+			var map = rowsToMap(getBody(resp) || []);
+			var values = range.keys.map(function (k) { return map[k] || 0; });
+			renderLineChart('chart-used', '사용 음표', buildSubtitleBy(range, '개'), range.labels, values, '개');
+		});
+	}
+
+	// 일자별 수익
+	function loadRevenueDaily() {
+		var el = document.getElementById('chart-revenue');
+		if (el == null) return;
+		var range = getActiveRange();
+		return requestWithAuthRetry(function () {
+			return getJson(ctxPath + '/api/admin/stats/series/revenue', { startDate: range.start, endDate: range.end });
+		}).done(function (resp) {
+			var map = rowsToMap(getBody(resp) || []);
+			var values = range.keys.map(function (k) { return map[k] || 0; });
+			renderLineChart('chart-revenue', '수익', buildSubtitleBy(range, '원'), range.labels, values, '원');
+		});
+	}
+
+	// 음표 충전 Top 10
+	function loadTopChargers() {
+		return requestWithAuthRetry(function () {
+			return getJson(basePath + '/api/admin/stats/top/chargers', getQueryParams());
+		}).done(function (resp) {
+			var rows = getBody(resp) || [];
+			var $tbody = $('#tbl-top-chargers').empty();
+			if (rows.length == 0) {
+				$tbody.append('<tr><td colspan="3" class="text-center text-muted">데이터 없음</td></tr>');
+				return;
+			}
+			rows.forEach(function (row, i) {
+				var $tr = $('<tr/>');
+				$('<td/>').text(i + 1).appendTo($tr);
+				$('<td/>').addClass('nickname').text(row.nickname || '').appendTo($tr);
+				var total = row.totalcoin != null ? row.totalcoin : row.totalCoin;
+				$('<td/>').addClass('text-end').text(formatNumber(total)).appendTo($tr);
+				$tbody.append($tr);
+			});
+		});
+	}
+
+	// 음표 사용 Top 10
+	function loadTopSpenders() {
+		return requestWithAuthRetry(function () {
+			return getJson(basePath + '/api/admin/stats/top/spenders', getQueryParams());
+		}).done(function (resp) {
+			var rows = getBody(resp) || [];
+			var $tbody = $('#tbl-top-spenders').empty();
+			if (rows.length == 0) {
+				$tbody.append('<tr><td colspan="3" class="text-center text-muted">데이터 없음</td></tr>');
+				return;
+			}
+			rows.forEach(function (row, i) {
+				var $tr = $('<tr/>');
+				$('<td/>').text(i + 1).appendTo($tr);
+				$('<td/>').addClass('nickname').text(row.nickname || '').appendTo($tr);
+				var used = row.usedcoin != null ? row.usedcoin : row.usedCoin;
+				$('<td/>').addClass('text-end').text(formatNumber(used)).appendTo($tr);
+				$tbody.append($tr);
+			});
+		});
+	}
+
+	// 베스트셀러 음악 Top 10
+	function loadTopMusic() {
+		return requestWithAuthRetry(function () {
+			return getJson(basePath + '/api/admin/stats/top/music', getQueryParams());
+		}).done(function (resp) {
+			var rows = getBody(resp) || [];
+			var $tbody = $('#tbl-top-music').empty();
+			if (rows.length == 0) {
+				$tbody.append('<tr><td colspan="4" class="text-center text-muted">데이터 없음</td></tr>');
+				return;
+			}
+			rows.forEach(function (row, i) {
+				var $tr = $('<tr/>');
+				$('<td/>').text(i + 1).appendTo($tr);
+				var title = row.title || row.musicName || row.musicname || row.music_title || row.musicid;
+				var artist = row.artist || row.artistName || row.artist_name || '';
+				var display = artist ? title + ' - ' + artist : title;
+				$('<td/>').addClass('musicid').text(display).appendTo($tr);
+				$('<td/>').addClass('text-end').text(formatNumber(row.soldcount)).appendTo($tr);
+				$('<td/>').addClass('text-end').text(formatNumber(row.coinsum)).appendTo($tr);
+				$tbody.append($tr);
+			});
+		});
+	}
+
+	// 일자별 신규 가입
+	function loadNewMembersDaily() {
+		var el = document.getElementById('chart-new-members');
+		if (el == null) return;
+		var range = getActiveRange();
+		return requestWithAuthRetry(function () {
+			return getJson(ctxPath + '/api/admin/stats/series/new-members', { startDate: range.start, endDate: range.end });
+		}).done(function (resp) {
+			var map = rowsToMap(getBody(resp) || []);
+			var values = range.keys.map(function (k) { return map[k] || 0; });
+			renderLineChart('chart-new-members', '신규 가입', buildSubtitleBy(range, '명'), range.labels, values, '명');
+		});
+	}
+
+	// 시간별 방문자 (선택 기간 합산)
+	function loadHourlyVisitors() {
+		var el = document.getElementById('chart-hourly-visitors');
+		if (el == null) return;
+		var categories = []; for (var i = 0; i < 24; i++) categories.push(('0' + i).slice(-2));
+		var range = getActiveRange();
+		return requestWithAuthRetry(function () {
+			return getJson(ctxPath + '/api/admin/stats/visits/hourly', { startDate: range.start, endDate: range.end });
+		}).done(function (resp) {
+			var rows = getBody(resp) || [];
+			var map = {}; rows.forEach(function (r) { map[r.bucket] = Number(r.value || 0); });
+			var values = categories.map(function (h) { return map[h] || 0; });
+			renderLineChart('chart-hourly-visitors', '시간별 방문자', buildSubtitleBy(range, '명'), categories, values, '명');
+		});
+	}
+
+	// 일자별 방문자
+	function loadDailyVisitors() {
+		var el = document.getElementById('chart-daily-visitors');
+		if (el == null) return;
+		var range = getActiveRange();
+		return requestWithAuthRetry(function () {
+			return getJson(ctxPath + '/api/admin/stats/visits/daily', { startDate: range.start, endDate: range.end });
+		}).done(function (resp) {
+			var map = rowsToMap(getBody(resp) || []);
+			var values = range.keys.map(function (k) { return map[k] || 0; });
+			renderLineChart('chart-daily-visitors', '일자별 방문자', buildSubtitleBy(range, '명'), range.labels, values, '명');
+		});
+	}
+
+	// 전체 이용자 수
+	function loadTotalUsersCard() {
+		var el = document.getElementById('totalUsers');
+		if (el == null) return;
+		return requestWithAuthRetry(function () {
+			return getJson(ctxPath + '/api/admin/stats/visits/summary', {});
+		}).done(function (resp) {
+			var data = getBody(resp) || {};
+			$('#totalUsers').text(formatNumber(data.totalUsers || 0));
+		});
+	}
+
+	// 전체 데이터 로드
+	function loadAll() {
+		var s = $('#startDate').val();
+		var e = $('#endDate').val();
+		if (s && e && s > e) { alert('시작일이 종료일보다 큽니다.'); return; }
+
+		loadSummary();
+		loadChargedDaily();
+		loadUsedDaily();
+		loadRevenueDaily();
+		loadTopChargers();
+		loadTopSpenders();
+		loadTopMusic();
+		loadNewMembersDaily();
+		loadHourlyVisitors();
+		loadDailyVisitors();
+		loadTotalUsersCard();
+	}
+
+	$(function () {
+		$('#btnToday').click(function () { setToday(); loadAll(); });
+		$('#btnWeek').click(function () { setThisWeek(); loadAll(); });
+		$('#btnMonth').click(function () { setThisMonth(); loadAll(); });
+		$('#btn7').click(function () { setLastNDays(7); loadAll(); });
+		$('#btn30').click(function () { setLastNDays(30); loadAll(); });
+		$('#btnSearch').click(loadAll);
+		$('#btnReset').click(function () { $('#startDate').val(''); $('#endDate').val(''); loadAll(); });
+
+		setToday();
+		loadAll();
+	});
 })();

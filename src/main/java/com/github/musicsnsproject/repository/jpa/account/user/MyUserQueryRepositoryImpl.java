@@ -173,6 +173,7 @@ public class MyUserQueryRepositoryImpl implements MyUserQueryRepository {
 		QFollow follow = QFollow.follow;
 		QFollow follow2 = new QFollow("follow2");
 		QUserEmotion emotion = QUserEmotion.userEmotion;
+		QPost post = QPost.post;
 		return queryFactory
 			    .select(Projections.fields(MyUserVO.class,
 			            user.userId,
@@ -201,6 +202,8 @@ public class MyUserQueryRepositoryImpl implements MyUserQueryRepository {
 			            		JPAExpressions
 			            			.select(emotion.userEmotionId.countDistinct())
 			            			.from(emotion)
+			            			.join(post)
+			            				.on(emotion.userEmotionId.eq(post.userEmotion.userEmotionId))
 			            			.where(emotion.myUser.userId.eq(user.userId))
 			            			, "postCount")
 			        ))
@@ -261,7 +264,10 @@ public class MyUserQueryRepositoryImpl implements MyUserQueryRepository {
                 .select(Projections.fields(ChatUserInfo.class,
                         qMyUser.userId,
                         qMyUser.nickname,
-                        qMyUser.profileImage.as("profileImageUrl")
+                        qMyUser.profileImage.as("profileImageUrl"),
+                        qMyUser.username,
+                        qMyUser.profileMessage
+
                 ))
                 .fetch();
         if (response.size() != allOtherIds.size()) {

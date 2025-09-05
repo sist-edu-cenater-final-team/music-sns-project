@@ -12,7 +12,7 @@
     border: 1px solid #dbdbdb;
     border-radius: 8px;
     margin-bottom: 20px;
-    overflow: hidden;
+    /*overflow: hidden;*/
 }
 
 /* 게시글 헤더 */
@@ -239,7 +239,7 @@
     transform: translate(-50%, -50%);
     margin: 0;
 }
-.modal-dialog{
+.postViewModal{
     max-width: 1024px;
 }
 /* 댓글 textarea 쪽 css */
@@ -249,7 +249,7 @@
     border-bottom: 1px solid #ccc; /* 얇은 밑줄 포커스 */
 }
 .pcCommentsArea {
-    max-height: 250px;      /* 원하는 높이 (예: 250px) */
+    max-height: 300px;      /* 원하는 높이 (예: 250px) */
     overflow-y: auto;       /* 내용이 넘치면 세로 스크롤 */
     padding-right: 5px;     /* 스크롤바 때문에 내용 붙지 않게 여백 */
 }
@@ -257,4 +257,38 @@
 /* 대댓글 들여쓰기 */
 .comment-item .replies { margin-left: 12px; }
 
+/* 게시물 오른쪽 상단을 누르면 ul 태그가 나오는거 */
+.post-header-right {
+    position: relative; /* 메뉴 기준점 */
+}
 
+.dropdown-menu {
+    position: absolute;
+    top: 100%;        /* 버튼 바로 아래 */
+    right: 0;
+    width: 180px;     /* 고정 폭 */
+    background: #fff;
+    border-radius: 12px;
+    overflow: hidden; /* 라운드 모서리 안 넘치게 */
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    display: none;
+    z-index: 200;
+    font-size: 14px;
+    text-align: center;  /* 텍스트 가운데 */
+    font-weight: 500;
+}
+
+.dropdown-menu li {
+    list-style: none;
+    padding: 12px;
+    cursor: pointer;
+    border-bottom: 1px solid #eee; /* 인스타처럼 구분선 */
+}
+
+.dropdown-menu li:last-child {
+    border-bottom: none; /* 마지막은 구분선 제거 */
+}
+
+.dropdown-menu li:hover {
+    background: #f9f9f9;
+}

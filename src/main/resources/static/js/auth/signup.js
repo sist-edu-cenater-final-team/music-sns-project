@@ -163,11 +163,8 @@ function validatePasswordMatch() {
     const password = document.getElementById('signupPassword').value;
     const passwordConfirm = document.getElementById('passwordConfirm').value;
     const confirmInput = document.getElementById('passwordConfirm');
-    const existingMessage = confirmInput.parentElement.parentElement.querySelector('.password-message');
-    // 기존 메시지 제거
-    if (existingMessage) {
-        existingMessage.remove();
-    }
+
+    removeSignupMessage('passwordConfirm');
 
     if (passwordConfirm && password !== passwordConfirm) {
         // 입력창 빨간색으로 변경
@@ -295,6 +292,12 @@ function resetSignupForm() {
     if (agreeTerms) {
         agreeTerms.checked = false;
     }
+    //비밀번호 스타일 초기화
+    const passwordInput = document.getElementById('signupPassword');
+    if (passwordInput) {
+        passwordInput.style.borderColor = '';
+        passwordInput.style.background = '';
+    }
 
     // 비밀번호 확인 입력창 스타일 초기화
     const passwordConfirm = document.getElementById('passwordConfirm');
@@ -409,6 +412,9 @@ function removeSignupMessage() {
         clearTimeout(signupMessageTimer);
         signupMessageTimer = null;
     }
+    // 기존 메시지 제거
+    removePasswordMessage('signupPassword');
+    removePasswordMessage('passwordConfirm');
 
     const existingMessage = document.getElementById('signup-message');
     if (existingMessage) {
