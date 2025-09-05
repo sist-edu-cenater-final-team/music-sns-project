@@ -1,10 +1,6 @@
 $(document).ready(function(){
 
     const postId = new URLSearchParams(location.search).get('postId');
-    if (!postId) {
-        console.warn('postId가 없습니다.');
-        return;
-    }
 
     AuthFunc.apiRequest(() => {
         return axios.get(`/api/post/postEdit`,
