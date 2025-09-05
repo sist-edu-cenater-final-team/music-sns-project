@@ -94,7 +94,7 @@ dependencies {
     implementation 'jakarta.el:jakarta.el-api:6.0.1'
 
     //devtools 빠른 핫스왑
-    developmentOnly 'org.springframework.boot:spring-boot-devtools'
+//    developmentOnly 'org.springframework.boot:spring-boot-devtools'
 
     //azure storage
     implementation 'com.azure.spring:spring-cloud-azure-starter-storage-blob'
