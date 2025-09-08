@@ -8,11 +8,11 @@
         <div class="emotions">
             <!-- class active 추가 시 활성화 -->
             <button type="button" id="emotion" class="btn natural active" value="1"><span class="blind">평온</span></button>
-            <button type="button" id="emotion" class="btn happy" value="2"><span class="blind">행복</span></button>
+            <button type="button" id="emotion" class="btn happy" value="4"><span class="blind">행복</span></button>
             <button type="button" id="emotion" class="btn love" value="3"><span class="blind">사랑</span></button>
-            <button type="button" id="emotion" class="btn sad" value="4"><span class="blind">우울</span></button>
-            <button type="button" id="emotion" class="btn angry" value="5"><span class="blind">분노</span></button>
-            <button type="button" id="emotion" class="btn tire" value="6"><span class="blind">힘듬</span></button>
+            <button type="button" id="emotion" class="btn sad" value="2"><span class="blind">우울</span></button>
+            <button type="button" id="emotion" class="btn angry" value="6"><span class="blind">분노</span></button>
+            <button type="button" id="emotion" class="btn tire" value="5"><span class="blind">힘듬</span></button>
         </div>
 
         <h3>추천 음악</h3>

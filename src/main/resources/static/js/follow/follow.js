@@ -20,7 +20,7 @@ $(function () {
         // 클릭한 탭에 active 클래스 추가
         $(this).addClass('active');
 
-        // 클릭된 탭 아이디에 따라 원하는 함수 호출 (예시)
+        
         const id = $(this).attr('id');
         if (id === 'following') {
 
@@ -314,8 +314,8 @@ function getfollower() {
 			    	        		       <div class="dropdown" style="position: relative;">
 			    	        		           <button class="btn menu-btn">...</button>
 			    	        		           <div class="dropdown-menu" id="menu_${user.userId}">
-			    	        		               <div class="dropdown-item" style="padding:8px; cursor:pointer; color:red;" onclick="block('${user.userId}')">응 너차단</div>
-			    	        		               <div class="dropdown-item" style="padding:8px; cursor:pointer;" onclick="">응 너신고</div>
+			    	        		               <div class="dropdown-item" style="padding:8px; cursor:pointer; color:red;" onclick="block('${user.userId}')">차단</div>
+			    	        		               <div class="dropdown-item" style="padding:8px; cursor:pointer;" onclick="">신고</div>
 			    	        		           </div>
 			    	        		       </div>
 			    	        		   </div>
@@ -684,7 +684,12 @@ function block(userId) {
                 }
             })
 
-        })).then((json)=>{}).catch((error)=>{}); // end of ajax ---
+        })).then((json)=>{
+			
+		})
+		.catch((error)=>{
+			
+		}); // end of ajax ---
 }
 
 

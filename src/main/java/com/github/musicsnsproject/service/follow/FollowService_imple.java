@@ -40,7 +40,7 @@ public class FollowService_imple implements FollowService {
 
 	@Override
 	@Transactional
-	public int addFollow(Map<String, Long> map) {
+	public long addFollow(Map<String, Long> map) {
 
 		return followRepository.addFollow(map);
 	}

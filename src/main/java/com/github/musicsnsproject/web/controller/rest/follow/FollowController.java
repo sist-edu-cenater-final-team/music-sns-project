@@ -78,7 +78,7 @@ public class FollowController {
     
     // 팔로우 하기
     @GetMapping("addFollow")
-    public int addFollow(@RequestParam("followee") Long followee, @AuthenticationPrincipal Long userId) {
+    public long addFollow(@RequestParam("followee") Long followee, @AuthenticationPrincipal Long userId) {
 
     	Map<String, Long> map = new HashMap<>();
     	map.put("followee", followee);

@@ -22,7 +22,7 @@ public interface FollowQueryRepository {
 	// 함께 아는 친구
 	List<FollowVO> findCommonFriend(Long userId);
 	// 팔로우 추가
-	int addFollow(Map<String, Long> map);
+	long addFollow(Map<String, Long> map);
 	// 팔로우 취소
 	long unFollow(Map<String, Long> map);
 		

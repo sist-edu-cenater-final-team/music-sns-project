@@ -46,7 +46,7 @@ public class ProfileMusicQueryRepositoryImpl implements ProfileMusicQueryReposit
     			.where(profileMusic.userEmotion.emotion.emotionId.eq(emotionId))
     	        .groupBy(music.musicId)
     	        .orderBy(profileMusic.count().desc())
-    			.limit(5)
+    			.limit(10)
     			.fetch();
     		
     }

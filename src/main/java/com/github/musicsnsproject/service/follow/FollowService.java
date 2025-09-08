@@ -21,7 +21,7 @@ public interface FollowService {
 	// 언팔로우 하기
 	long unFollow(Map<String, Long> map);
 	// 팔로우 하기
-	int addFollow(Map<String, Long> map);
+	long addFollow(Map<String, Long> map);
 
 
 	// 즐겨찾기 추가

@@ -170,19 +170,7 @@ public class FollowQueryRepositoryImpl implements FollowQueryRepository {
 		    .fetch();
 	}
 
-	@Override
-	@Transactional
-	public int addFollow(Map<String, Long> map) {
-		QFollow follow = QFollow.follow;
 
-		queryFactory.insert(follow)
-						.columns(follow.followPk.followee, follow.followPk.follower)
-						.values(
-								map.get("followee"),
-								map.get("follower"))
-						.execute();
-		return 1;
-	}
 
 	@Override
 	public List<FollowVO> searchUser(String searchWord, Long userId) {
@@ -228,6 +216,21 @@ public class FollowQueryRepositoryImpl implements FollowQueryRepository {
 	            .fetch();
 	}
 
+	
+	@Override
+	@Transactional
+	public long addFollow(Map<String, Long> map) {
+		QFollow follow = QFollow.follow;
+
+
+		return 		queryFactory.insert(follow)
+				.columns(follow.followPk.followee, follow.followPk.follower)
+				.values(
+						map.get("followee"),
+						map.get("follower"))
+				.execute();
+	}
+	
 	@Override
 	@Transactional
 	public long unFollow(Map<String, Long> map) {
@@ -277,6 +280,19 @@ public class FollowQueryRepositoryImpl implements FollowQueryRepository {
 
 	@Override
 	@Transactional
+	public long addFavorite(Map<String, Long> map) {
+		QFollow follow = QFollow.follow;
+		
+		
+		return queryFactory.update(follow)
+						.set(follow.favorite, true)
+							.where(follow.followPk.follower.userId.eq(map.get("follower"))
+									.and(follow.followPk.followee.userId.eq(map.get("followee"))))
+							.execute();
+	}
+	
+	@Override
+	@Transactional
 	public long unFavorite(Map<String, Long> map) {
 	    QFollow follow = QFollow.follow;
 
@@ -288,18 +304,7 @@ public class FollowQueryRepositoryImpl implements FollowQueryRepository {
 	            .execute();  
 	}
 
-	@Override
-	@Transactional
-	public long addFavorite(Map<String, Long> map) {
-		QFollow follow = QFollow.follow;
-		
-		
-		return queryFactory.update(follow)
-						.set(follow.favorite, true)
-							.where(follow.followPk.follower.userId.eq(map.get("follower"))
-									.and(follow.followPk.followee.userId.eq(map.get("followee"))))
-							.execute();
-	}
+
 
 	@Override
 	@Transactional
