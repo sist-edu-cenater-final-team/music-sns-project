@@ -18,6 +18,7 @@ public class MusicCartQueryRepositoryImpl implements MusicCartQueryRepository {
     private final JPAQueryFactory queryFactory;
 
 
+    // 사용자 조회
     @Override
     public MyUser findMyUser(Long userId) {
         if (userId == null) {
@@ -30,6 +31,18 @@ public class MusicCartQueryRepositoryImpl implements MusicCartQueryRepository {
         return queryFactory.selectFrom(myUser)
                 .where(myUser.userId.eq(userId))
                 .fetchOne();
+    }
+
+    // 장바구니에 담긴 장바구니 개수 구해오기
+    @Override
+    public Long findMusicCartCount(MyUser user) {
+        Long count = queryFactory
+                .select(musicCart.count())
+                .from(musicCart)
+                .where(musicCart.myUser.eq(user))
+                .fetchOne();
+
+        return (count == null) ? 0L : count;
     }
 
     // userId로 본인 musicCart 정보 조회하기
@@ -49,6 +62,7 @@ public class MusicCartQueryRepositoryImpl implements MusicCartQueryRepository {
                 .fetch();
     }
 
+    // 장바구니에 같은 음악이 있는지 확인하기
     @Override
     public boolean cartTrackCheck(MyUser user, String trackId) {
         return queryFactory
@@ -59,6 +73,7 @@ public class MusicCartQueryRepositoryImpl implements MusicCartQueryRepository {
                 .fetchFirst() != null;
     }
 
+    // 구매내역에 있는 음악인지 확인하기
     @Override
     public boolean purchasedTrackCheck(MyUser user, String trackId) {
         return queryFactory

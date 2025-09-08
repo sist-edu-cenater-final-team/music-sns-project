@@ -143,6 +143,7 @@ public class ProfileMusicServiceImpl implements ProfileMusicService {
     @Transactional
     public void deleteProfileMusic(Long userId, String musicId) {
 
+        // 삭제할 프로필 음악 찾기
         ProfileMusic profileMusic = profileMusicRepository.findDeleteByMusicId(userId, musicId);
 
         if(profileMusic == null) {
@@ -161,9 +162,12 @@ public class ProfileMusicServiceImpl implements ProfileMusicService {
         updateListOrder(userId, deleteListOrder);
     }
 
+
+    // 순서 재조정하기
     private void updateListOrder(Long userId, int deletedOrder) {
         List<ProfileMusic> updateList = profileMusicRepository.findAllAfterDelete(userId, deletedOrder);
 
         updateList.forEach(ProfileMusic::decrementListOrder);
     }
+
 }

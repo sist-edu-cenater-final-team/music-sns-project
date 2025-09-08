@@ -27,7 +27,7 @@ const cart = {
                             <span class="check"></span>
                         </label>
                     </td>
-                    <td scope="row">${index + 1}</td>
+                    <td>${index + 1}</td>
                     <td class="link_td" onclick="window.open('https://open.spotify.com/track/${item.musicId}')">
                         <div class="music-info">
                             <div class="music-img">
@@ -63,13 +63,13 @@ const cart = {
         // 체크박스 이벤트 연결
         cart.initCheckEvents();
     },
+    // 장바구니 리스트 API 요청
     createList : () => {
         return AuthFunc.apiRequest(() =>
                     axios.get(`${ctxPath}/api/cart/list`, {
                         headers: AuthFunc.getAuthHeader()
                     }))
                 .then(response => {
-                    // console.log("cartList:", response);
                     // console.log("cartList:", response.data);
                     cart.renderCart(response.data);
                 })
@@ -79,10 +79,6 @@ const cart = {
                         const errorData = error.response.data.error;
                         if (errorData){
                             alert(errorData.customMessage);
-
-                            // if(errorData.httpStatus === "NOT_ACCEPTABLE"){
-                            //     location.href = `${ctxPath}/auth/login`;
-                            // }
                         }
                     }
                 });
