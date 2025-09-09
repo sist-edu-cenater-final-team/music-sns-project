@@ -46,7 +46,7 @@ public class ProfileMusicQueryRepositoryImpl implements ProfileMusicQueryReposit
     			.where(profileMusic.userEmotion.emotion.emotionId.eq(emotionId))
     	        .groupBy(music.musicId)
     	        .orderBy(profileMusic.count().desc())
-    			.limit(5)
+    			.limit(10)
     			.fetch();
     		
     }
@@ -117,11 +117,12 @@ public class ProfileMusicQueryRepositoryImpl implements ProfileMusicQueryReposit
                 .fetch();
     }
 
-    // 프로필 삭제하기
+    // 삭제할 프로필 음악 찾기
     @Override
     public ProfileMusic findDeleteByMusicId(Long userId, String musicId) {
 
-        return queryFactory.selectFrom(profileMusic)
+        return queryFactory
+                .selectFrom(profileMusic)
                 .join(profileMusic.myMusic, myMusic)
                 .join(myMusic.purchaseHistory, purchaseHistory)
                 .join(purchaseHistory.myUser, myUser)
@@ -132,17 +133,6 @@ public class ProfileMusicQueryRepositoryImpl implements ProfileMusicQueryReposit
                 .fetchOne();
     }
 
-    // 삭제 후 listOrder 다시 정렬하기
-    @Override
-    public void updateListOrder(Long userId, int deleteListOrder) {
-
-        queryFactory.update(profileMusic)
-                .set(profileMusic.listOrder, profileMusic.listOrder.subtract(1))
-                .where(profileMusic.listOrder.gt(deleteListOrder)
-                                .and(profileMusic.myMusic.purchaseHistory.myUser.userId.eq(userId))
-                )
-                .execute();
-    }
 
     // 삭제할 대상 찾기
     @Override
