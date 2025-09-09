@@ -332,7 +332,7 @@ if (window.__musicSearchPurpleInitialized) {
 
         const trackId = btn.closest('.track-item').dataset.trackId;
 
-        // 장바구니 추가 로직 구현
+        // 장바구니 추가하기 API 호출하기
         return apiRequest(() =>
             axios.post(`/api/cart/add?trackId=${trackId}`,{}, {
                 headers: AuthFunc.getAuthHeader(),

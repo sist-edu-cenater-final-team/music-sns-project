@@ -17,10 +17,8 @@ public interface ProfileMusicQueryRepository {
 
     List<ProfileMusic> findMyMusics(Long userId);
 
-    // 프로필 음악 삭제하기
+    // 삭제할 프로필 음악 찾기
     ProfileMusic findDeleteByMusicId(Long userId, String musicId);
-
-    void updateListOrder(Long userId, int deleteListOrder);
 
     List<ProfileMusic> findAllAfterDelete(Long userId, int deletedOrder);
 }

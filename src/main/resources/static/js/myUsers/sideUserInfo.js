@@ -3,7 +3,7 @@ $(function() {
 
 	getUserProfile();
 
-
+    profileMusic.createProfileMusicList();
 }); // end of $(function(){})
 
 function getUserProfile() {
@@ -84,6 +84,7 @@ window.profileMusic = {
             })
         )
             .then(response => {
+                console.log('aa');
                 console.log(" profileMusic :: ", response.data);
                 profileMusic.renderProfileMusicList(response.data);
             })

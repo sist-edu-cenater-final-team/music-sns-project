@@ -65,9 +65,9 @@ public class JwtProvider {
     }
     //새로운 리프레시 토큰 생성
     public String createNewRefreshToken() {
-        return createRefreshToken(new Date(new Date().getTime()+REFRESH_TOKEN_EXPIRATION.toMillis()));
+        Date now = new Date();
+        return createRefreshToken(new Date(now.getTime()+REFRESH_TOKEN_EXPIRATION.toMillis()));
     }
-
     //만료시간 지정 리프레시 토큰 생성
     public String createRefreshToken(Date exp){
         return Jwts.builder()

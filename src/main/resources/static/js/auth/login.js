@@ -1,7 +1,7 @@
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     const loginForm = document.getElementById('loginForm');
 
-    loginForm.addEventListener('submit', function(e) {
+    loginForm.addEventListener('submit', function (e) {
         e.preventDefault();
 
         const identifier = document.getElementById('identifier').value;
@@ -11,7 +11,6 @@ document.addEventListener('DOMContentLoaded', function() {
             showMessage('모든 필드를 입력해주세요.', 'warning');
             return;
         }
-
         // 로그인 처리
         handleLogin(identifier, password);
     });
@@ -29,81 +28,73 @@ function togglePassword() {
         toggleBtn.className = 'bi bi-eye';
     }
 }
+
 let lockoutTimer = null; // 계정 잠금 타이머
 
 function handleLogin(identifier, password) {
     // 기존 메시지 제거
     removeMessage();
-
     // 로딩 상태 표시
     const loginBtn = document.querySelector('.login-btn');
     const originalText = loginBtn.innerHTML;
     loginBtn.innerHTML = '<i class="bi bi-hourglass-split"></i> 로그인 중...';
     loginBtn.disabled = true;
-
     // axios API 호출
     axios.post('/api/auth/login', {
         emailOrPhoneNumber: identifier,
         password: password
-    })
-        .then(response => {
-            const responseData = response.data.success.responseData;
-            localStorage.setItem('accessToken', responseData.accessToken);
-            localStorage.setItem('tokenType', responseData.tokenType);
+    }).then(response => {
+        const responseData = response.data.success.responseData;
+        localStorage.setItem('accessToken', responseData.accessToken);
+        localStorage.setItem('tokenType', responseData.tokenType);
+        // 성공시 타이머 정리
+        clearLockoutTimer();
+        showMessage('로그인에 성공했습니다.', 'success');
+        setTimeout(() => {
+            window.location.href = '/';
+        }, 1000);
+    }).catch(error => {
+        loginCatchFunc(error)
+    }).finally(() => {
+        // 로딩 상태 해제 (잠긴 계정이 아닌 경우에만)
+        if (!isAccountLocked()) {
+            loginBtn.innerHTML = originalText;
+            loginBtn.disabled = false;
+        }
+    });
+}
 
-
-            // 성공시 타이머 정리
-            clearLockoutTimer();
-            showMessage('로그인에 성공했습니다.', 'success');
-            setTimeout(() => {
-                window.location.href = '/';
-            }, 1000);
-        })
-        .catch(error => {
-            console.error('로그인 오류:', error);
-            if (error.response) {
-                const errorData = error.response.data.error;
-                console.log('에러 정보:', errorData);
-
-                if (errorData.request) {
-                    const requestInfo = errorData.request;
-                    // console.log(requestInfo.status === "잠긴 계정")
-                    // 계정 잠김 상태 확인
-                    if (requestInfo.status === "잠긴 계정") {
-                        console.log(requestInfo.status)
-                        handleAccountLockout(requestInfo.failureDate);
-                        loginBtn.innerHTML = '<i class="bi bi-hourglass-split"></i> 잠김';
-                    }
-                    // 실패 횟수가 있는 경우 (5번 미만 실패)
-                    else if (requestInfo.failureCount !== undefined) {
-                        const remainingAttempts = 5 - requestInfo.failureCount;
-                        if (remainingAttempts <= 3) {
-                            showWarningMessage(remainingAttempts, errorData.customMessage);
-                        } else {
-                            showMessage(errorData.customMessage, 'error');
-                        }
-                    }
-                    // 기타 에러
-                    else {
-                        console.log(errorData.request);
-                        showMessage(errorData.customMessage || '로그인에 실패했습니다.', 'error');
-                    }
+function loginCatchFunc(error) {
+    if (error.response) {
+        const errorData = error.response.data.error;
+        if (errorData.request) {
+            const requestInfo = errorData.request;
+            // 계정 잠김 상태 확인
+            if (requestInfo.status === "잠긴 계정") {
+                handleAccountLockout(requestInfo.failureDate);
+                loginBtn.innerHTML = '<i class="bi bi-hourglass-split"></i> 잠김';
+            }
+            // 실패 횟수가 있는 경우 (5번 미만 실패)
+            else if (requestInfo.failureCount !== undefined) {
+                const remainingAttempts = 5 - requestInfo.failureCount;
+                if (remainingAttempts <= 3) {
+                    showWarningMessage(remainingAttempts, errorData.customMessage);
                 } else {
-                    showMessage(errorData.customMessage || '로그인에 실패했습니다.', 'error');
+                    showMessage(errorData.customMessage, 'error');
                 }
-            } else if (error.request) {
-                showMessage('서버에 연결할 수 없습니다.', 'error');
-            } else {
-                showMessage('알 수 없는 오류가 발생했습니다.', 'error');
             }
-        })
-        .finally(() => {
-            // 로딩 상태 해제 (잠긴 계정이 아닌 경우에만)
-            if (!isAccountLocked()) {
-                loginBtn.innerHTML = originalText;
-                loginBtn.disabled = false;
+            // 기타 에러
+            else {
+                console.log(errorData.request);
+                showMessage(errorData.customMessage || '로그인에 실패했습니다.', 'error');
             }
-        });
+        } else {
+            showMessage(errorData.customMessage || '로그인에 실패했습니다.', 'error');
+        }
+    } else if (error.request)
+        showMessage('서버에 연결할 수 없습니다.', 'error');
+    else
+        showMessage('알 수 없는 오류가 발생했습니다.', 'error');
 }
 
 
@@ -116,7 +107,7 @@ function showMessage(message, type) {
     messageDiv.className = `auth-message ${type}`;
 
     let icon = '';
-    switch(type) {
+    switch (type) {
         case 'success':
             icon = 'bi-check-circle-fill';
             break;
@@ -149,6 +140,7 @@ function showMessage(message, type) {
         }, 3000);
     }
 }
+
 function showWarningMessage(remainingAttempts, customMessage) {
     // 기존 메시지 제거
     removeMessage();
@@ -177,6 +169,7 @@ function showWarningMessage(remainingAttempts, customMessage) {
     const formTitle = loginFormContainer.querySelector('.logo-section');
     formTitle.insertAdjacentElement('beforeend', messageDiv);
 }
+
 function removeMessage() {
     const existingMessage = document.getElementById('auth-message');
     if (existingMessage) {
