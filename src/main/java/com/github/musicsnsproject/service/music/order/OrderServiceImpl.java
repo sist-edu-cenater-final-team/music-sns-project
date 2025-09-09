@@ -121,7 +121,7 @@ public class OrderServiceImpl implements OrderService{
         PurchaseHistory history = PurchaseHistory.builder()
                 .myUser(user)
                 .purchasedAt(LocalDateTime.now())
-                .atThatUserCoin(userCoin)
+                .atThatUserCoin(totalPrice) // [수정] atThatUserCoin은 구매 후 음표
                 .build();
 
         // 코인 차감
@@ -146,7 +146,7 @@ public class OrderServiceImpl implements OrderService{
                 .map(musicIdList -> PurchaseMusic.builder()
                         .musicId(musicIdList)
                         .purchaseHistory(history)
-                        .atThatCoin(userCoin)
+                        .atThatCoin(1) // [수정] 곡당 1음표로 고정
                         .build()
                 )
                 .toList();

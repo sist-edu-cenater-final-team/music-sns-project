@@ -69,7 +69,6 @@ public class SignUpLoginService {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(details, loginRequest.getPassword(), details.getAuthorities())
         );
-
         String roles = authentication.getAuthorities().stream()
                 .map(authority -> authority.getAuthority())
                 .collect(Collectors.joining(","));

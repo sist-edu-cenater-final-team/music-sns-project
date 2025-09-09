@@ -136,7 +136,7 @@ $(document).ready(function(){
                                             params: {postId: postId},
                                             headers: AuthFunc.getAuthHeader()
                                         }
-                                        )
+                                    )
                                 }).then(function (response) {
                                     if(response.data == postId){
                                         alert("게시글이 삭제되었습니다.");
@@ -244,8 +244,8 @@ $(function () {
         $('textarea.pcCommentInput').off('input.post').on('input.post', function() {
             $('button.commentPost').prop('disabled', $(this).val().trim() === "");
         });
-        
-        
+
+
         $('textarea.pcCommentInput').off('keyup.post').on('keyup.post', function(e) {
             if(e.keyCode === 13) {
                 $('button.commentPost').trigger('click');
@@ -561,8 +561,8 @@ function buildCarouselHtml(imageUrls, carouselId) {
 
     const slidesHtml = imageUrls
         .map((url, idx) =>
-            `<div class="carousel-item ${idx === 0 ? 'active' : ''}">
-         <img src="${url}" class="d-block w-100" alt="post image ${idx + 1}">
+            `<div class="carousel-item ${idx === 0 ? 'active' : ''}" style="background-image: url(${url})">
+        
        </div>`
         )
         .join('');

@@ -115,6 +115,9 @@
 .aside-navigation .talk {
     background-image: url("../images/common/icon/talk.png");
 }
+.aside-navigation .adminstats {
+    background-image: url("../images/common/icon/adminstats.png");
+}
 .aside-navigation .noti {
     background-image: url("../images/common/icon/notification.png");
 }
@@ -122,9 +125,10 @@
     background-image: url("../images/common/icon/profile.png");
 }
 
-.aside-navigation .setting {
+/* .aside-navigation .setting {
     background-image: url("../images/common/icon/settings.png");
-}
+} */
+
 .aside-navigation .post {
     background-image: url("../images/common/icon/post.png");
 }

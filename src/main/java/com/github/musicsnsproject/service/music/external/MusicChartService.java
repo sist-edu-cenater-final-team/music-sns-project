@@ -37,10 +37,13 @@ public abstract class MusicChartService {
             // rank 정보 없는 경우 static 처리
             rankStatuses = titles.stream().map(t -> "static,0").toList();
         }
-
+        if(this instanceof BugsChartService)
+            rankStatuses.add("up,1");
         List<ExternalChartResponse> data = new ArrayList<>();
         for (int i = 0; i < titles.size(); i++) {
             if (artistName == null || artistNames.get(i).contains(artistName)) {
+
+
                 String[] rank = rankStatuses.get(i).split(",");
                 data.add(ExternalChartResponse.builder()
                         .rank(i + 1)

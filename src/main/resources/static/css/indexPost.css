@@ -71,3 +71,121 @@
     background-image: url("../images/emotion/tire_active.png");
 }
 
+
+/* 모달 전체 */
+#postModal .modal-content {
+    border-radius: 16px;
+    border: none;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    background: #ffffff;
+    overflow: hidden;
+}
+
+/* 헤더 */
+#postModal .modal-header {
+    background: linear-gradient(135deg, #6366f1, #3b82f6); /* 퍼플 → 블루 */
+    color: #fff;
+    border-bottom: none;
+}
+#postModal .modal-title {
+    font-weight: bold;
+}
+#postModal .close span {
+    color: #fff;
+    font-size: 1.5rem;
+}
+
+/* 버튼 */
+#postModal .btn-primary {
+    background: linear-gradient(135deg, #6366f1, #3b82f6);
+    border: none;
+    border-radius: 25px;
+    font-weight: 600;
+    padding: 8px 18px;
+    transition: 0.3s;
+}
+#postModal .btn-primary:hover {
+    background: linear-gradient(135deg, #4f46e5, #1e40af);
+}
+#postModal .btn-secondary {
+    background: linear-gradient(135deg, #4f46e5, #1e40af);
+    border: none;
+    border-radius: 25px;
+    font-weight: 600;
+    padding: 8px 18px;
+    transition: 0.3s;
+}
+
+#postModal #btnBeforeStep2 {
+    background: linear-gradient(135deg, indianred, firebrick);
+    border: none;
+    border-radius: 25px;
+    font-weight: 600;
+    padding: 8px 18px;
+    transition: 0.3s;
+}
+
+#postModal #btnBeforeStep2:hover {
+    transform: scale(1.1);
+    border-color: rosybrown;
+    box-shadow: 0 0 10px rgba(221,160,105,0.4);
+}
+
+#postModal #btnBeforeStep2:active {
+    border-color: indianred;
+    box-shadow: 0 0 12px firebrick;
+}
+
+#postModal #btnBeforeStep3 {
+    background: linear-gradient(135deg, indianred, firebrick);
+    border: none;
+    border-radius: 25px;
+    font-weight: 600;
+    padding: 8px 18px;
+    transition: 0.3s;
+}
+
+#postModal #btnBeforeStep3:hover {
+    transform: scale(1.1);
+    border-color: rosybrown;
+    box-shadow: 0 0 10px rgba(221,160,105,0.4);
+}
+
+#postModal .btn-success:hover {
+    background: linear-gradient(135deg, #4f46e5, #1e40af);
+}
+
+#postModal .btn-success:hover {
+    background: linear-gradient(135deg, #4f46e5, #1e40af);
+}
+
+/* 감정 버튼 */
+.post_step1 .emotions .btn {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    border: 2px solid transparent;
+    transition: all 0.3s ease;
+}
+.post_step1 .emotions .btn:hover {
+    transform: scale(1.1);
+    border-color: #6366f1;
+    box-shadow: 0 0 10px rgba(99,102,241,0.4);
+}
+.post_step1 .emotions .btn.active {
+    border-color: #3b82f6;
+    box-shadow: 0 0 12px rgba(59,130,246,0.6);
+}
+
+/* 입력 textarea */
+#postModal textarea {
+    border-radius: 12px;
+    border: 1.5px solid #d1d5db;
+    transition: all 0.2s;
+}
+#postModal textarea:focus {
+    border-color: #6366f1;
+    box-shadow: 0 0 6px rgba(99,102,241,0.3);
+}
+
+
