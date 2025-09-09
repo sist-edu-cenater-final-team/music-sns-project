@@ -5,50 +5,67 @@
 
 <mapper namespace="eumpyoPurchase">
 
-	<!-- 구매 내역 1건 추가 -->
-	<insert id="insertPurchaseHistory" parameterType="map">
-    	insert into purchase_history (user_id, purchased_at, at_that_user_coin)
-    	values (#{userId}, systimestamp, #{atThatUserCoin})
-    	returning purchase_history_id
-    	into #{purchaseHistoryId, javaType=long, jdbcType=NUMERIC, mode=OUT}
-  	</insert>
+    <!-- 구매 내역 1건 추가 -->
+    <insert id="insertPurchaseHistory" parameterType="map">
+        insert into purchase_history (user_id, purchased_at, at_that_user_coin)
+        values (#{userId}, systimestamp, null)
+        returning purchase_history_id
+        into #{purchaseHistoryId, javaType=long, jdbcType=NUMERIC, mode=OUT}
+    </insert>
 
- 	<!-- 곡 행 추가 -->
-  	<insert id="insertPurchaseMusic" parameterType="map">
-    	insert into purchase_music (music_id, purchase_history_id, at_that_coin)
-    	values (#{musicId}, #{purchaseHistoryId}, #{usedCoin})
-  	</insert>
+    <!-- 곡 행 추가 : at_that_coin을 곡당 1로 고정 -->
+    <insert id="insertPurchaseMusic" parameterType="map">
+        insert into purchase_music (music_id, purchase_history_id, at_that_coin)
+        values (#{musicId}, #{purchaseHistoryId}, 1)
+    </insert>
 
-  	<!-- 현재 사용자 코인 조회 (단순 조회) -->
-  	<select id="selectUserCoin" parameterType="long" resultType="long">
-    	select nvl(coin, 0)
-    	from users
-    	where user_id = #{value}
-  	</select>
+    <!-- 현재 사용자 코인 조회 (단순 조회) -->
+    <select id="selectUserCoin" parameterType="long" resultType="long">
+        select nvl(coin, 0)
+        from users
+        where user_id = #{value}
+    </select>
 
-  	<!-- 사용자 음표 재정산 -->
-  	<update id="recalcUserCoinFromHistory" parameterType="map">
-	    update users u
-	       set u.coin =
-	         ( nvl((select sum(c.coin)
-	                 from coin_history c
-	                where c.user_id = #{userId}), 0)
-	           -
-	           nvl((select sum(pm.at_that_coin)
-	                 from purchase_history p
-	                 join purchase_music pm
-	                   on pm.purchase_history_id = p.purchase_history_id
-	                where p.user_id = #{userId}), 0)
-	         )
-	     where u.user_id = #{userId}
-  	</update>
+    <!-- 사용자 음표 재정산 : 충전합 - (구매 곡 수) -->
+    <update id="recalcUserCoinFromHistory" parameterType="map">
+        update users u
+           set u.coin =
+               ( nvl((select sum(c.coin)
+                      from coin_history c
+                      where c.user_id = #{userId}), 0)
+                 -
+                 nvl((select count(pm.purchase_music_id)
+                      from purchase_history p
+                      join purchase_music pm
+                        on pm.purchase_history_id = p.purchase_history_id
+                      where p.user_id = #{userId}), 0)
+               )
+         where u.user_id = #{userId}
+    </update>
 
-  	<!-- 현재 사용자 코인 조회 (잠금/동시수정불가) -->
-  	<select id="selectUserCoinForUpdate" parameterType="long" resultType="long">
-    	select nvl(coin, 0)
-      	from users
-     	where user_id = #{value}
-     	for update
-  	</select>
+    <!-- 현재 사용자 코인 조회 (잠금/동시수정불가) -->
+    <select id="selectUserCoinForUpdate" parameterType="long" resultType="long">
+        select nvl(coin, 0)
+        from users
+        where user_id = #{value}
+        for update
+    </select>
+
+    <!-- 구매내역 행의 at_that_user_coin 확정 반영 -->
+    <update id="updatePurchaseHistoryBalance" parameterType="map">
+        update purchase_history
+           set at_that_user_coin = #{atThatUserCoin}
+         where purchase_history_id = #{purchaseHistoryId}
+           and user_id = #{userId}
+    </update>
+
+    <!-- 이번 구매 건만큼 코인 차감 -->
+    <update id="decreaseUserCoin" parameterType="map">
+        update users
+           set coin = coin - #{delta}
+         where user_id = #{userId}
+        returning coin
+        into #{afterCoin, javaType=long, jdbcType=NUMERIC, mode=OUT}
+    </update>
 
 </mapper>

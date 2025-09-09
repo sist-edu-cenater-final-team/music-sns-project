@@ -13,14 +13,14 @@
      	for update
   	</select>
 
-  	<!-- 최종 잔액 그대로 저장 : MERGE 제거, 단순 UPDATE (무결성 보호) -->
+  	<!-- 최종 잔액 그대로 저장 -->
   	<update id="setUserCoin" parameterType="map">
     	update users
        	set coin = #{coin}
      	where user_id = #{userId}
   	</update>
 
-  	<!-- 충전내역 기록 : at_that_user_coin(충전 후 잔액) 저장 -->
+  	<!-- 충전내역 기록 저장 -->
   	<insert id="insertChargeHistory" parameterType="map">
     	insert into coin_history (
       		user_id, coin, at_that_price, created_at, at_that_user_coin
