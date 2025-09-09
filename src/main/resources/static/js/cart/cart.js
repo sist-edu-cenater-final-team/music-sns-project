@@ -123,6 +123,7 @@ const cart = {
             cart.checkAll.indeterminate = true;
         }
     },
+    // 선택 삭제하기
     selectDelete : () => {
         // 받아온 cartId 배열 만들기
         const cartIdList = Array.from(cart.tbody.querySelectorAll('input[name="cartCheck"]:checked'))
@@ -135,8 +136,8 @@ const cart = {
         const cartId = [Number(e.dataset.cartId)];
         cart.deleteItem(0, cartId);
     },
+    // 장바구니 삭제하기
     deleteItem : (status, cartIdList) => {
-
         console.log("cartIdList : " + cartIdList);
         // status 0 : 바로 삭제
         // ststus 1 : 선택 삭제
@@ -163,6 +164,7 @@ const cart = {
             alert('서버 또는 네트워크 오류입니다.');
         });
     },
+    // 주문 요청하기
     order : () => {
         // 받아온 cartId 배열 만들기
         const cartIdList = Array.from(cart.tbody.querySelectorAll('input[name="cartCheck"]:checked'))
