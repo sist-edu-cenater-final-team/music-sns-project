@@ -77,6 +77,7 @@ function getUserProfile() {
 }
 
 window.profileMusic = {
+    // 프로필 음악 리스트 API 호출하기
     createProfileMusicList : () => {
         return AuthFunc.apiRequest(() =>
             axios.get(`${ctxPath}/api/profileMusic/list`, {
@@ -84,7 +85,7 @@ window.profileMusic = {
             })
         )
             .then(response => {
-                console.log('aa');
+                //console.log('aa');
                 console.log(" profileMusic :: ", response.data);
                 profileMusic.renderProfileMusicList(response.data);
             })
@@ -98,6 +99,7 @@ window.profileMusic = {
                 }
             });
     },
+    // 가져온 DATA로 렌더링하기
     renderProfileMusicList : (musicData) => {
         if(musicData.length < 1) {
             document.querySelector("#profileMusicList").innerHTML = `<div class="empty-profile">설정된 프로필 음악이 없습니다!</div>`;
@@ -126,6 +128,7 @@ window.profileMusic = {
 
         document.querySelector("#profileMusicList").innerHTML = html;
     },
+    // 프로필 음악 삭제 API 호출하기
     deleteProfileMusic : (musicId) => {
         return AuthFunc.apiRequest(() =>
             axios.delete(`${ctxPath}/api/profileMusic/delete?musicId=${musicId}`, {

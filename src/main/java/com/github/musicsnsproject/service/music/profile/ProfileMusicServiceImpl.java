@@ -99,6 +99,7 @@ public class ProfileMusicServiceImpl implements ProfileMusicService {
                     .build();
         }
 
+        // 사용자의 프로필에 등록된 음악 조회하기
         List<Long> myMusicIds = profileMusicRepository.findMyMusicIdsByUserId(userId);
         int nextOrder = myMusicIds.size();
 
@@ -114,7 +115,10 @@ public class ProfileMusicServiceImpl implements ProfileMusicService {
 
         // null 체크 추가
         if (myMusicId == null) {
-            throw new IllegalStateException("해당 userId와 musicId에 해당하는 MyMusic이 존재하지 않습니다.");
+            throw CustomNotAcceptException.of()
+                    .customMessage("해당 userId와 musicId에 해당하는 MyMusic이 존재하지 않습니다.")
+                    .request(myMusicId)
+                    .build();
         }
         MyMusic myMusic = myMusicRepository.findById(myMusicId)
                 .orElseThrow(() -> new IllegalStateException("음악을 찾을 수 없습니다."));
@@ -156,6 +160,7 @@ public class ProfileMusicServiceImpl implements ProfileMusicService {
         // 삭제 전 listOrder 가져오기
         int deleteListOrder = profileMusic.getListOrder();
 
+        // 삭제하기 실행
         profileMusicRepository.delete(profileMusic);
 
         // 순서 재조정

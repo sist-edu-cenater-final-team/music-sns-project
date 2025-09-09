@@ -76,6 +76,7 @@ public class ProfileMusicQueryRepositoryImpl implements ProfileMusicQueryReposit
 				
 	}
 
+    // 프로필 설정된 음악 중복 체크하기
     @Override
     public boolean duplicateCheck(Long userId, String musicId) {
         return queryFactory
@@ -91,6 +92,7 @@ public class ProfileMusicQueryRepositoryImpl implements ProfileMusicQueryReposit
                 .fetchFirst() != null;
     }
 
+    // 사용자의 프로필에 등록된 음악 조회하기
     @Override
     public List<Long> findMyMusicIdsByUserId(Long userId) {
         QProfileMusic profileMusic = QProfileMusic.profileMusic;
@@ -134,7 +136,7 @@ public class ProfileMusicQueryRepositoryImpl implements ProfileMusicQueryReposit
     }
 
 
-    // 삭제할 대상 찾기
+    // 삭제할 대상 찾기 (listOrder가 deletedOrder보다 큰 경우만 조회)
     @Override
     public List<ProfileMusic> findAllAfterDelete(Long userId, int deletedOrder) {
         return queryFactory
