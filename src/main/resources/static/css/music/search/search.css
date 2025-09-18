@@ -31,6 +31,7 @@
     border-radius: 8px;
     outline: none;
     font-size: 14px;
+    max-width: 188px;
 }
 
 .search-input:focus {
@@ -53,4 +54,153 @@
 
 .search-btn:hover {
     background-color: #6a5acd;
+}
+/* 추천 섹션 */
+.side-recommend-section {
+    margin-top: 20px;
+    max-height: 82vh;
+    overflow-y: auto;
+}
+
+.side-section-title {
+    font-size: 16px;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid #7b68ee;
+}
+
+/* 인기 검색어 */
+.side-popular-keywords {
+    margin-bottom: 24px;
+}
+
+.side-keyword-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.side-keyword-item {
+    display: flex;
+    align-items: center;
+    padding: 8px 12px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: 1px solid transparent;
+}
+
+.side-keyword-item:hover {
+    background: #e9ecef;
+    border-color: #7b68ee;
+}
+
+.side-keyword-rank {
+    font-weight: bold;
+    color: #7b68ee;
+    margin-right: 8px;
+    min-width: 20px;
+}
+
+.side-keyword-text {
+    font-size: 14px;
+    color: #333;
+}
+
+/* 추천 곡 */
+.side-recommend-tracks {
+    margin-bottom: 16px;
+}
+
+.side-track-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.side-track-item {
+    display: flex;
+    align-items: center;
+    padding: 12px;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    transition: all 0.2s ease;
+    border: 1px solid #e9ecef;
+}
+
+.side-track-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(123,104,238,0.2);
+    border-color: #7b68ee;
+}
+
+.side-track-image {
+    width: 50px;
+    height: 50px;
+    border-radius: 8px;
+    object-fit: cover;
+    margin-right: 12px;
+    flex-shrink: 0;
+    cursor: pointer;
+}
+
+.side-track-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.side-track-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.side-track-name-span {
+    cursor: pointer;
+}
+
+.side-track-artists {
+    font-size: 12px;
+    color: #666;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.side-artist-link {
+    color: #7b68ee;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.side-artist-link:hover {
+    text-decoration: underline;
+}
+
+/* 로딩 스피너 */
+.side-recommend-loading {
+    text-align: center;
+    padding: 20px;
+    color: #666;
+}
+
+.side-loading-spinner {
+    width: 20px;
+    height: 20px;
+    border: 2px solid #f3f3f3;
+    border-top: 2px solid #7b68ee;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 10px;
+}
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
 }

@@ -1,34 +1,36 @@
 jasypt:
   encryptor:
     password: ${JASYPT_PASSWORD}
-jwtpassword:
+jwt-password:
   source: ENC(6b81wzyzcQ5WoKJdEtKeoEi3A48AAmimddIGBeu7bzR0lT51ZYtu5b0HPsWT5BJLIwp+0aOz8Q7mSIAxX/m+pu43WtljFpsXl/6hdPxbmyI=)
 
-coolsms:
-  api-key: ENC(CJLHuVy5J38qMOv2yJgs6eKTfC8WFAG8o3rGfFMGqcc=)
-  api-secret: ENC(Lssx1pA4F5tBUTmrMKLnQjvOAcPWd0XSram8jkukBc8ApVxVB5NVLvVOgDw+sJG8)
+cool-sms:
+  api-key: ENC(zpPT/zdtRyzfCe3Sr2rvhSQ6QIF79KC1V6SC8+oq3/4=)
+  api-secret: ENC(CaCsmsaAwNd2l4wprRfq8STtunrSBInz9neFJsnitwJc177y/tvyPQh/okBXtIdv)
   domain : https://api.solapi.com
-  phone-number: ENC(DgjXQGDwsFscBdsbseVF0bwLwnLhTXJT) # ????
+  phone-number: ENC(BLpW8of2lRuzytBtswZcpK2AuZKxv8Nr) # ????
 
 server:
   tomcat:
     max-part-count: -1
+  forward-headers-strategy: native
+
 spring:
   server-url:
     base: ENC(eAV32/4c9hWU0yc8LNmFBlmzx1+M2uZ50FKV9xuYkdU=)
     https: ???
   mvc:
-    pathmatch:
+    path match:
       matching-strategy: ant_path_matcher #????????? ???? ???? ???
       #    jsp??
     view:
       prefix: /WEB-INF/views/
       suffix: .jsp
   datasource:
-    username: ENC(4sz2FTK2HFNofA68BoONy2cCuBOTlPdH)
-    password: ENC(KTcPu5Xk1/0b9KuxLcZh0g==)
+    username: ENC(Xs853I8eplbDtBriw94kjSZopxdbpcBO)
+    password: ENC(XsmK0mLQ8RjKqyiokmBbO4rDN8ls+ZGN)
     driver-class-name: oracle.jdbc.OracleDriver
-    url: ENC(GwaAj5RzenqeuRYVPYx/82FkjVpCs5a5DCqkxabK0E67eueuig+pJpfTEa3DWTAU)
+    url: ENC(9bGHLWptkGlqB5AKO+mz4PwsBz5a/24cPnl2eFN6XeMJD8ia04+Nqq+FD5ixzGCO9aPnRZ3hVko=)
   jpa:
     open-in-view: false
     show-sql: true
@@ -50,8 +52,11 @@ spring:
       max-file-size: 10MB #??? 1MB
       max-request-size: 20MB #??? 10MB
   data:
+    mongodb:
+      database: musicSNS
     redis:
       host: ENC(0p2kKHWaQnA1J667rTSG9QX5weT1LIJ6)
+      password: ENC(aIWb8OJ/Vt0Qki+JuQ3Ok5OuuvxBcQ/d)
       port: 6379
       timeout: 3000
   #Azure Storage
@@ -84,8 +89,8 @@ portOne:
   primary: ENC(DbwxFBSPGk5nC307yuIONt116Jej3zDJ)
 
 spotify:
-  client-id: ENC(iflZaKZj+6Jx7LpWGiDsiSCdwdxeSmjdksPmPGJRxrHV1CizwCe6mnOyOtJ+FXA/)
-  client-secret: ENC(Xa5WiRFxU0hj6ELzxZsy4BuzqNAiwlh0qJtEPYm4wI3scGlPIS7lISX2WNfuslZI)
+  client-id: ENC(sm8jQs3oSVg6k9tE1BulVWNWNngOv9daWADHJ8a125X5oK0br5SGOlMXksSXD08a)
+  client-secret: ENC(S209QI25foWw2y21Yrkix+HIPsBLm62iF6zMRMcrskQSH75SpbnDDHylkQJaTOZc)
 music:
   chart:
     bugs: https://music.bugs.co.kr/chart
@@ -141,3 +146,8 @@ oauth:
       auth: https://github.com
       api: https://api.github.com
 
+logging:
+  level:
+    org.springframework.data.mongodb.core.MongoTemplate: DEBUG
+    org.mongodb.driver.cluster: INFO
+    org.mongodb.driver.protocol.command: DEBUG

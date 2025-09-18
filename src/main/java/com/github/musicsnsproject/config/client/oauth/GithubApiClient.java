@@ -63,7 +63,7 @@ public class GithubApiClient extends OAuthApiClient {
                 this.getPrivateEmailApiUrl(), HttpMethod.GET, request, GithubEmail[].class
         ).getBody();
         if(githubEmails==null)
-            return userInfo.updateEmailReturnThis(UUID.randomUUID().toString());
+            return userInfo.updateEmailReturnThis(null);
 
         String primaryEmail = Arrays.stream(githubEmails).filter(GithubEmail::isPrimary).map(GithubEmail::getEmail).findAny().orElseThrow();
         return userInfo.updateEmailReturnThis(primaryEmail);

@@ -10,4 +10,5 @@ public class AuthResult {
     private OAuthDtoInterface response;
     private HttpStatus httpStatus;
     private String message;
+    private boolean isConnection;
 }

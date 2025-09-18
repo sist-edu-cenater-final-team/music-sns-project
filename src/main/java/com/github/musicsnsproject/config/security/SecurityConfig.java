@@ -2,6 +2,7 @@ package com.github.musicsnsproject.config.security;
 
 import com.github.musicsnsproject.common.event.CustomAccessDeniedHandler;
 import com.github.musicsnsproject.common.event.CustomAuthenticationEntryPoint;
+import com.github.musicsnsproject.common.myenum.Gender;
 import com.github.musicsnsproject.config.properties.server.ServerUrlProperties;
 import com.github.musicsnsproject.web.filters.JwtFilter;
 import lombok.RequiredArgsConstructor;
@@ -9,6 +10,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -49,13 +51,15 @@ public class SecurityConfig {
                     e.accessDeniedHandler(new CustomAccessDeniedHandler());
                 })
                 .authorizeHttpRequests(a->a
-                        .requestMatchers("/api/test/2").authenticated()
+                		.requestMatchers("/api/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/api/chat/**", "/api/auth/pk", "/api/music/*/chart").authenticated()
                         .requestMatchers("/api/test/3").hasAnyRole("ADMIN","SUPER_USER")
                         .requestMatchers("/api/auth/authorize-test").hasRole("ADMIN")
-                        .requestMatchers("/api/auth/auth-test", "/api/account/*/api").authenticated()
+                        .requestMatchers("/api/auth/auth-test", "/api/account/*/api","/api/userInfo/**","/api/follow/**", "/api/cart/**", "/api/order/**", "/api/purchaseMusic/**", "/api/profileMusic/**", "/api/post/**").authenticated()
                         .requestMatchers("/","/index.html","/resources/**","/api/auth/*", "/api/email/*",
                                 "/error","/swagger-ui/**", "/v3/api-docs/**", "/amp-docs.html").permitAll()
                         .requestMatchers("/api/oauth/**").anonymous()
+                        .requestMatchers("/api/mypage/eumpyo/**","/api/comment/insertComment").authenticated()
                         .anyRequest().permitAll()
                 )
                 .addFilterBefore(new JwtFilter(jwtProvider), UsernamePasswordAuthenticationFilter.class)//인증이전 실행

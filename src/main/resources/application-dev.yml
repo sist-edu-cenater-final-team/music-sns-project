@@ -1,0 +1,19 @@
+spring:
+  devtools:
+    restart:
+      enabled: false  # 자동 재시작 비활성화
+    livereload:
+      enabled: true   # 라이브 리로드는 활성화 (브라우저 자동 새로고침)
+  datasource:
+    username: ENC(q8ROcg0aSk0+mMm8MviPmU5B1jxCr1DX)
+    password: ENC(OCkIFLb6xuMuwCt22KuBtw6azkYiTPe+)
+    driver-class-name: oracle.jdbc.OracleDriver
+    url: ENC(myHWXiIPXIs9XV7HlBpfAg/m03JmFjIU6Zt+702myVnI8uhxVSvVx9TIy6lwFM9/+ycw8Sds/vimO/hyDgWwV8RETgROBWGUFqllo8bNsSqyONuFUwaAcnd715/yJtbV)
+  jpa:
+    show-sql: false
+    open-in-view: false
+  data:
+    redis:
+      host: ENC(AzgYou82XYFiA4K5vEtBy4HsDR9akT1T)
+      port: 6379
+      timeout: 3000

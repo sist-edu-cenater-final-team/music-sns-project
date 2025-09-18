@@ -3,6 +3,45 @@
 #wrap {
     min-width: 1024px;
 }
+
+
+
+
+.check {
+    width: 18px;
+    height: 18px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    position: relative;
+    transition: all 0.2s ease;
+}
+
+.check-form {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.check-form input {
+    display: none;
+}
+
+.check-form input:checked + .check {
+    background: #6633ff;
+    border-color: #6633ff;
+}
+
+.check-form input:checked + .check::after {
+    content: '✓';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    font-size: 12px;
+}
+
 .point {
     color: #6633FF !important;
 }
@@ -76,6 +115,9 @@
 .aside-navigation .talk {
     background-image: url("../images/common/icon/talk.png");
 }
+.aside-navigation .adminstats {
+    background-image: url("../images/common/icon/adminstats.png");
+}
 .aside-navigation .noti {
     background-image: url("../images/common/icon/notification.png");
 }
@@ -83,8 +125,18 @@
     background-image: url("../images/common/icon/profile.png");
 }
 
-.aside-navigation .setting {
+/* .aside-navigation .setting {
     background-image: url("../images/common/icon/settings.png");
+} */
+
+.aside-navigation .post {
+    background-image: url("../images/common/icon/post.png");
+}
+.aside-navigation .music {
+    background-image: url("../images/common/icon/music.png");
+}
+.aside-navigation .cart {
+    background-image: url("../images/common/icon/cart.png");
 }
 
 /* 왼쪽 사이드바 메뉴 팝업 */
@@ -154,6 +206,7 @@
     border-left: 1px solid #dbdbdb;
 }
 .aside-playlist .inner {
+    max-width: 338px;
     padding: 34px 30px;
 }
 .aside-playlist h2 {
@@ -168,14 +221,14 @@
     font-weight: 500;
     margin-bottom: 18px;
 }
-.aside-playlist .emotions {
+.emotions {
     margin: 30px 0;
     display: flex;
     justify-content: center;
     gap: 0 10px;
 }
 
-.aside-playlist .emotions .btn {
+.emotions .btn {
     width: 44px;
     height: 44px;
     background-repeat: no-repeat;
@@ -184,45 +237,45 @@
     outline: none;
     border-radius: 50%;
 }
-.aside-playlist .emotions .btn.natural {
+.emotions .btn.natural {
     background-image: url("../images/emotion/natural.png");
 }
-.aside-playlist .emotions .btn.natural.active {
+.emotions .btn.natural.active {
     background-image: url("../images/emotion/natural_active.png");
 }
 
-.aside-playlist .emotions .btn.happy {
+.emotions .btn.happy {
     background-image: url("../images/emotion/happy.png");
 }
-.aside-playlist .emotions .btn.happy.active {
+.emotions .btn.happy.active {
     background-image: url("../images/emotion/happy_active.png");
 }
 
-.aside-playlist .emotions .btn.love {
+.emotions .btn.love {
     background-image: url("../images/emotion/love.png");
 }
-.aside-playlist .emotions .btn.love.active {
+.emotions .btn.love.active {
     background-image: url("../images/emotion/love_active.png");
 }
 
-.aside-playlist .emotions .btn.sad {
+.emotions .btn.sad {
     background-image: url("../images/emotion/sad.png");
 }
-.aside-playlist .emotions .btn.sad.active {
+.emotions .btn.sad.active {
     background-image: url("../images/emotion/sad_active.png");
 }
 
-.aside-playlist .emotions .btn.angry {
+.emotions .btn.angry {
     background-image: url("../images/emotion/angry.png");
 }
-.aside-playlist .emotions .btn.angry.active {
+.emotions .btn.angry.active {
     background-image: url("../images/emotion/angry_active.png");
 }
 
-.aside-playlist .emotions .btn.tire {
+.emotions .btn.tire {
     background-image: url("../images/emotion/tire.png");
 }
-.aside-playlist .emotions .btn.tire.active {
+.emotions .btn.tire.active {
     background-image: url("../images/emotion/tire_active.png");
 }
 
@@ -231,7 +284,7 @@
     justify-content: space-between;
 }
 .aside-playlist li:not(:last-child){
-    margin-bottom: 14px;
+    margin-bottom: 4px;
 }
 
 .aside-playlist .music-title {

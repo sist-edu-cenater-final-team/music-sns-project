@@ -1,3 +1,6 @@
+// token.js에서 함수들 가져오기
+const apiRequest = AuthFunc.apiRequest;//함수참조
+const authHeader = AuthFunc.getAuthHeader;//함수참조
 (function () {
     const signature = {
         melon: {name: 'MELON', colorClass: 'border-melon', pillClass: 'source-melon'},
@@ -12,7 +15,7 @@
     const chartTitle = document.getElementById('chart-title');
     const chartSub = document.getElementById('chart-sub');
     const refreshBtn = document.getElementById('refreshBtn');
-    let currentSource = 'genie';
+    let currentSource = 'vibe';
 
     // attach tab click handlers
     document.querySelectorAll('#tabs .source-pill').forEach(p => {
@@ -45,8 +48,16 @@
     function fetchChart(source) {
         // Build endpoint. user said: axios로 /api/music/genie/chart get요청
         // We'll assume pattern /api/music/{source}/chart
-        const endpoint = `/api/music/${source}/chart`;
-        return axios.get(endpoint, {timeout: 10000}).then(r => r.data);
+        const endpoint = `${ctxPath}/api/music/${source}/chart`;
+
+        // apiRequest로 감싸서 자동 재시도 적용
+
+        return apiRequest(() =>
+            axios.get(endpoint, {
+                timeout: 10000,
+                headers: authHeader()
+            }).then(r => r.data)
+        );
     }
     // 타임스탬프를 한국어 날짜 형식으로 변환하는 함수
     function formatKoreanDateTime(timestamp) {
@@ -103,25 +114,36 @@
             // album art
             const album = document.createElement('div');
             album.className = 'album';
-            album.innerHTML = `<img src="${escapeHtml(item.albumArt)}" alt="${escapeHtml(item.albumName)}" loading="lazy">`;
+            album.innerHTML = `
+    <a href="${ctxPath}/music/search?searchType=album&keyword=${escapeHtml(item.albumName)}">
+        <img src="${escapeHtml(item.albumArt)}" alt="${escapeHtml(item.albumName)}" loading="lazy">
+    </a>
+`;
 
             // meta
             const meta = document.createElement('div');
             meta.className = 'meta';
             meta.innerHTML = `
-            <div class="title">${escapeHtml(item.title)}</div>
-            <div class="artist">${escapeHtml(item.artistName)}</div>
-            <div class="small-muted">${escapeHtml(item.albumName)}</div>
+                <a class="title" href="${ctxPath}/music/search?searchType=all&keyword=${escapeHtml(item.title)}">
+                    ${escapeHtml(item.title)}
+                </a>            
+                            
+                <a class="artist" href="${ctxPath}/music/search?searchType=artist&keyword=${escapeHtml(item.artistName)}">
+                    ${escapeHtml(item.artistName)}
+                </a>
+                <a class="small-muted" href="${ctxPath}/music/search?searchType=album&keyword=${escapeHtml(item.albumName)}">
+                    ${escapeHtml(item.albumName)}
+                </a>
           `;
 
             // right small text
             const right = document.createElement('div');
             right.className = 'text-end small-muted';
             right.style.minWidth = '90px';
-            right.innerHTML = `
-            <div>Song #${escapeHtml(String(item.songNumber))}</div>
-            <div style="font-size:.82rem;">&nbsp;</div>
-          `;
+          //   right.innerHTML = `
+          //   <div>Song #${escapeHtml(String(item.songNumber))}</div>
+          //   <div style="font-size:.82rem;">&nbsp;</div>
+          // `;
 
             card.appendChild(rankBadge);
             card.appendChild(album);

@@ -8,12 +8,14 @@ import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import lombok.Getter;
+import org.hibernate.annotations.DynamicInsert;
 
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "likes")
 @Getter
+@DynamicInsert
 public class Like {
     @EmbeddedId
     private LikePk likePk;

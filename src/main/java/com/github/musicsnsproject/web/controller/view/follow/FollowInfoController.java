@@ -4,15 +4,26 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import lombok.RequiredArgsConstructor;
+
 @Controller
 @RequestMapping("/mypage/")
+@RequiredArgsConstructor
 public class FollowInfoController {
 
+	
+	@GetMapping("updateInfo")
+	public String updateInfo() {
+		
+		return "mypage/updateInfo";
+	}
+	
 	@GetMapping("myinfo")
 	public String myInfoPage() {
-		
-		return "follow/myinfo";
+
+		return "follow/mypage/myinfo";
 	}
+
 	
 	@GetMapping("myFollowers")
 	public String myFollower() {
@@ -20,4 +31,8 @@ public class FollowInfoController {
 		return "follow/follwers";
 	}
 	
+	@GetMapping("playList")
+	public String myPlayList() {
+		return "mypage/myPlayList";
+	}
 }

@@ -20,4 +20,13 @@ public class PostImage {
 
     @Column(nullable = false)
     private String postImageName;
+
+    public static PostImage of(Post post, String postImageUrl, String postImageName){
+        PostImage postImage = new PostImage();
+        postImage.post = post;
+        postImage.postImageUrl = postImageUrl;
+        postImage.postImageName = postImageName;
+        return postImage;
+    }
+
 }

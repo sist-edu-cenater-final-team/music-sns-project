@@ -14,33 +14,24 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
+import static com.github.musicsnsproject.config.security.JwtProvider.*;
+
 @RequiredArgsConstructor
 public class JwtFilter extends OncePerRequestFilter {
     private final JwtProvider jwtProvider;
-    public static final String AUTH_EXCEPTION = "auth-exception";
-    public static final String AUTH_HEADER_NAME = "Authorization";
 
 
     @Override
     protected void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response,@NonNull FilterChain filterChain) throws ServletException, IOException {
-        String authToken = request.getHeader(AUTH_HEADER_NAME);
-        String token = StringUtils.hasText(authToken)
-                &&authToken.startsWith("Bearer ")
-                ?authToken.split(" ")[1].trim()
-                :null;
-
-        //옵셔널 사용하는 방법과 3항연산자중 취향에 따라 선택 외부 메서드로 빼는 경우도 있음.
-//        String token = Optional.ofNullable(request.getHeader("Authorization"))
-//                .filter(t -> t.startsWith("Bearer "))
-//                .map(t -> t.substring(7))
-//                .orElse(null);
+        String authHeader = request.getHeader(AUTH_HEADER_NAME);
+        String token = authHeaderToToken(authHeader);
 
         if(token!=null){
             try {
                 Authentication authentication = jwtProvider.getAuthentication(token);
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             }catch (Exception e){
-                request.setAttribute(AUTH_EXCEPTION, e);
+                request.setAttribute(AUTH_EXCEPTION_NAME, e);
             }
         }
         filterChain.doFilter(request, response);
@@ -51,6 +42,10 @@ public class JwtFilter extends OncePerRequestFilter {
     protected boolean shouldNotFilter(HttpServletRequest request) {
         return request.getRequestURI().contains("/swagger")
                 ||request.getRequestURI().contains("/api-docs")
-                ||request.getRequestURI().startsWith("/api/auth");
+                ||(request.getRequestURI().startsWith("/api/auth")&&!request.getRequestURI().startsWith("/api/auth/pk"))
+                ||
+                !request.getRequestURI().startsWith("/api");
     }
+
+
 }
