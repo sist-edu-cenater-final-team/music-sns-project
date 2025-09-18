@@ -20,57 +20,82 @@ public class AdminStatsService_imple implements AdminStatsService {
 
 	// 기간 내 충전 음표 합계 조회
 	@Override
-	public Long sumChargedCoin(Map<String, String> param) { return dao.sumChargedCoin(param); }
+	public Long sumChargedCoin(Map<String, String> param) {
+		return dao.sumChargedCoin(param);
+	}
 
 	// 기간 내 매출 합계 조회
 	@Override
-	public Long sumRevenue(Map<String, String> param) { return dao.sumRevenue(param); }
+	public Long sumRevenue(Map<String, String> param) {
+		return dao.sumRevenue(param);
+	}
 
 	// 기간 내 사용 음표 합계 조회
 	@Override
-	public Long sumUsedCoin(Map<String, String> param) { return dao.sumUsedCoin(param); }
+	public Long sumUsedCoin(Map<String, String> param) {
+		return dao.sumUsedCoin(param);
+	}
 
 	// 일자별 충전 음표
 	@Override
-	public List<Map<String, Object>> seriesChargedCoin(Map<String, String> param) { return dao.seriesChargedCoin(param); }
+	public List<Map<String, Object>> seriesChargedCoin(Map<String, String> param) {
+		return dao.seriesChargedCoin(param);
+	}
 
 	// 일자별 사용 음표
 	@Override
-	public List<Map<String, Object>> seriesUsedCoin(Map<String, String> param) { return dao.seriesUsedCoin(param); }
+	public List<Map<String, Object>> seriesUsedCoin(Map<String, String> param) {
+		return dao.seriesUsedCoin(param);
+	}
 
 	// 음표 충전 Top 10
 	@Override
-	public List<Map<String, Object>> topChargers(Map<String, String> param) { return dao.topChargers(param); }
+	public List<Map<String, Object>> topChargers(Map<String, String> param) {
+		return dao.topChargers(param);
+	}
 
 	// 음표 사용 Top 10
 	@Override
-	public List<Map<String, Object>> topSpenders(Map<String, String> param) { return dao.topSpenders(param); }
+	public List<Map<String, Object>> topSpenders(Map<String, String> param) {
+		return dao.topSpenders(param);
+	}
 
 	// 일자별 신규 가입자
 	@Override
-	public List<Map<String, Object>> seriesNewMembers(Map<String, String> param) { return dao.seriesNewMembers(param); }
+	public List<Map<String, Object>> seriesNewMembers(Map<String, String> param) {
+		return dao.seriesNewMembers(param);
+	}
 
 	// 팔로워 Top 10
 	@Override
-	public List<Map<String, Object>> topFollowers(Map<String, String> param) { return dao.topFollowers(param); }
+	public List<Map<String, Object>> topFollowers(Map<String, String> param) {
+		return dao.topFollowers(param);
+	}
 
 	// 음악 판매/음표 Top 10
 	@Override
 	public List<Map<String, Object>> topMusic(Map<String, String> param) {
+		
 		List<Map<String, Object>> rows = dao.topMusic(param);
-		if (rows == null || rows.isEmpty()) return rows;
+		
+		if (rows == null || rows.isEmpty())
+			return rows;
 
-		Map<String, Map<String, Object>> index = new LinkedHashMap<>();
+		Map<String, Map<String, Object>> map = new LinkedHashMap<>();
+		
 		for (Map<String, Object> row : rows) {
 			Object key = (row.get("musicid") != null) ? row.get("musicid") : row.get("musicId");
 			String id = key == null ? null : String.valueOf(key);
+			
 			if (id != null) {
+				
 				row.put("musicid", id); 
-				index.put(id, row);
+				map.put(id, row);
 			}
 		}
 
-		for (String id : index.keySet()) {
+		for (String id : map.keySet()) {
+			
 			try {
 				TrackResponseV1 tr = spotifyMusicService.getTrackResponseById(id);
 				if (tr == null) continue;
@@ -81,7 +106,9 @@ public class AdminStatsService_imple implements AdminStatsService {
 
 				String artist = null;
 				if (tr.getArtist() != null) {
+					
 					StringBuilder sb = new StringBuilder();
+					
 					for (var a : tr.getArtist()) {
 						if (a == null || a.artistName() == null) continue;
 						if (sb.length() > 0) sb.append(", ");
@@ -90,13 +117,16 @@ public class AdminStatsService_imple implements AdminStatsService {
 					artist = sb.toString();
 				}
 
-				Map<String, Object> row = index.get(id);
+				Map<String, Object> row = map.get(id);
+				
 				row.put("title", title);
 				row.put("artist", artist);
 				row.put("album", album);
 				row.put("imageUrl", image);
+				
 				if (!row.containsKey("musicName") && title != null) row.put("musicName", title);
 				if (!row.containsKey("artistName") && artist != null) row.put("artistName", artist);
+				
 			} catch (Exception ignore) {
 			}
 		}
@@ -105,17 +135,25 @@ public class AdminStatsService_imple implements AdminStatsService {
 
 	// 일자별 수익
 	@Override
-	public List<Map<String, Object>> seriesRevenue(Map<String, String> param) { return dao.seriesRevenue(param); }
+	public List<Map<String, Object>> seriesRevenue(Map<String, String> param) {
+		return dao.seriesRevenue(param);
+	}
 
 	// 시간별 방문자
 	@Override
-	public List<Map<String, Object>> seriesHourlyVisitors(Map<String, String> param) { return dao.seriesHourlyVisitors(param); }
+	public List<Map<String, Object>> seriesHourlyVisitors(Map<String, String> param) {
+		return dao.seriesHourlyVisitors(param);
+	}
 
 	// 일자별 방문자
 	@Override
-	public List<Map<String, Object>> seriesDailyVisitors(Map<String, String> param) { return dao.seriesDailyVisitors(param); }
+	public List<Map<String, Object>> seriesDailyVisitors(Map<String, String> param) {
+		return dao.seriesDailyVisitors(param);
+	}
 
 	// 전체 이용자 수
 	@Override
-	public Long countTotalUsers() { return dao.countTotalUsers(); }
+	public Long countTotalUsers() {
+		return dao.countTotalUsers();
+	}
 }

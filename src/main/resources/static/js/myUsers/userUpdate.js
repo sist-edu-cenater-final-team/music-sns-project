@@ -10,25 +10,8 @@ $(function(){
 	            headers: authHeader(),
 	            dataType: 'json',
 	            success: function(json) {
-	                // 프로필 이미지
-	                if(json.myuser.profile_image) {
-	                    $('#profile_img').attr('src', json.myuser.profile_image);
-	                }
-	
-	                // 닉네임
-	                $('input[name="nickname"]').val(json.myuser.nickname);
-	
-	                // 이메일 (읽기 전용)
-	                $('input[type="email"]').val(json.myuser.email).prop('readonly', true);
-	
-	                // 상태 메시지
-	                $('input[name="profileMessage"]').val(json.myuser.profileMessage || '');
-	
-	                // 성별 선택
-	                if(json.myuser.gender) {
-	                    $('.custom-dropdown .selected').text(json.myuser.gender);
-	                    $('input[name="gender"]').val(json.myuser.gender);
-	                }
+	                resolve(json);
+
 	            },
 	            error: function(xhr, textStatus, errorThrown) {
 	                // axios 스타일의 에러 객체로 변환
@@ -43,7 +26,26 @@ $(function(){
 	        }
 	        })
         })
-    );
+    ).then((json) => {
+		                if(json.myuser.profile_image) {
+		                    $('#profile_img').attr('src', json.myuser.profile_image);
+		                }
+
+		                // 닉네임
+		                $('input[name="nickname"]').val(json.myuser.nickname);
+
+		                // 이메일 (읽기 전용)
+		                $('input[type="email"]').val(json.myuser.email).prop('readonly', true);
+
+		                // 상태 메시지
+		                $('input[name="profileMessage"]').val(json.myuser.profileMessage || '');
+
+		                // 성별 선택
+		                if(json.myuser.gender) {
+		                    $('.custom-dropdown .selected').text(json.myuser.gender);
+		                    $('input[name="gender"]').val(json.myuser.gender);
+		                }
+	}).catch((error) => {});
 	
 	
 	
@@ -105,12 +107,8 @@ $(function(){
 			            headers: authHeader(),
 			            dataType: "json",
 			            success: function(json) {
-			               
-			                const profile_image_url = json.success.responseData[0].fileUrl;
-			                formData.append("profile_image", profile_image_url);
-		
-			                // 유저 정보 업데이트
-			                updateUserInfo(formData);
+							resolve(json);			               
+
 			            },
 			            error: function(xhr, textStatus, errorThrown) {
 			                // axios 스타일의 에러 객체로 변환
@@ -125,7 +123,13 @@ $(function(){
 			        	}
 			        })
 	        	})
-	        );
+	        ).then((json) => {
+                const profile_image_url = json.success.responseData[0].fileUrl;
+                formData.append("profile_image", profile_image_url);
+
+                // 유저 정보 업데이트
+                updateUserInfo(formData);
+			}).catch((error) => {})
 	    } else {
 	       
 	        updateUserInfo(formData);
@@ -149,9 +153,8 @@ $(function(){
 			        headers: authHeader(),
 			        dataType: "json",
 			        success: function(json) {
-			            console.log("프로필 업데이트 성공:", json);
-			            alert("업데이트 성공");
-			            location.href="/mypage/myinfo";
+						resolve(json);
+
 			        },
 			        error: function(xhr, textStatus, errorThrown) {
 		                // axios 스타일의 에러 객체로 변환
@@ -166,7 +169,10 @@ $(function(){
 		        	}
 			    })
 	    	})
-	    );
+	    ).then((json) => {
+			alert("업데이트 성공");
+			location.href="/mypage/myinfo";
+		}).catch((error) => {});
 	}
 
 	

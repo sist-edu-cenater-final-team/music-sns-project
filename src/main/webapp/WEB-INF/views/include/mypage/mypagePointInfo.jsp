@@ -4,6 +4,10 @@
 <%@ taglib prefix="c"   uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"  %>
 
+<%
+  String ctxPath = request.getContextPath();
+%>
+
 <script type="text/javascript">
 	$(function () {
 	    const $coinBalanceEl = $('#myCoinBalance');
@@ -83,6 +87,6 @@
         </p>
     </div>
     <div class="btn-form">
-        <a href="javascript:;" class="btn">상세보기</a>
+        <a href='<%= ctxPath%>/mypage/eumpyo/chargeHistory' class="btn">상세보기</a>
     </div>
 </div>

@@ -113,7 +113,8 @@
         getAuthHeader,
         apiRequest,
         logout,
-        primaryKey
+        primaryKey,
+        refreshAuthToken
     };
     // // ES6 모듈로도 export (모듈 스크립트용)
     // if (typeof module !== 'undefined' && module.exports) {
@@ -141,21 +142,21 @@ function primaryKey() {
 
 
 //TODO: 삭제 예정 - 위의 apiRequest로 대체
-function refreshAuthToken() {
-    return axios.post(`${ctxPath}/api/auth/refresh`, {}, {
-        headers: AuthFunc.getAuthHeader(),
-        withCredentials: true
-    })
-        .then(response => {
-            const responseData = response.data.success.responseData;
-            localStorage.setItem('accessToken', responseData.accessToken);
-            localStorage.setItem('tokenType', responseData.tokenType);
-
-        }).catch(error => {
-            console.error('Error refreshing token:', error);
-            console.error(error.response.data.error);
-            alert('세션이 만료되었습니다. 다시 로그인해주세요.');
-            // window.location.href = ctxPath + '/auth/login';
-            throw error; // 에러를 다시 던져서 상위에서 처리할 수 있도록
-        });
-}
+// function refreshAuthToken() {
+//     return axios.post(`${ctxPath}/api/auth/refresh`, {}, {
+//         headers: AuthFunc.getAuthHeader(),
+//         withCredentials: true
+//     })
+//         .then(response => {
+//             const responseData = response.data.success.responseData;
+//             localStorage.setItem('accessToken', responseData.accessToken);
+//             localStorage.setItem('tokenType', responseData.tokenType);
+//
+//         }).catch(error => {
+//             console.error('Error refreshing token:', error);
+//             console.error(error.response.data.error);
+//             alert('세션이 만료되었습니다. 다시 로그인해주세요.');
+//             // window.location.href = ctxPath + '/auth/login';
+//             throw error; // 에러를 다시 던져서 상위에서 처리할 수 있도록
+//         });
+// }

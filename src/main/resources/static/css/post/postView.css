@@ -249,7 +249,7 @@
     border-bottom: 1px solid #ccc; /* 얇은 밑줄 포커스 */
 }
 .pcCommentsArea {
-    max-height: 250px;      /* 원하는 높이 (예: 250px) */
+    max-height: 300px;      /* 원하는 높이 (예: 250px) */
     overflow-y: auto;       /* 내용이 넘치면 세로 스크롤 */
     padding-right: 5px;     /* 스크롤바 때문에 내용 붙지 않게 여백 */
 }

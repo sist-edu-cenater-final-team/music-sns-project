@@ -6,6 +6,7 @@ import com.github.musicsnsproject.repository.jpa.music.MyMusic;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 
+import java.util.Collection;
 import java.util.List;
 
 import static com.github.musicsnsproject.repository.jpa.account.user.QMyUser.myUser;
@@ -71,5 +72,17 @@ public class MusicCartQueryRepositoryImpl implements MusicCartQueryRepository {
                             .and(purchaseMusic.musicId.eq(trackId))
                 )
                 .fetchOne() != null;
+    }
+
+
+    // cartId로 장바구니에 담긴 musicId 가져오기
+    @Override
+    public List<String> findMusicIdsByCartIds(List<Long> cartIdList) {
+        return queryFactory.select(musicCart.musicId)
+                .from(musicCart)
+                .where(
+                        musicCart.musicCartId.in(cartIdList)
+                )
+                .fetch();
     }
 }

@@ -30,19 +30,43 @@ public class FollowController {
 	
 	// 나를 팔로우 하는 사람
     @GetMapping("/follower")
-    public List<FollowVO> follower(@AuthenticationPrincipal Long userId) {
-        return followService.getFollowerList(userId);
+    public List<FollowVO> follower(@AuthenticationPrincipal Long userId,
+    								@RequestParam(value = "targetUserId", required = false) Long targetUserId) {
+    	Long viewUserId = null;
+    	if(targetUserId != null) {
+    		viewUserId = userId;
+    		userId = targetUserId;
+    		
+    	}
+    	
+        return followService.getFollowerList(userId, viewUserId);
     }
 
     // 내가 팔로우 하는 사람
     @GetMapping("/followee")
-    public List<FollowVO> followee(@AuthenticationPrincipal Long userId) {
-        return followService.getFolloweeList(userId);
+    public List<FollowVO> followee(@AuthenticationPrincipal Long userId,
+    								@RequestParam(value = "targetUserId", required = false) Long targetUserId) {
+    	Long viewUserId = null;
+    	if(targetUserId != null) {
+    		viewUserId = userId;
+    		userId = targetUserId;
+    		
+    	}
+    	
+        return followService.getFolloweeList(userId, viewUserId);
     }
     
     @GetMapping("/favorite")
-    public List<FollowVO> favorite(@AuthenticationPrincipal Long userId) {
-    	return followService.getfavoriteList(userId);
+    public List<FollowVO> favorite(@AuthenticationPrincipal Long userId,
+    								@RequestParam(value = "targetUserId", required = false) Long targetUserId) {
+    	Long viewUserId = null;
+    	if(targetUserId != null) {
+    		viewUserId = userId;
+    		userId = targetUserId;
+    		
+    	}
+    	
+    	return followService.getfavoriteList(userId, viewUserId);
     }
     
     

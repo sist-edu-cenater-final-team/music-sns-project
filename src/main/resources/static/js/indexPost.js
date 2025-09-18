@@ -1,6 +1,5 @@
 (() => {
 
-const authHeader = AuthFunc.getAuthHeader();//즉시호출
 const apiRequest = AuthFunc.apiRequest;//함수참조
 let imageEditor = null;
 let editorResizeObserver = null;

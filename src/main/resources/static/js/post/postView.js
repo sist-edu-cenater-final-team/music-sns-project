@@ -36,7 +36,7 @@ $(document).ready(function(){
                                         <button type="button" class="menu-btn">⋮</button>
                                           <ul class="dropdown-menu" style="display:none;">
                                             <li class="menuItem" data-action="delete" style="color: red; font-weight: bold" >삭제하기</li>
-                                            <li class="menuItem" data-action="edit">수정하기</li>
+                                            <li class="menuItem" data-action="edit"><a href="/post/postEdit?postId=${item.postId}">수정하기</a></li>
                                           </ul>
                                     </div>
                                 </div>`;
@@ -122,13 +122,41 @@ $(document).ready(function(){
                         $(".dropdown-menu").hide();
                     });
 
-                    $(document).on("click", 'menuItem', function(e) {
+                    $(document).on("click", '.menuItem', function(e) {
 
                         const action = $(this).data('action');
                         const postId = $(this).closest('.post').data('post-id');
 
-                        console.log(action);
-                        console.log(postId);
+                        if(action === 'delete') {
+
+                            if (confirm("정말로 게시물을 삭제하시겟습니까?")){
+                                AuthFunc.apiRequest(() => {
+                                    return axios.delete('/api/post/deletePost',
+                                        {
+                                            params: {postId: postId},
+                                            headers: AuthFunc.getAuthHeader()
+                                        }
+                                        )
+                                }).then(function (response) {
+                                    if(response.data == postId){
+                                        alert("게시글이 삭제되었습니다.");
+                                        location.href = "/";
+                                    }
+                                    else {
+                                        alert("게시글 삭제에 실패했습니다.")
+                                    }
+
+                                }).catch(function (error) {
+                                    if(error.status === 403)
+                                        alert(error.response.data.error.customMessage);
+
+                                    // console.error(error);
+                                    // console.log(error.response.data.error.customMessage)
+                                })
+                            }
+
+                        } // end of if(action === 'delete') {}
+
 
                     })
 
@@ -368,8 +396,8 @@ $(function () {
                 else {
                     //console.log('왜와' + response.data.parentCommentId);
                     $('textarea.pcCommentInput').val('');
+                    loadCommentList(postId);
                 }
-                loadCommentList(postId);
 
             }).catch(function (error) {
                 console.error(error);
@@ -390,6 +418,7 @@ $(function () {
             }).finally(function(){
                 $btn.data('busy', false).prop('disabled', false);
             })
+
 
         })
 

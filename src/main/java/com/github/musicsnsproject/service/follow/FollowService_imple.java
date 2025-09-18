@@ -19,17 +19,16 @@ public class FollowService_imple implements FollowService {
 
 	private final FollowRepository followRepository;
 	
-	
 	@Override
-	public List<FollowVO> getFollowerList(Long userId) {
+	public List<FollowVO> getFollowerList(Long userId, Long viewUserId) {
 		
-		return followRepository.findByFollowerAndUserInfo(userId);
+		return followRepository.findByFollowerAndUserInfo(userId, viewUserId);
 	}
 
 	
 	@Override
-	public List<FollowVO> getFolloweeList(Long userId) {
-		return followRepository.findByFolloweeAndUserInfo(userId);
+	public List<FollowVO> getFolloweeList(Long userId, Long viewUserId) {
+		return followRepository.findByFolloweeAndUserInfo(userId, viewUserId);
 	}
 
 
@@ -62,8 +61,8 @@ public class FollowService_imple implements FollowService {
 
 
 	@Override
-	public List<FollowVO> getfavoriteList(Long userId) {
-		return followRepository.getfavoriteList(userId);
+	public List<FollowVO> getfavoriteList(Long userId, Long viewUserId) {
+		return followRepository.getfavoriteList(userId, viewUserId);
 	}
 
 
@@ -101,6 +100,8 @@ public class FollowService_imple implements FollowService {
 	public List<MyUserVO> blockedList(Long userId) {
 		return followRepository.blockedList(userId);
 	}
+
+
 
 
 	

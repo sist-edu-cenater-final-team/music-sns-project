@@ -1,0 +1,178 @@
+@charset "UTF-8";
+
+#notiLayer .noti-header {
+	position: sticky;
+	top: 0;
+	z-index: 2;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 12px;
+	background: #fff;
+	border-radius: 12px;
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+	transition: all 0.2s ease;
+	border: 1px solid #e9ecef;
+}
+
+#notiLayer .noti-title-wrap {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+}
+
+#notiLayer .noti-title {
+	font-size: 16px;
+	font-weight: 700;
+	color: #333;
+}
+
+#notiLayer #notiBadge {
+	display: none;
+	line-height: 1;
+	background: #6633FF !important;
+	color: #fff !important;
+	border-radius: 10px;
+	padding: 4px 6px;
+	font-weight: 700;
+}
+
+#notiLayer .noti-header-actions {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+
+#notiLayer .noti-list {
+	list-style: none;
+	padding: 0;
+	margin: 12px 0 4px;
+	max-height: 82vh;
+	overflow-y: auto;
+}
+
+#notiLayer .noti-section {
+	font-size: 16px;
+	font-weight: 700;
+	color: #333;
+	margin: 15px 0 12px;
+	padding-bottom: 8px;
+	border-bottom: 2px solid #6633FF;
+}
+
+#notiLayer .noti-item {
+	display: flex;
+	align-items: flex-start;
+	gap: 10px;
+	padding: 8px 12px;
+	background: #f8f9fa;
+	border-radius: 8px;
+	border: 1px solid transparent;
+	margin-top: 10px;
+}
+
+#notiLayer .noti-item:hover {
+	transform: translateY(-2px);
+	box-shadow: 0 4px 12px rgba(123,104,238,0.18);
+	border-color: #6633FF;
+	background: #fff;
+}
+
+#notiLayer .noti-item.read {
+	background: transparent;
+	border-color: #E0E0E0;
+}
+
+#notiLayer .noti-avatar {
+	width: 40px;
+	height: 40px;
+	border-radius: 8px;
+	object-fit: cover;
+	flex-shrink: 0;
+	margin-top: 2px;
+}
+
+#notiLayer .noti-content {
+	flex: 1;
+	min-width: 0;
+}
+
+#notiLayer .noti-text {
+	margin: 0 0 4px 0;
+	font-size: 14px;
+	color: #333;
+	white-space: normal;
+	overflow: visible;
+	text-overflow: clip;
+	word-break: break-word;
+	overflow-wrap: anywhere;
+}
+
+#notiLayer .noti-item.unread .noti-text {
+	font-weight: 700;
+}
+
+#notiLayer .noti-item.read .noti-text {
+	opacity: .9;
+}
+
+#notiLayer .noti-time {
+	font-size: 12px;
+	color: #666;
+}
+
+#notiLayer .noti-dot {
+	width: 8px;
+	height: 8px;
+	border-radius: 50%;
+	background: #ff375f;
+	margin-left: 8px;
+	margin-top: 5px;
+}
+
+#notiLayer .noti-delete {
+	color: #94A3B8;
+	cursor: pointer;
+}
+
+#notiLayer .noti-delete:hover {
+	color: #e11d48;
+}
+
+#notiLayer .btn {
+	border-radius: 8px;
+	font-size: 12px;
+	padding: 6px 10px;
+}
+
+#notiLayer #btnNotiMarkAllRead {
+	background: #fff;
+	border: 1px solid #e5e7eb;
+	color: #333;
+}
+
+#notiLayer #btnNotiMarkAllRead:hover {
+	background: #e9ecef; 
+}
+
+#notiLayer #btnNotiDeleteAll {
+	background: #fff;
+	border: 1px solid #e9ecef;
+	color: #e11d48;
+}
+
+#notiLayer #btnNotiDeleteAll:hover {
+	background: #FFE2E8;
+	color: #B91C1C;
+}
+
+#notiLayer .noti-empty {
+	padding: 20px;
+	text-align: center;
+	color: #666;
+}
+
+#notiLayer .noti-text .noti-action {
+	color: #8A8A8A;
+	font-weight: 500;
+}

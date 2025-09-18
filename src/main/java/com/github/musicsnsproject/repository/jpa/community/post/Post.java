@@ -1,6 +1,7 @@
 package com.github.musicsnsproject.repository.jpa.community.post;
 
 import com.github.musicsnsproject.repository.jpa.emotion.UserEmotion;
+import com.github.musicsnsproject.web.dto.post.PostEditRequest;
 import com.github.musicsnsproject.web.dto.post.WriteRequest;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -30,6 +31,7 @@ public class Post {
     private long viewCount;
 
     private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
     private String title;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "post")
@@ -51,4 +53,14 @@ public class Post {
         //postImage 비슷하게 생성해서 넣어주기
         return post;
     }
+
+    public static Post edit(PostEditRequest request, UserEmotion userEmotion){
+        Post post = new Post();
+        post.title = request.getTitle();
+        post.contents = request.getContents();
+        post.userEmotion = userEmotion;
+
+        return post;
+    }
+
 }

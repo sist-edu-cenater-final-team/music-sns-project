@@ -1,6 +1,7 @@
 // api/purchaseMusic/list
 document.addEventListener("DOMContentLoaded", function () {
     purchase.createList(1);
+    purchase.createProfileMusicList();
 });
 
 const purchase = {
@@ -8,26 +9,6 @@ const purchase = {
     profileMusicModal : new bootstrap.Modal(document.getElementById("profileMusicModal")),
     profileMusicModalBody : document.querySelector('#profileMusicModalBody'),
     selectProfileMusic : document.querySelector('#selectProfileMusic'),
-    musicList : (musicData) => {
-        return AuthFunc.apiRequest(() =>
-            axios.get(`${ctxPath}/api/profileMusic/list?musicId=${musicData}`, {
-                headers: AuthFunc.getAuthHeader()
-            })
-        )
-        .then(response => {
-            console.log("musicDat212313a :: ", musicData);
-            console.log(" profileMusic :: ", response.data);
-        })
-        .catch(error => {
-            console.error('오류:', error);
-            if (error.response) {
-                const errorData = error.response.data.error;
-                if (errorData){
-                    alert(errorData.customMessage);
-                }
-            }
-        });
-    },
     createList : (pageNo) => {
         console.log("넘긴거 받았어요~~!! :: ", pageNo);
         // 스프링 시큐리티 인증 토큰을 헤더에 추가하여 주문 목록 요청
@@ -39,7 +20,7 @@ const purchase = {
         .then(response => {
             const res = (response.data.purchaseMusic.length > 0) ? response.data : 0;
             purchase.renderMusicList(res);
-            console.log("response.data.pageNo :: ", response.data.pageNo);
+            //console.log("response.data.pageNo :: ", response.data.pageNo);
             purchase.paginationCall(response.data.pageNo, response.data.totalPages);
         })
         .catch(error => {
@@ -69,7 +50,7 @@ const purchase = {
                             <div class="music-img">
                                 <img src="${item.albumImageUrl}" alt="노래 이미지" />
                             </div>
-                            <p class="music-text">${item.musicName}</p>
+                            <p>${item.musicName}</p>
                         </div>
                     </td>
                     <td class="link_td" onclick="window.open('https://open.spotify.com/artist/${item.artistId}')">
@@ -130,11 +111,7 @@ const purchase = {
 
         };
 
-        // 모달 오픈 시점 값 확인
-        // const current = emotions.querySelector(".btn.active")?.dataset.emotion || defaultEmotion;
-        // console.log("btnValue (open):", current, "musicId:", musicId);
-
-        // 클릭한 요소 기준으로 TR 찾기
+        // 클릭한 요소 기준으로 tr 찾기
         const row = el.closest("tr");
         if (!row) return;
 
@@ -181,7 +158,7 @@ const purchase = {
         .then(response => {
             // console.log("추가완룧효훃훃", response.data);
             alert(response.data);
-            //purchase.musicList(musicId);
+            // purchase.createProfileMusicList(musicId);
             purchase.closeProfileMusicModal();
         })
         .catch(error => {

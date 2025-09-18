@@ -2,13 +2,10 @@ package com.github.musicsnsproject.repository.jpa.music.profile;
 
 import java.util.List;
 
-import com.github.musicsnsproject.common.exceptions.CustomNotAcceptException;
-import com.github.musicsnsproject.repository.jpa.music.purchase.PurchaseMusic;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Repository;
 
 import com.github.musicsnsproject.domain.ProfileMusicVO;
-import com.github.musicsnsproject.repository.jpa.emotion.QEmotion;
 import com.github.musicsnsproject.repository.jpa.music.QMyMusic;
 import com.github.musicsnsproject.repository.jpa.music.purchase.QPurchaseHistory;
 import com.github.musicsnsproject.repository.jpa.music.purchase.QPurchaseMusic;
@@ -37,7 +34,7 @@ public class ProfileMusicQueryRepositoryImpl implements ProfileMusicQueryReposit
     	
     	return queryFactory.select(Projections.fields(ProfileMusicVO.class, 
     				music.musicId.as("musicId"),
-    				profileMusic.count().as("count")
+    				profileMusic.myMusic.myMusicId.count().as("count")
     			))
     			.from(profileMusic)
     			.leftJoin(myMusic)
@@ -46,7 +43,7 @@ public class ProfileMusicQueryRepositoryImpl implements ProfileMusicQueryReposit
     				.on(myMusic.purchaseHistory.purchaseHistoryId.eq(history.purchaseHistoryId))
     			.leftJoin(music)
     				.on(history.purchaseHistoryId.eq(music.purchaseHistory.purchaseHistoryId))
-    			.where(profileMusic.userEmotion.userEmotionId.eq(emotionId))
+    			.where(profileMusic.userEmotion.emotion.emotionId.eq(emotionId))
     	        .groupBy(music.musicId)
     	        .orderBy(profileMusic.count().desc())
     			.limit(5)
@@ -79,68 +76,84 @@ public class ProfileMusicQueryRepositoryImpl implements ProfileMusicQueryReposit
 				
 	}
 
-    // myMusicId 찾기
     @Override
-    public Long findMyMusicId(Long userId, String musicId) {
-        return queryFactory.select(myMusic.myMusicId)
-                .from(myMusic)
+    public boolean duplicateCheck(Long userId, String musicId) {
+        return queryFactory
+                .selectOne()
+                .from(profileMusic)
+                .join(profileMusic.myMusic, myMusic)
                 .join(myMusic.purchaseHistory, purchaseHistory)
                 .join(purchaseMusic).on(purchaseMusic.purchaseHistory.eq(purchaseHistory))
+                .where(
+                        purchaseHistory.myUser.userId.eq(userId),
+                        profileMusic.musicId.eq(musicId)
+                )
+                .fetchFirst() != null;
+    }
+
+    @Override
+    public List<Long> findMyMusicIdsByUserId(Long userId) {
+        QProfileMusic profileMusic = QProfileMusic.profileMusic;
+
+        return queryFactory
+                .select(profileMusic.myMusic.myMusicId)
+                .from(profileMusic)
+                .where(profileMusic.userEmotion.myUser.userId.eq(userId))
+                .orderBy(profileMusic.listOrder.asc())
+                .fetch();
+    }
+
+    @Override
+    public List<ProfileMusic> findMyMusics(Long userId) {
+        return queryFactory
+                .selectFrom(profileMusic)
+                .join(myMusic.purchaseHistory, purchaseHistory)
+                .join(purchaseHistory.myUser, myUser)
+                .join(purchaseMusic).on(purchaseMusic.purchaseHistory.eq(purchaseHistory))
+                .where(
+                        myUser.userId.eq(userId)
+                )
+                .orderBy(profileMusic.listOrder.asc())
+                .fetch();
+    }
+
+    // 프로필 삭제하기
+    @Override
+    public ProfileMusic findDeleteByMusicId(Long userId, String musicId) {
+
+        return queryFactory.selectFrom(profileMusic)
+                .join(profileMusic.myMusic, myMusic)
+                .join(myMusic.purchaseHistory, purchaseHistory)
                 .join(purchaseHistory.myUser, myUser)
                 .where(
                         myUser.userId.eq(userId)
-                                .and(purchaseMusic.musicId.eq(musicId))
+                                .and(profileMusic.musicId.eq(musicId))
                 )
-                .orderBy(myMusic.myMusicId.desc())
                 .fetchOne();
     }
 
-    // myMusicId 중복체크
+    // 삭제 후 listOrder 다시 정렬하기
     @Override
-    public boolean duplicateCheck(Long userId, String musicId, Long myMusicId) {
+    public void updateListOrder(Long userId, int deleteListOrder) {
 
-        return queryFactory.selectOne()
-                .from(profileMusic)
-                .join(profileMusic.myMusic, myMusic)
-                .join(myMusic.purchaseHistory, purchaseHistory)
-                .join(purchaseMusic).on(
-                        purchaseMusic.purchaseHistory.eq(purchaseHistory)
-                                .and(purchaseMusic.musicId.eq(musicId))
+        queryFactory.update(profileMusic)
+                .set(profileMusic.listOrder, profileMusic.listOrder.subtract(1))
+                .where(profileMusic.listOrder.gt(deleteListOrder)
+                                .and(profileMusic.myMusic.purchaseHistory.myUser.userId.eq(userId))
                 )
-                .join(purchaseHistory.myUser, myUser)
-                .where(
-                        myUser.userId.eq(userId)
-                                .and(myMusic.myMusicId.eq(myMusicId))
-                )
-                .fetchFirst() != null;
-
-
+                .execute();
     }
 
-
-    // 프로필 설정 등록된 musicId 구하기
+    // 삭제할 대상 찾기
     @Override
-    public List<String> getAddMusicId(Long userId, String musicId) {
-
+    public List<ProfileMusic> findAllAfterDelete(Long userId, int deletedOrder) {
         return queryFactory
-                .select(purchaseMusic.musicId)
-                .from(profileMusic)
+                .selectFrom(profileMusic)
                 .join(profileMusic.myMusic, myMusic)
                 .join(myMusic.purchaseHistory, purchaseHistory)
                 .join(purchaseHistory.myUser, myUser)
-                .join(purchaseMusic).on(
-                        purchaseMusic.purchaseHistory.eq(purchaseHistory)
-                                .and(purchaseMusic.musicId.eq(musicId))
-                )
-                .where(myUser.userId.eq(userId))
-                .groupBy(purchaseMusic.musicId)
-                .limit(1)
+                .where(myUser.userId.eq(userId)
+                        .and(profileMusic.listOrder.gt(deletedOrder)))
                 .fetch();
-
-
-
-
     }
-
-
 }

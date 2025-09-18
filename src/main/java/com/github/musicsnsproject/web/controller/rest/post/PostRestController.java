@@ -3,6 +3,8 @@ package com.github.musicsnsproject.web.controller.rest.post;
 import com.github.musicsnsproject.common.myenum.EmotionEnum;
 import com.github.musicsnsproject.service.community.post.PostService;
 import com.github.musicsnsproject.web.dto.post.FollowPostVO;
+import com.github.musicsnsproject.web.dto.post.MyPost;
+import com.github.musicsnsproject.web.dto.post.PostEditRequest;
 import com.github.musicsnsproject.web.dto.post.WriteRequest;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -43,5 +45,30 @@ public class PostRestController {
 
         return followPostVOList;
     }
+
+    @DeleteMapping("deletePost")
+    public Long deletePost(@AuthenticationPrincipal Long userId,
+                           @RequestParam("postId") Long postId){
+
+        return postService.deletePost(userId, postId);
+    }
+
+    @GetMapping("postEdit")
+    public MyPost getPostEditData(@RequestParam Long postId,
+                                  @AuthenticationPrincipal Long userId) {
+
+        return postService.chosenMeSPosts(postId, userId);
+
+    }
+
+    @PutMapping("goPostEdit")
+    public void goPostEdit(@RequestBody PostEditRequest request,
+                           @AuthenticationPrincipal Long userId){
+
+        postService.postEdit(request, userId);
+
+    }
+
+
 
 }

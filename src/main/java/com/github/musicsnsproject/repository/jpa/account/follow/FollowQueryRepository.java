@@ -10,13 +10,14 @@ import com.github.musicsnsproject.domain.user.MyUserVO;
 public interface FollowQueryRepository {
 	
 	// 나를 팔로우 하는 사람
-	List<FollowVO> findByFollowerAndUserInfo(Long userId);
+	List<FollowVO> findByFollowerAndUserInfo(Long userId, Long viewUserId);
+	//List<FollowVO> findByFollowerAndUserInfo(Long userId);
 	
 	// 내가 팔로우 하는 사람
-	List<FollowVO> findByFolloweeAndUserInfo(Long userId);
+	List<FollowVO> findByFolloweeAndUserInfo(Long userId, Long viewUserId);
 	
 	// 즐겨찾기 유저
-	List<FollowVO> getfavoriteList(Long userId);
+	List<FollowVO> getfavoriteList(Long userId, Long viewUserId);
 	
 	// 함께 아는 친구
 	List<FollowVO> findCommonFriend(Long userId);
