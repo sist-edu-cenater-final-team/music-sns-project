@@ -8,14 +8,10 @@ import com.github.musicsnsproject.repository.jpa.emotion.UserEmotion;
 import com.github.musicsnsproject.repository.jpa.emotion.UserEmotionRepository;
 import com.github.musicsnsproject.repository.jpa.music.MyMusic;
 import com.github.musicsnsproject.repository.jpa.music.MyMusicRepository;
-import com.github.musicsnsproject.repository.jpa.music.QMyMusic;
 import com.github.musicsnsproject.repository.jpa.music.profile.ProfileMusic;
 import com.github.musicsnsproject.repository.jpa.music.profile.ProfileMusicRepository;
-import com.github.musicsnsproject.repository.jpa.music.profile.QProfileMusic;
 import com.github.musicsnsproject.repository.jpa.music.purchase.PurchaseMusicRepository;
-import com.github.musicsnsproject.repository.jpa.music.purchase.QPurchaseHistory;
-import com.github.musicsnsproject.repository.jpa.music.purchase.QPurchaseMusic;
-import com.github.musicsnsproject.repository.spotify.SpotifyDao;
+import com.github.musicsnsproject.repository.spotify.SpotifyRepository;
 import com.github.musicsnsproject.web.dto.profile.ProfileMusicResponse;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
@@ -36,7 +32,7 @@ public class ProfileMusicServiceImpl implements ProfileMusicService {
     private final UserEmotionRepository userEmotionRepository;
     private final MyMusicRepository myMusicRepository;
     private final JPAQueryFactory jpaQueryFactory;
-    private final SpotifyDao spotifyDao;
+    private final SpotifyRepository spotifyRepository;
 
 
     @Override
@@ -55,7 +51,7 @@ public class ProfileMusicServiceImpl implements ProfileMusicService {
                 .toList();
 
         // Track 정보 조회
-        Track[] tracks = spotifyDao.findAllTrackByIds(musicIds);
+        Track[] tracks = spotifyRepository.findAllTrackByIds(musicIds);
 
         // DTO 변환 (중복 제거)
         Map<String, Track> trackMap = Arrays.stream(tracks)
