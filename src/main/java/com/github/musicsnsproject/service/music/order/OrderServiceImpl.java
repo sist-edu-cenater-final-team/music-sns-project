@@ -29,7 +29,6 @@ import java.util.stream.Collectors;
 
 import static com.github.musicsnsproject.repository.jpa.account.user.QMyUser.myUser;
 import static com.github.musicsnsproject.repository.jpa.music.cart.QMusicCart.musicCart;
-import static com.github.musicsnsproject.repository.jpa.music.purchase.QPurchaseMusic.purchaseMusic;
 
 @Service
 @RequiredArgsConstructor
@@ -40,7 +39,7 @@ public class OrderServiceImpl implements OrderService{
     private final MyMusicRepository myMusicRepository;
     private final PurchaseMusicRepository purchaseMusicRepository;
     private final JPAQueryFactory jpaQueryFactory;
-    private final SpotifyRepository spotifyRepository;
+    private final SpotifyRepository spotifyDao;
 
     // 주문 미리보기
     @Override
@@ -63,7 +62,7 @@ public class OrderServiceImpl implements OrderService{
                 .toList();
 
         // 장바구니에 담겨있는 musicId들로 spotify Track 배열 조회하기
-        Track[] tracks = spotifyRepository.findAllTrackByIds(musicIds);
+        Track[] tracks = spotifyDao.findAllTrackByIds(musicIds);
 
         // 조회한 Track 배열 Map으로 변환하기
         Map<String, Track> trackMap = Arrays.stream(tracks)

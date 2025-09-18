@@ -13,6 +13,8 @@ cool-sms:
 server:
   tomcat:
     max-part-count: -1
+  forward-headers-strategy: native
+
 spring:
   server-url:
     base: ENC(eAV32/4c9hWU0yc8LNmFBlmzx1+M2uZ50FKV9xuYkdU=)
