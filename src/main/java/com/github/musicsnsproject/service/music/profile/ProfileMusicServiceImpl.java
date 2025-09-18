@@ -8,14 +8,10 @@ import com.github.musicsnsproject.repository.jpa.emotion.UserEmotion;
 import com.github.musicsnsproject.repository.jpa.emotion.UserEmotionRepository;
 import com.github.musicsnsproject.repository.jpa.music.MyMusic;
 import com.github.musicsnsproject.repository.jpa.music.MyMusicRepository;
-import com.github.musicsnsproject.repository.jpa.music.QMyMusic;
 import com.github.musicsnsproject.repository.jpa.music.profile.ProfileMusic;
 import com.github.musicsnsproject.repository.jpa.music.profile.ProfileMusicRepository;
-import com.github.musicsnsproject.repository.jpa.music.profile.QProfileMusic;
 import com.github.musicsnsproject.repository.jpa.music.purchase.PurchaseMusicRepository;
-import com.github.musicsnsproject.repository.jpa.music.purchase.QPurchaseHistory;
-import com.github.musicsnsproject.repository.jpa.music.purchase.QPurchaseMusic;
-import com.github.musicsnsproject.repository.spotify.SpotifyDao;
+import com.github.musicsnsproject.repository.spotify.SpotifyRepository;
 import com.github.musicsnsproject.web.dto.profile.ProfileMusicResponse;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
@@ -36,7 +32,7 @@ public class ProfileMusicServiceImpl implements ProfileMusicService {
     private final UserEmotionRepository userEmotionRepository;
     private final MyMusicRepository myMusicRepository;
     private final JPAQueryFactory jpaQueryFactory;
-    private final SpotifyDao spotifyDao;
+    private final SpotifyRepository spotifyRepository;
 
 
     @Override
@@ -55,7 +51,7 @@ public class ProfileMusicServiceImpl implements ProfileMusicService {
                 .toList();
 
         // Track 정보 조회
-        Track[] tracks = spotifyDao.findAllTrackByIds(musicIds);
+        Track[] tracks = spotifyRepository.findAllTrackByIds(musicIds);
 
         // DTO 변환 (중복 제거)
         Map<String, Track> trackMap = Arrays.stream(tracks)
@@ -99,6 +95,7 @@ public class ProfileMusicServiceImpl implements ProfileMusicService {
                     .build();
         }
 
+        // 사용자의 프로필에 등록된 음악 조회하기
         List<Long> myMusicIds = profileMusicRepository.findMyMusicIdsByUserId(userId);
         int nextOrder = myMusicIds.size();
 
@@ -114,7 +111,10 @@ public class ProfileMusicServiceImpl implements ProfileMusicService {
 
         // null 체크 추가
         if (myMusicId == null) {
-            throw new IllegalStateException("해당 userId와 musicId에 해당하는 MyMusic이 존재하지 않습니다.");
+            throw CustomNotAcceptException.of()
+                    .customMessage("해당 userId와 musicId에 해당하는 MyMusic이 존재하지 않습니다.")
+                    .request(myMusicId)
+                    .build();
         }
         MyMusic myMusic = myMusicRepository.findById(myMusicId)
                 .orElseThrow(() -> new IllegalStateException("음악을 찾을 수 없습니다."));
@@ -156,6 +156,7 @@ public class ProfileMusicServiceImpl implements ProfileMusicService {
         // 삭제 전 listOrder 가져오기
         int deleteListOrder = profileMusic.getListOrder();
 
+        // 삭제하기 실행
         profileMusicRepository.delete(profileMusic);
 
         // 순서 재조정

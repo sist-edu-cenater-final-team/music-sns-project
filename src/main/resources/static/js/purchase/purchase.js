@@ -9,6 +9,7 @@ const purchase = {
     profileMusicModal : new bootstrap.Modal(document.getElementById("profileMusicModal")),
     profileMusicModalBody : document.querySelector('#profileMusicModalBody'),
     selectProfileMusic : document.querySelector('#selectProfileMusic'),
+    // 구매한 음악리스트 API 호출하기
     createList : (pageNo) => {
         console.log("넘긴거 받았어요~~!! :: ", pageNo);
         // 스프링 시큐리티 인증 토큰을 헤더에 추가하여 주문 목록 요청
@@ -33,14 +34,13 @@ const purchase = {
             }
         });
     },
+    // 구매한 음악리스트 렌더링해주기
     renderMusicList : (musicData) => {
-
         console.log("musicData :::: ", musicData);
         if(musicData === 0) {
             purchase.tbody.innerHTML = `<tr><td colspan="4">구매한 음악이 없습니다.</td></tr>`;
             return;
         }
-
         let HTML = ``;
         musicData.purchaseMusic.forEach((item, index) => {
             HTML += `
@@ -60,7 +60,9 @@ const purchase = {
                         <p class="music-artist">${item.albumName}</p>
                     </td>
                     <td class="btn-form">
-                        <button type="button" class="btn btn-set-profile" onclick="purchase.openProfileMusicModal(this, '${item.musicId}')">설정하기</button>
+                        <button type="button" 
+                                class="btn btn-set-profile" 
+                                onclick="purchase.openProfileMusicModal(this, '${item.musicId}')">설정하기</button>
                     </td>
                 </tr>
             `;
@@ -148,6 +150,7 @@ const purchase = {
         }
 
     },
+    // 프로필 음악 설정하기
     addProfileMusic : (emotion, musicId) => {
         return AuthFunc.apiRequest(() =>
             // musicId=${musicId}&emotionId=${emotionId}
@@ -172,25 +175,19 @@ const purchase = {
             }
         });
     },
-    // 리뷰리스트 페이지네이션 보여주기
+    // 구매음악리스트 페이지네이션 보여주기
     paginationCall : (currentPage, totalPages) => {
-
         const pagination = document.querySelector('#pageBar');
-
         if(!pagination) return;
-
         if (totalPages <= 1) {
             pagination.innerHTML = '';
             return;
         }
-
         let paginationHTML = ``;
-
         // 이전
         if (currentPage > 1) {
             paginationHTML += `<button class="page-btn" data-page="${currentPage - 1}">‹</button>`;
         }
-
         // 페이지 번호들
         for (let i = 1; i <= totalPages; i++) {
             if (i === 1 || i === totalPages || Math.abs(i - currentPage) <= 1) {
@@ -198,19 +195,17 @@ const purchase = {
                 paginationHTML += `<button class="page-btn ${active}" data-page="${i}">${i}</button>`;
             }
         }
-
         // 다음
         if (currentPage < totalPages) {
             paginationHTML += `<button class="page-btn" data-page="${currentPage + 1}">›</button>`;
         }
-
         pagination.innerHTML = paginationHTML;
 
-        // 클릭 이벤트
+        // 페이지네이션 클릭 이벤트
         pagination.onclick = (e) => {
             if (e.target.dataset.page) {
-                console.log("currentPage : " +currentPage);
-                console.log("e.target.dataset.page 넘깁니다 :::: ", e.target.dataset.page);
+                //console.log("currentPage : " +currentPage);
+                //console.log("e.target.dataset.page 넘깁니다 :::: ", e.target.dataset.page);
                 purchase.createList(parseInt(e.target.dataset.page));
             }
         };

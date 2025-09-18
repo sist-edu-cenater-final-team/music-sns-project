@@ -26,17 +26,12 @@ public class PurchaseMusicServiceImpl implements PurchaseMusicService {
     private final JPAQueryFactory jpaQueryFactory;
     private final SpotifyRepository spotifyRepository;
 
+    // 구매한 음악리스트 조회하기
     @Override
     public PurchaseMusicResponse getPurchaseMusicList(Long userId, int currentShowPageNo) {
 
-        int sizePerPage = 15;         // 한 페이지당 보여줄 게시글 건수
-
+        int sizePerPage = 15; // 한 페이지당 보여줄 게시글 건수
         int pageIndex = currentShowPageNo-1;
-        // 페이징 보여줄 개수
-        int blockSize = 5;
-
-        // 페이지 번호
-        int pageNo = (pageIndex/blockSize) * blockSize + 1;
 
         Pageable pageable = PageRequest.of(pageIndex, sizePerPage, Sort.by(Sort.Direction.DESC, "purchaseMusicId"));
 
@@ -48,9 +43,6 @@ public class PurchaseMusicServiceImpl implements PurchaseMusicService {
         int totalPage = pagePurchaseMusic.getTotalPages();
         long totalElements = pagePurchaseMusic.getTotalElements();
 
-        // userId로 본인 PurchaseMusic 정보 조회하기
-        //List<PurchaseMusic> purchaseMusics = purchaseMusicRepository.findByPurchaseMusicUserId(userId);
-
         // musicId 가져오기
         List<String> musicIds = purchaseMusics.stream()
                 .map(PurchaseMusic::getMusicId)
@@ -61,8 +53,6 @@ public class PurchaseMusicServiceImpl implements PurchaseMusicService {
         // 조회한 Track 배열 Map으로 변환하기
         Map<String, Track> trackMap = Arrays.stream(tracks)
                 .collect(Collectors.toMap(Track::getId, track -> track));
-
-
 
         // 로그인한 유저의 구매한 음악 조회하기
         List<PurchaseMusicVO> musicList = purchaseMusics.stream().map(pm -> {
