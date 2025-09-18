@@ -20,9 +20,9 @@ public class Role {
     public static Role fromName(RoleEnum roleEnum) {
         Role role = new Role();
         role.roleId = switch (roleEnum){
-            case ROLE_USER -> 2L;
-            case ROLE_ADMIN -> 1L;
-            case ROLE_SUPER_USER -> 3L;
+            case ROLE_USER -> 6L;
+            case ROLE_ADMIN -> 4L;
+            case ROLE_SUPER_USER -> 5L;
         };
         return role;
     }

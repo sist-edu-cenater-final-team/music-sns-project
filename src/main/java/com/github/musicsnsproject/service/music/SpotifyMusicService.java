@@ -1,7 +1,7 @@
 package com.github.musicsnsproject.service.music;
 
 import com.github.musicsnsproject.common.myenum.MusicSearchType;
-import com.github.musicsnsproject.repository.spotify.SpotifyDao;
+import com.github.musicsnsproject.repository.spotify.SpotifyRepository;
 import com.github.musicsnsproject.repository.spotify.wrapper.album.AlbumBase;
 import com.github.musicsnsproject.repository.spotify.wrapper.album.AlbumSimplifiedWrapper;
 import com.github.musicsnsproject.repository.spotify.wrapper.album.AlbumWrapper;
@@ -35,7 +35,7 @@ import java.util.stream.Stream;
 @Service
 @RequiredArgsConstructor
 public class SpotifyMusicService {
-    private final SpotifyDao spotifyDao;
+    private final SpotifyRepository spotifyRepository;
 
 
 
@@ -113,7 +113,7 @@ public class SpotifyMusicService {
 
     public ScrollResponse<TrackResponse> searchTracksRequest(String keyword, MusicSearchType searchType, int page, int size) {
         String searchKeyword = searchType.getPrefix() + keyword.trim();
-        Paging<Track> trackPaging = spotifyDao.findTracksByKeyword(searchKeyword, page, size);
+        Paging<Track> trackPaging = spotifyRepository.findTracksByKeyword(searchKeyword, page, size);
         List<TrackResponse> trackResponses = convertSpotifyListToResponseList(trackPaging.getItems(),
                 this::convertToTrackResponse);
         //size를 이용해 마지막 페이지 확인  하지만 spotify는 마지막 페이지가 없어서 스크롤 방식으로 수정
@@ -136,21 +136,20 @@ public class SpotifyMusicService {
     }
 
     public ArtistResponse searchArtistById(String artistId) {
-        Artist artist = spotifyDao.findArtistById(artistId);
+        Artist artist = spotifyRepository.findArtistById(artistId);
         return convertToArtistResponse(artist);
     }
 
     public ScrollResponse<SimplifiedAlbum> searchArtistAlbums(String artistId, int page, int size) {
-        Paging<AlbumSimplified> artistAlbums = spotifyDao.findArtistAlbums(artistId, page, size);
+        Paging<AlbumSimplified> artistAlbums = spotifyRepository.findArtistAlbums(artistId, page, size);
         List<SimplifiedAlbum> simplifiedAlbums = convertSpotifyListToResponseList(artistAlbums.getItems(),
                 element -> convertToSimplifiedAlbum(AlbumSimplifiedWrapper.of(element)));
         return ScrollResponse.of(page + 1, size, simplifiedAlbums);
-
     }
 
 
     public AlbumResponse searchAlbumById(String albumId) {
-        Album album = spotifyDao.findAlbumById(albumId);
+        Album album = spotifyRepository.findAlbumById(albumId);
         return convertToAlbumResponse(album);
     }
 
@@ -211,11 +210,11 @@ public class SpotifyMusicService {
 
     //TODO: 리팩터링 필요 (제거예정)
     public TrackResponseV1 getTrackResponseById(String trackId) {
-        Track track = spotifyDao.findTrackById(trackId);
+        Track track = spotifyRepository.findTrackById(trackId);
         return convertToTrackResponseV1(track);
     }
     public TrackResponse getTrackResponseV2ById(String trackId) {
-        Track track = spotifyDao.findTrackById(trackId);
+        Track track = spotifyRepository.findTrackById(trackId);
         return convertToTrackResponse(track);
     }
 
@@ -253,7 +252,7 @@ public class SpotifyMusicService {
         recommendSongs.add(recommendSong);
     }
     public RecommendSearch getRecommendSearchValue(){
-        Playlist test = spotifyDao.findMelonTop100();
+        Playlist test = spotifyRepository.findMelonTop100();
         List<String> trackNames = new ArrayList<>();
         List<RecommendSearch.RecommendSong> recommendSongs = new ArrayList<>();
         for(PlaylistTrack playlistTrack : test.getTracks().getItems()){

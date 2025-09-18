@@ -17,7 +17,6 @@ import java.util.Objects;
 import static com.github.musicsnsproject.config.security.JwtProvider.authHeaderToToken;
 
 public class JwtChannelInterceptor implements ChannelInterceptor {
-
     private final static String PRINCIPAL_HEADER_NAME = "principal";
 
     @Override

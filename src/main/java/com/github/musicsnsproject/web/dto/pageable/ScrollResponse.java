@@ -21,5 +21,4 @@ public class ScrollResponse<T> {
         }
         return items;
     }
-
 }
