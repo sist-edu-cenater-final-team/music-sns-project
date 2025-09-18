@@ -35,7 +35,8 @@ public class ChatController {
             @AuthenticationPrincipal Long userId
     ) {
         ChatRoomResponse messages = chatService.getRoomMessages(roomId, userId);
-        CustomSuccessResponse<List<String>> response = CustomSuccessResponse.ofOk("채팅방에 누군가 들어왔어", messages != null? messages.unreadMessageIds() : List.of());
+        CustomSuccessResponse<List<String>> response = CustomSuccessResponse
+                .ofOk("채팅방 구독 시작", messages != null? messages.unreadMessageIds() : List.of());
         messagingTemplate.convertAndSend("/chat/"+roomId, response);
         return CustomSuccessResponse.ofOk("채팅방 메세지 조회 성공", messages);
     }

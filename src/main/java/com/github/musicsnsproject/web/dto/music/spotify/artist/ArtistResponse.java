@@ -13,5 +13,4 @@ public class ArtistResponse {
     private final int totalFollowers;
     private final String artistImageUrl;
     private final int artistPopularity;
-
 }

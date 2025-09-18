@@ -21,6 +21,8 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/api/music/{provider}")
 public class MusicChartController {
+
+
     private final Map<MusicProvider, MusicChartService> musicChartServiceMap;
     public MusicChartController(List<MusicChartService> services) {
         this.musicChartServiceMap = services.stream().collect(

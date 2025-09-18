@@ -21,20 +21,18 @@ import se.michaelthelin.spotify.requests.data.tracks.GetTrackRequest;
 import se.michaelthelin.spotify.exceptions.detailed.NotFoundException;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.List;
 import java.util.function.Function;
 
 
 @Repository
 @RequiredArgsConstructor
-public class SpotifyDao {
+public class SpotifyRepository {
     private final SpotifyApi spotifyApi;
     private final Function<Void, Void> refreshSpotifyToken;
 
 
     public Paging<Track> findTracksByKeyword(String keyword, int page, int size){
-
         SearchTracksRequest searchTracksRequest = spotifyApi.searchTracks(keyword)
                 .setHeader("Accept-Language", "ko-KR,ko;q=0.9")
                 .offset(page * size)
@@ -44,8 +42,6 @@ public class SpotifyDao {
     }
 
     public Artist findArtistById(String artistId) {
-
-
         GetArtistRequest request = spotifyApi.getArtist(artistId)
                 .setHeader("Accept-Language", "ko-KR,ko;q=0.9")
                 .build();
