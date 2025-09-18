@@ -11,7 +11,7 @@ import com.github.musicsnsproject.repository.jpa.music.MyMusicRepository;
 import com.github.musicsnsproject.repository.jpa.music.profile.ProfileMusic;
 import com.github.musicsnsproject.repository.jpa.music.profile.ProfileMusicRepository;
 import com.github.musicsnsproject.repository.jpa.music.purchase.PurchaseMusicRepository;
-import com.github.musicsnsproject.repository.spotify.SpotifyDao;
+import com.github.musicsnsproject.repository.spotify.SpotifyRepository;
 import com.github.musicsnsproject.service.musicplaylist.MusicPlayListService;
 import com.github.musicsnsproject.web.dto.profile.ProfileMusicResponse;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -24,11 +24,7 @@ import se.michaelthelin.spotify.model_objects.specification.Track;
 import static com.github.musicsnsproject.repository.jpa.emotion.QUserEmotion.userEmotion;
 import static com.github.musicsnsproject.repository.jpa.account.user.QMyUser.myUser;
 import static com.github.musicsnsproject.repository.jpa.music.profile.QProfileMusic.profileMusic;
-import static com.github.musicsnsproject.repository.jpa.music.QMyMusic.myMusic;
-import static com.github.musicsnsproject.repository.jpa.music.purchase.QPurchaseHistory.purchaseHistory;
-import static com.github.musicsnsproject.repository.jpa.music.purchase.QPurchaseMusic.purchaseMusic;
 
-import java.sql.SQLException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -41,7 +37,7 @@ public class ProfileServiceImpl implements ProfileService {
     private final MyMusicRepository myMusicRepository;
     private final UserEmotionRepository userEmotionRepository;
     private final JPAQueryFactory jpaQueryFactory;
-    private final SpotifyDao spotifyDao;
+    private final SpotifyRepository spotifyRepository;
     private final MusicPlayListService service;
 
 
@@ -54,7 +50,7 @@ public class ProfileServiceImpl implements ProfileService {
         List<String> musicIds = profileMusicRepository.getAddMusicId(userId, musicId);
 
         // 프로필 설정된 musicId들로 spotify Track 배열 조회하기
-        Track[] tracks = spotifyDao.findAllTrackByIds(musicIds);
+        Track[] tracks = spotifyRepository.findAllTrackByIds(musicIds);
 
         // 조회한 Track 배열 Map으로 변환하기
         Map<String, Track> trackMap = Arrays.stream(tracks)

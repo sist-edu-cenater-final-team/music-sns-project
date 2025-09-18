@@ -73,6 +73,7 @@ public class PhoneVerifyService {
         //발송시작
         sendExceptionHandling(message);
     }
+
     public boolean verifyCode(String phoneNumber, String code) {
         String to = replacePhoneNumber(phoneNumber);
         String serverCode = redisRepository.getValue(to);

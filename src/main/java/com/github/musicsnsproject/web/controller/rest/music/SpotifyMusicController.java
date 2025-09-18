@@ -41,17 +41,16 @@ public class SpotifyMusicController {
         ArtistResponse response = spotifyMusicService.searchArtistById(artistId);
         return CustomSuccessResponse.ofOk("Spotify 아티스트 조회 성공", response);
     }
-    @GetMapping("/album")
-    public CustomSuccessResponse<AlbumResponse> searchAlbumById(@RequestParam String albumId) {
-        AlbumResponse response = spotifyMusicService.searchAlbumById(albumId);
-        return CustomSuccessResponse.ofOk("Spotify 앨범 조회 성공", response);
-    }
-
     @GetMapping("/artist/albums")
     public CustomSuccessResponse<ScrollResponse<SimplifiedAlbum>> searchArtistAlbums(@RequestParam String artistId,
                                                                                      @RequestParam(defaultValue = "1") int page,@RequestParam(defaultValue = "10") int size) {
         ScrollResponse<SimplifiedAlbum> artistAlbums = spotifyMusicService.searchArtistAlbums(artistId, page - 1, size);
         return CustomSuccessResponse.ofOk("Spotify 아티스트 앨범 조회 성공", artistAlbums);
+    }
+    @GetMapping("/album")
+    public CustomSuccessResponse<AlbumResponse> searchAlbumById(@RequestParam String albumId) {
+        AlbumResponse response = spotifyMusicService.searchAlbumById(albumId);
+        return CustomSuccessResponse.ofOk("Spotify 앨범 조회 성공", response);
     }
 
     @GetMapping("/side-bar")

@@ -1,17 +1,10 @@
 package com.github.musicsnsproject.service.music.purchase;
 
 import com.github.musicsnsproject.domain.purchase.PurchaseMusicVO;
-import com.github.musicsnsproject.repository.jpa.account.user.MyUser;
-import com.github.musicsnsproject.repository.jpa.music.MyMusic;
-import com.github.musicsnsproject.repository.jpa.music.cart.MusicCart;
-import com.github.musicsnsproject.repository.jpa.music.cart.MusicCartRepository;
-import com.github.musicsnsproject.repository.jpa.music.purchase.PurchaseHistory;
 import com.github.musicsnsproject.repository.jpa.music.purchase.PurchaseMusic;
 import com.github.musicsnsproject.repository.jpa.music.purchase.PurchaseMusicRepository;
-import com.github.musicsnsproject.repository.spotify.SpotifyDao;
-import com.github.musicsnsproject.web.dto.music.cart.CartResponse;
+import com.github.musicsnsproject.repository.spotify.SpotifyRepository;
 import com.github.musicsnsproject.web.dto.music.purchase.PurchaseMusicResponse;
-import com.querydsl.core.types.EntityPath;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -25,19 +18,13 @@ import se.michaelthelin.spotify.model_objects.specification.Track;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.github.musicsnsproject.repository.jpa.account.user.QMyUser.myUser;
-import static com.github.musicsnsproject.repository.jpa.music.cart.QMusicCart.musicCart;
-import static com.github.musicsnsproject.repository.jpa.music.QMyMusic.myMusic;
-import static com.github.musicsnsproject.repository.jpa.music.purchase.QPurchaseMusic.purchaseMusic;
-import static com.github.musicsnsproject.repository.jpa.music.purchase.QPurchaseHistory.purchaseHistory;
-
 @Service
 @RequiredArgsConstructor
 public class PurchaseMusicServiceImpl implements PurchaseMusicService {
 
     private final PurchaseMusicRepository purchaseMusicRepository;
     private final JPAQueryFactory jpaQueryFactory;
-    private final SpotifyDao spotifyDao;
+    private final SpotifyRepository spotifyRepository;
 
     @Override
     public PurchaseMusicResponse getPurchaseMusicList(Long userId, int currentShowPageNo) {
@@ -69,7 +56,7 @@ public class PurchaseMusicServiceImpl implements PurchaseMusicService {
                 .map(PurchaseMusic::getMusicId)
                 .toList();
 
-        Track[] tracks = spotifyDao.findAllTrackByIds(musicIds);
+        Track[] tracks = spotifyRepository.findAllTrackByIds(musicIds);
 
         // 조회한 Track 배열 Map으로 변환하기
         Map<String, Track> trackMap = Arrays.stream(tracks)

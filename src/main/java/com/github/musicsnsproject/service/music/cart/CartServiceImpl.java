@@ -3,7 +3,7 @@ import com.github.musicsnsproject.common.exceptions.CustomNotAcceptException;
 import com.github.musicsnsproject.repository.jpa.account.user.MyUser;
 import com.github.musicsnsproject.repository.jpa.music.cart.MusicCart;
 import com.github.musicsnsproject.repository.jpa.music.cart.MusicCartRepository;
-import com.github.musicsnsproject.repository.spotify.SpotifyDao;
+import com.github.musicsnsproject.repository.spotify.SpotifyRepository;
 import com.github.musicsnsproject.web.dto.music.cart.CartResponse;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
@@ -25,7 +25,7 @@ public class CartServiceImpl implements CartService {
 
     private final MusicCartRepository musicCartRepository;
     private final JPAQueryFactory jpaQueryFactory;
-    private final SpotifyDao spotifyDao;
+    private final SpotifyRepository spotifyRepository;
 
 
     // 장바구니 리스트
@@ -42,7 +42,7 @@ public class CartServiceImpl implements CartService {
                 .toList();
 
         // 장바구니에 담겨있는 musicId들로 spotify Track 배열 조회하기
-        Track[] tracks = spotifyDao.findAllTrackByIds(musicIds);
+        Track[] tracks = spotifyRepository.findAllTrackByIds(musicIds);
 
         // 조회한 Track 배열 Map으로 변환하기
         Map<String, Track> trackMap = Arrays.stream(tracks)

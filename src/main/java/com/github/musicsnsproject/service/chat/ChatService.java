@@ -244,7 +244,6 @@ public class ChatService {
         // 응답용 메세지 리스트
         List<ChatMessageResponse> chatMessageResponses = chatMessageListToResponseList(messages, userInfoMap, oldUnreadId);
         return createRoomResponse(userInfoMap, userId, roomId, chatMessageResponses, unreadMessages);
-
     }
 
     private List<ChatMessageResponse> chatMessageListToResponseList(List<ChatMessage> messages, Map<Long, ChatUserInfo> userInfoMap, String oldUnreadId) {
@@ -291,7 +290,6 @@ public class ChatService {
                 .orElseThrow(() -> CustomNotFoundException.of().request(userId).customMessage("채팅방에 참여중이지 않은 유저").build());
     }
     private List<ChatMessage> getMyUnreadMessages(List<ChatMessage> messages, Long userId){
-
         return listToFilterStream(msg -> !msg.getUserId().equals(userId), messages) // 내가 보낸 메세지 제외
                 .filter(msg -> !msg.getReadBy().contains(userId))
                 .toList();
