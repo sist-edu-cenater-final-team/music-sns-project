@@ -128,7 +128,7 @@
     margin-left: 12px;
 }
 
-.cart-container .music-text {
+#musicCart.cart-container .music-text {
     display: flex;
     align-items: center;
     justify-content: center;

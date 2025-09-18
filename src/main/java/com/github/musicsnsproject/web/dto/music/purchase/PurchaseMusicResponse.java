@@ -17,7 +17,6 @@ public class PurchaseMusicResponse {
 
     private List<PurchaseMusicVO> purchaseMusic;
     private int pageNo;
-    private int pageNoIdx;
     private int pageSize;
     private long totalElements;
     private int totalPages;

@@ -67,13 +67,13 @@ const order = {
                 }
             });
     },
-    // 구매 확정
+    // 구매 확정하기
     confirm : () => {
         if(!confirm("정말 구매하시겠습니까?")) return;
 
         // 스프링 시큐리티 인증 토큰을 헤더에 추가하여 주문 요청
         return AuthFunc.apiRequest(() =>
-                    axios.post('/api/order/confirm?cartIdList='+order.cartIdList.join(","), {}, {
+                    axios.post('/api/order/confㅔirm?cartIdList='+order.cartIdList.join(","), {}, {
                         headers: AuthFunc.getAuthHeader(),
                     })
                 )
