@@ -19,6 +19,7 @@ public class PurchaseMusicRestController {
 
     private final PurchaseMusicService purchaseMusicService;
 
+    // 구매한 음악리스트 조회하기
     @GetMapping("list")
     ResponseEntity<PurchaseMusicResponse> getPurchaseMusicList(@AuthenticationPrincipal Long userId,
                                                                @RequestParam(value = "pageNo", defaultValue = "1") int currentShowPageNo){

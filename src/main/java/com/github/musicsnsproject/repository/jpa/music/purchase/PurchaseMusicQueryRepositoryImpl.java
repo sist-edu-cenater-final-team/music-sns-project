@@ -55,6 +55,7 @@ public class PurchaseMusicQueryRepositoryImpl implements PurchaseMusicQueryRepos
                 .fetch();
     }
 
+    // 사용자의 구매 음악 목록을 페이징 처리하여 조회하기
     @Override
     public Page<PurchaseMusic> findPageByPurchaseMusicUserId(Long userId, Pageable pageable) {
         if (userId == null) {
@@ -67,8 +68,8 @@ public class PurchaseMusicQueryRepositoryImpl implements PurchaseMusicQueryRepos
         // content 조회
         List<PurchaseMusic> content = queryFactory
                 .selectFrom(purchaseMusic)
-                .join(purchaseMusic.purchaseHistory, purchaseHistory).fetchJoin()
-                .join(purchaseHistory.myUser, myUser).fetchJoin()
+                .join(purchaseMusic.purchaseHistory, purchaseHistory)
+                .join(purchaseHistory.myUser, myUser)
                 .where(purchaseHistory.myUser.userId.eq(userId))
                 .orderBy(purchaseHistory.purchasedAt.desc())
                 .offset(pageable.getOffset())
@@ -84,7 +85,7 @@ public class PurchaseMusicQueryRepositoryImpl implements PurchaseMusicQueryRepos
                 .where(purchaseHistory.myUser.userId.eq(userId))
                 .fetchOne();
 
-        // Page 객체 생성
+        // 조회된 목록과 개수를 이용하여 Page 객체 생성 및 반환하기
         return new PageImpl<>(content, pageable, total == null ? 0 : total);
     }
 }
