@@ -48,21 +48,17 @@ public class CartServiceImpl implements CartService {
         Map<String, Track> trackMap = Arrays.stream(tracks)
                 .collect(Collectors.toMap(Track::getId, track -> track));
 
-
         List<CartResponse> cartResponseList = carts.stream()
                 .map(cart -> {
-
                     Track track = trackMap.get(cart.getMusicId());
 
                     String trackName = track.getName();
                     String albumName = track.getAlbum().getName();
                     String albumImageUrl = track.getAlbum().getImages()[0].getUrl();
-
                     String artistName = Arrays.stream(track.getArtists())
                             .map(ArtistSimplified::getName)
                             .distinct()
                             .collect(Collectors.joining(", "));
-
 
                     return CartResponse.builder()
                             .cartId(cart.getMusicCartId())
@@ -91,16 +87,10 @@ public class CartServiceImpl implements CartService {
         MyUser user = musicCartRepository.findMyUser(userId);
 
         // 장바구니에 담긴 음악 개수 구하기
-        Long count = jpaQueryFactory
-                .select(musicCart.count())
-                .from(musicCart)
-                .where(musicCart.myUser.eq(user))
-                .fetchOne();
-
-        long cartCount = count == null ? 0L : count;
+        Long count = musicCartRepository.findMusicCartCount(user);
 
         // 장바구니에 담긴 음악 개수가 20개 이상인 경우 예외 처리
-        if(cartCount >= 20){
+        if(count >= 20){
             throw CustomNotAcceptException.of()
                     .customMessage("장바구니에 담을 수 있는 음악의 개수는 최대 20개입니다.")
                     .request(trackId)
@@ -116,17 +106,15 @@ public class CartServiceImpl implements CartService {
                     .request(trackId)
                     .build();
         }
+
         // 구매내역에 있는 음악인지 확인하기
         boolean purchasedTrackCheck = musicCartRepository.purchasedTrackCheck(user, trackId);
-
         if(purchasedTrackCheck) {
             throw CustomNotAcceptException.of()
                     .customMessage("이미 구매했던 음악입니다.")
                     .request(trackId)
                     .build();
         }
-
-
 
         // 음악이 중복이 아니면 저장
         musicCartRepository.save(
@@ -135,7 +123,6 @@ public class CartServiceImpl implements CartService {
                 .myUser(user)
                 .build()
         );
-
         // 업데이트 된 장바구니 반환
         return getCartList(userId);
     }

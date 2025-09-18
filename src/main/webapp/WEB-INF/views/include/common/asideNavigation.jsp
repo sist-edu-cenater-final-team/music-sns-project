@@ -23,7 +23,49 @@
 </style>
 
 <script type="text/javascript">
+	(function () {
+		var ctxPath =
+			window.ctxPath ||
+			(document.querySelector('meta[name="ctxPath"]') &&
+				document.querySelector('meta[name="ctxPath"]').content) ||
+			'';
+		var basePath = ctxPath;
 
+		// 인증 헤더 만들기
+		function buildAuthHeaders() {
+			try {
+				var appHeaders =
+					window.AuthFunc &&
+					window.AuthFunc.getAuthHeader &&
+					window.AuthFunc.getAuthHeader();
+				if (appHeaders && typeof appHeaders == 'object' && Object.keys(appHeaders).length > 0) {
+					if (!('X-Requested-With' in appHeaders)) appHeaders['X-Requested-With'] = 'XMLHttpRequest';
+					return appHeaders;
+				}
+			} catch (e) {}
+			var token = localStorage.getItem('accessToken');
+			var type = localStorage.getItem('tokenType') || 'Bearer';
+			var headers = { 'X-Requested-With': 'XMLHttpRequest' };
+			if (token) headers.Authorization = type + ' ' + token;
+			return headers;
+		}
+
+	  // ADMIN 여부 확인: /api/auth/authorize-test (SecurityConfig에서 hasRole("ADMIN"))
+	  $.ajax({
+	    url: ctxPath + '/api/auth/authorize-test',
+	    method: 'GET',
+	    headers: buildAuthHeader(),
+	    dataType: 'json'
+	  })
+	  .done(function () {
+	    // 200 이면 ADMIN
+	    var el = document.getElementById('adminStatsItem');
+	    if (el) el.style.display = ''; // 표시
+	  })
+	  .fail(function () {
+	    // 401/403/기타 → 그대로 숨김
+	  });
+	})();
 </script>
 
 <!-- 왼쪽 네비게이션 사이드바 -->
@@ -42,15 +84,19 @@
 				<button type="button" class="btn chart"
 					onclick="location.href='<%=ctxPath%>/music/chart'">플리</button>
 			</li>
+			<li id="adminStatsItem" style="display:none;">
+			  	<button type="button" class="btn adminstats"
+			    	onclick="location.href='<%=ctxPath%>/admin/stats'">통계</button>
+			</li>
 			<li>
 				<button type="button" class="btn noti" data-target="notiLayer">알림</button>
 			</li>
 			<li>
 				<button type="button" class="btn profile" data-target="profileLayer">프로필</button>
 			</li>
-			<li>
+			<!-- <li>
 				<button type="button" class="btn setting">설정</button>
-			</li>
+			</li> -->
 			<li>
 				<button type="button" class="btn post" data-toggle="modal"
 					data-target="#postModal">게시물작성</button>
@@ -353,7 +399,7 @@
 					<textarea class="form-control mb-3" id="contents" name="contents"
 						rows="4" placeholder="문구를 입력하세요..."></textarea>
 					<div class="d-flex justify-content-between">
-						<button type="button" class="btn btn-secondary" id="btnNext">다음</button>
+						<button type="button" class="btn btn-primary" id="btnNext">다음</button>
 						<button type="button" class="btn btn-primary" id="btnUploadStep1"
 							data-context-path="${pageContext.request.contextPath}">올리기</button>
 					</div>
@@ -361,7 +407,7 @@
 
 				<!-- STEP 2 -->
 				<div id="step2" style="display: none;">
-					<button type="button" class="btn btn-secondary mb-3" id="imageSave">이미지저장</button>
+					<button type="button" class="btn btn-primary mb-3" id="imageSave">이미지저장</button>
 					<div id="selectImageDelete"></div>
 					<div id="tui-image-editor" style="height: 500px;"></div>
 					<button type="button" class="btn btn-danger mr-3 mt-3"
@@ -399,7 +445,7 @@
 					<button type="button" class="btn btn-danger mr-3 mt-5 mb-4"
 						id="btnBeforeStep3">이전</button>
 					<button type="button" id="btnUploadStep3"
-						class="btn btn-success mt-5 mb-4"
+						class="btn btn-primary mt-5 mb-4"
 						data-context-path="${pageContext.request.contextPath}">올리기</button>
 				</div>
 

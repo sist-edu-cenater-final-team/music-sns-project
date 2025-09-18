@@ -3,7 +3,7 @@ $(function() {
 
 	getUserProfile();
 
-
+    profileMusic.createProfileMusicList();
 }); // end of $(function(){})
 
 function getUserProfile() {
@@ -63,7 +63,7 @@ function getUserProfile() {
       <div class="inner">
          <div class="font-bold" style="display:flex; justify-content: space-between;">
              <span>${json.myuser.nickname}님의 프로필 음악</span> 
-             <button style="margin-right: 3px;" id="myPlayList">+</button>
+<!--             <button style="margin-right: 3px;" id="myPlayList">+</button>-->
          </div>
          <div id="profileMusicList"></div>
       </div>
@@ -84,6 +84,7 @@ window.profileMusic = {
             })
         )
             .then(response => {
+                console.log('aa');
                 console.log(" profileMusic :: ", response.data);
                 profileMusic.renderProfileMusicList(response.data);
             })

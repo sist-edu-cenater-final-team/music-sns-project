@@ -133,6 +133,14 @@
     box-sizing: border-box;
 }
 
+.post-image-area .carousel-item {
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: 100% auto;
+    padding-bottom: 100%;
+}
+
+
 .carousel-slide img {
     display: block;
     width: 100%;
@@ -249,9 +257,15 @@
     border-bottom: 1px solid #ccc; /* 얇은 밑줄 포커스 */
 }
 .pcCommentsArea {
-    max-height: 300px;      /* 원하는 높이 (예: 250px) */
+    max-height: calc(100vh - 313px);      /* 원하는 높이 (예: 250px) */
+    height:100%;
     overflow-y: auto;       /* 내용이 넘치면 세로 스크롤 */
     padding-right: 5px;     /* 스크롤바 때문에 내용 붙지 않게 여백 */
+    padding-top: 10px;
+}
+.postComment {
+    border-top: 1px solid #ddd;
+    padding-top: 11px;
 }
 
 /* 대댓글 들여쓰기 */

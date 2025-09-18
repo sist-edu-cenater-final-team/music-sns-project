@@ -38,7 +38,7 @@ public class JwtProvider {
 
 
     private static final Duration REFRESH_TOKEN_EXPIRATION = Duration.ofDays(7);//7일
-    private static final Duration ACCESS_TOKEN_EXPIRATION = Duration.ofMinutes(1);//1분
+    private static final Duration ACCESS_TOKEN_EXPIRATION = Duration.ofMinutes(2000);//1분
 
     public static final String TOKEN_TYPE = "Bearer";
     public static final String AUTH_HEADER_NAME = "Authorization";
@@ -65,9 +65,9 @@ public class JwtProvider {
     }
     //새로운 리프레시 토큰 생성
     public String createNewRefreshToken() {
-        return createRefreshToken(new Date(new Date().getTime()+REFRESH_TOKEN_EXPIRATION.toMillis()));
+        Date now = new Date();
+        return createRefreshToken(new Date(now.getTime()+REFRESH_TOKEN_EXPIRATION.toMillis()));
     }
-
     //만료시간 지정 리프레시 토큰 생성
     public String createRefreshToken(Date exp){
         return Jwts.builder()

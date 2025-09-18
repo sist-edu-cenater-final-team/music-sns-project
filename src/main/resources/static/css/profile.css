@@ -25,6 +25,11 @@
 .number-color {
 	color: #6C63FF;
 }
+.playlist-section {
+    max-height: calc(100% - 360px);
+    overflow-y: auto;
+}
+
 .playlist-list {
   list-style: none;
   padding: 0;
