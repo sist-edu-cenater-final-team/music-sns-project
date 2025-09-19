@@ -95,8 +95,8 @@ document.addEventListener("DOMContentLoaded", function() {
         loadMoreBtn.style.visibility = "hidden";
 
         try {
-            const res = await fetch(`http://localhost:8080/api/music/spotify/artist/albums?artistId=${artistId}&page=${page}&size=${size}`);
-            const data = await res.json();
+            const res = await axios.get(`${ctxPath}/api/music/spotify/artist/albums?artistId=${artistId}&page=${page}&size=${size}`);
+            const data = res.data;
 
             if (data.success && data.success.responseData) {
                 const { items, hasNext } = data.success.responseData;
