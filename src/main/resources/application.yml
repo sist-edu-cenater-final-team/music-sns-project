@@ -17,8 +17,8 @@ server:
 
 spring:
   server-url:
-    base: ENC(eAV32/4c9hWU0yc8LNmFBlmzx1+M2uZ50FKV9xuYkdU=)
-    https: ???
+    base: ENC(CAJJcbrCK2kKLU6+1JzMidVqlFZLCZE4GiYcjz+hQdA=)
+    https: ENC(awTq+RAJgjUd322Z4DaAj/xk8F8Y45KyJLsl93O6730=)
   mvc:
     path match:
       matching-strategy: ant_path_matcher #????????? ???? ???? ???
@@ -30,7 +30,7 @@ spring:
     username: ENC(Xs853I8eplbDtBriw94kjSZopxdbpcBO)
     password: ENC(XsmK0mLQ8RjKqyiokmBbO4rDN8ls+ZGN)
     driver-class-name: oracle.jdbc.OracleDriver
-    url: ENC(9bGHLWptkGlqB5AKO+mz4PwsBz5a/24cPnl2eFN6XeMJD8ia04+Nqq+FD5ixzGCO9aPnRZ3hVko=)
+    url: ENC(He5/Cc3KoGKOhaa5USz1m4x0+ePbY1R9rJAHEa7uQV2G7jb/Z6UX6L8DwqBHqlyhiVX/YY55sSY=)
   jpa:
     open-in-view: false
     show-sql: true
@@ -56,7 +56,7 @@ spring:
       database: musicSNS
     redis:
       host: ENC(0p2kKHWaQnA1J667rTSG9QX5weT1LIJ6)
-      password: ENC(aIWb8OJ/Vt0Qki+JuQ3Ok5OuuvxBcQ/d)
+      password: ENC(xv1JAykgy4/DjpCz5C2SVTiFvfaDUdKL)
       port: 6379
       timeout: 3000
   #Azure Storage

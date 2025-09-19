@@ -1,4 +1,6 @@
 spring:
+  server-url:
+    base: ENC(eAV32/4c9hWU0yc8LNmFBlmzx1+M2uZ50FKV9xuYkdU=)
   devtools:
     restart:
       enabled: false  # 자동 재시작 비활성화
@@ -8,7 +10,7 @@ spring:
     username: ENC(q8ROcg0aSk0+mMm8MviPmU5B1jxCr1DX)
     password: ENC(OCkIFLb6xuMuwCt22KuBtw6azkYiTPe+)
     driver-class-name: oracle.jdbc.OracleDriver
-    url: ENC(myHWXiIPXIs9XV7HlBpfAg/m03JmFjIU6Zt+702myVnI8uhxVSvVx9TIy6lwFM9/+ycw8Sds/vimO/hyDgWwV8RETgROBWGUFqllo8bNsSqyONuFUwaAcnd715/yJtbV)
+    url: ENC(u7VcHyIyZt5FttG/AHlNyDu5LVkRVdUQVtweFO+rL21FCXJfV8SUOhF3wi8xRQ6q3CTSXwySlUw=)
   jpa:
     show-sql: false
     open-in-view: false
