@@ -29,12 +29,12 @@ public class Emotion {
     public static Emotion fromEmotionValue(EmotionEnum emotionValue) {
         Emotion emotion = new Emotion();
         emotion.emotionId = switch (emotionValue) {
-            case CALM -> 7L;
-            case LOVE -> 9L;
-            case SAD -> 8L;
-            case ANGRY -> 12L;
-            case HAPPY -> 10L;
-            case TIRED -> 11L;
+            case CALM -> 1L;
+            case LOVE -> 3L;
+            case SAD -> 2L;
+            case ANGRY -> 6L;
+            case HAPPY -> 4L;
+            case TIRED -> 5L;
         };
         return emotion;
     }
