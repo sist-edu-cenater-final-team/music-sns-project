@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 public class MainController {
     @GetMapping("")
     public String index(){
-        return "redirect:index";
+        return "redirect:music/chart";
     }
     @GetMapping("index")
     public String main(){

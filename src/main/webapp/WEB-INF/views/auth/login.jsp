@@ -38,6 +38,32 @@
         <!-- 로그인 폼 -->
         <div class="login-form-container">
             <h2 class="form-title">로그인</h2>
+            <!-- 테스트 계정 선택 -->
+            <div class="test-account-section">
+                <div class="test-account-header" onclick="toggleTestAccounts()">
+                    <i class="bi bi-person-gear"></i>
+                    <span>테스트 계정으로 빠른 로그인</span>
+                    <i class="bi bi-chevron-down toggle-icon" id="testToggleIcon"></i>
+                </div>
+                <div class="test-accounts-list" id="testAccountsList">
+                    <div class="test-account-item" onclick="selectTestAccount('abc1@abc.com')">
+                        <i class="bi bi-person-circle"></i>
+                        <span>박한빈 (abc1@abc.com)</span>
+                    </div>
+                    <div class="test-account-item" onclick="selectTestAccount('abc2@abc.com')">
+                        <i class="bi bi-person-circle"></i>
+                        <span>엄정화 (abc2@abc.com)</span>
+                    </div>
+                    <div class="test-account-item" onclick="selectTestAccount('abc3@abc.com')">
+                        <i class="bi bi-person-circle"></i>
+                        <span>카리나 (abc3@abc.com)</span>
+                    </div>
+                    <div class="test-account-item" onclick="selectTestAccount('abc4@abc.com')">
+                        <i class="bi bi-person-circle"></i>
+                        <span>이시후 (abc4@abc.com)</span>
+                    </div>
+                </div>
+            </div>
 
             <form class="login-form" id="loginForm">
                 <div class="input-group">
@@ -119,5 +145,46 @@
 <script src="<%=ctxPath%>/js/auth/signup.js"></script>
 <script src="<%=ctxPath%>/js/auth/oauth/loginSignUp.js"></script>
 <jsp:include page="./signUpModal.jsp"/>
+
+<script src="<%=ctxPath%>/js/auth/token.js"></script>
+<script>
+    //만약 로그인 된 상태라면 메인으로 이동
+    const authHeader = AuthFunc.getAuthHeader();
+    console.log('Auth Header:', authHeader); // 디버그용 로그
+    const isLoggedIn = AuthFunc.primaryKey().then(isLoggedIn => {
+        if (isLoggedIn) {
+            window.location.href = ctxPath + '/music/chart';
+        }
+    })
+
+    // 테스트 계정 관련 함수들
+    function toggleTestAccounts() {
+        const testAccountsList = document.getElementById('testAccountsList');
+        const toggleIcon = document.getElementById('testToggleIcon');
+
+        if (testAccountsList.classList.contains('show')) {
+            testAccountsList.classList.remove('show');
+            toggleIcon.classList.remove('rotated');
+        } else {
+            testAccountsList.classList.add('show');
+            toggleIcon.classList.add('rotated');
+        }
+    }
+
+    function selectTestAccount(email) {
+        document.getElementById('identifier').value = email;
+        document.getElementById('password').value = '12341234a!';
+
+        // 테스트 계정 목록 닫기
+        const testAccountsList = document.getElementById('testAccountsList');
+        const toggleIcon = document.getElementById('testToggleIcon');
+        testAccountsList.classList.remove('show');
+        toggleIcon.classList.remove('rotated');
+
+        // 선택 효과
+        showMessage('계정의 이메일과 비밀번호가 입력되었습니다.<br>로그인 버튼을 클릭해 주세요.', 'success');
+    }
+</script>
+
 </body>
 </html>

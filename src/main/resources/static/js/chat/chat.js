@@ -47,11 +47,143 @@ function hideModal(modal) {
 let loginUserId = null;
 AuthFunc.primaryKey().then(async pk => {
     loginUserId = pk;
-    console.log(pk + "님 환영합니다!");
+    console.log(pk + "님 환영");
     await connectStomp(pk)
     await subscribeChatRoom(pk);
     // subscribeChatMessage("68b295afd79c160bedea0603");
+}).catch(error => {
+    console.error("로그인 사용자 정보 불러오기 실패", error);
+    showAuthRequiredModal();
 });
+
+
+
+
+
+// 로그인 필요 모달 표시 함수
+function showAuthRequiredModal() {
+    // 기존 모달이 있다면 제거
+    const existingModal = document.getElementById('authRequiredModal');
+    if (existingModal) {
+        existingModal.remove();
+    }
+
+
+    // 모달 HTML 생성 - 아이콘을 직접 삽입
+    const modalHtml = `
+    <div class="modal fade" id="authRequiredModal" tabindex="-1" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content auth-required-modal">
+                <div class="modal-body text-center p-4">
+                    <div class="auth-required-icon mb-3">
+                        <img src="${ctxPath}/images/common/icon/logo.png" alt="Muodle 로고" class="auth-logo-img">
+                    </div>
+                    <h4 class="mb-3">음악과 감정을 함께 나눠보세요</h4>
+                    <p class="text-muted mb-4">
+                        Muodle에서 다른 사람들과<br>
+                        감정을 공유하려면 로그인이 필요해요
+                    </p>
+                    <div class="d-flex gap-2 justify-content-center">
+                        <button type="button" class="btn muodle-btn px-4" onclick="goToLoginPage()">
+                            <i class="bi bi-box-arrow-in-right me-2"></i>로그인하기
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+`;
+
+    // 모달을 body에 추가
+    document.body.insertAdjacentHTML('beforeend', modalHtml);
+
+    // CSS 스타일 수정
+    if (!document.getElementById('authRequiredModalStyle')) {
+        const style = document.createElement('style');
+        style.id = 'authRequiredModalStyle';
+        style.textContent = `
+    .auth-required-modal {
+        border: none;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+    }
+    .auth-required-modal .modal-body {
+        padding: 2rem 1.5rem;
+    }
+.auth-required-icon {
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, #6633ff, #8b5cf6);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+    animation: bounceIn 0.6s ease-out;
+    padding: 10px; /* 로고와 테두리 사이 여백 */
+}
+.auth-logo-img {
+    width: 115%;
+    height: 115%;
+    object-fit: contain;
+    border-radius: 6px;
+}
+    
+    .muodle-btn {
+        background: linear-gradient(135deg, #6633ff, #8b5cf6);
+        color: white;
+        border: none;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+    .muodle-btn:hover {
+        background: linear-gradient(135deg, #5a2de8, #7c3aed);
+        color: white;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 15px rgba(102, 51, 255, 0.3);
+    }
+    @keyframes bounceIn {
+        0% { transform: scale(0.3); opacity: 0; }
+        50% { transform: scale(1.05); }
+        70% { transform: scale(0.9); }
+        100% { transform: scale(1); opacity: 1; }
+    }
+`;
+
+        document.head.appendChild(style);
+    }
+
+    // 모달 표시
+    const modal = document.getElementById('authRequiredModal');
+    const bootstrapVersion = getBootstrapVersion();
+
+    if (bootstrapVersion === 5) {
+        const modalInstance = new bootstrap.Modal(modal, {
+            backdrop: 'static',
+            keyboard: false
+        });
+        modalInstance.show();
+    } else if (bootstrapVersion === 4) {
+        $(modal).modal({
+            backdrop: 'static',
+            keyboard: false
+        });
+    }
+}
+
+
+// 로그인 페이지로 이동 함수
+function goToLoginPage() {
+    location.href = ctxPath + '/auth/login';
+}
+
+
+
+
+
+
+
+
 
 
 let stompClient = null;

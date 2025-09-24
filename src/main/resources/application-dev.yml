@@ -15,6 +15,9 @@ spring:
     show-sql: false
     open-in-view: false
   data:
+    mongodb:
+      database: musicSNS
+      host: ENC(ufmawWcznlhmCpk3nUDjdBCHmJkh8O+l)
     redis:
       host: ENC(AzgYou82XYFiA4K5vEtBy4HsDR9akT1T)
       port: 6379

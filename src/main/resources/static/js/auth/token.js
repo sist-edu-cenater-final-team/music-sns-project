@@ -24,6 +24,7 @@
             .catch(error => {
                 console.error('토큰 갱신 실패:', error);
                 alert('세션이 만료되었습니다. 다시 로그인해주세요.');
+                location.href = ctxPath+'/auth/login';
                 throw error;
             })
             .finally(() => {
@@ -130,8 +131,14 @@
 })();
 
 function primaryKey() {
+    const authHeader = AuthFunc.getAuthHeader();
+    if (!authHeader){
+        console.log('토큰이 존재하지 않음')
+        return Promise.reject('토큰이 존재하지 않음');
+    }
+
     return AuthFunc.apiRequest(() =>
-        axios.get(`${ctxPath}/api/auth/pk`, {headers: AuthFunc.getAuthHeader()})
+        axios.get(`${ctxPath}/api/auth/pk`, {headers: authHeader})
     ).then(response => {
         return response.data.success.responseData;
     }).catch(error => {

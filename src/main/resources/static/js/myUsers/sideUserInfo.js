@@ -94,7 +94,8 @@ window.profileMusic = {
                 if (error.response) {
                     const errorData = error.response.data.error;
                     if (errorData){
-                        alert(errorData.customMessage);
+                        console.error(errorData);
+                        // alert(errorData.customMessage);
                     }
                 }
             });

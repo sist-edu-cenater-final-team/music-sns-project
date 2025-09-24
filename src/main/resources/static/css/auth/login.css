@@ -637,3 +637,132 @@ body {
     transform: none;
     box-shadow: none;
 }
+
+
+
+
+/* 테스트 계정 섹션 */
+.test-account-section {
+    margin-bottom: 25px;
+    border: 2px solid #e1e5e9;
+    border-radius: 12px;
+    overflow: hidden;
+    background: #f8f9fa;
+    transition: all 0.3s ease;
+}
+
+.test-account-section:hover {
+    border-color: #6633ff;
+    box-shadow: 0 2px 8px rgba(102, 51, 255, 0.1);
+}
+
+.test-account-header {
+    padding: 15px 20px;
+    background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: all 0.3s ease;
+    user-select: none;
+}
+
+.test-account-header:hover {
+    background: linear-gradient(135deg, #e9ecef, #dee2e6);
+}
+
+.test-account-header i.bi-person-gear {
+    color: #6633ff;
+    font-size: 1.2rem;
+}
+
+.test-account-header span {
+    flex: 1;
+    font-weight: 600;
+    color: #495057;
+    font-size: 0.9rem;
+}
+
+.toggle-icon {
+    color: #6633ff;
+    transition: transform 0.3s ease;
+    font-size: 0.9rem;
+}
+
+.toggle-icon.rotated {
+    transform: rotate(180deg);
+}
+
+.test-accounts-list {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+    background: white;
+}
+
+.test-accounts-list.show {
+    max-height: 200px;
+}
+
+.test-account-item {
+    padding: 12px 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border-top: 1px solid #f1f3f4;
+}
+
+.test-account-item:first-child {
+    border-top: none;
+}
+
+.test-account-item:hover {
+    background: linear-gradient(135deg, #6633ff, #8b5cf6);
+    color: white;
+}
+
+.test-account-item i {
+    color: #6633ff;
+    font-size: 1.1rem;
+    transition: color 0.2s ease;
+}
+
+.test-account-item:hover i {
+    color: white;
+}
+
+.test-account-item span {
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+    .test-account-header {
+        padding: 12px 15px;
+    }
+
+    .test-account-header span {
+        font-size: 0.85rem;
+    }
+
+    .test-account-item {
+        padding: 10px 15px;
+    }
+
+    .test-account-item span {
+        font-size: 0.85rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .test-account-header span {
+        font-size: 0.8rem;
+    }
+
+    .test-account-item span {
+        font-size: 0.8rem;
+    }
+}

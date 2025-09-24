@@ -51,7 +51,7 @@ function handleLogin(identifier, password) {
         clearLockoutTimer();
         showMessage('로그인에 성공했습니다.', 'success');
         setTimeout(() => {
-            window.location.href = '/';
+            window.location.href = ctxPath+'/music/chart';
         }, 1000);
     }).catch(error => {
         loginCatchFunc(error)
