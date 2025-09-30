@@ -18,7 +18,7 @@ server:
 spring:
   server-url:
     base: ENC(CAJJcbrCK2kKLU6+1JzMidVqlFZLCZE4GiYcjz+hQdA=)
-    https: ENC(awTq+RAJgjUd322Z4DaAj/xk8F8Y45KyJLsl93O6730=)
+    https: ENC(PpVLt2HmY4wSvMEys3rwokV/GHsyFh/A6HXDrD+Xu6o=)
   mvc:
     path match:
       matching-strategy: ant_path_matcher #????????? ???? ???? ???
