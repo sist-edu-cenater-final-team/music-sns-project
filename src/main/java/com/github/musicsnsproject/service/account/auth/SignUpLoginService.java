@@ -51,6 +51,7 @@ public class SignUpLoginService {
 
         MyUser signUpMyUser = UserMapper.INSTANCE.accountDtoToMyUser(signUpRequest);
         signUpMyUser.setBeginRole(RoleEnum.ROLE_USER);
+        signUpMyUser.setDefaultProfileImg();
         //세이브 실행하면서 중복값 발생시 발생되는 익셉션 예외처리
         try {
             myUsersRepository.save(signUpMyUser);

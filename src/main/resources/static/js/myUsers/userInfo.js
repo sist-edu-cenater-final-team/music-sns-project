@@ -128,7 +128,7 @@ function getUserInfo() {
 				                                aria-labelledby="dropdownMenuButton"
 				                                style="min-width: 150px; border-radius: 10px;">
 				                                <a class="dropdown-item" href="#" style="color:black" data-toggle="modal" data-target="#blockedUser">차단유저</a>
-				                                <a class="dropdown-item text-danger font-weight-bold" onclick="logout()">로그아웃</a>
+				                                <a class="dropdown-item text-danger font-weight-bold" style="cursor: pointer" onclick="logout()">로그아웃</a>
 				                            </div>
 				                        </div>
 				                    `;

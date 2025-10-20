@@ -124,6 +124,7 @@ public class OAuthLoginService {
     private MyUser processTempSignUp(OAuthUserInfo oAuthUserInfo) {
         MyUser newUser = UserMapper.INSTANCE.oAuthInfoResponseToMyUser(oAuthUserInfo);
         newUser.setBeginRole(RoleEnum.ROLE_USER);
+        newUser.setDefaultProfileImg();
         return myUsersRepository.save(newUser);
     }
 

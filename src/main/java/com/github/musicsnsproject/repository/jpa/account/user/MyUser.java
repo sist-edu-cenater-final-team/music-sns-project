@@ -189,6 +189,9 @@ public class MyUser {
     public void setBeginRole(RoleEnum beginRoleName) {
         this.roles = Set.of(Role.fromName(beginRoleName));
     }
+    public void setDefaultProfileImg(){
+        this.profileImage = "/images/profile/default-profile.png";
+    }
 
     public void updateProfileImgFromOAuthInfo(String oauthProfileImage) {
         if (oauthProfileImage != null && Gender.isDefaultProfileImg(this.profileImage))

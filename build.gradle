@@ -102,7 +102,9 @@ dependencies {
     //html parser
     implementation 'org.jsoup:jsoup:1.21.1'
     //sms 발송
-    implementation 'net.nurigo:sdk:4.2.7'
+//    implementation 'net.nurigo:sdk:4.2.7'
+    implementation 'com.solapi:sdk:1.0.3'
+
     //mongo
     implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
     //websocket

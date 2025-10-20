@@ -1,23 +1,19 @@
 package com.github.musicsnsproject.config.sms;
 
+import com.solapi.sdk.SolapiClient;
+import com.solapi.sdk.message.service.DefaultMessageService;
 import lombok.RequiredArgsConstructor;
-import net.nurigo.sdk.NurigoApp;
-import net.nurigo.sdk.message.service.DefaultMessageService;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
 @RequiredArgsConstructor
-@EnableConfigurationProperties(CoolSmsProperties.class)// 프로퍼티스 스캔 야믈의 값 가져오는
+@EnableConfigurationProperties(SmsSenderProperties.class)// 프로퍼티스 스캔 야믈의 값 가져오는
 public class SmsConfig {
-    private final CoolSmsProperties coolSmsProperties;
+    private final SmsSenderProperties smsSenderProperties;
     @Bean
     public DefaultMessageService messageServiceWrapper() {
-        return NurigoApp.INSTANCE.initialize(
-                coolSmsProperties.getApiKey(),
-                coolSmsProperties.getApiSecret(),
-                coolSmsProperties.getDomain()
-        );
+        return SolapiClient.INSTANCE.createInstance(smsSenderProperties.getApiKey(), smsSenderProperties.getApiSecret());
     }
 }

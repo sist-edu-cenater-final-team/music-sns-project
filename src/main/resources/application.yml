@@ -4,11 +4,11 @@ jasypt:
 jwt-password:
   source: ENC(6b81wzyzcQ5WoKJdEtKeoEi3A48AAmimddIGBeu7bzR0lT51ZYtu5b0HPsWT5BJLIwp+0aOz8Q7mSIAxX/m+pu43WtljFpsXl/6hdPxbmyI=)
 
-cool-sms:
-  api-key: ENC(zpPT/zdtRyzfCe3Sr2rvhSQ6QIF79KC1V6SC8+oq3/4=)
-  api-secret: ENC(CaCsmsaAwNd2l4wprRfq8STtunrSBInz9neFJsnitwJc177y/tvyPQh/okBXtIdv)
+solapi:
+  api-key: ENC(wrxf1uOKbqCOzVDSWWZKzeie+fG5l4vhIEpKxlkPpog=)
+  api-secret: ENC(HC9pgA200Fuu/FwRXjaiZxj19GUDQ7z2uhw0APvurSgqkYhxT/j+P8UyScjVY9X5)
   domain : https://api.solapi.com
-  phone-number: ENC(BLpW8of2lRuzytBtswZcpK2AuZKxv8Nr) # ????
+  phone-number: ENC(o/s+6GkIRgCAwDpQTMAj1EoVU9AzvAXU) # ????
 
 server:
   tomcat:

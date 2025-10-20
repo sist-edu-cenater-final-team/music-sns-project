@@ -4,13 +4,13 @@ import com.github.musicsnsproject.common.exceptions.CustomBadRequestException;
 import com.github.musicsnsproject.common.exceptions.CustomServerException;
 import com.github.musicsnsproject.repository.jpa.account.user.MyUserRepository;
 import com.github.musicsnsproject.repository.redis.RedisRepository;
+import com.solapi.sdk.message.exception.SolapiEmptyResponseException;
+import com.solapi.sdk.message.exception.SolapiMessageNotReceivedException;
+import com.solapi.sdk.message.exception.SolapiUnknownException;
+import com.solapi.sdk.message.model.Message;
+import com.solapi.sdk.message.service.DefaultMessageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import net.nurigo.sdk.message.exception.NurigoEmptyResponseException;
-import net.nurigo.sdk.message.exception.NurigoMessageNotReceivedException;
-import net.nurigo.sdk.message.exception.NurigoUnknownException;
-import net.nurigo.sdk.message.model.Message;
-import net.nurigo.sdk.message.service.DefaultMessageService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,7 +26,7 @@ public class PhoneVerifyService {
 
     private final DefaultMessageService defaultMessageService;
     private final RedisRepository redisRepository;
-    @Value("${cool-sms.phone-number}")
+    @Value("${solapi.phone-number}")
     private String serverPhoneNumber;
     private final MyUserRepository myUserRepository;
 
@@ -42,21 +42,21 @@ public class PhoneVerifyService {
     private void sendExceptionHandling(Message message) {
         try {
             defaultMessageService.send(message);
-        } catch (NurigoMessageNotReceivedException e) {
-            log.warn(e.getMessage(), e);
-            throw CustomServerException.of()
-                    .systemMessage(e.getMessage())
-                    .customMessage("수신 가능한 번호를 입력 해주세요.")
-                    .build();
-        } catch (NurigoEmptyResponseException e) {
+        } catch (SolapiEmptyResponseException e) {
             log.warn(e.getMessage(), e);
             throw CustomServerException.of()
                     .customMessage("문자 발송 실패 (빈 응답)")
                     .build();
-        } catch (NurigoUnknownException e) {
+        } catch (SolapiUnknownException e) {
             log.warn(e.getMessage(), e);
             throw CustomServerException.of()
                     .customMessage("문자 발송 실패 (알 수 없는 에러)")
+                    .build();
+        } catch (SolapiMessageNotReceivedException e) {
+            log.warn(e.getMessage(), e);
+            throw CustomServerException.of()
+                    .systemMessage(e.getMessage())
+                    .customMessage("수신 가능한 번호를 입력 해주세요.")
                     .build();
         }
     }
@@ -69,7 +69,15 @@ public class PhoneVerifyService {
         String verifyCode = String.valueOf(generateRandomNumber());
         Message message = createMessage(to, verifyCode);
         //레디스에 저장
-        redisRepository.save(to, verifyCode, Duration.ofMinutes(10));
+        try{
+            redisRepository.save(to, verifyCode, Duration.ofMinutes(10));
+        } catch (Exception e) {
+            log.warn(e.getMessage(), e);
+            throw CustomServerException.of()
+                    .customMessage("인증 코드 저장 실패 레디스 에러")
+                    .build();
+        }
+
         //발송시작
         sendExceptionHandling(message);
     }
