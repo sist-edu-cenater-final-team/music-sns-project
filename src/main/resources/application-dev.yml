@@ -7,10 +7,10 @@ spring:
     livereload:
       enabled: true   # 라이브 리로드는 활성화 (브라우저 자동 새로고침)
   datasource:
-    username: ENC(q8ROcg0aSk0+mMm8MviPmU5B1jxCr1DX)
-    password: ENC(OCkIFLb6xuMuwCt22KuBtw6azkYiTPe+)
-    driver-class-name: oracle.jdbc.OracleDriver
-    url: ENC(u7VcHyIyZt5FttG/AHlNyDu5LVkRVdUQVtweFO+rL21FCXJfV8SUOhF3wi8xRQ6q3CTSXwySlUw=)
+    username: ENC(1ss9Mwm1I0B4/RuwjsG2eQ==)
+    password: ENC(V0JftcIy3PCcIuOsgJgj5IK1mbU7pHgw)
+    driver-class-name: org.mariadb.jdbc.Driver
+    url: ENC(W+Mp8/OgwHEJfGScuqOm6+Yx3V9wEt0oIyiaVDrkuajv5VHxi1ihXfTO8bKN0ZR2vpwqDrHXxEo=)
   jpa:
     show-sql: false
     open-in-view: false

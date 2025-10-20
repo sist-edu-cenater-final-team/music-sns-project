@@ -27,10 +27,10 @@ spring:
       prefix: /WEB-INF/views/
       suffix: .jsp
   datasource:
-    username: ENC(Xs853I8eplbDtBriw94kjSZopxdbpcBO)
-    password: ENC(XsmK0mLQ8RjKqyiokmBbO4rDN8ls+ZGN)
-    driver-class-name: oracle.jdbc.OracleDriver
-    url: ENC(He5/Cc3KoGKOhaa5USz1m4x0+ePbY1R9rJAHEa7uQV2G7jb/Z6UX6L8DwqBHqlyhiVX/YY55sSY=)
+    username: ENC(W0dN4EavPfLeTD/Lrhon0Q==)
+    password: ENC(clTvdmWi75hIQL/9m9thGvlPn6MHtYPf)
+    driver-class-name: org.mariadb.jdbc.Driver
+    url: ENC(q3wsKAwA87EVqQVAlVCk3SZfNchHltSDBtAhIVGBkXzKZpSaeEJM5C34oCpao5gR)
   jpa:
     open-in-view: false
     show-sql: true
@@ -56,7 +56,7 @@ spring:
       database: musicSNS
     redis:
       host: ENC(0p2kKHWaQnA1J667rTSG9QX5weT1LIJ6)
-      password: ENC(xv1JAykgy4/DjpCz5C2SVTiFvfaDUdKL)
+      password: ENC(53YZ9kPllyZo784Z/edUqqildN+1whUB)
       port: 6379
       timeout: 3000
   #Azure Storage
