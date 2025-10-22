@@ -54,6 +54,9 @@ spring:
   data:
     mongodb:
       database: musicSNS
+      username: ENC(xqVtSSQpGnTKOEhgjLY8rg==)
+      password: ENC(KZdTAxUL0PfXB9JaeYnaOT3wKHiphV+l)
+      authentication-database: ENC(ZeqUBL3acyd0ixJvr/d83Q==)
     redis:
       host: ENC(0p2kKHWaQnA1J667rTSG9QX5weT1LIJ6)
       password: ENC(53YZ9kPllyZo784Z/edUqqildN+1whUB)
@@ -146,8 +149,8 @@ oauth:
       auth: https://github.com
       api: https://api.github.com
 
-logging:
-  level:
-    org.springframework.data.mongodb.core.MongoTemplate: DEBUG
-    org.mongodb.driver.cluster: INFO
-    org.mongodb.driver.protocol.command: DEBUG
+#logging:
+#  level:
+#    org.springframework.data.mongodb.core.MongoTemplate: DEBUG
+#    org.mongodb.driver.cluster: INFO
+#    org.mongodb.driver.protocol.command: DEBUG

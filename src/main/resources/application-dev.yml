@@ -17,7 +17,10 @@ spring:
   data:
     mongodb:
       database: musicSNS
-      host: ENC(ufmawWcznlhmCpk3nUDjdBCHmJkh8O+l)
+      host: ENC(utFmuG8gQCYugSiaq7yhJ0I5AT+PkBR9)
+      username: ENC(+8nfaF0A1XK6uwsY7ca1iA==)
+      password: ENC(ZU27Z6PcHdFWATgWTSHWYXucfW5kNyHh)
+      authentication-database: ENC(/+zSKs+A0kvJV+AVV6gFjA==)
     redis:
       host: ENC(AzgYou82XYFiA4K5vEtBy4HsDR9akT1T)
       port: 6379
