@@ -15,7 +15,7 @@ const authHeader = AuthFunc.getAuthHeader;//함수참조
     const chartTitle = document.getElementById('chart-title');
     const chartSub = document.getElementById('chart-sub');
     const refreshBtn = document.getElementById('refreshBtn');
-    let currentSource = 'vibe';
+    let currentSource = 'bugs';
 
     // attach tab click handlers
     document.querySelectorAll('#tabs .source-pill').forEach(p => {
@@ -193,8 +193,8 @@ const authHeader = AuthFunc.getAuthHeader;//함수참조
                 showError(msg);
             });
     }
-
-    // initial
+    document.getElementById("chart-title").innerText = currentSource.toUpperCase() + " · 실시간 차트 (상위 100)";
+    // 초기로드
     loadChart(currentSource);
 
 })();

@@ -5,7 +5,6 @@ import com.github.musicsnsproject.common.exceptions.CustomBadRequestException;
 import com.github.musicsnsproject.common.exceptions.CustomNotFoundException;
 import com.github.musicsnsproject.common.exceptions.CustomServerException;
 import com.github.musicsnsproject.common.myenum.OAuthProvider;
-import com.github.musicsnsproject.common.myenum.RoleEnum;
 import com.github.musicsnsproject.common.security.provider.CustomAuthenticationProvider;
 import com.github.musicsnsproject.common.security.userdetails.CustomUserDetails;
 import com.github.musicsnsproject.config.client.oauth.dto.userinfo.OAuthUserInfo;
@@ -20,16 +19,13 @@ import com.github.musicsnsproject.web.dto.account.auth.response.TokenResponse;
 import com.github.musicsnsproject.web.dto.account.oauth.request.OAuthLoginParams;
 import com.github.musicsnsproject.web.dto.account.oauth.response.AuthResult;
 import com.github.musicsnsproject.web.dto.account.oauth.response.OAuthSignUpDto;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.data.redis.RedisConnectionFailureException;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.DateTimeException;
-import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.stream.Collectors;
 
@@ -60,7 +56,6 @@ public class OAuthLoginService {
                 .orElseGet(() -> processTempSignUp(oAuthUserInfo));//없으면 임시 회원가입 진행
         //필요에 따라 유저 정보에 소셜 ID, 프로필이미지 설정
         boolean isConnection = requestUserSetSocialId(requestUser, socialIdPk);
-        requestUser.updateProfileImgFromOAuthInfo(oAuthUserInfo.getProfileImg());
 
         //로그인 또는 회원가입 응답 생성
         return requestUser.isEnabled() ? createOAuthLoginResponse(requestUser,isConnection) : createOAuthSignUpResponse(oAuthUserInfo);
@@ -123,8 +118,10 @@ public class OAuthLoginService {
 
     private MyUser processTempSignUp(OAuthUserInfo oAuthUserInfo) {
         MyUser newUser = UserMapper.INSTANCE.oAuthInfoResponseToMyUser(oAuthUserInfo);
-        newUser.setBeginRole(RoleEnum.ROLE_USER);
-        newUser.setDefaultProfileImg();
+//        newUser.setBeginRole(RoleEnum.ROLE_USER);
+//        newUser.setDefaultImg();
+        newUser.setBeginOAuthInfo();
+        newUser.updateProfileImgFromOAuthInfo(oAuthUserInfo.getProfileImg());
         return myUsersRepository.save(newUser);
     }
 

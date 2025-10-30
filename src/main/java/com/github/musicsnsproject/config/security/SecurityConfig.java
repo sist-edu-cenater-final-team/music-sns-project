@@ -58,7 +58,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/auth-test", "/api/account/*/api","/api/userInfo/**","/api/follow/**", "/api/cart/**", "/api/order/**", "/api/purchaseMusic/**", "/api/profileMusic/**", "/api/post/**").authenticated()
                         .requestMatchers("/api/phone/*", "/api/account/nickname/duplicate","/","/index.html","/resources/**", "/api/email/*",
                                 "/error","/swagger-ui/**", "/v3/api-docs/**", "/amp-docs.html", "/api/music/*/chart","/api/music/spotify/**").permitAll()
-                        .requestMatchers("/api/auth/*","/api/oauth/**").anonymous()
+                        .requestMatchers("/api/auth/*","/api/oauth/**","api/auth/forgot-password/*").anonymous()
                         .requestMatchers("/api/mypage/eumpyo/**","/api/comment/insertComment", "/api/**").authenticated()
                         .anyRequest().permitAll()
 

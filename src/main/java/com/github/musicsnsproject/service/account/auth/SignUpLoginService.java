@@ -10,6 +10,8 @@ import com.github.musicsnsproject.common.security.userdetails.CustomUserDetails;
 import com.github.musicsnsproject.config.security.JwtProvider;
 import com.github.musicsnsproject.repository.jpa.account.user.MyUser;
 import com.github.musicsnsproject.repository.jpa.account.user.MyUserRepository;
+import com.github.musicsnsproject.service.account.EmailVerifyService;
+import com.github.musicsnsproject.service.account.PhoneVerifyService;
 import com.github.musicsnsproject.web.dto.account.auth.request.LoginRequest;
 import com.github.musicsnsproject.web.dto.account.auth.request.SignUpRequest;
 import com.github.musicsnsproject.web.dto.account.auth.response.TokenResponse;
@@ -17,7 +19,6 @@ import io.jsonwebtoken.ExpiredJwtException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.data.redis.RedisConnectionFailureException;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -51,7 +52,7 @@ public class SignUpLoginService {
 
         MyUser signUpMyUser = UserMapper.INSTANCE.accountDtoToMyUser(signUpRequest);
         signUpMyUser.setBeginRole(RoleEnum.ROLE_USER);
-        signUpMyUser.setDefaultProfileImg();
+        signUpMyUser.setDefaultImg();
         //세이브 실행하면서 중복값 발생시 발생되는 익셉션 예외처리
         try {
             myUsersRepository.save(signUpMyUser);
@@ -115,5 +116,17 @@ public class SignUpLoginService {
                     .customMessage("Redis 서버 연결 실패")
                     .build();
         }
+    }
+    private final EmailVerifyService emailVerifyService;
+    private final PhoneVerifyService phoneVerifyService;
+
+    public void sendPasswordResetCode(String emailOrPhoneNumber, boolean isEmail) {
+        if(isEmail){
+            emailVerifyService.sendVerifyCodeToEmail(emailOrPhoneNumber);
+            return;
+        }
+        phoneVerifyService.sendMessage(emailOrPhoneNumber);
+
+
     }
 }

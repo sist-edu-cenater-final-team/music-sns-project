@@ -581,3 +581,42 @@
 .swal-signup-confirm .swal2-content {
     color: #666 !important;
 }
+
+/* 커스텀 닫기 버튼 */
+.modal-header .custom-close-btn {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    width: 40px;
+    height: 40px;
+    background: rgba(255, 255, 255, 0.2);
+    border: 2px solid rgba(255, 255, 255, 0.4);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 1;
+    transition: all 0.3s ease;
+    padding: 0;
+    color: white;
+}
+
+.modal-header .custom-close-btn::before {
+    content: none;
+}
+
+.modal-header .custom-close-btn i {
+    font-size: 1.3rem;
+    color: white;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.modal-header .custom-close-btn:hover {
+    background: rgba(255, 255, 255, 0.35);
+    border-color: rgba(255, 255, 255, 0.6);
+    transform: rotate(90deg) scale(1.15);
+}
+
+.modal-header .custom-close-btn:focus {
+    box-shadow: 0 0 0 0.25rem rgba(255, 255, 255, 0.25);
+}

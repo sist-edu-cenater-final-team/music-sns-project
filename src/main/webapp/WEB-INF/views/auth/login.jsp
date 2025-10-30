@@ -91,7 +91,7 @@
                         <span class="checkmark"></span>
                         이메일 또는 전화번호 저장
                     </label>
-                    <a href="#" class="forgot-password">비밀번호 찾기</a>
+<%--                    <a href="#" class="forgot-password" onclick="openForgotPasswordModal(event)">비밀번호 찾기</a>--%>
                 </div>
 
                 <button type="submit" class="login-btn">
@@ -140,6 +140,10 @@
         </div>
     </div>
 </div>
+
+
+<%--<jsp:include page="./forgotPasswordModal.jsp"/>--%>
+<%--<script src="<%=ctxPath%>/js/auth/forgotPassword.js"></script>--%>
 
 <script src="<%=ctxPath%>/js/auth/login.js"></script>
 <script src="<%=ctxPath%>/js/auth/signup.js"></script>

@@ -20,10 +20,17 @@ public abstract class MusicChartService {
             throw CustomBindException.of().systemMessage(e.getMessage()).customMessage("Jsoup 문서 로딩실패").build();
         }
     }
+    private List<String> test(Document doc){
+        List<String> artistNames = new ArrayList<>();
+        for(Element element : doc.select("response > result > chart > items > tracks > track")){
+            String searchedArtistName = element.select("album > artists > artist > artistName").text();
+            artistNames.add(searchedArtistName);
+        }
+        return artistNames;
+    }
 
     public List<ExternalChartResponse> getTop100(String artistName){
         Document doc = getDoc(getChartUrl());
-
         List<String> artistNames = getTextsOfElements(doc, getArtistSelector());
         List<String> titles = getTextsOfElements(doc, getTitleSelector());
         List<String> albumNames = getTextsOfElements(doc, getAlbumSelector());

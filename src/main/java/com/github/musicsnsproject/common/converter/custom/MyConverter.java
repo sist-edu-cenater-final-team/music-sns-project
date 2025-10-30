@@ -43,7 +43,7 @@ public abstract class MyConverter<T extends Enum<T> & MyEnumInterface> implement
 
     @Override//null 인 경우 jpa 가 호출 안함
     public String convertToDatabaseColumn(T myEnum) {
-        return myEnum.getValue();
+        return myEnum == null ? null : myEnum.getValue();
     }
 
     @Override

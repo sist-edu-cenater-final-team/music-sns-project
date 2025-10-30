@@ -42,7 +42,7 @@
                         <div class="card-body">
                             <div class="d-flex justify-content-between align-items-center mb-3">
                                 <div>
-                                    <strong id="chart-title">Genie · 실시간 차트 (상위 100)</strong><br />
+                                    <strong id="chart-title"></strong><br />
                                     <span id="chart-sub" class="small-muted">마지막 업데이트: -</span>
                                 </div>
                                 <div>

@@ -12,7 +12,10 @@
                     </div>
                     <h4 class="modal-title" id="signupModalLabel">회원가입</h4>
                 </div>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <button type="button" class="btn-close custom-close-btn" data-bs-dismiss="modal" aria-label="Close">
+                    <i class="bi bi-x-lg"></i>
+                </button>
+
             </div>
             <div class="modal-body">
                 <form class="signup-form" id="signupForm">

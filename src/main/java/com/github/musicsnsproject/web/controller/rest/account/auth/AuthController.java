@@ -1,6 +1,7 @@
 package com.github.musicsnsproject.web.controller.rest.account.auth;
 
 
+import com.github.musicsnsproject.common.exceptions.CustomBadRequestException;
 import com.github.musicsnsproject.common.myenum.Gender;
 import com.github.musicsnsproject.common.myenum.OAuthProvider;
 import com.github.musicsnsproject.common.myenum.RoleEnum;
@@ -90,6 +91,20 @@ public class AuthController implements AuthControllerDocs {
     @GetMapping("/pk")
     public CustomSuccessResponse<Long> pk(@AuthenticationPrincipal Long userId){
         return CustomSuccessResponse.ofOk("로그인 유저 PK 조회 성공", userId);
+    }
+
+    @PostMapping("/forgot-password/send-code")
+    public CustomSuccessResponse<Void> sendPasswordResetCode(@RequestParam(value = "identifier") String emailOrPhoneNumber){
+        boolean isEmail = isEmailOrPhoneNumber(emailOrPhoneNumber);
+        signUpLoginService.sendPasswordResetCode(emailOrPhoneNumber, isEmail);
+        return CustomSuccessResponse.emptyDataOk("비밀번호 재설정 코드 발송 완료");
+    }
+    private boolean isEmailOrPhoneNumber(String identifier){
+        boolean isEmail = identifier.matches("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,6}$");
+        boolean isPhone = identifier.matches("^010-?\\d{4}-?\\d{4}$");
+        if (isEmail) return true;
+        if (isPhone) return false;
+        throw CustomBadRequestException.of().request(identifier).customMessage("이메일 또는 휴대폰 번호 형식이 아닙니다.").build();
     }
 
 

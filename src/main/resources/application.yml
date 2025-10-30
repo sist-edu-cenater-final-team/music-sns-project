@@ -33,7 +33,7 @@ spring:
     url: ENC(q3wsKAwA87EVqQVAlVCk3SZfNchHltSDBtAhIVGBkXzKZpSaeEJM5C34oCpao5gR)
   jpa:
     open-in-view: false
-    show-sql: true
+    show-sql: false
   mail:
     host: smtp.gmail.com
     port: 587

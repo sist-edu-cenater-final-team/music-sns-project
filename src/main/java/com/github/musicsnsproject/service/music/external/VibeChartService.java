@@ -26,22 +26,22 @@ public class VibeChartService extends MusicChartService {
 
     @Override
     protected String getArtistSelector() {
-        return cssQueryTrack + " > album > artists > artist > artistName";
+        return " > album > artists > artist > artistName";
     }
 
     @Override
     protected String getTitleSelector() {
-        return cssQueryTrack + " > trackTitle";
+        return " > trackTitle";
     }
 
     @Override
     protected String getAlbumSelector() {
-        return cssQueryTrack + " > album > albumTitle";
+        return " > album > albumTitle";
     }
 
     @Override
     protected String getAlbumArtSelector() {
-        return cssQueryTrack + " > album > imageUrl";
+        return this.cssQueryTrack + " > album > imageUrl";
     }
 
     @Override
@@ -51,7 +51,7 @@ public class VibeChartService extends MusicChartService {
 
     @Override
     protected String getSongNumberSelector() {
-        return cssQueryTrack + " > trackId";
+        return this.cssQueryTrack + " > trackId";
     }
 
     @Override
@@ -70,6 +70,17 @@ public class VibeChartService extends MusicChartService {
                 .stream()
                 .map(this::getRankStatusFromElement)
                 .toList();
+    }
+    @Override
+    protected List<String> getTextsOfElements(Document doc, String cssQuery){
+        List<String> results = new ArrayList<>();
+        for (Element element : doc.select(cssQueryTrack)){
+            String text = element.select(cssQuery).text();
+            results.add(text);
+        }
+
+
+        return results;
     }
 
     private String getRankStatusFromElement(Element element) {

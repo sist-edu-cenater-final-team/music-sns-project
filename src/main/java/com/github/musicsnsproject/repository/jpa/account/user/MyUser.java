@@ -14,7 +14,6 @@ import com.github.musicsnsproject.repository.jpa.emotion.UserEmotion;
 import com.github.musicsnsproject.web.dto.account.oauth.response.OAuthSignUpDto;
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.Check;
 import org.hibernate.annotations.DynamicInsert;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -35,14 +34,14 @@ import java.util.stream.Collectors;
 @Builder
 @AllArgsConstructor(access = AccessLevel.PACKAGE)
 @NoArgsConstructor
-@Check(constraints = "gender IN ('남성','여성','미정') AND status IN ('정상 계정','임시 계정','잠긴 계정','탈퇴 계정')")
+//@Check(constraints = "gender IN ('남성','여성','미정') AND status IN ('정상 계정','임시 계정','잠긴 계정','탈퇴 계정')")
 public class MyUser {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long userId;
 
-    @Column(length = 30, nullable = false, unique = true)
+    @Column(length = 30, unique = true)
     private String nickname;
 
     @Column(length = 30, nullable = false)
@@ -51,14 +50,12 @@ public class MyUser {
     @Column(length = 15, unique = true)
     private String phoneNumber;
 
-    @Column(length = 50, nullable = false, unique = true)
+    @Column(length = 50, unique = true)
     private String email;
 
-    @Column(length = 255, nullable = false)
     private String password;
 
 
-    @Column(nullable = false, length = 10)
     @Convert(converter = GenderConverter.class)
     private Gender gender;
 
@@ -189,7 +186,7 @@ public class MyUser {
     public void setBeginRole(RoleEnum beginRoleName) {
         this.roles = Set.of(Role.fromName(beginRoleName));
     }
-    public void setDefaultProfileImg(){
+    public void setDefaultImg(){
         this.profileImage = "/images/profile/default-profile.png";
     }
 
@@ -200,4 +197,9 @@ public class MyUser {
     }
 
 
+    public void setBeginOAuthInfo() {
+        this.setBeginRole(RoleEnum.ROLE_USER);
+        this.setDefaultImg();
+        this.gender = Gender.UNKNOWN;
+    }
 }

@@ -12,7 +12,7 @@ spring:
     driver-class-name: org.mariadb.jdbc.Driver
     url: ENC(W+Mp8/OgwHEJfGScuqOm6+Yx3V9wEt0oIyiaVDrkuajv5VHxi1ihXfTO8bKN0ZR2vpwqDrHXxEo=)
   jpa:
-    show-sql: false
+    show-sql: true
     open-in-view: false
   data:
     mongodb:
